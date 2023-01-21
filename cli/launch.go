@@ -68,8 +68,8 @@ var (
 				Required: true,
 			},
 			&cli.StringFlag{
-				Name:    "t",
-				Aliases: []string{"type"},
+				Name:    "type",
+				Aliases: []string{"t"},
 				Usage:   "Merge Type",
 				EnvVars: []string{"MERGE_TYPE"},
 				Value:   "DEEP",
@@ -84,14 +84,17 @@ func mergeLaunches(c *cli.Context) error {
 		return err
 	}
 
-	ids, err := getMergeIDs(c, rpClient)
+	ids, description, err := getMergeIDs(c, rpClient)
 	if err != nil {
 		return err
 	}
+
 	rq := &gorp.MergeLaunchesRQ{
-		Name:      c.String("name"),
-		MergeType: gorp.MergeType(c.String("type")),
-		Launches:  ids,
+		Name:                    c.String("name"),
+		MergeType:               gorp.MergeType(c.String("type")),
+		Launches:                ids,
+		ExtendSuitesDescription: true,
+		Description:             description,
 	}
 	launchResource, err := rpClient.MergeLaunches(rq)
 	if err != nil {
@@ -132,9 +135,9 @@ func listLaunches(c *cli.Context) error {
 	return nil
 }
 
-func getMergeIDs(c *cli.Context, rpClient *gorp.Client) ([]int, error) {
+func getMergeIDs(c *cli.Context, rpClient *gorp.Client) ([]int, string, error) {
 	if ids := c.IntSlice("ids"); len(ids) > 0 {
-		return ids, nil
+		return ids, "", nil
 	}
 
 	var launches *gorp.LaunchPage
@@ -148,16 +151,19 @@ func getMergeIDs(c *cli.Context, rpClient *gorp.Client) ([]int, error) {
 	case filterName != "":
 		launches, err = rpClient.GetLaunchesByFilterName(filterName)
 	default:
-		return nil, errors.New("no either IDs or filter provided")
+		return nil, "", errors.New("no either IDs or filter provided")
 	}
 	if err != nil {
-		return nil, fmt.Errorf("unable to find launches by filter: %w", err)
+		return nil, "", fmt.Errorf("unable to find launches by filter: %w", err)
 	}
 
 	ids := make([]int, len(launches.Content))
+	description := strings.Builder{}
 	for i, l := range launches.Content {
 		ids[i] = l.ID
+		description.WriteString(l.Name)
+		description.WriteString("\n")
 	}
 
-	return ids, nil
+	return ids, description.String(), nil
 }

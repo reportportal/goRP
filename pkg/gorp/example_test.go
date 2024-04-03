@@ -9,8 +9,7 @@ import (
 )
 
 func ExampleClient() {
-	client := NewClient("",
-		"", "")
+	client := NewClient("", "", "")
 
 	launchUUID := uuid.New()
 	launch, err := client.StartLaunch(&StartLaunchRQ{
@@ -93,7 +92,6 @@ func ExampleClient() {
 		EndTime: Timestamp{time.Now()},
 	})
 	checkErr(err, "unable to finish launch")
-
 }
 
 func checkErr(err error, msg string) {

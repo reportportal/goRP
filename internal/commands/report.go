@@ -131,8 +131,8 @@ type reporter struct {
 }
 
 func newReporter(client *gorkpkg.Client, launchName string, input <-chan *testEvent, launchAttrArgs ...string) *reporter {
-	launchAttributes := make([]*gorkpkg.Attribute, 0, len(launchAttrArgs))
-	for _, attr := range launchAttrArgs {
+	launchAttributes := make([]*gorkpkg.Attribute, len(launchAttrArgs))
+	for idx, attr := range launchAttrArgs {
 		// Separate the key:value pair. If `:` is not present, the entire string is considered the value and an empty key is used
 		var p gorkpkg.Parameter
 		if key, value, ok := strings.Cut(attr, ":"); ok {
@@ -141,10 +141,10 @@ func newReporter(client *gorkpkg.Client, launchName string, input <-chan *testEv
 		} else {
 			p.Value = attr
 		}
-		launchAttributes = append(launchAttributes, &gorkpkg.Attribute{
+		launchAttributes[idx] = &gorkpkg.Attribute{
 			Parameter: p,
 			System:    false,
-		})
+		}
 	}
 
 	return &reporter{

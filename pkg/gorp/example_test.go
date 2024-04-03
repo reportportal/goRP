@@ -9,8 +9,8 @@ import (
 )
 
 func ExampleClient() {
-	client := NewClient("https://reportportal.epam.com",
-		"andrei_varabyeu_personal", "gorp-test_MCQZajD8S_ClBSGo-Q6X7KtzBKjFGiw0PPf6oB0-nexU1MSRMMcO_4_Sn4YGTBtk")
+	client := NewClient("",
+		"", "")
 
 	launchUUID := uuid.New()
 	launch, err := client.StartLaunch(&StartLaunchRQ{
@@ -94,7 +94,6 @@ func ExampleClient() {
 	})
 	checkErr(err, "unable to finish launch")
 
-	// Output:
 }
 
 func checkErr(err error, msg string) {

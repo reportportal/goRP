@@ -6,7 +6,11 @@
 
 # goRP
 
-Golang Client and CLI Utility for [ReportPortal](https://reportportal.io)
+Golang Client, Reporter and CLI Utility for [ReportPortal](https://reportportal.io)
+
+1. [Installation](#installation)
+2. [CLI Usage](#usage)
+3. [Go Test Reporter](#using-as-golang-test-results-agent)
 
 ## Installation
 

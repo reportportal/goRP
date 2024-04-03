@@ -201,22 +201,22 @@ func (c *Client) SaveLogs(logs ...*SaveLogRQ) (*EntryCreatedRS, error) {
 // f, _ := os.Open("someFile.txt")
 //
 //	logs := []*SaveLogRQ{{
-//		    File: FileAttachment{
-//		        // note that this value must present in 'files' map as key (see below)
-//		        Name: "fileAttachment.txt",
-//		    },
-//		    LaunchUUID: launchID,
-//		    ItemID:     itemID,
-//		    Level:      gorp.LogLevelError,
-//		    LogTime:    NewTimestamp(time.Now()),
-//		    Message:    "Important message!",
-//			}}
+//			    File: FileAttachment{
+//			        // note that this value must present in 'files' map as key (see below)
+//			        Name: f.Name(),
+//			    },
+//			    LaunchUUID: launchID,
+//			    ItemID:     itemID,
+//			    Level:      gorp.LogLevelError,
+//			    LogTime:    NewTimestamp(time.Now()),
+//			    Message:    "Important message!",
+//				}}
+//	files:=	[]Multipart{
+//					&FileMultipart{File: f},
+//					&ReaderMultipart{ContentType: "text/plain", FileName: f.Name(), Reader: f}, // FileName must match the FileAttachment.Name field
+//				}
 //
-//	files := map[string]*os.File{
-//				"fileAttachment.txt": f, // key must match the FileAttachment.Name field
-//			}
-//
-// resp, err := client.SaveLogMultipart(log, files)
+//	 resp, err := client.SaveLogMultipart(log, files)
 func (c *Client) SaveLogMultipart(log []*SaveLogRQ, files []Multipart) (*EntryCreatedRS, error) {
 	var bodyBuf bytes.Buffer
 	err := json.NewEncoder(&bodyBuf).Encode(log)

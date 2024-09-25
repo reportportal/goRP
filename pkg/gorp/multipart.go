@@ -9,6 +9,11 @@ import (
 	"path/filepath"
 )
 
+var (
+	errMultipartFilename = errors.New("multipart filename shouldn't be nil")
+	errNoMultipartFile   = errors.New("file shouldn't be nil")
+)
+
 // Multipart is an interface that allows to pass over different types
 // of multipart data sources
 type Multipart interface {
@@ -24,11 +29,11 @@ type FileMultipart struct {
 //nolint:nonamedreturns // for readability
 func (fm *FileMultipart) Load() (fileName, contentType string, reader io.Reader, err error) {
 	if fm.File == nil {
-		return "", "", nil, errors.New("file shouldn't be nil")
+		return "", "", nil, errNoMultipartFile
 	}
 	fName := fm.File.Name()
 	if _, sErr := os.Stat(fName); os.IsNotExist(sErr) {
-		return "", "", nil, fmt.Errorf("file %s does not exist", fName)
+		return "", "", nil, fmt.Errorf("file %s does not exist: :%w", fName, errNoMultipartFile)
 	}
 	contentType = mime.TypeByExtension(filepath.Ext(fName))
 	if contentType == "" {
@@ -46,7 +51,7 @@ type ReaderMultipart struct {
 //nolint:nonamedreturns // for readability
 func (fm *ReaderMultipart) Load() (fileName, contentType string, reader io.Reader, err error) {
 	if fm.FileName == "" {
-		return "", "", nil, errors.New("multipart filename shouldn't be nil")
+		return "", "", nil, errMultipartFilename
 	}
 	return fm.FileName, fm.ContentType, fm, nil
 }

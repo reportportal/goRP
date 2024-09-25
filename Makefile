@@ -15,7 +15,7 @@ help:
 	@echo "checkstyle - gofmt+golint+misspell"
 
 init-deps:
-	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s v1.57.2
+	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s v1.61.0
 
 #vendor:
 #	dep ensure --vendor-only

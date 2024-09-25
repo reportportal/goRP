@@ -6,8 +6,6 @@ linters-settings:
   gocyclo:
     min-complexity: 10
     max-complexity: 12
-  maligned:
-    suggest-new: true
   dupl:
     threshold: 150
   goconst:
@@ -35,13 +33,11 @@ linters:
     - prealloc
     - gochecknoglobals
     - wsl
-    - goerr113
     - godot
     - funlen
     - testpackage
     - nlreturn
     - stylecheck
-    - exhaustivestruct
     - exhaustruct
     - varnamelen
     - tagliatelle

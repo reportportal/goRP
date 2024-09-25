@@ -49,6 +49,7 @@ func initConfiguration(c *cli.Context) error {
 		}
 	}
 
+	//nolint:mnd // file permission
 	f, err := os.OpenFile(getConfigFile(), os.O_CREATE|os.O_WRONLY, 0o600)
 	if err != nil {
 		return cli.Exit(fmt.Sprintf("Cannot open config file, %s", err), 1)

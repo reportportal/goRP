@@ -3,12 +3,20 @@ package gorp
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"time"
 
 	"github.com/go-resty/resty/v2"
 )
+
+type HTTPError struct {
+	StatusCode int
+	Response   string
+}
+
+func (e *HTTPError) Error() string {
+	return fmt.Sprintf("status code error: %d\n%s", e.StatusCode, e.Response)
+}
 
 // Client is ReportPortal REST API Client
 type Client struct {
@@ -26,9 +34,9 @@ func NewClient(host, project, apiKey string) *Client {
 		SetBaseURL(host).
 		SetAuthToken(apiKey).
 		OnAfterResponse(func(client *resty.Client, rs *resty.Response) error {
-			//nolint:gomnd // 4xx errors
+			//nolint:mnd // 4xx errors
 			if (rs.StatusCode() / 100) >= 4 {
-				return fmt.Errorf("status code error: %d\n%s", rs.StatusCode(), rs.String())
+				return &HTTPError{StatusCode: rs.StatusCode(), Response: rs.String()}
 			}
 
 			return nil
@@ -54,7 +62,7 @@ func (c *Client) StartLaunchRaw(body json.RawMessage) (*EntryCreatedRS, error) {
 func (c *Client) startLaunch(body interface{}) (*EntryCreatedRS, error) {
 	var rs EntryCreatedRS
 	_, err := c.http.R().
-		SetPathParams(map[string]string{"project": c.project}).
+		SetPathParam("project", c.project).
 		SetBody(body).
 		SetResult(&rs).
 		Post("/api/v2/{project}/launch")
@@ -119,7 +127,7 @@ func (c *Client) StartTestRaw(body json.RawMessage) (*EntryCreatedRS, error) {
 func (c *Client) startTest(body interface{}) (*EntryCreatedRS, error) {
 	var rs EntryCreatedRS
 	_, err := c.http.R().
-		SetPathParams(map[string]string{"project": c.project}).
+		SetPathParam("project", c.project).
 		SetBody(body).
 		SetResult(&rs).
 		Post("/api/v2/{project}/item/")
@@ -180,9 +188,7 @@ func (c *Client) finishTest(id string, body interface{}) (*MsgRS, error) {
 func (c *Client) SaveLog(log *SaveLogRQ) (*EntryCreatedRS, error) {
 	var rs EntryCreatedRS
 	_, err := c.http.R().
-		SetPathParams(map[string]string{
-			"project": c.project,
-		}).
+		SetPathParam("project", c.project).
 		SetBody(log).
 		SetResult(&rs).
 		Post("/api/v2/{project}/log")
@@ -225,9 +231,7 @@ func (c *Client) SaveLogMultipart(log []*SaveLogRQ, files []Multipart) (*EntryCr
 	}
 
 	rq := c.http.R().
-		SetPathParams(map[string]string{
-			"project": c.project,
-		})
+		SetPathParam("project", c.project)
 
 	// JSON PAYLOAD PART
 	rq.SetMultipartField("json_request_part", "", "application/json", &bodyBuf)
@@ -239,7 +243,7 @@ func (c *Client) SaveLogMultipart(log []*SaveLogRQ, files []Multipart) (*EntryCr
 			return nil, fmt.Errorf("unable to read multipart: %w", lErr)
 		}
 		if fileName == "" {
-			return nil, errors.New("no file name is provided")
+			return nil, errMultipartFilename
 		}
 
 		rq.SetMultipartField("file", fileName, contentType, reader)
@@ -259,7 +263,7 @@ func (c *Client) SaveLogMultipart(log []*SaveLogRQ, files []Multipart) (*EntryCr
 func (c *Client) GetLaunches() (*LaunchPage, error) {
 	var launches LaunchPage
 	_, err := c.http.R().
-		SetPathParams(map[string]string{"project": c.project}).
+		SetPathParam("project", c.project).
 		SetResult(&launches).
 		Get("/api/v1/{project}/launch")
 	return &launches, err
@@ -269,7 +273,7 @@ func (c *Client) GetLaunches() (*LaunchPage, error) {
 func (c *Client) GetLaunchesByFilter(filter map[string]string) (*LaunchPage, error) {
 	var launches LaunchPage
 	_, err := c.http.R().
-		SetPathParams(map[string]string{"project": c.project}).
+		SetPathParam("project", c.project).
 		SetResult(&launches).
 		SetQueryParams(filter).
 		Get("/api/v1/{project}/launch")
@@ -280,7 +284,7 @@ func (c *Client) GetLaunchesByFilter(filter map[string]string) (*LaunchPage, err
 func (c *Client) GetLaunchesByFilterString(filter string) (*LaunchPage, error) {
 	var launches LaunchPage
 	_, err := c.http.R().
-		SetPathParams(map[string]string{"project": c.project}).
+		SetPathParam("project", c.project).
 		SetResult(&launches).
 		SetQueryString(filter).
 		Get("/api/v1/{project}/launch")
@@ -295,13 +299,13 @@ func (c *Client) GetLaunchesByFilterName(name string) (*LaunchPage, error) {
 	}
 
 	if filter.Page.Size < 1 || len(filter.Content) == 0 {
-		return nil, fmt.Errorf("no filter %s found", name)
+		return nil, fmt.Errorf("no filter %s found", name) //nolint:err113 //dynamic error is intentional
 	}
 
 	var launches LaunchPage
 	params := ConvertToFilterParams(filter.Content[0])
 	_, err = c.http.R().
-		SetPathParams(map[string]string{"project": c.project}).
+		SetPathParam("project", c.project).
 		SetResult(&launches).
 		SetQueryParams(params).
 		Get("/api/v1/{project}/launch")
@@ -312,7 +316,10 @@ func (c *Client) GetLaunchesByFilterName(name string) (*LaunchPage, error) {
 func (c *Client) GetFiltersByName(name string) (*FilterPage, error) {
 	var filter FilterPage
 	_, err := c.http.R().
-		SetPathParams(map[string]string{"project": c.project, "name": name}).
+		SetPathParams(map[string]string{
+			"project": c.project,
+			"name":    name,
+		}).
 		SetQueryParam("filter.eq.name", name).
 		SetResult(&filter).
 		Get("/api/v1/{project}/filter")
@@ -323,7 +330,7 @@ func (c *Client) GetFiltersByName(name string) (*FilterPage, error) {
 func (c *Client) MergeLaunches(rq *MergeLaunchesRQ) (*LaunchResource, error) {
 	var rs LaunchResource
 	_, err := c.http.R().
-		SetPathParams(map[string]string{"project": c.project}).
+		SetPathParam("project", c.project).
 		SetBody(rq).
 		SetResult(&rs).
 		Post("/api/v1/{project}/launch/merge")

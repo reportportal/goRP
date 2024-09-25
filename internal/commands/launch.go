@@ -10,6 +10,8 @@ import (
 	"github.com/reportportal/goRP/v5/pkg/gorp"
 )
 
+var errFilterNotProvided = errors.New("either IDs or filter must be provided")
+
 var (
 	launchCommand = &cli.Command{
 		Name:        "launch",
@@ -148,7 +150,7 @@ func getMergeIDs(c *cli.Context, rpClient *gorp.Client) ([]int, error) {
 	case filterName != "":
 		launches, err = rpClient.GetLaunchesByFilterName(filterName)
 	default:
-		return nil, errors.New("no either IDs or filter provided")
+		return nil, errFilterNotProvided
 	}
 	if err != nil {
 		return nil, fmt.Errorf("unable to find launches by filter: %w", err)

@@ -53,8 +53,7 @@ var (
 	}
 )
 
-//nolint:nonamedreturns // for readability
-func reportTest2json(c *cli.Context) (err error) {
+func reportTest2json(c *cli.Context) error {
 	rpClient, err := buildClient(c)
 	if err != nil {
 		return err
@@ -66,11 +65,15 @@ func reportTest2json(c *cli.Context) (err error) {
 	attrArgs := c.StringSlice("attr")
 	rep := newReporter(rpClient, launchNameArg, input, attrArgs...)
 
+	errChan := make(chan error)
 	wg := &sync.WaitGroup{}
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		err = rep.receive()
+		if err := rep.receive(); err != nil {
+			errChan <- err
+			return
+		}
 	}()
 	// wait for report to complete
 	defer wg.Wait()
@@ -99,10 +102,15 @@ func reportTest2json(c *cli.Context) (err error) {
 
 		var ev testEvent
 		if err := json.Unmarshal([]byte(data), &ev); err != nil {
-			slog.Default().Error(err.Error())
+			slog.Error(err.Error())
 			return err
 		}
-		input <- &ev
+		select {
+		case err := <-errChan:
+			slog.Error("input processing interrupted", "error", err)
+			return err
+		case input <- &ev:
+		}
 	}
 	return nil
 }
@@ -360,7 +368,10 @@ func (r *reporter) finish(ev *testEvent, status gorkpkg.Status) error {
 }
 
 func (r *reporter) finishSuite(ev *testEvent, status gorkpkg.Status) error {
-	suiteID := r.suites[ev.Package]
+	suiteID, found := r.suites[ev.Package]
+	if !found {
+		return fmt.Errorf("unable to find suiteID for package: %s", ev.Package)
+	}
 
 	_, err := r.client.FinishTest(suiteID, &gorkpkg.FinishTestRQ{
 		FinishExecutionRQ: gorkpkg.FinishExecutionRQ{

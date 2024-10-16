@@ -171,8 +171,10 @@ func newReporter(client *gorkpkg.Client, launchName string, input <-chan *testEv
 func (r *reporter) reportEvent(ev *testEvent) error {
 	var err error
 	switch ev.Action {
+	case "start":
+		err = r.startSuite(ev)
 	case "run":
-		_, err = r.startTest(ev)
+		err = r.startTest(ev)
 	case "output":
 		r.log(ev)
 	case "pass":
@@ -225,7 +227,7 @@ func (r *reporter) receive() error {
 	return nil
 }
 
-func (r *reporter) startSuite(ev *testEvent) (string, error) {
+func (r *reporter) startSuite(ev *testEvent) error {
 	rs, err := r.client.StartTest(&gorkpkg.StartTestRQ{
 		StartRQ: gorkpkg.StartRQ{
 			Name:      ev.Package,
@@ -237,23 +239,19 @@ func (r *reporter) startSuite(ev *testEvent) (string, error) {
 		Retry:    false,
 	})
 	if err != nil {
-		return "", err
+		return err
 	}
 	r.suites[ev.Package] = rs.ID
-	return rs.ID, nil
+	return nil
 }
 
-func (r *reporter) startTest(ev *testEvent) (string, error) {
+func (r *reporter) startTest(ev *testEvent) error {
 	testID := r.getTestName(ev)
-	parentID, found := r.suites[ev.Package]
+	suiteID, found := r.suites[ev.Package]
 	if !found {
-		var err error
-		parentID, err = r.startSuite(ev)
-		if err != nil {
-			return "", err
-		}
+		return fmt.Errorf("unable to find suiteID for package: %s", ev.Package)
 	}
-	rs, err := r.client.StartChildTest(parentID, &gorkpkg.StartTestRQ{
+	rs, err := r.client.StartChildTest(suiteID, &gorkpkg.StartTestRQ{
 		StartRQ: gorkpkg.StartRQ{
 			Name:      ev.Test,
 			StartTime: gorkpkg.NewTimestamp(ev.Time),
@@ -267,10 +265,10 @@ func (r *reporter) startTest(ev *testEvent) (string, error) {
 		Retry:      false,
 	})
 	if err != nil {
-		return "", err
+		return err
 	}
 	r.tests[testID] = rs.ID
-	return rs.ID, nil
+	return nil
 }
 
 func (r *reporter) log(ev *testEvent) {

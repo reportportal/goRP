@@ -17,12 +17,6 @@ var (
 )
 
 func main() {
-	slog.SetDefault(slog.New(
-		slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{
-			Level:     slog.LevelError,
-			AddSource: true,
-		}),
-	))
 
 	app := cli.NewApp()
 	app.Name = "goRP"
@@ -32,6 +26,16 @@ func main() {
 		Name:  "Andrei Varabyeu",
 		Email: "andrei.varabyeu@gmail.com",
 	}}
+	app.Before = func(ctx *cli.Context) error {
+		// configure logging
+		slog.SetDefault(slog.New(
+			slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{
+				Level:     slog.LevelError,
+				AddSource: true,
+			}),
+		))
+		return nil
+	}
 
 	app.Flags = []cli.Flag{
 		&cli.StringFlag{

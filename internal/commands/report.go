@@ -53,8 +53,7 @@ var (
 	}
 )
 
-//nolint:nonamedreturns // for readability
-func reportTest2json(c *cli.Context) (err error) {
+func reportTest2json(c *cli.Context) error {
 	rpClient, err := buildClient(c)
 	if err != nil {
 		return err
@@ -66,11 +65,15 @@ func reportTest2json(c *cli.Context) (err error) {
 	attrArgs := c.StringSlice("attr")
 	rep := newReporter(rpClient, launchNameArg, input, attrArgs...)
 
+	errChan := make(chan error)
 	wg := &sync.WaitGroup{}
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		err = rep.receive()
+		if err := rep.receive(); err != nil {
+			errChan <- err
+			return
+		}
 	}()
 	// wait for report to complete
 	defer wg.Wait()
@@ -99,10 +102,15 @@ func reportTest2json(c *cli.Context) (err error) {
 
 		var ev testEvent
 		if err := json.Unmarshal([]byte(data), &ev); err != nil {
-			slog.Default().Error(err.Error())
+			slog.Error(err.Error())
 			return err
 		}
-		input <- &ev
+		select {
+		case err := <-errChan:
+			slog.Error("input processing interrupted", "error", err)
+			return err
+		case input <- &ev:
+		}
 	}
 	return nil
 }
@@ -163,8 +171,10 @@ func newReporter(client *gorkpkg.Client, launchName string, input <-chan *testEv
 func (r *reporter) reportEvent(ev *testEvent) error {
 	var err error
 	switch ev.Action {
+	case "start":
+		err = r.startSuite(ev)
 	case "run":
-		_, err = r.startTest(ev)
+		err = r.startTest(ev)
 	case "output":
 		r.log(ev)
 	case "pass":
@@ -217,7 +227,7 @@ func (r *reporter) receive() error {
 	return nil
 }
 
-func (r *reporter) startSuite(ev *testEvent) (string, error) {
+func (r *reporter) startSuite(ev *testEvent) error {
 	rs, err := r.client.StartTest(&gorkpkg.StartTestRQ{
 		StartRQ: gorkpkg.StartRQ{
 			Name:      ev.Package,
@@ -229,23 +239,19 @@ func (r *reporter) startSuite(ev *testEvent) (string, error) {
 		Retry:    false,
 	})
 	if err != nil {
-		return "", err
+		return err
 	}
 	r.suites[ev.Package] = rs.ID
-	return rs.ID, nil
+	return nil
 }
 
-func (r *reporter) startTest(ev *testEvent) (string, error) {
+func (r *reporter) startTest(ev *testEvent) error {
 	testID := r.getTestName(ev)
-	parentID, found := r.suites[ev.Package]
+	suiteID, found := r.suites[ev.Package]
 	if !found {
-		var err error
-		parentID, err = r.startSuite(ev)
-		if err != nil {
-			return "", err
-		}
+		return fmt.Errorf("unable to find suiteID for package: %s", ev.Package)
 	}
-	rs, err := r.client.StartChildTest(parentID, &gorkpkg.StartTestRQ{
+	rs, err := r.client.StartChildTest(suiteID, &gorkpkg.StartTestRQ{
 		StartRQ: gorkpkg.StartRQ{
 			Name:      ev.Test,
 			StartTime: gorkpkg.NewTimestamp(ev.Time),
@@ -259,10 +265,10 @@ func (r *reporter) startTest(ev *testEvent) (string, error) {
 		Retry:      false,
 	})
 	if err != nil {
-		return "", err
+		return err
 	}
 	r.tests[testID] = rs.ID
-	return rs.ID, nil
+	return nil
 }
 
 func (r *reporter) log(ev *testEvent) {
@@ -360,7 +366,10 @@ func (r *reporter) finish(ev *testEvent, status gorkpkg.Status) error {
 }
 
 func (r *reporter) finishSuite(ev *testEvent, status gorkpkg.Status) error {
-	suiteID := r.suites[ev.Package]
+	suiteID, found := r.suites[ev.Package]
+	if !found {
+		return fmt.Errorf("unable to find suiteID for package: %s", ev.Package)
+	}
 
 	_, err := r.client.FinishTest(suiteID, &gorkpkg.FinishTestRQ{
 		FinishExecutionRQ: gorkpkg.FinishExecutionRQ{

@@ -17,7 +17,6 @@ var (
 )
 
 func main() {
-
 	app := cli.NewApp()
 	app.Name = "goRP"
 	app.Usage = "ReportPortal CLI Client"

@@ -82,7 +82,7 @@ OPTIONS:
 ```
 
 ### Report command
-
+```
     NAME:
         goRP report - Reports input to report portal
     USAGE:
@@ -92,7 +92,23 @@ OPTIONS:
         help, h    Shows a list of commands or help for one command
     OPTIONS:
         --help, -h  show help (default: false)
-   
+```
+
+#### Report test2json command
+```
+NAME:
+   goRP report test2json - Input format: test2json
+
+USAGE:
+   goRP report test2json [command options]
+
+OPTIONS:
+   --file value, -f value                             File Name [$FILE]
+   --launchName value, --ln value                     Launch Name (default: "gorp launch") [$LAUNCH_NAME]
+   --reportEmptyPkg, --ep                             Whether empty packages need to be reporter. Default is false (default: false) [$REPORT_EMPTY_PKG]
+   --attr value, -a value [ --attr value, -a value ]  Launch attribute with format 'key:value'. Omitting a ':' separator will tag the launch with the value.
+   --help, -h                                         show help
+```
 
 ## Using as Golang Test Results Agent
 Run tests with JSON output

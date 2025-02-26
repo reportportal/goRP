@@ -43,6 +43,13 @@ var (
 				EnvVars: []string{"LAUNCH_NAME"},
 				Value:   "gorp launch",
 			},
+			&cli.BoolFlag{
+				Name:    "reportEmptyPkg",
+				Aliases: []string{"ep"},
+				Usage:   "Whether empty packages need to be reporter. Default is false",
+				EnvVars: []string{"REPORT_EMPTY_PKG"},
+				Value:   false,
+			},
 			&cli.StringSliceFlag{
 				Name:    "attr",
 				Aliases: []string{"a"},
@@ -62,8 +69,9 @@ func reportTest2json(c *cli.Context) error {
 
 	// run in separate goroutine
 	launchNameArg := c.String("launchName")
+	reportEmptyPkgArg := c.Bool("reportEmptyPkg")
 	attrArgs := c.StringSlice("attr")
-	rep := newReporter(rpClient, launchNameArg, input, attrArgs...)
+	rep := newReporter(rpClient, launchNameArg, input, reportEmptyPkgArg, attrArgs...)
 
 	errChan := make(chan error)
 	wg := &sync.WaitGroup{}
@@ -136,9 +144,10 @@ type reporter struct {
 	logs             []*gorkpkg.SaveLogRQ
 	logsBatchSize    int
 	waitQueue        sync.WaitGroup
+	reportEmpty      bool
 }
 
-func newReporter(client *gorkpkg.Client, launchName string, input <-chan *testEvent, launchAttrArgs ...string) *reporter {
+func newReporter(client *gorkpkg.Client, launchName string, input <-chan *testEvent, reportEmpty bool, launchAttrArgs ...string) *reporter {
 	launchAttributes := make([]*gorkpkg.Attribute, len(launchAttrArgs))
 	for idx, attr := range launchAttrArgs {
 		// Separate the key:value pair. If `:` is not present, the entire string is considered the value and an empty key is used
@@ -165,6 +174,7 @@ func newReporter(client *gorkpkg.Client, launchName string, input <-chan *testEv
 		suites:           map[string]string{},
 		logs:             []*gorkpkg.SaveLogRQ{},
 		logsBatchSize:    logsBatchSize,
+		reportEmpty:      reportEmpty,
 	}
 }
 
@@ -172,7 +182,9 @@ func (r *reporter) reportEvent(ev *testEvent) error {
 	var err error
 	switch ev.Action {
 	case "start":
-		err = r.startSuite(ev)
+		if r.reportEmpty {
+			_, err = r.startSuite(ev)
+		}
 	case "run":
 		err = r.startTest(ev)
 	case "output":
@@ -227,7 +239,7 @@ func (r *reporter) receive() error {
 	return nil
 }
 
-func (r *reporter) startSuite(ev *testEvent) error {
+func (r *reporter) startSuite(ev *testEvent) (string, error) {
 	rs, err := r.client.StartTest(&gorkpkg.StartTestRQ{
 		StartRQ: gorkpkg.StartRQ{
 			Name:      ev.Package,
@@ -239,17 +251,24 @@ func (r *reporter) startSuite(ev *testEvent) error {
 		Retry:    false,
 	})
 	if err != nil {
-		return err
+		return "", err
 	}
 	r.suites[ev.Package] = rs.ID
-	return nil
+	return rs.ID, nil
 }
 
 func (r *reporter) startTest(ev *testEvent) error {
 	testID := r.getTestName(ev)
 	suiteID, found := r.suites[ev.Package]
 	if !found {
-		return fmt.Errorf("unable to find suiteID for package: %s", ev.Package)
+		if r.reportEmpty {
+			return fmt.Errorf("unable to find suiteID for package: %s", ev.Package)
+		}
+		var err error
+		suiteID, err = r.startSuite(ev)
+		if err != nil {
+			return err
+		}
 	}
 	rs, err := r.client.StartChildTest(suiteID, &gorkpkg.StartTestRQ{
 		StartRQ: gorkpkg.StartRQ{

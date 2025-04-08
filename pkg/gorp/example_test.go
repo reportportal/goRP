@@ -99,6 +99,12 @@ func ExampleClient() {
 	for _, launch := range launches.Content {
 		fmt.Printf("%+v\n", launch)
 	}
+
+	launchesPage, err := client.GetLaunchesPage(PageDetails{PageNumber: 1, PageSize: 1})
+	checkErr(err, "unable to get launches")
+	if len(launchesPage.Content) != 1 {
+		log.Fatal("expected 1 launch")
+	}
 }
 
 func checkErr(err error, msg string) {

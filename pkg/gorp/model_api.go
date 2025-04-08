@@ -9,6 +9,11 @@ const (
 
 // PAYLOADS
 type (
+	PageDetails struct {
+		PageNumber int
+		PageSize   int
+		SortBy     string
+	}
 	// Response is a representation of server response
 	Response struct {
 		// Page is a slice of data returned by server

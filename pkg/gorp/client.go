@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"strconv"
 	"time"
 
 	"resty.dev/v3"
@@ -269,6 +270,17 @@ func (c *Client) GetLaunches() (*LaunchPage, error) {
 	return &launches, err
 }
 
+// GetLaunchesPage retrieves latest launches with paging
+func (c *Client) GetLaunchesPage(details PageDetails) (*LaunchPage, error) {
+	var launches LaunchPage
+	_, err := c.http.R().
+		SetPathParam("project", c.project).
+		SetResult(&launches).
+		Funcs(c.AddPaging(details)).
+		Get("/api/v1/{project}/launch")
+	return &launches, err
+}
+
 // GetLaunchesByFilter retrieves launches by filter
 func (c *Client) GetLaunchesByFilter(filter map[string]string) (*LaunchPage, error) {
 	var launches LaunchPage
@@ -335,4 +347,19 @@ func (c *Client) MergeLaunches(rq *MergeLaunchesRQ) (*LaunchResource, error) {
 		SetResult(&rs).
 		Post("/api/v1/{project}/launch/merge")
 	return &rs, err
+}
+
+func (c *Client) AddPaging(details PageDetails) func(rq *resty.Request) *resty.Request {
+	return func(rq *resty.Request) *resty.Request {
+		if details.PageSize > 0 {
+			rq.SetQueryParam("page.size", strconv.Itoa(details.PageSize))
+		}
+		if details.PageNumber > 0 {
+			rq.SetQueryParam("page.page", strconv.Itoa(details.PageNumber))
+		}
+		if details.SortBy != "" {
+			rq.SetQueryParam("page.sort", details.SortBy)
+		}
+		return rq
+	}
 }

@@ -10,7 +10,7 @@ import (
 )
 
 func ExampleClient() {
-	client := NewClient("https://reportportal.epam.com", "andrei_varabyeu_personal", "test_B9_rMwJmTO25Nr_uYlWE98zWE6-kTMHOuMtfA97x_ActMUzrCdvjtDslmiv5IOVK")
+	client := NewClient("", "", "")
 
 	launchUUID := uuid.New()
 	launch, err := client.StartLaunch(&StartLaunchRQ{

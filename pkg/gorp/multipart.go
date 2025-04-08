@@ -31,7 +31,7 @@ func (fm *FileMultipart) Load() (fileName, contentType string, reader io.Reader,
 	if fm.File == nil {
 		return "", "", nil, errNoMultipartFile
 	}
-	fName := fm.File.Name()
+	fName := fm.Name()
 	if _, sErr := os.Stat(fName); os.IsNotExist(sErr) {
 		return "", "", nil, fmt.Errorf("file %s does not exist: :%w", fName, errNoMultipartFile)
 	}

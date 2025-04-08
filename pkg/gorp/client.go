@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/go-resty/resty/v2"
+	"resty.dev/v3"
 )
 
 type HTTPError struct {
@@ -33,7 +33,7 @@ func NewClient(host, project, apiKey string) *Client {
 		// SetDebug(true).
 		SetBaseURL(host).
 		SetAuthToken(apiKey).
-		OnAfterResponse(func(client *resty.Client, rs *resty.Response) error {
+		AddResponseMiddleware(func(client *resty.Client, rs *resty.Response) error {
 			//nolint:mnd // 4xx errors
 			if (rs.StatusCode() / 100) >= 4 {
 				return &HTTPError{StatusCode: rs.StatusCode(), Response: rs.String()}

@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log/slog"
@@ -8,7 +9,7 @@ import (
 	"os"
 
 	"github.com/manifoldco/promptui"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 
 	"github.com/reportportal/goRP/v5/pkg/gorp"
 )
@@ -34,7 +35,7 @@ var (
 	}
 )
 
-func initConfiguration(c *cli.Context) error {
+func initConfiguration(ctx context.Context, c *cli.Command) error {
 	if configFilePresent() {
 		prompt := promptui.Prompt{
 			Label: "GoRP is already configured. Replace existing configuration?",
@@ -104,7 +105,7 @@ func initConfiguration(c *cli.Context) error {
 	return nil
 }
 
-func getConfig(c *cli.Context) (*config, error) {
+func getConfig(c *cli.Command) (*config, error) {
 	cfg := &config{}
 	if configFilePresent() {
 		f, err := os.Open(getConfigFile())
@@ -133,8 +134,8 @@ func getConfig(c *cli.Context) (*config, error) {
 	return cfg, nil
 }
 
-func buildClient(ctx *cli.Context) (*gorp.Client, error) {
-	cfg, err := getConfig(ctx)
+func buildClient(cmd *cli.Command) (*gorp.Client, error) {
+	cfg, err := getConfig(cmd)
 	if err != nil {
 		return nil, err
 	}

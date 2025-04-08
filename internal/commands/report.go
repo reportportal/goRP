@@ -2,6 +2,7 @@ package commands
 
 import (
 	"bufio"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -12,7 +13,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 
 	gorkpkg "github.com/reportportal/goRP/v5/pkg/gorp"
 )
@@ -21,9 +22,9 @@ const logsBatchSize = 10
 
 var (
 	reportCommand = &cli.Command{
-		Name:        "report",
-		Usage:       "Reports input to report portal",
-		Subcommands: cli.Commands{reportTest2JsonCommand},
+		Name:     "report",
+		Usage:    "Reports input to report portal",
+		Commands: []*cli.Command{reportTest2JsonCommand},
 	}
 
 	reportTest2JsonCommand = &cli.Command{
@@ -34,20 +35,20 @@ var (
 				Name:    "file",
 				Aliases: []string{"f"},
 				Usage:   "File Name",
-				EnvVars: []string{"FILE"},
+				Sources: cli.EnvVars("FILE"),
 			},
 			&cli.StringFlag{
 				Name:    "launchName",
 				Aliases: []string{"ln"},
 				Usage:   "Launch Name",
-				EnvVars: []string{"LAUNCH_NAME"},
+				Sources: cli.EnvVars("LAUNCH_NAME"),
 				Value:   "gorp launch",
 			},
 			&cli.BoolFlag{
 				Name:    "reportEmptyPkg",
 				Aliases: []string{"ep"},
 				Usage:   "Whether empty packages need to be reporter. Default is false",
-				EnvVars: []string{"REPORT_EMPTY_PKG"},
+				Sources: cli.EnvVars("REPORT_EMPTY_PKG"),
 				Value:   false,
 			},
 			&cli.StringSliceFlag{
@@ -60,17 +61,17 @@ var (
 	}
 )
 
-func reportTest2json(c *cli.Context) error {
-	rpClient, err := buildClient(c)
+func reportTest2json(ctx context.Context, cmd *cli.Command) error {
+	rpClient, err := buildClient(cmd)
 	if err != nil {
 		return err
 	}
 	input := make(chan *testEvent)
 
 	// run in separate goroutine
-	launchNameArg := c.String("launchName")
-	reportEmptyPkgArg := c.Bool("reportEmptyPkg")
-	attrArgs := c.StringSlice("attr")
+	launchNameArg := cmd.String("launchName")
+	reportEmptyPkgArg := cmd.Bool("reportEmptyPkg")
+	attrArgs := cmd.StringSlice("attr")
 	rep := newReporter(rpClient, launchNameArg, input, reportEmptyPkgArg, attrArgs...)
 
 	errChan := make(chan error)
@@ -89,7 +90,7 @@ func reportTest2json(c *cli.Context) error {
 	defer close(input)
 
 	var reader io.Reader
-	if fileName := c.String("file"); fileName != "" {
+	if fileName := cmd.String("file"); fileName != "" {
 		f, fErr := os.Open(filepath.Clean(fileName))
 		if fErr != nil {
 			return fErr

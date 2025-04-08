@@ -1,6 +1,7 @@
 package gorp
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"time"
@@ -9,7 +10,7 @@ import (
 )
 
 func ExampleClient() {
-	client := NewClient("", "", "")
+	client := NewClient("https://reportportal.epam.com", "andrei_varabyeu_personal", "test_B9_rMwJmTO25Nr_uYlWE98zWE6-kTMHOuMtfA97x_ActMUzrCdvjtDslmiv5IOVK")
 
 	launchUUID := uuid.New()
 	launch, err := client.StartLaunch(&StartLaunchRQ{
@@ -92,6 +93,12 @@ func ExampleClient() {
 		EndTime: Timestamp{time.Now()},
 	})
 	checkErr(err, "unable to finish launch")
+
+	launches, err := client.GetLaunches()
+	checkErr(err, "unable to get launches")
+	for _, launch := range launches.Content {
+		fmt.Printf("%+v\n", launch)
+	}
 }
 
 func checkErr(err error, msg string) {

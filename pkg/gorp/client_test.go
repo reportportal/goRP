@@ -13,8 +13,8 @@ func TestCreateRPClient(t *testing.T) {
 	client := NewClient("http://host.com", "prj", "uuid")
 
 	assert.Equal(t, "prj", client.project)
-	assert.Equal(t, "http://host.com", client.http.HostURL)
-	assert.Equal(t, "uuid", client.http.Token)
+	assert.Equal(t, "http://host.com", client.http.BaseURL())
+	assert.Equal(t, "uuid", client.http.AuthToken())
 }
 
 func TestHandleErrors(t *testing.T) {

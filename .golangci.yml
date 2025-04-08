@@ -1,61 +1,23 @@
-linters-settings:
-  govet:
-    check-shadowing: true
-  golint:
-    min-confidence: 0.8
-  gocyclo:
-    min-complexity: 10
-    max-complexity: 12
-  dupl:
-    threshold: 150
-  goconst:
-    min-len: 2
-    min-occurrences: 2
-  misspell:
-    locale: US
-  lll:
-    line-length: 140
-  goimports:
-    local-prefixes: github.com/reportportal/goRP/v5
-  gocritic:
-    enabled-tags:
-      - performance
-      - style
-      - experimental
-    disabled-checks:
-      - wrapperFunc
-      - commentFormatting
-
+version: "2"
 linters:
-  enable-all: true
-  disable:
-    - maligned
-    - prealloc
-    - gochecknoglobals
-    - wsl
-    - godot
-    - funlen
-    - testpackage
-    - nlreturn
-    - stylecheck
-    - exhaustruct
-    - varnamelen
-    - tagliatelle
-    - wrapcheck
-    - gomnd
-    - gci
-    - revive
-    - testableexamples
-    - depguard
-
-#run:
-#  skip-dirs:
-#    - test/testdata_etc
-
-issues:
-  exclude-use-default: false
-  exclude-rules:
-    - text: "weak cryptographic primitive"
-      linters:
-        - gosec
-
+  settings:
+    dupl:
+      threshold: 150
+    goconst:
+      min-len: 2
+      min-occurrences: 2
+    lll:
+      line-length: 140
+    misspell:
+      locale: US
+formatters:
+  settings:
+    goimports:
+      local-prefixes:
+        - github.com/reportportal/goRP/v5
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$

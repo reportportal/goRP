@@ -6,7 +6,7 @@ BINARY_DIR=bin
 GODIRS_NOVENDOR = $(shell go list ./... | grep -v /vendor/)
 GOFILES_NOVENDOR = $(shell find . -type f -name '*.go' -not -path "./vendor/*")
 BUILD_INFO_LDFLAGS=-ldflags "-extldflags '"-static"' -X main.buildDate=${BUILD_DATE} -X main.version=${v}"
-
+GOLANG_CI = docker run --rm -v $(shell pwd):/app -w /app golangci/golangci-lint:v2.0.2 golangci-lint
 .PHONY: test build
 
 help:
@@ -14,17 +14,11 @@ help:
 	@echo "test       - go test"
 	@echo "checkstyle - gofmt+golint+misspell"
 
-init-deps:
-	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s v1.61.0
-
-#vendor:
-#	dep ensure --vendor-only
-
 test:
 	$(GO) test -cover ${GODIRS_NOVENDOR}
 
 lint:
-	bin/golangci-lint run ./...
+	${GOLANG_CI} run ./...
 
 fmt:
 	gofumpt -extra -l -w ${GOFILES_NOVENDOR}

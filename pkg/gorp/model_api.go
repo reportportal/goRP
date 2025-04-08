@@ -1,7 +1,5 @@
 package gorp
 
-const defaultDateTimeFormat = "2006-01-02T15:04:05.999-0700"
-
 // Client constants
 const (
 	LogLevelDebug = "DEBUG"
@@ -24,7 +22,7 @@ type (
 
 	// LaunchResource - GET Launch response model
 	LaunchResource struct {
-		ID                  int          `json:"id"`
+		ID                  int64        `json:"id"`
 		UUID                string       `json:"uuid"`
 		Name                string       `json:"name,omitempty"`
 		Number              int          `json:"number"`
@@ -93,7 +91,7 @@ type (
 		StartTime               *Timestamp `json:"startTime,omitempty"`
 		EndTime                 *Timestamp `json:"endTime,omitempty"`
 		ExtendSuitesDescription bool       `json:"extendSuitesDescription,omitempty"`
-		Launches                []int      `json:"launches"`
+		Launches                []int64    `json:"launches"`
 		MergeType               MergeType  `json:"mergeType,omitempty"`
 		Mode                    string     `json:"mode,omitempty"`
 		Tags                    []string   `json:"tags,omitempty"`

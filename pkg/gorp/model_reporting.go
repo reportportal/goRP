@@ -115,7 +115,7 @@ func (rt *Timestamp) UnmarshalJSON(b []byte) error {
 	trimmed := strings.Trim(string(b), "\"")
 	msInt, err := strconv.ParseInt(trimmed, 10, 64)
 	if err != nil {
-		dt, err := time.Parse(defaultDateTimeFormat, trimmed)
+		dt, err := time.Parse(time.RFC3339, trimmed)
 		if err != nil {
 			return err
 		}

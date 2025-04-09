@@ -3,7 +3,17 @@ package gorp
 import (
 	"fmt"
 	"strconv"
+
+	"resty.dev/v3"
 )
+
+func defaultHTTPErrorHandler(client *resty.Client, rs *resty.Response) error {
+	//nolint:mnd // 4xx errors
+	if (rs.StatusCode() / 100) >= 4 {
+		return &HTTPError{StatusCode: rs.StatusCode(), Response: rs.String()}
+	}
+	return nil
+}
 
 // ConvertToFilterParams converts RP internal filter representation to query string
 func ConvertToFilterParams(filter *FilterResource) map[string]string {
@@ -31,4 +41,19 @@ func directionToStr(asc bool) string {
 		return "ASC"
 	}
 	return "DESC"
+}
+
+func addPaging(details PageDetails) func(rq *resty.Request) *resty.Request {
+	return func(rq *resty.Request) *resty.Request {
+		if details.PageSize > 0 {
+			rq.SetQueryParam("page.size", strconv.Itoa(details.PageSize))
+		}
+		if details.PageNumber > 0 {
+			rq.SetQueryParam("page.page", strconv.Itoa(details.PageNumber))
+		}
+		if details.SortBy != "" {
+			rq.SetQueryParam("page.sort", details.SortBy)
+		}
+		return rq
+	}
 }

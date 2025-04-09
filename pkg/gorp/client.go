@@ -271,12 +271,12 @@ func (c *Client) GetLaunches() (*LaunchPage, error) {
 }
 
 // GetLaunchesPage retrieves latest launches with paging
-func (c *Client) GetLaunchesPage(details PageDetails) (*LaunchPage, error) {
+func (c *Client) GetLaunchesPage(paging PageDetails) (*LaunchPage, error) {
 	var launches LaunchPage
 	_, err := c.http.R().
 		SetPathParam("project", c.project).
 		SetResult(&launches).
-		Funcs(c.AddPaging(details)).
+		Funcs(c.AddPaging(paging)).
 		Get("/api/v1/{project}/launch")
 	return &launches, err
 }
@@ -288,6 +288,18 @@ func (c *Client) GetLaunchesByFilter(filter map[string]string) (*LaunchPage, err
 		SetPathParam("project", c.project).
 		SetResult(&launches).
 		SetQueryParams(filter).
+		Get("/api/v1/{project}/launch")
+	return &launches, err
+}
+
+// GetLaunchesByFilterPage retrieves launches by filter with paging
+func (c *Client) GetLaunchesByFilterPage(filter map[string]string, paging PageDetails) (*LaunchPage, error) {
+	var launches LaunchPage
+	_, err := c.http.R().
+		SetPathParam("project", c.project).
+		SetResult(&launches).
+		SetQueryParams(filter).
+		Funcs(c.AddPaging(paging)).
 		Get("/api/v1/{project}/launch")
 	return &launches, err
 }

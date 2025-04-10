@@ -27,20 +27,23 @@ type (
 
 	// LaunchResource - GET Launch response model
 	LaunchResource struct {
-		ID                  int64        `json:"id"`
-		UUID                string       `json:"uuid"`
-		Name                string       `json:"name,omitempty"`
-		Number              int          `json:"number"`
-		Description         string       `json:"description,omitempty"`
-		StartTime           Timestamp    `json:"startTime,omitempty"`
-		EndTime             Timestamp    `json:"endTime,omitempty"`
-		Status              Status       `json:"status,omitempty"`
-		Attributes          []*Attribute `json:"attributes,omitempty"`
-		Mode                LaunchMode   `json:"mode,omitempty"`
-		ApproximateDuration float32      `json:"approximateDuration,omitempty"`
-		HasRetries          bool         `json:"hasRetries,omitempty"`
-		Statistics          *Statistics  `json:"statistics,omitempty"`
-		Analyzers           []string     `json:"analysing,omitempty"` //nolint:misspell // defined as described on server end
+		Owner               string            `json:"string,omitempty"`
+		ID                  int64             `json:"id"`
+		UUID                string            `json:"uuid"`
+		Name                string            `json:"name,omitempty"`
+		Number              int               `json:"number"`
+		Description         string            `json:"description,omitempty"`
+		StartTime           Timestamp         `json:"startTime,omitempty"`
+		EndTime             Timestamp         `json:"endTime,omitempty"`
+		Status              Status            `json:"status,omitempty"`
+		Attributes          []*Attribute      `json:"attributes,omitempty"`
+		Mode                LaunchMode        `json:"mode,omitempty"`
+		ApproximateDuration float32           `json:"approximateDuration,omitempty"`
+		HasRetries          bool              `json:"hasRetries,omitempty"`
+		Rerun               bool              `json:"rerun,omitempty"`
+		Statistics          *Statistics       `json:"statistics,omitempty"`
+		Analyzers           []string          `json:"analysing,omitempty"` //nolint:misspell // defined as described on server end
+		Metadata            map[string]string `json:"metadata,omitempty"`
 	}
 
 	// FilterResource - GET Filter response model

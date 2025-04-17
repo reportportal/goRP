@@ -36,3 +36,5 @@ vendor/*/
 
 ## Data
 data/
+
+openapi*.json

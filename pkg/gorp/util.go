@@ -2,9 +2,12 @@ package gorp
 
 import (
 	"fmt"
+	"net/url"
 	"strconv"
 
 	"resty.dev/v3"
+
+	"github.com/reportportal/goRP/v5/pkg/openapi"
 )
 
 func defaultHTTPErrorHandler(client *resty.Client, rs *resty.Response) error {
@@ -16,23 +19,15 @@ func defaultHTTPErrorHandler(client *resty.Client, rs *resty.Response) error {
 }
 
 // ConvertToFilterParams converts RP internal filter representation to query string
-func ConvertToFilterParams(filter *FilterResource) map[string]string {
-	params := map[string]string{}
-	for _, f := range filter.Entities {
-		params[fmt.Sprintf("filter.%s.%s", f.Condition, f.Field)] = f.Value
+func ConvertToFilterParams(filter openapi.UserFilterResource) url.Values {
+	params := url.Values{}
+	for _, f := range filter.Conditions {
+		params.Set(fmt.Sprintf("filter.%s.%s", f.Condition, f.FilteringField), f.Value)
 	}
 
-	if filter.SelectionParams != nil {
-		if filter.SelectionParams.PageNumber != 0 {
-			params["page.page"] = strconv.Itoa(filter.SelectionParams.PageNumber)
-		}
-		if filter.SelectionParams.Orders != nil {
-			for _, order := range filter.SelectionParams.Orders {
-				params["page.sort"] = fmt.Sprintf("%s,%s", order.SortingColumn, directionToStr(order.Asc))
-			}
-		}
+	for _, order := range filter.Orders {
+		params.Set("page.sort", fmt.Sprintf("%s,%s", order.SortingColumn, directionToStr(order.IsAsc)))
 	}
-
 	return params
 }
 

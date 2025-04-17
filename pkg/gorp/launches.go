@@ -4,6 +4,8 @@ import (
 	"fmt"
 
 	"resty.dev/v3"
+
+	"github.com/reportportal/goRP/v5/pkg/openapi"
 )
 
 type launchClient struct {
@@ -12,8 +14,8 @@ type launchClient struct {
 }
 
 // GetLaunches retrieves latest launches
-func (c *launchClient) GetLaunches() (*LaunchPage, error) {
-	var launches LaunchPage
+func (c *launchClient) GetLaunches() (*openapi.PageLaunchResource, error) {
+	var launches openapi.PageLaunchResource
 	_, err := c.http.R().
 		SetPathParam("project", c.project).
 		SetResult(&launches).
@@ -22,8 +24,8 @@ func (c *launchClient) GetLaunches() (*LaunchPage, error) {
 }
 
 // GetLaunchesPage retrieves latest launches with paging
-func (c *launchClient) GetLaunchesPage(paging PageDetails) (*LaunchPage, error) {
-	var launches LaunchPage
+func (c *launchClient) GetLaunchesPage(paging PageDetails) (*openapi.PageLaunchResource, error) {
+	var launches openapi.PageLaunchResource
 	_, err := c.http.R().
 		SetPathParam("project", c.project).
 		SetResult(&launches).
@@ -33,8 +35,8 @@ func (c *launchClient) GetLaunchesPage(paging PageDetails) (*LaunchPage, error) 
 }
 
 // GetLaunchesByFilter retrieves launches by filter
-func (c *launchClient) GetLaunchesByFilter(filter map[string]string) (*LaunchPage, error) {
-	var launches LaunchPage
+func (c *launchClient) GetLaunchesByFilter(filter map[string]string) (*openapi.PageLaunchResource, error) {
+	var launches openapi.PageLaunchResource
 	_, err := c.http.R().
 		SetPathParam("project", c.project).
 		SetResult(&launches).
@@ -44,8 +46,8 @@ func (c *launchClient) GetLaunchesByFilter(filter map[string]string) (*LaunchPag
 }
 
 // GetLaunchesByFilterPage retrieves launches by filter with paging
-func (c *launchClient) GetLaunchesByFilterPage(filter map[string]string, paging PageDetails) (*LaunchPage, error) {
-	var launches LaunchPage
+func (c *launchClient) GetLaunchesByFilterPage(filter map[string]string, paging PageDetails) (*openapi.PageLaunchResource, error) {
+	var launches openapi.PageLaunchResource
 	_, err := c.http.R().
 		SetPathParam("project", c.project).
 		SetResult(&launches).
@@ -56,8 +58,8 @@ func (c *launchClient) GetLaunchesByFilterPage(filter map[string]string, paging 
 }
 
 // GetLaunchesByFilterString retrieves launches by filter as string
-func (c *launchClient) GetLaunchesByFilterString(filter string) (*LaunchPage, error) {
-	var launches LaunchPage
+func (c *launchClient) GetLaunchesByFilterString(filter string) (*openapi.PageLaunchResource, error) {
+	var launches openapi.PageLaunchResource
 	_, err := c.http.R().
 		SetPathParam("project", c.project).
 		SetResult(&launches).
@@ -67,29 +69,29 @@ func (c *launchClient) GetLaunchesByFilterString(filter string) (*LaunchPage, er
 }
 
 // GetLaunchesByFilterName retrieves launches by filter name
-func (c *launchClient) GetLaunchesByFilterName(name string) (*LaunchPage, error) {
+func (c *launchClient) GetLaunchesByFilterName(name string) (*openapi.PageLaunchResource, error) {
 	filter, err := (&filterClient{project: c.project, http: c.http}).GetFiltersByName(name)
 	if err != nil {
 		return nil, err
 	}
 
-	if filter.Page.Size < 1 || len(filter.Content) == 0 {
+	if filter.Page.GetSize() < 1 || len(filter.Content) == 0 {
 		return nil, fmt.Errorf("no filter %s found", name) //nolint:err113 //dynamic error is intentional
 	}
 
-	var launches LaunchPage
+	var launches openapi.PageLaunchResource
 	params := ConvertToFilterParams(filter.Content[0])
 	_, err = c.http.R().
 		SetPathParam("project", c.project).
 		SetResult(&launches).
-		SetQueryParams(params).
+		SetQueryParamsFromValues(params).
 		Get(baseUrlLaunch)
 	return &launches, err
 }
 
 // MergeLaunches merge two launches
-func (c *launchClient) MergeLaunches(rq *MergeLaunchesRQ) (*LaunchResource, error) {
-	var rs LaunchResource
+func (c *launchClient) MergeLaunches(rq *openapi.MergeLaunchesRQ) (*openapi.LaunchResource, error) {
+	var rs openapi.LaunchResource
 	_, err := c.http.R().
 		SetPathParam("project", c.project).
 		SetBody(rq).

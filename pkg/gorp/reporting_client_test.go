@@ -12,6 +12,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/reportportal/goRP/v5/pkg/openapi"
 )
 
 func TestSaveLog(t *testing.T) {
@@ -30,18 +32,18 @@ func TestSaveLog(t *testing.T) {
 	defer server.Close()
 
 	client := NewClient(server.URL, "prj", "uuid")
-	log := &SaveLogRQ{
-		ItemID:  "item123",
-		Level:   LogLevelInfo,
-		Message: "Test log message",
-		LogTime: NewTimestamp(time.Now()),
+	log := &openapi.SaveLogRQ{
+		ItemUuid: openapi.PtrString("item123"),
+		Level:    openapi.PtrString(LogLevelInfo),
+		Message:  openapi.PtrString("Test log message"),
+		Time:     time.Now(),
 	}
 
 	result, err := client.SaveLog(log)
 
 	assert.NoError(t, err)
 	assert.NotNil(t, result)
-	assert.Equal(t, "log123", result.ID)
+	assert.Equal(t, "log123", *result.Id)
 }
 
 func TestSaveLogs(t *testing.T) {
@@ -64,18 +66,18 @@ func TestSaveLogs(t *testing.T) {
 	defer server.Close()
 
 	client := NewClient(server.URL, "prj", "uuid")
-	logs := []*SaveLogRQ{
+	logs := []*openapi.SaveLogRQ{
 		{
-			ItemID:  "item123",
-			Level:   LogLevelInfo,
-			Message: "Test log message 1",
-			LogTime: NewTimestamp(time.Now()),
+			ItemUuid: openapi.PtrString("item123"),
+			Level:    openapi.PtrString(LogLevelInfo),
+			Message:  openapi.PtrString("Test log message 1"),
+			Time:     time.Now(),
 		},
 		{
-			ItemID:  "item456",
-			Level:   LogLevelError,
-			Message: "Test log message 2",
-			LogTime: NewTimestamp(time.Now()),
+			ItemUuid: openapi.PtrString("item456"),
+			Level:    openapi.PtrString(LogLevelError),
+			Message:  openapi.PtrString("Test log message 2"),
+			Time:     time.Now(),
 		},
 	}
 
@@ -83,7 +85,7 @@ func TestSaveLogs(t *testing.T) {
 
 	assert.NoError(t, err)
 	assert.NotNil(t, result)
-	assert.Equal(t, "batch123", result.ID)
+	assert.Equal(t, "batch123", *result.Id)
 }
 
 func TestSaveLogMultipart(t *testing.T) {
@@ -126,14 +128,14 @@ func TestSaveLogMultipart(t *testing.T) {
 	require.NoError(t, err)
 	defer f.Close() //nolint: errcheck
 
-	logs := []*SaveLogRQ{
+	logs := []*openapi.SaveLogRQ{
 		{
-			ItemID:  "item123",
-			Level:   LogLevelError,
-			Message: "Log with attachment",
-			LogTime: NewTimestamp(time.Now()),
-			Attachment: Attachment{
-				Name: f.Name(),
+			ItemUuid: openapi.PtrString("item123"),
+			Level:    openapi.PtrString(LogLevelError),
+			Message:  openapi.PtrString("Log with attachment"),
+			Time:     time.Now(),
+			File: &openapi.File{
+				Name: openapi.PtrString(f.Name()),
 			},
 		},
 	}
@@ -146,7 +148,7 @@ func TestSaveLogMultipart(t *testing.T) {
 
 	assert.NoError(t, err)
 	assert.NotNil(t, result)
-	assert.Equal(t, "multipart123", result.ID)
+	assert.Equal(t, "multipart123", *result.Id)
 }
 
 // Test MultipartField error handling
@@ -156,10 +158,10 @@ func TestSaveLogMultipartErrors(t *testing.T) {
 	client := NewClient("http://localhost", "prj", "uuid")
 
 	// Test with empty filename
-	logs := []*SaveLogRQ{{
-		ItemID:  "item123",
-		Level:   LogLevelError,
-		Message: "Error log",
+	logs := []*openapi.SaveLogRQ{{
+		ItemUuid: openapi.PtrString("item123"),
+		Level:    openapi.PtrString(LogLevelError),
+		Message:  openapi.PtrString("Error log"),
 	}}
 
 	emptyFilename := &mockMultipart{

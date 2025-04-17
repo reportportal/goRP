@@ -7,6 +7,9 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+
+	"github.com/reportportal/goRP/v5/pkg/openapi"
 )
 
 func TestGetLaunches(t *testing.T) {
@@ -21,11 +24,19 @@ func TestGetLaunches(t *testing.T) {
 			"content": [
 				{
 					"id": 1,
-					"name": "Test Launch 1"
+					"name": "Test Launch 1",
+					"uuid": "014b329b-a882-4c2d-9988-c2f6179a421b",
+					"number": 1,
+					"startTime": "2025-02-21T16:30:42.673Z",
+					"status": "PASSED"
 				},
 				{
 					"id": 2,
-					"name": "Test Launch 2"
+					"name": "Test Launch 2",
+					"uuid": "014b329b-a882-4c2d-9988-c2f6179a421c",
+					"number": 2,
+					"startTime": "2025-02-21T16:30:42.673Z",
+					"status": "PASSED"
 				}
 			],
 			"page": {
@@ -47,8 +58,8 @@ func TestGetLaunches(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, result)
 	assert.Len(t, result.Content, 2)
-	assert.Equal(t, int64(1), result.Content[0].ID)
-	assert.Equal(t, int64(2), result.Content[1].ID)
+	assert.Equal(t, int64(1), result.Content[0].Id)
+	assert.Equal(t, int64(2), result.Content[1].Id)
 }
 
 func TestGetLaunchesPage(t *testing.T) {
@@ -68,7 +79,11 @@ func TestGetLaunchesPage(t *testing.T) {
 			"content": [
 				{
 					"id": 3,
-					"name": "Test Launch 3"
+					"name": "Test Launch 3",
+					"uuid": "014b329b-a882-4c2d-9988-c2f6179a421b",
+					"number": 1,
+					"startTime": "2025-02-21T16:30:42.673Z",
+					"status": "PASSED"
 				}
 			],
 			"page": {
@@ -93,11 +108,11 @@ func TestGetLaunchesPage(t *testing.T) {
 
 	result, err := client.GetLaunchesPage(paging)
 
-	assert.NoError(t, err)
-	assert.NotNil(t, result)
+	require.NoError(t, err)
+	require.NotNil(t, result)
 	assert.Len(t, result.Content, 1)
-	assert.Equal(t, int64(3), result.Content[0].ID)
-	assert.Equal(t, 2, result.Page.Number)
+	assert.Equal(t, int64(3), result.Content[0].Id)
+	assert.Equal(t, int64(2), *result.Page.Number)
 }
 
 func TestGetFiltersByName(t *testing.T) {
@@ -112,13 +127,21 @@ func TestGetFiltersByName(t *testing.T) {
 		response := `{
 			"content": [
 				{
-					"id": "filter1",
+					"id": 1,
 					"name": "test-filter",
+					"owner": "some owner",
+					"type": "Launch",
 					"conditions": [
 						{
 							"filteringField": "name",
 							"condition": "contains",
 							"value": "test"
+						}
+					],
+					"orders": [
+						{
+							"sortingColumn": "startTime",
+							"isAsc": true	
 						}
 					]
 				}
@@ -142,7 +165,7 @@ func TestGetFiltersByName(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, result)
 	assert.Len(t, result.Content, 1)
-	assert.Equal(t, "filter1", result.Content[0].ID)
+	assert.Equal(t, int64(1), result.Content[0].Id)
 	assert.Equal(t, "test-filter", result.Content[0].Name)
 }
 
@@ -155,7 +178,7 @@ func TestMergeLaunches(t *testing.T) {
 		assert.Equal(t, http.MethodPost, r.Method)
 
 		// Parse request body
-		var rq MergeLaunchesRQ
+		var rq openapi.MergeLaunchesRQ
 		err := json.NewDecoder(r.Body).Decode(&rq)
 		assert.NoError(t, err)
 		assert.Equal(t, "Merged Launch", rq.Name)
@@ -164,7 +187,11 @@ func TestMergeLaunches(t *testing.T) {
 		response := `{
 			"id": 4,
 			"name": "Merged Launch",
-			"number": 1
+			"number": 1,
+			"uuid": "014b329b-a882-4c2d-9988-c2f6179a421b",
+			"startTime": "2025-02-21T16:30:42.673Z",
+			"status": "PASSED"
+
 		}`
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusCreated)
@@ -174,9 +201,9 @@ func TestMergeLaunches(t *testing.T) {
 
 	client := NewClient(server.URL, "prj", "uuid")
 
-	mergeRQ := &MergeLaunchesRQ{
+	mergeRQ := &openapi.MergeLaunchesRQ{
 		Name:        "Merged Launch",
-		Description: "Merged launch description",
+		Description: openapi.PtrString("Merged launch description"),
 		Launches:    []int64{1, 2},
 		MergeType:   "BASIC",
 	}
@@ -185,6 +212,6 @@ func TestMergeLaunches(t *testing.T) {
 
 	assert.NoError(t, err)
 	assert.NotNil(t, result)
-	assert.Equal(t, int64(4), result.ID)
+	assert.Equal(t, int64(4), result.Id)
 	assert.Equal(t, "Merged Launch", result.Name)
 }

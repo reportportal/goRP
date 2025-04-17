@@ -9,6 +9,7 @@ import (
 	"github.com/urfave/cli/v3"
 
 	"github.com/reportportal/goRP/v5/pkg/gorp"
+	"github.com/reportportal/goRP/v5/pkg/openapi"
 )
 
 var errFilterNotProvided = errors.New("either IDs or filter must be provided")
@@ -91,9 +92,9 @@ func mergeLaunches(ctx context.Context, cmd *cli.Command) error {
 	if err != nil {
 		return err
 	}
-	rq := &gorp.MergeLaunchesRQ{
+	rq := &openapi.MergeLaunchesRQ{
 		Name:      cmd.String("name"),
-		MergeType: gorp.MergeType(cmd.String("type")),
+		MergeType: cmd.String("type"),
 		Launches:  ids,
 	}
 	launchResource, err := rpClient.MergeLaunches(rq)
@@ -102,7 +103,7 @@ func mergeLaunches(ctx context.Context, cmd *cli.Command) error {
 	}
 
 	//nolint:forbidigo //expected output
-	fmt.Println(launchResource.ID)
+	fmt.Println(launchResource.Id)
 
 	return nil
 }
@@ -113,7 +114,7 @@ func listLaunches(ctx context.Context, cmd *cli.Command) error {
 		return err
 	}
 
-	var launches *gorp.LaunchPage
+	var launches *openapi.PageLaunchResource
 
 	if filters := cmd.StringSlice("filter"); len(filters) > 0 {
 		filter := strings.Join(filters, "&")
@@ -129,7 +130,7 @@ func listLaunches(ctx context.Context, cmd *cli.Command) error {
 
 	//nolint:forbidigo //expected output
 	for _, launch := range launches.Content {
-		fmt.Printf("%d #%d \"%s\"\n", launch.ID, launch.Number, launch.Name)
+		fmt.Printf("%d #%d \"%s\"\n", launch.Id, launch.Number, launch.Name)
 	}
 
 	return nil
@@ -140,7 +141,7 @@ func getMergeIDs(cmd *cli.Command, rpClient *gorp.Client) ([]int64, error) {
 		return ids, nil
 	}
 
-	var launches *gorp.LaunchPage
+	var launches *openapi.PageLaunchResource
 	var err error
 
 	filter := cmd.String("filter")
@@ -159,7 +160,7 @@ func getMergeIDs(cmd *cli.Command, rpClient *gorp.Client) ([]int64, error) {
 
 	ids := make([]int64, len(launches.Content))
 	for i, l := range launches.Content {
-		ids[i] = l.ID
+		ids[i] = l.Id
 	}
 
 	return ids, nil

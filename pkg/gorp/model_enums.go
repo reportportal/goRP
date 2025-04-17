@@ -93,3 +93,8 @@ var TestItemTypes = testItemTypeValuesType{
 	AfterSuite:   "AFTER_SUITE",
 	AfterTest:    "AFTER_TEST",
 }
+
+func (s Status) Ptr() *string {
+	str := string(s)
+	return &str
+}

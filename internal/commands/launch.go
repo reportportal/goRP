@@ -83,21 +83,21 @@ var (
 )
 
 func mergeLaunches(ctx context.Context, cmd *cli.Command) error {
-	rpClient, err := buildClient(cmd)
+	rpClient, cfg, err := buildClient(cmd)
 	if err != nil {
 		return err
 	}
 
-	ids, err := getMergeIDs(cmd, rpClient)
+	ids, err := getMergeIDs(ctx, cmd, rpClient, cfg.Project)
 	if err != nil {
 		return err
 	}
-	rq := &openapi.MergeLaunchesRQ{
+	rq := openapi.MergeLaunchesRQ{
 		Name:      cmd.String("name"),
 		MergeType: cmd.String("type"),
 		Launches:  ids,
 	}
-	launchResource, err := rpClient.MergeLaunches(rq)
+	launchResource, _, err := rpClient.LaunchAsyncAPI.MergeLaunchesOldUuid(ctx, cfg.Project).MergeLaunchesRQ(rq).Execute()
 	if err != nil {
 		return fmt.Errorf("unable to merge launches: %w", err)
 	}
@@ -109,7 +109,7 @@ func mergeLaunches(ctx context.Context, cmd *cli.Command) error {
 }
 
 func listLaunches(ctx context.Context, cmd *cli.Command) error {
-	rpClient, err := buildClient(cmd)
+	rpClient, cfg, err := buildClient(cmd)
 	if err != nil {
 		return err
 	}
@@ -118,11 +118,11 @@ func listLaunches(ctx context.Context, cmd *cli.Command) error {
 
 	if filters := cmd.StringSlice("filter"); len(filters) > 0 {
 		filter := strings.Join(filters, "&")
-		launches, err = rpClient.GetLaunchesByFilterString(filter)
+		launches, err = rpClient.GetLaunchesByFilterString(ctx, cfg.Project, filter)
 	} else if filterName := cmd.String("filter-name"); filterName != "" {
-		launches, err = rpClient.GetLaunchesByFilterName(filterName)
+		launches, err = rpClient.GetLaunchesByFilterName(ctx, cfg.Project, filterName)
 	} else {
-		launches, err = rpClient.GetLaunches()
+		launches, _, err = rpClient.LaunchAPI.GetProjectLaunches(ctx, cfg.Project).Execute()
 	}
 	if err != nil {
 		return err
@@ -136,7 +136,7 @@ func listLaunches(ctx context.Context, cmd *cli.Command) error {
 	return nil
 }
 
-func getMergeIDs(cmd *cli.Command, rpClient *gorp.Client) ([]int64, error) {
+func getMergeIDs(ctx context.Context, cmd *cli.Command, rpClient *gorp.Client, project string) ([]int64, error) {
 	if ids := cmd.IntSlice("ids"); len(ids) > 0 {
 		return ids, nil
 	}
@@ -148,9 +148,9 @@ func getMergeIDs(cmd *cli.Command, rpClient *gorp.Client) ([]int64, error) {
 	filterName := cmd.String("filter-name")
 	switch {
 	case filter != "":
-		launches, err = rpClient.GetLaunchesByFilterString(filter)
+		launches, err = rpClient.GetLaunchesByFilterString(ctx, project, filter)
 	case filterName != "":
-		launches, err = rpClient.GetLaunchesByFilterName(filterName)
+		launches, err = rpClient.GetLaunchesByFilterName(ctx, project, filterName)
 	default:
 		return nil, errFilterNotProvided
 	}

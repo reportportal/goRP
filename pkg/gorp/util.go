@@ -3,8 +3,6 @@ package gorp
 import (
 	"fmt"
 	"net/url"
-	"strconv"
-
 	"resty.dev/v3"
 
 	"github.com/reportportal/goRP/v5/pkg/openapi"
@@ -36,19 +34,4 @@ func directionToStr(asc bool) string {
 		return "ASC"
 	}
 	return "DESC"
-}
-
-func addPaging(details PageDetails) func(rq *resty.Request) *resty.Request {
-	return func(rq *resty.Request) *resty.Request {
-		if details.PageSize > 0 {
-			rq.SetQueryParam("page.size", strconv.Itoa(details.PageSize))
-		}
-		if details.PageNumber > 0 {
-			rq.SetQueryParam("page.page", strconv.Itoa(details.PageNumber))
-		}
-		if details.SortBy != "" {
-			rq.SetQueryParam("page.sort", details.SortBy)
-		}
-		return rq
-	}
 }

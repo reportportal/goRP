@@ -6,7 +6,7 @@ BINARY_DIR=bin
 GODIRS_NOVENDOR = $(shell go list ./... | grep -v /vendor/)
 GOFILES_NOVENDOR = $(shell find . -type f -name '*.go' -not -path "./vendor/*")
 BUILD_INFO_LDFLAGS=-ldflags "-extldflags '"-static"' -X main.buildDate=${BUILD_DATE} -X main.version=${v}"
-GOLANG_CI = docker run --rm -v $(shell pwd):/app -w /app golangci/golangci-lint:v2.0.2 golangci-lint
+GOLANG_CI = docker run --rm -v $(shell pwd):/app -w /app golangci/golangci-lint:v2.1.2 golangci-lint
 .PHONY: test build
 
 help:

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -50,10 +51,11 @@ func TestGetLaunches(t *testing.T) {
 		_, _ = w.Write([]byte(response))
 	}))
 	defer server.Close()
+	u, _ := url.Parse(server.URL)
 
-	client := NewClient(server.URL, "prj", "uuid")
+	client := NewClient(u, "prj", "uuid")
 
-	result, err := client.GetLaunches()
+	result, _, err := client.LaunchAPI.GetProjectLaunches(t.Context(), "prj").Execute()
 
 	assert.NoError(t, err)
 	assert.NotNil(t, result)
@@ -98,15 +100,14 @@ func TestGetLaunchesPage(t *testing.T) {
 	}))
 	defer server.Close()
 
-	client := NewClient(server.URL, "prj", "uuid")
+	u, _ := url.Parse(server.URL)
+	client := NewClient(u, "prj", "uuid")
 
-	paging := PageDetails{
-		PageNumber: 2,
-		PageSize:   10,
-		SortBy:     "startTime,DESC",
-	}
-
-	result, err := client.GetLaunchesPage(paging)
+	result, _, err := client.LaunchAPI.GetProjectLaunches(t.Context(), "prj").
+		PagePage(2).
+		PageSize(10).
+		PageSort("startTime,DESC").
+		Execute()
 
 	require.NoError(t, err)
 	require.NotNil(t, result)
@@ -158,9 +159,10 @@ func TestGetFiltersByName(t *testing.T) {
 	}))
 	defer server.Close()
 
-	client := NewClient(server.URL, "prj", "uuid")
+	u, _ := url.Parse(server.URL)
+	client := NewClient(u, "prj", "uuid")
 
-	result, err := client.GetFiltersByName("test-filter")
+	result, _, err := client.UserFilterAPI.GetAllFilters(t.Context(), "prj").FilterEqName("test-filter").Execute()
 
 	assert.NoError(t, err)
 	assert.NotNil(t, result)
@@ -174,7 +176,7 @@ func TestMergeLaunches(t *testing.T) {
 
 	// Setup test server
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		assert.Equal(t, "/api/v1/prj/launch/merge", r.URL.Path)
+		assert.Equal(t, "/api/v2/prj/launch/merge", r.URL.Path)
 		assert.Equal(t, http.MethodPost, r.Method)
 
 		// Parse request body
@@ -199,16 +201,17 @@ func TestMergeLaunches(t *testing.T) {
 	}))
 	defer server.Close()
 
-	client := NewClient(server.URL, "prj", "uuid")
+	u, _ := url.Parse(server.URL)
+	client := NewClient(u, "prj", "uuid")
 
-	mergeRQ := &openapi.MergeLaunchesRQ{
+	mergeRQ := openapi.MergeLaunchesRQ{
 		Name:        "Merged Launch",
 		Description: openapi.PtrString("Merged launch description"),
 		Launches:    []int64{1, 2},
 		MergeType:   "BASIC",
 	}
 
-	result, err := client.MergeLaunches(mergeRQ)
+	result, _, err := client.LaunchAsyncAPI.MergeLaunchesOldUuid(t.Context(), "prj").MergeLaunchesRQ(mergeRQ).Execute()
 
 	assert.NoError(t, err)
 	assert.NotNil(t, result)

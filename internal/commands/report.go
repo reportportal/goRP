@@ -63,7 +63,7 @@ var (
 )
 
 func reportTest2json(ctx context.Context, cmd *cli.Command) error {
-	rpClient, err := buildClient(cmd)
+	rpClient, _, err := buildClient(cmd)
 	if err != nil {
 		return err
 	}

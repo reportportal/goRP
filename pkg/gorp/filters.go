@@ -1,6 +1,8 @@
 package gorp
 
 import (
+	"context"
+
 	"resty.dev/v3"
 
 	"github.com/reportportal/goRP/v5/pkg/openapi"
@@ -9,15 +11,15 @@ import (
 const baseUrlFilters = "/api/v1/{project}/filter"
 
 type filterClient struct {
-	project string
-	http    *resty.Client
+	http *resty.Client
 }
 
 // GetFiltersByName retrieves filter by its name
-func (c *filterClient) GetFiltersByName(name string) (*openapi.PageUserFilterResource, error) {
+func (c *filterClient) GetFiltersByName(ctx context.Context, project, name string) (*openapi.PageUserFilterResource, error) {
 	var filter openapi.PageUserFilterResource
 	_, err := c.http.R().
-		SetPathParam("project", c.project).
+		SetContext(ctx).
+		SetPathParam("project", project).
 		SetQueryParam("filter.eq.name", name).
 		SetResult(&filter).
 		Get(baseUrlFilters)

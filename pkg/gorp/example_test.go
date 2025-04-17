@@ -1,8 +1,10 @@
 package gorp
 
 import (
+	"context"
 	"fmt"
 	"log"
+	"net/url"
 	"os"
 	"time"
 
@@ -12,7 +14,8 @@ import (
 )
 
 func ExampleClient() {
-	client := NewClient("", "", "")
+	defaultProject := ""
+	client := NewClient(&url.URL{}, defaultProject, "")
 
 	launchUUID := uuid.New().String()
 	_, err := client.StartLaunch(&openapi.StartLaunchRQ{
@@ -90,28 +93,29 @@ func ExampleClient() {
 	})
 	checkErr(err, "unable to finish launch")
 
-	launches, err := client.GetLaunches()
+	launches, _, err := client.LaunchAPI.GetProjectLaunches(context.Background(), defaultProject).Execute()
 	checkErr(err, "unable to get launches")
 	for _, launch := range launches.Content {
 		fmt.Printf("%+v\n", launch)
 	}
 
-	launchesPage, err := client.GetLaunchesPage(PageDetails{PageNumber: 1, PageSize: 50})
+	launchesPage, _, err := client.LaunchAPI.GetProjectLaunches(context.Background(), defaultProject).
+		PagePage(1).PageSize(50).Execute()
 	checkErr(err, "unable to get launches")
 	fmt.Println(len(launchesPage.Content))
 	if len(launchesPage.Content) <= 2 {
 		log.Fatal("expected 1 launch while getting launches page")
 	}
 
-	launchesPage, err = client.GetLaunchesByFilterPage(map[string]string{
-		"launch.name": "gorp-test",
-	}, PageDetails{PageNumber: 1, PageSize: 1, SortBy: "startTime,number,DESC"})
+	launchesPage, _, err = client.LaunchAPI.GetProjectLaunches(context.Background(), defaultProject).
+		FilterEqName("gorp-test").
+		PagePage(1).PageSize(1).PageSort("startTime,number,DESC").Execute()
+
 	checkErr(err, "unable to get launches")
 	fmt.Println(len(launchesPage.Content))
 	if len(launchesPage.Content) != 1 {
 		log.Fatal("expected 1 launch while getting launches page by filter")
 	}
-	// Output:
 }
 
 func checkErr(err error, msg string) {

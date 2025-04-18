@@ -63,7 +63,7 @@ var (
 )
 
 func reportTest2json(ctx context.Context, cmd *cli.Command) error {
-	rpClient, _, err := buildClient(cmd)
+	rpClient, _, err := buildReportingClient(cmd)
 	if err != nil {
 		return err
 	}
@@ -136,7 +136,7 @@ type testEvent struct {
 
 type reporter struct {
 	input            <-chan *testEvent
-	client           *gorppkg.Client
+	client           *gorppkg.ReportingClient
 	launchName       string
 	launchID         string
 	launchOnce       sync.Once
@@ -150,7 +150,7 @@ type reporter struct {
 }
 
 func newReporter(
-	client *gorppkg.Client,
+	client *gorppkg.ReportingClient,
 	launchName string,
 	input <-chan *testEvent,
 	reportEmpty bool,

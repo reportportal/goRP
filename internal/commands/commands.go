@@ -137,11 +137,20 @@ func getConfig(c *cli.Command) (*config, error) {
 	return cfg, nil
 }
 
+func buildReportingClient(cmd *cli.Command) (*gorp.ReportingClient, *config, error) {
+	cfg, err := getConfig(cmd)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return gorp.NewReportingClient(cfg.URL.String(), cfg.Project, cfg.UUID), cfg, nil
+}
+
 func buildClient(cmd *cli.Command) (*gorp.Client, *config, error) {
 	cfg, err := getConfig(cmd)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	return gorp.NewClient(cfg.URL, cfg.Project, cfg.UUID), cfg, nil
+	return gorp.NewClient(cfg.URL, cfg.UUID), cfg, nil
 }

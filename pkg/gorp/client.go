@@ -20,7 +20,6 @@ func (e *HTTPError) Error() string {
 
 // Client is ReportPortal REST API Client
 type Client struct {
-	*ReportingClient
 	*launchClient
 	*openapi.APIClient
 }
@@ -29,21 +28,17 @@ type Client struct {
 // host - server hostname
 // project - name of the project
 // apiKey - User Token (see user profile page)
-func NewClient(host *url.URL, project, apiKey string) *Client {
+func NewClient(host *url.URL, apiKey string) *Client {
 	http := resty.New().
 		SetBaseURL(host.String()).
 		SetAuthToken(apiKey).
 		AddResponseMiddleware(defaultHTTPErrorHandler)
 
 	return &Client{
-		ReportingClient: &ReportingClient{
-			project: project,
-			http:    http,
-		},
 		launchClient: &launchClient{
 			http: http,
 		},
-		APIClient: newAPIClient(host, project),
+		APIClient: newAPIClient(host, apiKey),
 	}
 }
 

@@ -15,10 +15,11 @@ import (
 
 func ExampleClient() {
 	defaultProject := ""
-	client := NewClient(&url.URL{}, defaultProject, "")
+	client := NewClient(&url.URL{}, "")
+	reportingClient := NewReportingClient("", defaultProject, "")
 
 	launchUUID := uuid.New().String()
-	_, err := client.StartLaunch(&openapi.StartLaunchRQ{
+	_, err := reportingClient.StartLaunch(&openapi.StartLaunchRQ{
 		Mode:        openapi.PtrString(string(LaunchModes.Default)),
 		Name:        "gorp-test",
 		Uuid:        launchUUID,
@@ -28,7 +29,7 @@ func ExampleClient() {
 	checkErr(err, "unable to start launch")
 
 	testUUID := uuid.New()
-	_, err = client.StartTest(&openapi.StartTestItemRQ{
+	_, err = reportingClient.StartTest(&openapi.StartTestItemRQ{
 		LaunchUuid: launchUUID,
 		CodeRef:    openapi.PtrString("example_test.go"),
 		UniqueId:   openapi.PtrString("another one unique ID"),
@@ -40,7 +41,7 @@ func ExampleClient() {
 	})
 	checkErr(err, "unable to start test")
 
-	_, err = client.SaveLog(&openapi.SaveLogRQ{
+	_, err = reportingClient.SaveLog(&openapi.SaveLogRQ{
 		LaunchUuid: launchUUID,
 		ItemUuid:   openapi.PtrString(testUUID.String()),
 		Level:      openapi.PtrString(LogLevelInfo),
@@ -54,7 +55,7 @@ func ExampleClient() {
 	file2, err := os.Open("../../go.sum")
 	checkErr(err, "unable to read file")
 
-	_, err = client.SaveLogMultipart([]*openapi.SaveLogRQ{
+	_, err = reportingClient.SaveLogMultipart([]*openapi.SaveLogRQ{
 		{
 			LaunchUuid: launchUUID,
 			ItemUuid:   openapi.PtrString(testUUID.String()),
@@ -80,14 +81,14 @@ func ExampleClient() {
 
 	checkErr(err, "unable to save log multipart")
 
-	_, err = client.FinishTest(testUUID.String(), &openapi.FinishTestItemRQ{
+	_, err = reportingClient.FinishTest(testUUID.String(), &openapi.FinishTestItemRQ{
 		LaunchUuid: launchUUID,
 		EndTime:    time.Now(),
 		Status:     openapi.PtrString(string(Statuses.Passed)),
 	})
 	checkErr(err, "unable to finish test")
 
-	_, err = client.FinishLaunch(launchUUID, &openapi.FinishExecutionRQ{
+	_, err = reportingClient.FinishLaunch(launchUUID, &openapi.FinishExecutionRQ{
 		Status:  openapi.PtrString(string(Statuses.Passed)),
 		EndTime: time.Now(),
 	})

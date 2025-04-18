@@ -12,12 +12,12 @@ import (
 func TestCreateRPClient(t *testing.T) {
 	t.Parallel()
 	project := "prj"
-	u, _ := url.Parse("http://host.com")
-	client := NewClient(u, project, "uuid")
+
+	client := NewReportingClient("http://host.com", project, "uuid")
 
 	assert.Equal(t, "prj", client.project)
-	assert.Equal(t, "http://host.com", client.ReportingClient.http.BaseURL())
-	assert.Equal(t, "uuid", client.ReportingClient.http.AuthToken())
+	assert.Equal(t, "http://host.com", client.http.BaseURL())
+	assert.Equal(t, "uuid", client.http.AuthToken())
 }
 
 func TestHandleErrors(t *testing.T) {
@@ -30,7 +30,7 @@ func TestHandleErrors(t *testing.T) {
 
 	u, _ := url.Parse(server.URL)
 
-	client := NewClient(u, project, "uuid")
+	client := NewClient(u, "uuid")
 	_, _, err := client.LaunchAPI.GetProjectLaunches(t.Context(), project).Execute()
 	assert.Error(t, err)
 }

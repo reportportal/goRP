@@ -162,7 +162,9 @@ func TestGetFiltersByName(t *testing.T) {
 	u, _ := url.Parse(server.URL)
 	client := NewClient(u, "prj", "uuid")
 
-	result, _, err := client.UserFilterAPI.GetAllFilters(t.Context(), "prj").FilterEqName("test-filter").Execute()
+	result, _, err := client.UserFilterAPI.GetAllFilters(t.Context(), "prj").
+		FilterEqName("test-filter").
+		Execute()
 
 	assert.NoError(t, err)
 	assert.NotNil(t, result)
@@ -211,7 +213,9 @@ func TestMergeLaunches(t *testing.T) {
 		MergeType:   "BASIC",
 	}
 
-	result, _, err := client.LaunchAsyncAPI.MergeLaunchesOldUuid(t.Context(), "prj").MergeLaunchesRQ(mergeRQ).Execute()
+	result, _, err := client.LaunchAsyncAPI.MergeLaunchesOldUuid(t.Context(), "prj").
+		MergeLaunchesRQ(mergeRQ).
+		Execute()
 
 	assert.NoError(t, err)
 	assert.NotNil(t, result)

@@ -93,14 +93,17 @@ func ExampleClient() {
 	})
 	checkErr(err, "unable to finish launch")
 
-	launches, _, err := client.LaunchAPI.GetProjectLaunches(context.Background(), defaultProject).Execute()
+	launches, _, err := client.LaunchAPI.GetProjectLaunches(context.Background(), defaultProject).
+		Execute()
 	checkErr(err, "unable to get launches")
 	for _, launch := range launches.Content {
 		fmt.Printf("%+v\n", launch)
 	}
 
 	launchesPage, _, err := client.LaunchAPI.GetProjectLaunches(context.Background(), defaultProject).
-		PagePage(1).PageSize(50).Execute()
+		PagePage(1).
+		PageSize(50).
+		Execute()
 	checkErr(err, "unable to get launches")
 	fmt.Println(len(launchesPage.Content))
 	if len(launchesPage.Content) <= 2 {
@@ -109,7 +112,10 @@ func ExampleClient() {
 
 	launchesPage, _, err = client.LaunchAPI.GetProjectLaunches(context.Background(), defaultProject).
 		FilterEqName("gorp-test").
-		PagePage(1).PageSize(1).PageSort("startTime,number,DESC").Execute()
+		PagePage(1).
+		PageSize(1).
+		PageSort("startTime,number,DESC").
+		Execute()
 
 	checkErr(err, "unable to get launches")
 	fmt.Println(len(launchesPage.Content))

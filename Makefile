@@ -21,15 +21,11 @@ lint:
 	${GOLANG_CI} run ./...
 
 fmt:
-	gofumpt -extra -l -w ${GOFILES_NOVENDOR}
-	gci write --section Standard --section Default --section "Prefix(github.com/reportportal/goRP/v5)" ${GOFILES_NOVENDOR}
+	${GOLANG_CI} fmt ./...
 
 #build: checkstyle test
 build:
 	$(GO) build ${BUILD_INFO_LDFLAGS} -o ${BINARY_DIR}/gorp ./
-
-cross-build:
-	gox ${BUILD_INFO_LDFLAGS} -arch="amd64 arm64" -os="linux windows darwin" -output="dist/{{.Dir}}_{{.OS}}_{{.Arch}}" ./cmd/gorp
 
 clean:
 	if [ -d ${BINARY_DIR} ] ; then rm -r ${BINARY_DIR} ; fi
@@ -43,6 +39,3 @@ release:
 	rm -rf dist
 	goreleaser release
 
-grpc-gen:
-	#Learn here: https://jbrandhorst.com/post/go-protobuf-tips/
-	protoc -I=. -I=vendor -I=${GOPATH}/src model/*.proto --go_out=plugins=grpc:.

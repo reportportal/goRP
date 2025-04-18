@@ -149,7 +149,13 @@ type reporter struct {
 	reportEmpty      bool
 }
 
-func newReporter(client *gorppkg.Client, launchName string, input <-chan *testEvent, reportEmpty bool, launchAttrArgs ...string) *reporter {
+func newReporter(
+	client *gorppkg.Client,
+	launchName string,
+	input <-chan *testEvent,
+	reportEmpty bool,
+	launchAttrArgs ...string,
+) *reporter {
 	launchAttributes := make([]openapi.ItemAttributesRQ, len(launchAttrArgs))
 	for idx, attr := range launchAttrArgs {
 		// Separate the key:value pair. If `:` is not present, the entire string is considered the value and an empty key is used

@@ -97,7 +97,9 @@ func mergeLaunches(ctx context.Context, cmd *cli.Command) error {
 		MergeType: cmd.String("type"),
 		Launches:  ids,
 	}
-	launchResource, _, err := rpClient.LaunchAsyncAPI.MergeLaunchesOldUuid(ctx, cfg.Project).MergeLaunchesRQ(rq).Execute()
+	launchResource, _, err := rpClient.LaunchAsyncAPI.MergeLaunchesOldUuid(ctx, cfg.Project).
+		MergeLaunchesRQ(rq).
+		Execute()
 	if err != nil {
 		return fmt.Errorf("unable to merge launches: %w", err)
 	}
@@ -136,7 +138,12 @@ func listLaunches(ctx context.Context, cmd *cli.Command) error {
 	return nil
 }
 
-func getMergeIDs(ctx context.Context, cmd *cli.Command, rpClient *gorp.Client, project string) ([]int64, error) {
+func getMergeIDs(
+	ctx context.Context,
+	cmd *cli.Command,
+	rpClient *gorp.Client,
+	project string,
+) ([]int64, error) {
 	if ids := cmd.IntSlice("ids"); len(ids) > 0 {
 		return ids, nil
 	}

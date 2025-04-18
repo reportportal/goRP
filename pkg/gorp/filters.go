@@ -15,7 +15,10 @@ type filterClient struct {
 }
 
 // GetFiltersByName retrieves filter by its name
-func (c *filterClient) GetFiltersByName(ctx context.Context, project, name string) (*openapi.PageUserFilterResource, error) {
+func (c *filterClient) GetFiltersByName(
+	ctx context.Context,
+	project, name string,
+) (*openapi.PageUserFilterResource, error) {
 	var filter openapi.PageUserFilterResource
 	_, err := c.http.R().
 		SetContext(ctx).

@@ -16,7 +16,10 @@ type launchClient struct {
 }
 
 // GetLaunchesByFilterString retrieves launches by filter as string
-func (c *launchClient) GetLaunchesByFilterString(ctx context.Context, project, filter string) (*openapi.PageLaunchResource, error) {
+func (c *launchClient) GetLaunchesByFilterString(
+	ctx context.Context,
+	project, filter string,
+) (*openapi.PageLaunchResource, error) {
 	var launches openapi.PageLaunchResource
 	_, err := c.http.R().SetContext(ctx).
 		SetPathParam("project", project).
@@ -27,14 +30,20 @@ func (c *launchClient) GetLaunchesByFilterString(ctx context.Context, project, f
 }
 
 // GetLaunchesByFilterName retrieves launches by filter name
-func (c *launchClient) GetLaunchesByFilterName(ctx context.Context, project, name string) (*openapi.PageLaunchResource, error) {
+func (c *launchClient) GetLaunchesByFilterName(
+	ctx context.Context,
+	project, name string,
+) (*openapi.PageLaunchResource, error) {
 	filter, err := (&filterClient{http: c.http}).GetFiltersByName(ctx, project, name)
 	if err != nil {
 		return nil, err
 	}
 
 	if filter.Page.GetSize() < 1 || len(filter.Content) == 0 {
-		return nil, fmt.Errorf("no filter %s found", name) //nolint:err113 //dynamic error is intentional
+		return nil, fmt.Errorf(
+			"no filter %s found",
+			name,
+		) //nolint:err113 //dynamic error is intentional
 	}
 
 	var launches openapi.PageLaunchResource

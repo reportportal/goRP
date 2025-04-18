@@ -11,13 +11,23 @@ linters:
     misspell:
       locale: US
 formatters:
+  # Enable specific formatter.
+  # Default: [] (uses standard Go formatting)
+  enable:
+    - gci
+    - gofmt
+    - gofumpt
+    - goimports
+    - golines
   settings:
+    gci:
+      sections:
+        - standard # Standard section: captures all standard packages.
+        - default # Default section: contains all imports that could not be matched to another section type.
+        - prefix(github.com/reportportal/goRP/v5)
     goimports:
       local-prefixes:
         - github.com/reportportal/goRP/v5
-  exclusions:
-    generated: lax
-    paths:
-      - third_party$
-      - builtin$
-      - examples$
+    gofumpt:
+      module-path: github.com/reportportal/goRP/v5
+      extra-rules: true

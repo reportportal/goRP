@@ -3,6 +3,7 @@ package gorp
 import (
 	"fmt"
 	"net/url"
+
 	"resty.dev/v3"
 
 	"github.com/reportportal/goRP/v5/pkg/openapi"
@@ -24,7 +25,10 @@ func ConvertToFilterParams(filter openapi.UserFilterResource) url.Values {
 	}
 
 	for _, order := range filter.Orders {
-		params.Set("page.sort", fmt.Sprintf("%s,%s", order.SortingColumn, directionToStr(order.IsAsc)))
+		params.Set(
+			"page.sort",
+			fmt.Sprintf("%s,%s", order.SortingColumn, directionToStr(order.IsAsc)),
+		)
 	}
 	return params
 }

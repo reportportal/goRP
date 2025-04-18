@@ -42,10 +42,10 @@ func NewClient(host *url.URL, apiKey string) *Client {
 	}
 }
 
-func newAPIClient(u *url.URL, uuid string) *openapi.APIClient {
+func newAPIClient(u *url.URL, apiKey string) *openapi.APIClient {
 	conf := openapi.NewConfiguration()
 	conf.Host = u.Host
 	conf.Scheme = u.Scheme
-	conf.AddDefaultHeader("Authorization", "Bearer "+uuid)
+	conf.AddDefaultHeader("Authorization", "Bearer "+apiKey)
 	return openapi.NewAPIClient(conf)
 }

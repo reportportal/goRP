@@ -144,7 +144,7 @@ func getMergeIDs(
 	rpClient *gorp.Client,
 	project string,
 ) ([]int64, error) {
-	if ids := cmd.IntSlice("ids"); len(ids) > 0 {
+	if ids := cmd.Int64Slice("ids"); len(ids) > 0 {
 		return ids, nil
 	}
 

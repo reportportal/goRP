@@ -1,6 +1,12 @@
 version: '3'
 
 vars:
+  BUILD_DATE:
+    sh: date +%FT%T%z
+  GO: go
+  BINARY_DIR: bin
+  BUILD_INFO_LDFLAGS: -ldflags "-extldflags '"-static"' -X main.buildDate={{.BUILD_DATE}} -X main.version={{.v}}"
+  GOLANG_CI: docker run --rm -v $(pwd):/app -w /app golangci/golangci-lint:v2.1.5 golangci-lint
   OUTPUT_DIR: "pkg/openapi"
   CLIENT_FILE: "{{.OUTPUT_DIR}}/client.go"
   PACKAGE_NAME: "apiclient"
@@ -11,6 +17,41 @@ vars:
     sh: uname -s
 
 tasks:
+  test:
+    desc: Run Go tests with coverage
+    cmds:
+      - "{{.GO}} test -cover ./..."
+
+  lint:
+    desc: Run golangci-lint
+    cmds:
+      - "{{.GOLANG_CI}} run ./..."
+
+  fmt:
+    desc: Format code with golangci-lint
+    cmds:
+      - "{{.GOLANG_CI}} fmt ./..."
+
+  build:
+    desc: Build the Go binary
+    # deps: [checkstyle, test]  # Uncomment if you want to run these before build
+    cmds:
+      - "{{.GO}} build {{.BUILD_INFO_LDFLAGS}} -o {{.BINARY_DIR}}/gorp ./"
+
+  tag:
+    desc: Create and push a git tag
+    cmds:
+      - git tag -a v{{.v}} -m "creating tag {{.v}}"
+      - git push origin "refs/tags/v{{.v}}"
+    requires:
+      vars: [v]
+
+  release:
+    desc: Run goreleaser to create a release
+    cmds:
+      - rm -rf dist
+      - goreleaser release
+
   create-output-dir:
     desc: "Create output directory if it doesn't exist"
     cmds:
@@ -19,9 +60,11 @@ tasks:
       - test -d {{.OUTPUT_DIR}}
 
   clean:
-    desc: "Remove generated files"
+    desc: "Remove binary,build,generated Remove binary and build directories/files"
     cmds:
       - rm -rf {{.OUTPUT_DIR}}
+      - rm -rf {{.BINARY_DIR}} || true
+      - rm -rf build || true
 
   generate-openapi-client:
     depends: [ clean, create-output-dir ]

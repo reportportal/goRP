@@ -5,8 +5,8 @@ vars:
     sh: date +%FT%T%z
   GO: go
   BINARY_DIR: bin
-  BUILD_INFO_LDFLAGS: -ldflags "-extldflags '"-static"' -X main.buildDate={{.BUILD_DATE}} -X main.version={{.v}}"
-  GOLANG_CI: docker run --rm -v $(pwd):/app -w /app golangci/golangci-lint:v2.1.5 golangci-lint
+  BUILD_INFO_LDFLAGS: -ldflags "-extldflags '"-static"' -X main.buildDate={{.BUILD_DATE}} -X main.version={{.VERSION}}"
+  GOLANG_CI: docker run --rm -v $(pwd):/app -w /app golangci/golangci-lint:v2.1.6 golangci-lint
   OUTPUT_DIR: "pkg/openapi"
   CLIENT_FILE: "{{.OUTPUT_DIR}}/client.go"
   PACKAGE_NAME: "apiclient"
@@ -41,10 +41,10 @@ tasks:
   tag:
     desc: Create and push a git tag
     cmds:
-      - git tag -a v{{.v}} -m "creating tag {{.v}}"
-      - git push origin "refs/tags/v{{.v}}"
+      - git tag -a v{{.VERSION}} -m "creating tag {{.VERSION}}"
+      - git push origin "refs/tags/v{{.VERSION}}"
     requires:
-      vars: [v]
+      vars: [VERSION]
 
   release:
     desc: Run goreleaser to create a release

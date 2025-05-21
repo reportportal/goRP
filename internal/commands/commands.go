@@ -15,9 +15,9 @@ import (
 )
 
 type config struct {
-	UUID    string   `json:"uuid"`
-	Project string   `json:"project"`
-	URL     *url.URL `json:"host"`
+	UUID    string `json:"uuid"`
+	Project string `json:"project"`
+	URL     string `json:"host"`
 }
 
 var (
@@ -90,8 +90,8 @@ func initConfiguration(ctx context.Context, c *cli.Command) error {
 	}
 
 	err = json.NewEncoder(f).Encode(&config{
+		URL:     host.String(),
 		Project: project,
-		URL:     host,
 		UUID:    uuid,
 	})
 	if err != nil {
@@ -123,11 +123,7 @@ func getConfig(c *cli.Command) (*config, error) {
 		cfg.Project = v
 	}
 	if v := c.String("host"); v != "" {
-		url, parseErr := url.Parse(v)
-		if parseErr != nil {
-			return nil, parseErr
-		}
-		cfg.URL = url
+		cfg.URL = v
 	}
 
 	if err := validateConfig(cfg); err != nil {
@@ -137,13 +133,8 @@ func getConfig(c *cli.Command) (*config, error) {
 	return cfg, nil
 }
 
-func buildReportingClient(cmd *cli.Command) (*gorp.ReportingClient, *config, error) {
-	cfg, err := getConfig(cmd)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	return gorp.NewReportingClient(cfg.URL.String(), cfg.Project, cfg.UUID), cfg, nil
+func buildReportingClient(cfg *config) *gorp.ReportingClient {
+	return gorp.NewReportingClient(cfg.URL, cfg.Project, cfg.UUID)
 }
 
 func buildClient(cmd *cli.Command) (*gorp.Client, *config, error) {
@@ -152,5 +143,14 @@ func buildClient(cmd *cli.Command) (*gorp.Client, *config, error) {
 		return nil, nil, err
 	}
 
-	return gorp.NewClient(cfg.URL, cfg.UUID), cfg, nil
+	return buildClientFromConfig(cfg)
+}
+
+func buildClientFromConfig(cfg *config) (*gorp.Client, *config, error) {
+	parsedUrl, err := url.Parse(cfg.URL)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return gorp.NewClient(parsedUrl, cfg.UUID), cfg, nil
 }

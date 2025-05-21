@@ -28,9 +28,9 @@ type Client struct {
 // host - server hostname
 // project - name of the project
 // apiKey - User Token (see user profile page)
-func NewClient(host *url.URL, apiKey string) *Client {
+func NewClient(u *url.URL, apiKey string) *Client {
 	http := resty.New().
-		SetBaseURL(host.String()).
+		SetBaseURL(u.String()).
 		SetAuthToken(apiKey).
 		AddResponseMiddleware(defaultHTTPErrorHandler)
 
@@ -38,14 +38,14 @@ func NewClient(host *url.URL, apiKey string) *Client {
 		launchClient: &launchClient{
 			http: http,
 		},
-		APIClient: newAPIClient(host, apiKey),
+		APIClient: newAPIClient(u, apiKey),
 	}
 }
 
 func newAPIClient(u *url.URL, apiKey string) *openapi.APIClient {
 	conf := openapi.NewConfiguration()
-	conf.Host = u.Host
-	conf.Scheme = u.Scheme
 	conf.AddDefaultHeader("Authorization", "Bearer "+apiKey)
+	conf.Scheme = u.Scheme
+	conf.Host = u.Host
 	return openapi.NewAPIClient(conf)
 }

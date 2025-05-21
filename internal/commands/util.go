@@ -23,7 +23,7 @@ func validateConfig(cfg *config) error {
 		return errProjectNotSet
 	}
 
-	if cfg.URL == nil {
+	if cfg.URL == "" {
 		return errHostNotSet
 	}
 

@@ -89,7 +89,6 @@ OPTIONS:
         goRP report command [command options] [arguments...]
     COMMANDS:
         test2json  Input format: test2json
-        help, h    Shows a list of commands or help for one command
     OPTIONS:
         --help, -h  show help (default: false)
 ```
@@ -103,11 +102,12 @@ USAGE:
    goRP report test2json [command options]
 
 OPTIONS:
-   --file value, -f value                             File Name [$FILE]
-   --launchName value, --ln value                     Launch Name (default: "gorp launch") [$LAUNCH_NAME]
-   --reportEmptyPkg, --ep                             Whether empty packages need to be reporter. Default is false (default: false) [$REPORT_EMPTY_PKG]
-   --attr value, -a value [ --attr value, -a value ]  Launch attribute with format 'key:value'. Omitting a ':' separator will tag the launch with the value.
-   --help, -h                                         show help
+   --file string, -f string                               File Name [$FILE]
+   --launchName string, --ln string                       Launch Name (default: "gorp launch") [$LAUNCH_NAME]
+   --reportEmptyPkg, --ep                                 Whether empty packages need to be reporter. Default is false (default: false) [$REPORT_EMPTY_PKG]
+   --attr string, -a string [ --attr string, -a string ]  Launch attribute with format 'key:value'. Omitting a ':' separator will tag the launch with the value.
+   --quality-gate-check, --qgc                            Check quality gate status. Exits with exit code 10 if quality gate check fails. (default: false) [$QUALITY_GATE_CHECK]
+   --help, -h                                             show help
 ```
 
 ## Using as Golang Test Results Agent

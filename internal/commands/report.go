@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"log/slog"
@@ -57,31 +58,80 @@ var (
 				Aliases: []string{"a"},
 				Usage:   "Launch attribute with format 'key:value'. Omitting a ':' separator will tag the launch with the value.",
 			},
+			&cli.BoolFlag{
+				Name:    "quality-gate-check",
+				Aliases: []string{"qgc"},
+				Usage:   "Check quality gate status. Exits with exit code 10 if quality gate check fails.",
+				Sources: cli.EnvVars("QUALITY_GATE_CHECK"),
+				Value:   false,
+			},
 		},
-		Action: reportTest2json,
+		Action: reportTest2Json,
 	}
 )
 
-func reportTest2json(ctx context.Context, cmd *cli.Command) error {
-	rpClient, _, err := buildReportingClient(cmd)
+func reportTest2Json(ctx context.Context, cmd *cli.Command) error {
+	cfg, err := getConfig(cmd)
 	if err != nil {
 		return err
 	}
+
+	launchID, err := reportLaunch(ctx, cfg, cmd)
+	if err != nil {
+		return err
+	}
+	if cmd.Bool("quality-gate-check") {
+		qgErr := checkQualityGate(ctx, launchID, cfg)
+		if qgErr != nil {
+			return cli.Exit(fmt.Errorf("quality gate check failed: %w", qgErr), 10)
+		}
+	}
+	return nil
+}
+
+func checkQualityGate(ctx context.Context,
+	launchID string,
+	cfg *config,
+) error {
+	rpClient, _, err := buildClientFromConfig(cfg)
+	if err != nil {
+		return err
+	}
+	launchObject, _, err := rpClient.LaunchAPI.GetLaunch(ctx, launchID, cfg.Project).Execute()
+	if err != nil {
+		return err
+	}
+	qgMetadata, ok := launchObject.GetMetadata()["qualityGate"]
+	if !ok {
+		return errors.New("quality gate metadata not found")
+	}
+	qg, ok := qgMetadata.(map[string]any)
+	if ok {
+		fmt.Println("Quality Gate: ", qg)
+	} else {
+		slog.Error("Unable to parse quality gate metadata")
+	}
+	return nil
+}
+
+func reportLaunch(ctx context.Context, cfg *config, cmd *cli.Command) (string, error) {
+	rpClient := buildReportingClient(cfg)
+
 	input := make(chan *testEvent)
 
 	// run in separate goroutine
 	launchNameArg := cmd.String("launchName")
 	reportEmptyPkgArg := cmd.Bool("reportEmptyPkg")
 	attrArgs := cmd.StringSlice("attr")
-	rep := newReporter(rpClient, launchNameArg, input, reportEmptyPkgArg, attrArgs...)
+	rep := newReporter(input, rpClient, launchNameArg, reportEmptyPkgArg, attrArgs...)
 
 	errChan := make(chan error)
 	wg := &sync.WaitGroup{}
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		if err := rep.receive(); err != nil {
-			errChan <- err
+		if recErr := rep.receive(); recErr != nil {
+			errChan <- recErr
 			return
 		}
 	}()
@@ -94,7 +144,7 @@ func reportTest2json(ctx context.Context, cmd *cli.Command) error {
 	if fileName := cmd.String("file"); fileName != "" {
 		f, fErr := os.Open(filepath.Clean(fileName))
 		if fErr != nil {
-			return fErr
+			return "", fErr
 		}
 		defer func() {
 			if cErr := f.Close(); cErr != nil {
@@ -113,16 +163,16 @@ func reportTest2json(ctx context.Context, cmd *cli.Command) error {
 		var ev testEvent
 		if err := json.Unmarshal([]byte(data), &ev); err != nil {
 			slog.Error(err.Error())
-			return err
+			return "", err
 		}
 		select {
 		case err := <-errChan:
 			slog.Error("input processing interrupted", "error", err)
-			return err
+			return "", err
 		case input <- &ev:
 		}
 	}
-	return nil
+	return rep.launchID, nil
 }
 
 type testEvent struct {
@@ -150,9 +200,9 @@ type reporter struct {
 }
 
 func newReporter(
+	input <-chan *testEvent,
 	client *gorppkg.ReportingClient,
 	launchName string,
-	input <-chan *testEvent,
 	reportEmpty bool,
 	launchAttrArgs ...string,
 ) *reporter {

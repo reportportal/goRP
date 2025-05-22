@@ -102,12 +102,16 @@ USAGE:
    goRP report test2json [command options]
 
 OPTIONS:
-   --file string, -f string                               File Name [$FILE]
-   --launchName string, --ln string                       Launch Name (default: "gorp launch") [$LAUNCH_NAME]
-   --reportEmptyPkg, --ep                                 Whether empty packages need to be reporter. Default is false (default: false) [$REPORT_EMPTY_PKG]
-   --attr string, -a string [ --attr string, -a string ]  Launch attribute with format 'key:value'. Omitting a ':' separator will tag the launch with the value.
-   --quality-gate-check, --qgc                            Check quality gate status. Exits with exit code 10 if quality gate check fails. (default: false) [$QUALITY_GATE_CHECK]
-   --help, -h                                             show help
+OPTIONS:
+   --file string, -f string                                 File Name [$FILE]
+   --launchName string, --ln string                         Launch Name (default: "gorp launch") [$LAUNCH_NAME]
+   --reportEmptyPkg, --ep                                   Whether empty packages need to be reporter. Default is false (default: false) [$REPORT_EMPTY_PKG]
+   --attr string, -a string [ --attr string, -a string ]    Launch attribute with format 'key:value'. Omitting a ':' separator will tag the launch with the value.
+   --print-launch-uuid                                      Print launch UUID to console (default: false)
+   --quality-gate-check, --qgc                              Check quality gate status. Exits with exit code 10 if quality gate check fails. (default: false) [$QUALITY_GATE_CHECK]
+   --quality-gate-timeout duration, --qgt duration          Timeout for quality gate check (default: 1m0s) [$QUALITY_GATE_TIMEOUT]
+   --quality-gate-check-interval duration, --qgci duration  Interval for quality gate check (default: 3s) [$QUALITY_GATE_CHECK_INTERVAL]
+   --help, -h                                               show help
 ```
 
 ## Using as Golang Test Results Agent

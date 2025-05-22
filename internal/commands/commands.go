@@ -14,7 +14,7 @@ import (
 	"github.com/reportportal/goRP/v5/pkg/gorp"
 )
 
-type config struct {
+type clientConfig struct {
 	UUID    string `json:"uuid"`
 	Project string `json:"project"`
 	URL     string `json:"host"`
@@ -89,7 +89,7 @@ func initConfiguration(ctx context.Context, c *cli.Command) error {
 		return err
 	}
 
-	err = json.NewEncoder(f).Encode(&config{
+	err = json.NewEncoder(f).Encode(&clientConfig{
 		URL:     host.String(),
 		Project: project,
 		UUID:    uuid,
@@ -104,8 +104,8 @@ func initConfiguration(ctx context.Context, c *cli.Command) error {
 	return nil
 }
 
-func getConfig(c *cli.Command) (*config, error) {
-	cfg := &config{}
+func getConfig(c *cli.Command) (*clientConfig, error) {
+	cfg := &clientConfig{}
 	if configFilePresent() {
 		f, err := os.Open(getConfigFile())
 		if err != nil {
@@ -133,11 +133,11 @@ func getConfig(c *cli.Command) (*config, error) {
 	return cfg, nil
 }
 
-func buildReportingClient(cfg *config) *gorp.ReportingClient {
+func buildReportingClient(cfg *clientConfig) *gorp.ReportingClient {
 	return gorp.NewReportingClient(cfg.URL, cfg.Project, cfg.UUID)
 }
 
-func buildClient(cmd *cli.Command) (*gorp.Client, *config, error) {
+func buildClient(cmd *cli.Command) (*gorp.Client, *clientConfig, error) {
 	cfg, err := getConfig(cmd)
 	if err != nil {
 		return nil, nil, err
@@ -146,7 +146,7 @@ func buildClient(cmd *cli.Command) (*gorp.Client, *config, error) {
 	return buildClientFromConfig(cfg)
 }
 
-func buildClientFromConfig(cfg *config) (*gorp.Client, *config, error) {
+func buildClientFromConfig(cfg *clientConfig) (*gorp.Client, *clientConfig, error) {
 	parsedUrl, err := url.Parse(cfg.URL)
 	if err != nil {
 		return nil, nil, err

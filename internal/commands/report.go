@@ -59,11 +59,30 @@ var (
 				Usage:   "Launch attribute with format 'key:value'. Omitting a ':' separator will tag the launch with the value.",
 			},
 			&cli.BoolFlag{
+				Name:  "print-launch-uuid",
+				Usage: "Print launch UUID to console",
+				Value: false,
+			},
+			&cli.BoolFlag{
 				Name:    "quality-gate-check",
 				Aliases: []string{"qgc"},
 				Usage:   "Check quality gate status. Exits with exit code 10 if quality gate check fails.",
 				Sources: cli.EnvVars("QUALITY_GATE_CHECK"),
 				Value:   false,
+			},
+			&cli.DurationFlag{
+				Name:    "quality-gate-timeout",
+				Aliases: []string{"qgt"},
+				Usage:   "Timeout for quality gate check",
+				Sources: cli.EnvVars("QUALITY_GATE_TIMEOUT"),
+				Value:   1 * time.Minute,
+			},
+			&cli.DurationFlag{
+				Name:    "quality-gate-check-interval",
+				Aliases: []string{"qgci"},
+				Usage:   "Interval for quality gate check",
+				Sources: cli.EnvVars("QUALITY_GATE_CHECK_INTERVAL"),
+				Value:   3 * time.Second,
 			},
 		},
 		Action: reportTest2Json,
@@ -80,41 +99,81 @@ func reportTest2Json(ctx context.Context, cmd *cli.Command) error {
 	if err != nil {
 		return err
 	}
-	if cmd.Bool("quality-gate-check") {
-		qgErr := checkQualityGate(ctx, launchID, cfg)
+	if cmd.Bool("print-launch-uuid") {
+		fmt.Printf("ReportPortal Launch UUID:%s\n", launchID)
+	}
+	if !cmd.Bool("quality-gate-check") {
+		qgErr := checkQualityGate(ctx, launchID, cfg, cmd)
 		if qgErr != nil {
 			return cli.Exit(fmt.Errorf("quality gate check failed: %w", qgErr), 10)
 		}
 	}
+
 	return nil
 }
 
 func checkQualityGate(ctx context.Context,
 	launchID string,
-	cfg *config,
+	cfg *clientConfig,
+	cmd *cli.Command,
 ) error {
+	qgTimeout := cmd.Duration("quality-gate-timeout")
+	qgCheckInterval := cmd.Duration("quality-gate-check-interval")
+
 	rpClient, _, err := buildClientFromConfig(cfg)
 	if err != nil {
 		return err
 	}
-	launchObject, _, err := rpClient.LaunchAPI.GetLaunch(ctx, launchID, cfg.Project).Execute()
-	if err != nil {
-		return err
+
+	ctx, cancel := context.WithTimeout(ctx, qgTimeout)
+	defer cancel()
+
+	checkF := func(ctx context.Context) (bool, error) {
+		launchObject, _, err := rpClient.LaunchAPI.GetLaunch(ctx, launchID, cfg.Project).Execute()
+		if err != nil {
+			return true, err
+		}
+
+		qg, ok := gorppkg.ParseQualityGate(launchObject.GetMetadata())
+		if !ok {
+			return true, errors.New("quality gate metadata not found")
+		}
+		if qg.Status == "IN PROGRESS" {
+			return false, nil
+		}
+		if qg.Status != "PASSED" {
+			return true, fmt.Errorf("quality gate status: %s", qg.Status)
+		}
+		return true, nil
 	}
-	qgMetadata, ok := launchObject.GetMetadata()["qualityGate"]
-	if !ok {
-		return errors.New("quality gate metadata not found")
+
+	pollForStatusF := func(ctx context.Context) error {
+		ticker := time.NewTicker(qgCheckInterval)
+		defer ticker.Stop()
+
+		for {
+			select {
+			case <-ctx.Done():
+				return fmt.Errorf("timeout waiting for quality gate status")
+			default:
+				ok, cErr := checkF(ctx)
+				if cErr != nil {
+					return cErr
+				}
+				if !ok {
+					continue
+				}
+				return nil
+			}
+		}
 	}
-	qg, ok := qgMetadata.(map[string]any)
-	if ok {
-		fmt.Println("Quality Gate: ", qg)
-	} else {
-		slog.Error("Unable to parse quality gate metadata")
+	if pErr := pollForStatusF(ctx); pErr != nil {
+		return pErr
 	}
 	return nil
 }
 
-func reportLaunch(ctx context.Context, cfg *config, cmd *cli.Command) (string, error) {
+func reportLaunch(ctx context.Context, cfg *clientConfig, cmd *cli.Command) (string, error) {
 	rpClient := buildReportingClient(cfg)
 
 	input := make(chan *testEvent)
@@ -126,6 +185,8 @@ func reportLaunch(ctx context.Context, cfg *config, cmd *cli.Command) (string, e
 	rep := newReporter(input, rpClient, launchNameArg, reportEmptyPkgArg, attrArgs...)
 
 	errChan := make(chan error)
+	defer close(errChan)
+
 	wg := &sync.WaitGroup{}
 	wg.Add(1)
 	go func() {
@@ -172,7 +233,7 @@ func reportLaunch(ctx context.Context, cfg *config, cmd *cli.Command) (string, e
 		case input <- &ev:
 		}
 	}
-	return rep.launchID, nil
+	return rep.launchUUID, nil
 }
 
 type testEvent struct {
@@ -188,7 +249,7 @@ type reporter struct {
 	input            <-chan *testEvent
 	client           *gorppkg.ReportingClient
 	launchName       string
-	launchID         string
+	launchUUID       string
 	launchOnce       sync.Once
 	launchAttributes []openapi.ItemAttributesRQ
 	tests            map[string]string
@@ -288,7 +349,7 @@ func (r *reporter) receive() error {
 	r.waitQueue.Wait()
 
 	// finish launch of started
-	if r.launchID != "" {
+	if r.launchUUID != "" {
 		if err := r.finishLaunch(gorppkg.Statuses.Passed, prevEventTime); err != nil {
 			return err
 		}
@@ -300,7 +361,7 @@ func (r *reporter) startSuite(ev *testEvent) (string, error) {
 	rs, err := r.client.StartTest(&openapi.StartTestItemRQ{
 		Name:       ev.Package,
 		StartTime:  ev.Time,
-		LaunchUuid: r.launchID,
+		LaunchUuid: r.launchUUID,
 		HasStats:   openapi.PtrBool(false),
 		Type:       string(gorppkg.TestItemTypes.Suite),
 		Retry:      openapi.PtrBool(false),
@@ -328,7 +389,7 @@ func (r *reporter) startTest(ev *testEvent) error {
 	rs, err := r.client.StartChildTest(suiteID, &openapi.StartTestItemRQ{
 		Name:       ev.Test,
 		StartTime:  ev.Time,
-		LaunchUuid: r.launchID,
+		LaunchUuid: r.launchUUID,
 		HasStats:   openapi.PtrBool(true),
 		UniqueId:   openapi.PtrString(testID),
 		CodeRef:    openapi.PtrString(testID),
@@ -360,7 +421,7 @@ func (r *reporter) log(ev *testEvent) {
 
 	rq := &openapi.SaveLogRQ{
 		ItemUuid:   openapi.PtrString(testUuid),
-		LaunchUuid: r.launchID,
+		LaunchUuid: r.launchUUID,
 		Level:      openapi.PtrString(gorppkg.LogLevelInfo),
 		Time:       ev.Time,
 		Message:    openapi.PtrString(ev.Output),
@@ -399,12 +460,12 @@ func (r *reporter) startLaunch(startTime time.Time) error {
 	if err != nil {
 		return err
 	}
-	r.launchID = *launch.Id
+	r.launchUUID = *launch.Id
 	return err
 }
 
 func (r *reporter) finishLaunch(status gorppkg.Status, endTime time.Time) error {
-	_, err := r.client.FinishLaunch(r.launchID, &openapi.FinishExecutionRQ{
+	_, err := r.client.FinishLaunch(r.launchUUID, &openapi.FinishExecutionRQ{
 		Status:  status.Ptr(),
 		EndTime: endTime,
 	})
@@ -418,7 +479,7 @@ func (r *reporter) finishTest(ev *testEvent, status gorppkg.Status) error {
 	_, err := r.client.FinishTest(testID, &openapi.FinishTestItemRQ{
 		EndTime:    ev.Time,
 		Status:     status.Ptr(),
-		LaunchUuid: r.launchID,
+		LaunchUuid: r.launchUUID,
 	})
 	return err
 }
@@ -442,7 +503,7 @@ func (r *reporter) finishSuite(ev *testEvent, status gorppkg.Status) error {
 	_, err := r.client.FinishTest(suiteID, &openapi.FinishTestItemRQ{
 		EndTime:    ev.Time,
 		Status:     status.Ptr(),
-		LaunchUuid: r.launchID,
+		LaunchUuid: r.launchUUID,
 	})
 	return err
 }

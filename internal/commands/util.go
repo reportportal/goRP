@@ -14,7 +14,7 @@ var (
 	errUUIDNotSet    = errors.New("uuid is not set")
 )
 
-func validateConfig(cfg *config) error {
+func validateConfig(cfg *clientConfig) error {
 	if cfg.UUID == "" {
 		return errUUIDNotSet
 	}

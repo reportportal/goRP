@@ -156,7 +156,7 @@ func checkQualityGate(ctx context.Context,
 			case <-ctx.Done():
 				return fmt.Errorf("timeout waiting for quality gate status")
 			default:
-				ok, cErr := checkF(ctx)
+				ok, cErr := checkF(context.Background())
 				if cErr != nil {
 					return cErr
 				}

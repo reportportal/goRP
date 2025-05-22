@@ -50,7 +50,7 @@ type _LaunchResourceOld LaunchResourceOld
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewLaunchResourceOld(id int64, uuid, name string, number int64, startTime time.Time, status string) *LaunchResourceOld {
+func NewLaunchResourceOld(id int64, uuid string, name string, number int64, startTime time.Time, status string) *LaunchResourceOld {
 	this := LaunchResourceOld{}
 	this.Id = id
 	this.Uuid = uuid

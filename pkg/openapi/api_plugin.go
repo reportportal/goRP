@@ -157,7 +157,7 @@ ExecuteImportPluginCommand Send report to the specified plugin for importing
 	@param projectName
 	@return ApiExecuteImportPluginCommandRequest
 */
-func (a *PluginAPIService) ExecuteImportPluginCommand(ctx context.Context, pluginName, projectName string) ApiExecuteImportPluginCommandRequest {
+func (a *PluginAPIService) ExecuteImportPluginCommand(ctx context.Context, pluginName string, projectName string) ApiExecuteImportPluginCommandRequest {
 	return ApiExecuteImportPluginCommandRequest{
 		ApiService:  a,
 		ctx:         ctx,
@@ -275,10 +275,10 @@ type ApiExecutePluginCommandRequest struct {
 	command     string
 	pluginName  string
 	projectName string
-	requestBody *map[string]map[string]interface{}
+	requestBody *map[string]interface{}
 }
 
-func (r ApiExecutePluginCommandRequest) RequestBody(requestBody map[string]map[string]interface{}) ApiExecutePluginCommandRequest {
+func (r ApiExecutePluginCommandRequest) RequestBody(requestBody map[string]interface{}) ApiExecutePluginCommandRequest {
 	r.requestBody = &requestBody
 	return r
 }
@@ -296,7 +296,7 @@ ExecutePluginCommand Execute command to the plugin instance
 	@param projectName
 	@return ApiExecutePluginCommandRequest
 */
-func (a *PluginAPIService) ExecutePluginCommand(ctx context.Context, command, pluginName, projectName string) ApiExecutePluginCommandRequest {
+func (a *PluginAPIService) ExecutePluginCommand(ctx context.Context, command string, pluginName string, projectName string) ApiExecutePluginCommandRequest {
 	return ApiExecutePluginCommandRequest{
 		ApiService:  a,
 		ctx:         ctx,

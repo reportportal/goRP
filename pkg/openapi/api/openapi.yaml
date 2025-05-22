@@ -2089,8 +2089,7 @@ paths:
         content:
           application/json:
             schema:
-              additionalProperties:
-                type: object
+              additionalProperties: {}
         required: true
       responses:
         "200":

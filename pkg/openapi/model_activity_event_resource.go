@@ -55,7 +55,7 @@ type _ActivityEventResource ActivityEventResource
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewActivityEventResource(id int64, createdAt time.Time, eventName string, objectId int64, objectName, objectType string, projectId int64, projectName, subjectName, subjectType, subjectId string) *ActivityEventResource {
+func NewActivityEventResource(id int64, createdAt time.Time, eventName string, objectId int64, objectName string, objectType string, projectId int64, projectName string, subjectName string, subjectType string, subjectId string) *ActivityEventResource {
 	this := ActivityEventResource{}
 	this.Id = id
 	this.CreatedAt = createdAt

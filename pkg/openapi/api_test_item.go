@@ -503,7 +503,7 @@ FinishTestItem2 Finish test item
 	@param testItemId
 	@return ApiFinishTestItem2Request
 */
-func (a *TestItemAPIService) FinishTestItem2(ctx context.Context, projectName, testItemId string) ApiFinishTestItem2Request {
+func (a *TestItemAPIService) FinishTestItem2(ctx context.Context, projectName string, testItemId string) ApiFinishTestItem2Request {
 	return ApiFinishTestItem2Request{
 		ApiService:  a,
 		ctx:         ctx,
@@ -620,7 +620,7 @@ FinishTestItem3 Finish test item
 	@param testItemId
 	@return ApiFinishTestItem3Request
 */
-func (a *TestItemAPIService) FinishTestItem3(ctx context.Context, projectName, testItemId string) ApiFinishTestItem3Request {
+func (a *TestItemAPIService) FinishTestItem3(ctx context.Context, projectName string, testItemId string) ApiFinishTestItem3Request {
 	return ApiFinishTestItem3Request{
 		ApiService:  a,
 		ctx:         ctx,
@@ -2178,7 +2178,7 @@ GetTestItem Find test item by ID
 	@param projectName
 	@return ApiGetTestItemRequest
 */
-func (a *TestItemAPIService) GetTestItem(ctx context.Context, itemId, projectName string) ApiGetTestItemRequest {
+func (a *TestItemAPIService) GetTestItem(ctx context.Context, itemId string, projectName string) ApiGetTestItemRequest {
 	return ApiGetTestItemRequest{
 		ApiService:  a,
 		ctx:         ctx,
@@ -2284,7 +2284,7 @@ GetTestItemByUuidTimestamp Find test item by UUID
 	@param projectName
 	@return ApiGetTestItemByUuidTimestampRequest
 */
-func (a *TestItemAPIService) GetTestItemByUuidTimestamp(ctx context.Context, itemId, projectName string) ApiGetTestItemByUuidTimestampRequest {
+func (a *TestItemAPIService) GetTestItemByUuidTimestamp(ctx context.Context, itemId string, projectName string) ApiGetTestItemByUuidTimestampRequest {
 	return ApiGetTestItemByUuidTimestampRequest{
 		ApiService:  a,
 		ctx:         ctx,
@@ -5243,7 +5243,7 @@ StartChildItem2 Start a child test item
 	@param projectName
 	@return ApiStartChildItem2Request
 */
-func (a *TestItemAPIService) StartChildItem2(ctx context.Context, parentItem, projectName string) ApiStartChildItem2Request {
+func (a *TestItemAPIService) StartChildItem2(ctx context.Context, parentItem string, projectName string) ApiStartChildItem2Request {
 	return ApiStartChildItem2Request{
 		ApiService:  a,
 		ctx:         ctx,
@@ -5360,7 +5360,7 @@ StartChildItem3 Start a child test item
 	@param projectName
 	@return ApiStartChildItem3Request
 */
-func (a *TestItemAPIService) StartChildItem3(ctx context.Context, parentItem, projectName string) ApiStartChildItem3Request {
+func (a *TestItemAPIService) StartChildItem3(ctx context.Context, parentItem string, projectName string) ApiStartChildItem3Request {
 	return ApiStartChildItem3Request{
 		ApiService:  a,
 		ctx:         ctx,

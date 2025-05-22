@@ -34,7 +34,7 @@ type _CreateUserRQConfirm CreateUserRQConfirm
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewCreateUserRQConfirm(login, password, fullName, email string) *CreateUserRQConfirm {
+func NewCreateUserRQConfirm(login string, password string, fullName string, email string) *CreateUserRQConfirm {
 	this := CreateUserRQConfirm{}
 	this.Login = login
 	this.Password = password

@@ -50,7 +50,7 @@ Add or update project in group.  ### Authority  - `ADMINISTRATOR`
 	@param projectId Project identifier.
 	@return ApiAddProjectToGroupByIdRequest
 */
-func (a *GroupsAPIService) AddProjectToGroupById(ctx context.Context, groupId, projectId int64) ApiAddProjectToGroupByIdRequest {
+func (a *GroupsAPIService) AddProjectToGroupById(ctx context.Context, groupId int64, projectId int64) ApiAddProjectToGroupByIdRequest {
 	return ApiAddProjectToGroupByIdRequest{
 		ApiService: a,
 		ctx:        ctx,
@@ -220,7 +220,7 @@ Add user into group.  ### Authority  - `ADMINISTRATOR`
 	@param userId User identifier.
 	@return ApiAddUserToGroupByIdRequest
 */
-func (a *GroupsAPIService) AddUserToGroupById(ctx context.Context, groupId, userId int64) ApiAddUserToGroupByIdRequest {
+func (a *GroupsAPIService) AddUserToGroupById(ctx context.Context, groupId int64, userId int64) ApiAddUserToGroupByIdRequest {
 	return ApiAddUserToGroupByIdRequest{
 		ApiService: a,
 		ctx:        ctx,
@@ -702,7 +702,7 @@ Delete project from group.  ### Authority  - `ADMINISTRATOR`
 	@param projectId Project identifier.
 	@return ApiDeleteProjectFromGroupByIdRequest
 */
-func (a *GroupsAPIService) DeleteProjectFromGroupById(ctx context.Context, groupId, projectId int64) ApiDeleteProjectFromGroupByIdRequest {
+func (a *GroupsAPIService) DeleteProjectFromGroupById(ctx context.Context, groupId int64, projectId int64) ApiDeleteProjectFromGroupByIdRequest {
 	return ApiDeleteProjectFromGroupByIdRequest{
 		ApiService: a,
 		ctx:        ctx,
@@ -858,7 +858,7 @@ Delete a user from a group.  ### Authority  - `ADMINISTRATOR`
 	@param userId User identifier.
 	@return ApiDeleteUserFromGroupByIdRequest
 */
-func (a *GroupsAPIService) DeleteUserFromGroupById(ctx context.Context, groupId, userId int64) ApiDeleteUserFromGroupByIdRequest {
+func (a *GroupsAPIService) DeleteUserFromGroupById(ctx context.Context, groupId int64, userId int64) ApiDeleteUserFromGroupByIdRequest {
 	return ApiDeleteUserFromGroupByIdRequest{
 		ApiService: a,
 		ctx:        ctx,
@@ -1175,7 +1175,7 @@ Get project of group.  ### Authority  - `ADMINISTRATOR`
 	@param projectId Project identifier.
 	@return ApiGetGroupProjectByIdRequest
 */
-func (a *GroupsAPIService) GetGroupProjectById(ctx context.Context, groupId, projectId int64) ApiGetGroupProjectByIdRequest {
+func (a *GroupsAPIService) GetGroupProjectById(ctx context.Context, groupId int64, projectId int64) ApiGetGroupProjectByIdRequest {
 	return ApiGetGroupProjectByIdRequest{
 		ApiService: a,
 		ctx:        ctx,
@@ -1530,7 +1530,7 @@ Get all users of group.  ### Authority  - `ADMINISTRATOR`
 	@param userId User identifier.
 	@return ApiGetGroupUserByIdRequest
 */
-func (a *GroupsAPIService) GetGroupUserById(ctx context.Context, groupId, userId int64) ApiGetGroupUserByIdRequest {
+func (a *GroupsAPIService) GetGroupUserById(ctx context.Context, groupId int64, userId int64) ApiGetGroupUserByIdRequest {
 	return ApiGetGroupUserByIdRequest{
 		ApiService: a,
 		ctx:        ctx,

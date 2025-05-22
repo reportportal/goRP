@@ -51,7 +51,7 @@ type _ActivityResource ActivityResource
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewActivityResource(id int64, user string, loggedObjectId int64, lastModified time.Time, actionType, objectType string, projectId int64) *ActivityResource {
+func NewActivityResource(id int64, user string, loggedObjectId int64, lastModified time.Time, actionType string, objectType string, projectId int64) *ActivityResource {
 	this := ActivityResource{}
 	this.Id = id
 	this.User = user

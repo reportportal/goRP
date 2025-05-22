@@ -50,7 +50,7 @@ type _LaunchResource LaunchResource
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewLaunchResource(id int64, uuid, name string, number int64, startTime time.Time, status string) *LaunchResource {
+func NewLaunchResource(id int64, uuid string, name string, number int64, startTime time.Time, status string) *LaunchResource {
 	this := LaunchResource{}
 	this.Id = id
 	this.Uuid = uuid

@@ -161,7 +161,7 @@ CreateProjectIntegration Create project ReportPortal integration instance
 	@param projectName
 	@return ApiCreateProjectIntegrationRequest
 */
-func (a *IntegrationAPIService) CreateProjectIntegration(ctx context.Context, pluginName, projectName string) ApiCreateProjectIntegrationRequest {
+func (a *IntegrationAPIService) CreateProjectIntegration(ctx context.Context, pluginName string, projectName string) ApiCreateProjectIntegrationRequest {
 	return ApiCreateProjectIntegrationRequest{
 		ApiService:  a,
 		ctx:         ctx,
@@ -374,7 +374,7 @@ DeleteAllProjectIntegrations Delete all integrations assigned to specified proje
 	@param type_
 	@return ApiDeleteAllProjectIntegrationsRequest
 */
-func (a *IntegrationAPIService) DeleteAllProjectIntegrations(ctx context.Context, projectName, type_ string) ApiDeleteAllProjectIntegrationsRequest {
+func (a *IntegrationAPIService) DeleteAllProjectIntegrations(ctx context.Context, projectName string, type_ string) ApiDeleteAllProjectIntegrationsRequest {
 	return ApiDeleteAllProjectIntegrationsRequest{
 		ApiService:  a,
 		ctx:         ctx,
@@ -1417,7 +1417,7 @@ GetProjectIntegrations1 Get available project integrations for plugin
 	@param projectName
 	@return ApiGetProjectIntegrations1Request
 */
-func (a *IntegrationAPIService) GetProjectIntegrations1(ctx context.Context, pluginName, projectName string) ApiGetProjectIntegrations1Request {
+func (a *IntegrationAPIService) GetProjectIntegrations1(ctx context.Context, pluginName string, projectName string) ApiGetProjectIntegrations1Request {
 	return ApiGetProjectIntegrations1Request{
 		ApiService:  a,
 		ctx:         ctx,

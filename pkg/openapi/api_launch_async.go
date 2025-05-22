@@ -50,7 +50,7 @@ Finish launch for specified project
 	@param projectName
 	@return ApiFinishLaunchRequest
 */
-func (a *LaunchAsyncAPIService) FinishLaunch(ctx context.Context, launchId, projectName string) ApiFinishLaunchRequest {
+func (a *LaunchAsyncAPIService) FinishLaunch(ctx context.Context, launchId string, projectName string) ApiFinishLaunchRequest {
 	return ApiFinishLaunchRequest{
 		ApiService:  a,
 		ctx:         ctx,

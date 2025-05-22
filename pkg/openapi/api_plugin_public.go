@@ -48,7 +48,7 @@ ExecutePublicPluginCommand Execute public command without authentication
 	@param pluginName
 	@return ApiExecutePublicPluginCommandRequest
 */
-func (a *PluginPublicAPIService) ExecutePublicPluginCommand(ctx context.Context, command, pluginName string) ApiExecutePublicPluginCommandRequest {
+func (a *PluginPublicAPIService) ExecutePublicPluginCommand(ctx context.Context, command string, pluginName string) ApiExecutePublicPluginCommandRequest {
 	return ApiExecutePublicPluginCommandRequest{
 		ApiService: a,
 		ctx:        ctx,
@@ -257,7 +257,7 @@ GetPublicFile Get public plugin file without authentication
 	@param pluginName
 	@return ApiGetPublicFileRequest
 */
-func (a *PluginPublicAPIService) GetPublicFile(ctx context.Context, name, pluginName string) ApiGetPublicFileRequest {
+func (a *PluginPublicAPIService) GetPublicFile(ctx context.Context, name string, pluginName string) ApiGetPublicFileRequest {
 	return ApiGetPublicFileRequest{
 		ApiService: a,
 		ctx:        ctx,

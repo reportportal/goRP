@@ -679,7 +679,7 @@ GetLog Get log by ID
 	@param projectName
 	@return ApiGetLogRequest
 */
-func (a *LogAPIService) GetLog(ctx context.Context, logId, projectName string) ApiGetLogRequest {
+func (a *LogAPIService) GetLog(ctx context.Context, logId string, projectName string) ApiGetLogRequest {
 	return ApiGetLogRequest{
 		ApiService:  a,
 		ctx:         ctx,
@@ -787,7 +787,7 @@ GetLogByUuid Get log by UUID (Will be removed in version 6.0)
 
 Deprecated
 */
-func (a *LogAPIService) GetLogByUuid(ctx context.Context, logId, projectName string) ApiGetLogByUuidRequest {
+func (a *LogAPIService) GetLogByUuid(ctx context.Context, logId string, projectName string) ApiGetLogByUuidRequest {
 	return ApiGetLogByUuidRequest{
 		ApiService:  a,
 		ctx:         ctx,

@@ -1898,7 +1898,7 @@ GetProjectWidget Get Project Widget
 	@param widgetCode
 	@return ApiGetProjectWidgetRequest
 */
-func (a *ProjectAPIService) GetProjectWidget(ctx context.Context, projectName, widgetCode string) ApiGetProjectWidgetRequest {
+func (a *ProjectAPIService) GetProjectWidget(ctx context.Context, projectName string, widgetCode string) ApiGetProjectWidgetRequest {
 	return ApiGetProjectWidgetRequest{
 		ApiService:  a,
 		ctx:         ctx,

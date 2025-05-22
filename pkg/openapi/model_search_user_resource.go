@@ -37,7 +37,7 @@ type _SearchUserResource SearchUserResource
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewSearchUserResource(id int64, login, email string) *SearchUserResource {
+func NewSearchUserResource(id int64, login string, email string) *SearchUserResource {
 	this := SearchUserResource{}
 	this.Id = id
 	this.Login = login

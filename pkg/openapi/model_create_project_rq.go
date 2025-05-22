@@ -32,7 +32,7 @@ type _CreateProjectRQ CreateProjectRQ
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewCreateProjectRQ(projectName, entryType string) *CreateProjectRQ {
+func NewCreateProjectRQ(projectName string, entryType string) *CreateProjectRQ {
 	this := CreateProjectRQ{}
 	this.ProjectName = projectName
 	this.EntryType = entryType

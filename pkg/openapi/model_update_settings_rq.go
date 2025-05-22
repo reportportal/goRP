@@ -32,7 +32,7 @@ type _UpdateSettingsRq UpdateSettingsRq
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewUpdateSettingsRq(key, value string) *UpdateSettingsRq {
+func NewUpdateSettingsRq(key string, value string) *UpdateSettingsRq {
 	this := UpdateSettingsRq{}
 	this.Key = key
 	this.Value = value

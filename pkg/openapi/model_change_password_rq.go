@@ -32,7 +32,7 @@ type _ChangePasswordRQ ChangePasswordRQ
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewChangePasswordRQ(newPassword, oldPassword string) *ChangePasswordRQ {
+func NewChangePasswordRQ(newPassword string, oldPassword string) *ChangePasswordRQ {
 	this := ChangePasswordRQ{}
 	this.NewPassword = newPassword
 	this.OldPassword = oldPassword

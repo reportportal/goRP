@@ -607,7 +607,7 @@ GetTicket Get ticket from the bts integration
 	@param ticketId
 	@return ApiGetTicketRequest
 */
-func (a *BugTrackingSystemAPIService) GetTicket(ctx context.Context, projectName, ticketId string) ApiGetTicketRequest {
+func (a *BugTrackingSystemAPIService) GetTicket(ctx context.Context, projectName string, ticketId string) ApiGetTicketRequest {
 	return ApiGetTicketRequest{
 		ApiService:  a,
 		ctx:         ctx,

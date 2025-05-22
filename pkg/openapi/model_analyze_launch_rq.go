@@ -34,7 +34,7 @@ type _AnalyzeLaunchRQ AnalyzeLaunchRQ
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewAnalyzeLaunchRQ(launchId int64, analyzerMode, analyzerTypeName string, analyzeItemsMode []string) *AnalyzeLaunchRQ {
+func NewAnalyzeLaunchRQ(launchId int64, analyzerMode string, analyzerTypeName string, analyzeItemsMode []string) *AnalyzeLaunchRQ {
 	this := AnalyzeLaunchRQ{}
 	this.LaunchId = launchId
 	this.AnalyzerMode = analyzerMode

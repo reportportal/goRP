@@ -34,7 +34,7 @@ type _CreatePatternTemplateRQ CreatePatternTemplateRQ
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewCreatePatternTemplateRQ(name, value, type_ string, enabled bool) *CreatePatternTemplateRQ {
+func NewCreatePatternTemplateRQ(name string, value string, type_ string, enabled bool) *CreatePatternTemplateRQ {
 	this := CreatePatternTemplateRQ{}
 	this.Name = name
 	this.Value = value

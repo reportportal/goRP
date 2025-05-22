@@ -38,7 +38,7 @@ type _WidgetResource WidgetResource
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewWidgetResource(id int64, name, widgetType string, contentParameters ContentParameters) *WidgetResource {
+func NewWidgetResource(id int64, name string, widgetType string, contentParameters ContentParameters) *WidgetResource {
 	this := WidgetResource{}
 	this.Id = id
 	this.Name = name

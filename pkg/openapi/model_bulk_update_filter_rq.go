@@ -36,7 +36,7 @@ type _BulkUpdateFilterRQ BulkUpdateFilterRQ
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewBulkUpdateFilterRQ(name, type_ string, conditions []UserFilterCondition, orders []Order, id string) *BulkUpdateFilterRQ {
+func NewBulkUpdateFilterRQ(name string, type_ string, conditions []UserFilterCondition, orders []Order, id string) *BulkUpdateFilterRQ {
 	this := BulkUpdateFilterRQ{}
 	this.Name = name
 	this.Type = type_

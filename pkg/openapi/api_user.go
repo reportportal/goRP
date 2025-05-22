@@ -604,7 +604,7 @@ DeleteApiKey Delete specified Api Key
 	@param userId
 	@return ApiDeleteApiKeyRequest
 */
-func (a *UserAPIService) DeleteApiKey(ctx context.Context, keyId, userId int64) ApiDeleteApiKeyRequest {
+func (a *UserAPIService) DeleteApiKey(ctx context.Context, keyId int64, userId int64) ApiDeleteApiKeyRequest {
 	return ApiDeleteApiKeyRequest{
 		ApiService: a,
 		ctx:        ctx,

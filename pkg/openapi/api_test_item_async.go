@@ -50,7 +50,7 @@ Finish test item
 	@param testItemId
 	@return ApiFinishTestItemRequest
 */
-func (a *TestItemAsyncAPIService) FinishTestItem(ctx context.Context, projectName, testItemId string) ApiFinishTestItemRequest {
+func (a *TestItemAsyncAPIService) FinishTestItem(ctx context.Context, projectName string, testItemId string) ApiFinishTestItemRequest {
 	return ApiFinishTestItemRequest{
 		ApiService:  a,
 		ctx:         ctx,
@@ -169,7 +169,7 @@ Finish test item
 	@param testItemId
 	@return ApiFinishTestItem1Request
 */
-func (a *TestItemAsyncAPIService) FinishTestItem1(ctx context.Context, projectName, testItemId string) ApiFinishTestItem1Request {
+func (a *TestItemAsyncAPIService) FinishTestItem1(ctx context.Context, projectName string, testItemId string) ApiFinishTestItem1Request {
 	return ApiFinishTestItem1Request{
 		ApiService:  a,
 		ctx:         ctx,
@@ -288,7 +288,7 @@ Start a child test item
 	@param projectName
 	@return ApiStartChildItemRequest
 */
-func (a *TestItemAsyncAPIService) StartChildItem(ctx context.Context, parentItem, projectName string) ApiStartChildItemRequest {
+func (a *TestItemAsyncAPIService) StartChildItem(ctx context.Context, parentItem string, projectName string) ApiStartChildItemRequest {
 	return ApiStartChildItemRequest{
 		ApiService:  a,
 		ctx:         ctx,
@@ -407,7 +407,7 @@ Start a child test item
 	@param projectName
 	@return ApiStartChildItem1Request
 */
-func (a *TestItemAsyncAPIService) StartChildItem1(ctx context.Context, parentItem, projectName string) ApiStartChildItem1Request {
+func (a *TestItemAsyncAPIService) StartChildItem1(ctx context.Context, parentItem string, projectName string) ApiStartChildItem1Request {
 	return ApiStartChildItem1Request{
 		ApiService:  a,
 		ctx:         ctx,

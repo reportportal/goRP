@@ -36,7 +36,7 @@ type _PagedResponseActivityEventResource PagedResponseActivityEventResource
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewPagedResponseActivityEventResource(offset int64, limit int32, totalCount int64, sort, order string, items []ActivityEventResource) *PagedResponseActivityEventResource {
+func NewPagedResponseActivityEventResource(offset int64, limit int32, totalCount int64, sort string, order string, items []ActivityEventResource) *PagedResponseActivityEventResource {
 	this := PagedResponseActivityEventResource{}
 	this.Offset = offset
 	this.Limit = limit

@@ -42,7 +42,7 @@ type _ProjectInfoResource ProjectInfoResource
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewProjectInfoResource(id int64, projectName string, usersQuantity, launchesQuantity int32, lastRun, creationDate time.Time) *ProjectInfoResource {
+func NewProjectInfoResource(id int64, projectName string, usersQuantity int32, launchesQuantity int32, lastRun time.Time, creationDate time.Time) *ProjectInfoResource {
 	this := ProjectInfoResource{}
 	this.Id = id
 	this.ProjectName = projectName

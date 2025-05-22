@@ -46,7 +46,7 @@ type _StartTestItemRQ StartTestItemRQ
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewStartTestItemRQ(startTime time.Time, launchUuid, name, uuid, type_ string) *StartTestItemRQ {
+func NewStartTestItemRQ(startTime time.Time, launchUuid string, name string, uuid string, type_ string) *StartTestItemRQ {
 	this := StartTestItemRQ{}
 	this.StartTime = startTime
 	this.LaunchUuid = launchUuid

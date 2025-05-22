@@ -33,7 +33,7 @@ type _SearchCriteria SearchCriteria
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewSearchCriteria(filterKey, value string) *SearchCriteria {
+func NewSearchCriteria(filterKey string, value string) *SearchCriteria {
 	this := SearchCriteria{}
 	this.FilterKey = filterKey
 	this.Value = value

@@ -40,7 +40,7 @@ type _StartLaunchRQ StartLaunchRQ
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewStartLaunchRQ(startTime time.Time, name, uuid string) *StartLaunchRQ {
+func NewStartLaunchRQ(startTime time.Time, name string, uuid string) *StartLaunchRQ {
 	this := StartLaunchRQ{}
 	this.StartTime = startTime
 	this.Name = name

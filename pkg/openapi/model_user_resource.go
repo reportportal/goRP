@@ -43,7 +43,7 @@ type _UserResource UserResource
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewUserResource(id int64, userId, email string) *UserResource {
+func NewUserResource(id int64, userId string, email string) *UserResource {
 	this := UserResource{}
 	this.Id = id
 	this.UserId = userId

@@ -40,7 +40,7 @@ type _SenderCaseDTO SenderCaseDTO
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewSenderCaseDTO(ruleName, sendCase, attributesOperator string) *SenderCaseDTO {
+func NewSenderCaseDTO(ruleName string, sendCase string, attributesOperator string) *SenderCaseDTO {
 	this := SenderCaseDTO{}
 	this.RuleName = ruleName
 	this.SendCase = sendCase

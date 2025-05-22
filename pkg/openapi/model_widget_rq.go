@@ -35,7 +35,7 @@ type _WidgetRQ WidgetRQ
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewWidgetRQ(name, widgetType string) *WidgetRQ {
+func NewWidgetRQ(name string, widgetType string) *WidgetRQ {
 	this := WidgetRQ{}
 	this.Name = name
 	this.WidgetType = widgetType

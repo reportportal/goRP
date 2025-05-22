@@ -33,7 +33,7 @@ type _UserFilterCondition UserFilterCondition
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewUserFilterCondition(filteringField, condition, value string) *UserFilterCondition {
+func NewUserFilterCondition(filteringField string, condition string, value string) *UserFilterCondition {
 	this := UserFilterCondition{}
 	this.FilteringField = filteringField
 	this.Condition = condition

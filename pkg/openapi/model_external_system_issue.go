@@ -37,7 +37,7 @@ type _ExternalSystemIssue ExternalSystemIssue
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewExternalSystemIssue(ticketId, btsUrl, btsProject, url string) *ExternalSystemIssue {
+func NewExternalSystemIssue(ticketId string, btsUrl string, btsProject string, url string) *ExternalSystemIssue {
 	this := ExternalSystemIssue{}
 	this.TicketId = ticketId
 	this.BtsUrl = btsUrl

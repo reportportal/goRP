@@ -33,7 +33,7 @@ type _BinaryContent BinaryContent
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewBinaryContent(id, thumbnailId, contentType string) *BinaryContent {
+func NewBinaryContent(id string, thumbnailId string, contentType string) *BinaryContent {
 	this := BinaryContent{}
 	this.Id = id
 	this.ThumbnailId = thumbnailId

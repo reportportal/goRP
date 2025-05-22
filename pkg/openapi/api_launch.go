@@ -738,7 +738,7 @@ FinishLaunch1 Finish launch for specified project
 	@param projectName
 	@return ApiFinishLaunch1Request
 */
-func (a *LaunchAPIService) FinishLaunch1(ctx context.Context, launchId, projectName string) ApiFinishLaunch1Request {
+func (a *LaunchAPIService) FinishLaunch1(ctx context.Context, launchId string, projectName string) ApiFinishLaunch1Request {
 	return ApiFinishLaunch1Request{
 		ApiService:  a,
 		ctx:         ctx,
@@ -1458,7 +1458,7 @@ GetClusters Get all index clusters of the launch
 	@param projectName
 	@return ApiGetClustersRequest
 */
-func (a *LaunchAPIService) GetClusters(ctx context.Context, launchId, projectName string) ApiGetClustersRequest {
+func (a *LaunchAPIService) GetClusters(ctx context.Context, launchId string, projectName string) ApiGetClustersRequest {
 	return ApiGetClustersRequest{
 		ApiService:  a,
 		ctx:         ctx,
@@ -2357,7 +2357,7 @@ GetLaunch Get specified launch by ID
 	@param projectName
 	@return ApiGetLaunchRequest
 */
-func (a *LaunchAPIService) GetLaunch(ctx context.Context, launchId, projectName string) ApiGetLaunchRequest {
+func (a *LaunchAPIService) GetLaunch(ctx context.Context, launchId string, projectName string) ApiGetLaunchRequest {
 	return ApiGetLaunchRequest{
 		ApiService:  a,
 		ctx:         ctx,
@@ -2463,7 +2463,7 @@ GetLaunchByUuidOldTimestamp Get specified launch by UUID
 	@param projectName
 	@return ApiGetLaunchByUuidOldTimestampRequest
 */
-func (a *LaunchAPIService) GetLaunchByUuidOldTimestamp(ctx context.Context, launchId, projectName string) ApiGetLaunchByUuidOldTimestampRequest {
+func (a *LaunchAPIService) GetLaunchByUuidOldTimestamp(ctx context.Context, launchId string, projectName string) ApiGetLaunchByUuidOldTimestampRequest {
 	return ApiGetLaunchByUuidOldTimestampRequest{
 		ApiService:  a,
 		ctx:         ctx,

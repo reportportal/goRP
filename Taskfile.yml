@@ -30,6 +30,7 @@ tasks:
   fmt:
     desc: Format code with golangci-lint
     cmds:
+      - "{{.GO}} fmt ./..."
       - "{{.GOLANG_CI}} fmt ./..."
 
   build:
@@ -72,7 +73,7 @@ tasks:
     cmds:
       - >-
         docker run --rm -v $(pwd)/{{.OUTPUT_DIR}}:/generated 
-        -v $(pwd)/{{.MODIFIED_SPEC_PATH}}:/local/openapi.json openapitools/openapi-generator-cli:v7.12.0 generate 
+        -v $(pwd)/{{.MODIFIED_SPEC_PATH}}:/local/openapi.json openapitools/openapi-generator-cli:v7.13.0 generate 
         -i /local/openapi.json -g go -o /generated --package-name openapi 
         --additional-properties=withGoCodegenComment=true,enumClassPrefix=true,onlyGenerateClient=true,withGoMod=false 
         --git-repo-id gorp/v5/pkg/openapi --git-user-id reportportal
@@ -88,6 +89,20 @@ tasks:
           -v ${PWD}:/workdir \
           -w /workdir \
           ghcr.io/jqlang/jq \
-          'walk(if type == "object" and .properties and .properties.metadata and .properties.metadata.type == "object" and .properties.metadata.additionalProperties and .properties.metadata.additionalProperties.type == "object" then .properties.metadata.additionalProperties = true else . end)' \
+          '
+          # First modify metadata fields
+          walk(
+            if type == "object" and .properties and .properties.metadata and .properties.metadata.type == "object" and .properties.metadata.additionalProperties and .properties.metadata.additionalProperties.type == "object"
+            then .properties.metadata.additionalProperties = true
+            else .
+            end
+          ) |
+          # Then modify the specific plugin endpoint request body
+          if .paths["/v1/plugin/{projectName}/{pluginName}/common/{command}"].put.requestBody.content["application/json"].schema.additionalProperties != null
+          then
+            .paths["/v1/plugin/{projectName}/{pluginName}/common/{command}"].put.requestBody.content["application/json"].schema.additionalProperties = true
+          else .
+          end
+          ' \
           {{.SPEC_PATH}} > {{.MODIFIED_SPEC_PATH}}
         echo "Modified schema saved to {{.MODIFIED_SPEC_PATH}}"

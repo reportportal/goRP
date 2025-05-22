@@ -34,7 +34,7 @@ type _CreateIssueSubTypeRQ CreateIssueSubTypeRQ
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewCreateIssueSubTypeRQ(typeRef, longName, shortName, color string) *CreateIssueSubTypeRQ {
+func NewCreateIssueSubTypeRQ(typeRef string, longName string, shortName string, color string) *CreateIssueSubTypeRQ {
 	this := CreateIssueSubTypeRQ{}
 	this.TypeRef = typeRef
 	this.LongName = longName

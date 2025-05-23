@@ -19,10 +19,11 @@ var (
 
 func main() {
 	root := cli.Command{
-		Name:    "goRP",
-		Usage:   "ReportPortal CLI Client",
-		Version: fmt.Sprintf("%s (%s)", version, date),
-		Authors: []any{"Andrei Varabyeu <andrei.varabyeu@gmail.com>"},
+		Name:                  "goRP",
+		Usage:                 "ReportPortal CLI Client",
+		EnableShellCompletion: true,
+		Version:               fmt.Sprintf("%s (%s)", version, date),
+		Authors:               []any{"Andrei Varabyeu <andrei.varabyeu@gmail.com>"},
 		Before: func(ctx context.Context, cmd *cli.Command) (context.Context, error) {
 			// configure logging
 			var level slog.Level

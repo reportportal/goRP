@@ -1,15 +1,20 @@
 package commands
 
 import (
+	"bufio"
 	"context"
 	"errors"
 	"fmt"
+	"os"
+	"regexp"
 	"time"
 
 	"github.com/urfave/cli/v3"
 
 	gorppkg "github.com/reportportal/goRP/v5/pkg/gorp"
 )
+
+const uuidParseRegex = `ReportPortal Launch UUID: ([a-fA-F\d]{8}-[a-fA-F\d]{4}-[a-fA-F\d]{4}-[a-fA-F\d]{4}-[a-fA-F\d]{12})`
 
 // Arguments for quality gate check
 var (
@@ -42,15 +47,32 @@ var (
 		Aliases: []string{"qgc"},
 		Usage:   "Check the quality gate status of a launch",
 		Flags: []cli.Flag{
-			&cli.StringFlag{
-				Name:     "launch-uuid",
-				Usage:    "Launch uuid to check the quality gate status for",
-				Required: true,
-				Sources:  cli.EnvVars("LAUNCH_UUID"),
-			},
 			argQualityGateTimeout,
 			argQualityGateCheckInterval,
 		},
+		MutuallyExclusiveFlags: []cli.MutuallyExclusiveFlags{
+			// option launch-uuid cannot be set along with option stdin
+			{
+				Required: true,
+				Category: "source",
+				Flags: [][]cli.Flag{
+					{
+						&cli.StringFlag{
+							Name:    "launch-uuid",
+							Usage:   "Launch uuid to check the quality gate status for",
+							Sources: cli.EnvVars("LAUNCH_UUID"),
+						},
+					},
+					{
+						&cli.BoolFlag{
+							Name:  "stdin",
+							Usage: "Parse stdin for launch uuid",
+						},
+					},
+				},
+			},
+		},
+
 		Action: checkQualityGate,
 	}
 )
@@ -61,7 +83,32 @@ func checkQualityGate(ctx context.Context, cmd *cli.Command) error {
 	if err != nil {
 		return err
 	}
+
 	launchID := cmd.String("launch-uuid")
+	if launchID == "" {
+		if cmd.Bool("stdin") {
+			if sErr := checkStdinEmpty(); sErr != nil {
+				return err
+			}
+
+			uuidRegex := regexp.MustCompile(uuidParseRegex)
+			scanner := bufio.NewScanner(os.Stdin)
+			for scanner.Scan() {
+				data := scanner.Text()
+				found := uuidRegex.FindStringSubmatch(data)
+				if len(found) == 2 {
+					launchID = found[1]
+					break
+				}
+			}
+		}
+	}
+	fmt.Println(launchID)
+
+	if launchID == "" {
+		return cli.Exit("launch uuid not found", 1)
+	}
+
 	return checkQualityGateInternal(ctx, launchID, cfg, cmd)
 }
 
@@ -71,8 +118,8 @@ func checkQualityGateInternal(ctx context.Context,
 	cfg *clientConfig,
 	cmd *cli.Command,
 ) error {
-	qgTimeout := cmd.Duration("quality-gate-timeout")
-	qgCheckInterval := cmd.Duration("quality-gate-check-interval")
+	qgTimeout := cmd.Duration(argQualityGateTimeout.Name)
+	qgCheckInterval := cmd.Duration(argQualityGateCheckInterval.Name)
 
 	rpClient, _, err := buildClientFromConfig(cfg)
 	if err != nil {

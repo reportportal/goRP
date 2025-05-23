@@ -23,9 +23,10 @@ type clientConfig struct {
 var (
 	// RootCommand is CLI entry point
 	RootCommand = []*cli.Command{
+		initCommand,
 		launchCommand,
 		reportCommand,
-		initCommand,
+		qualityGateCommand,
 	}
 
 	initCommand = &cli.Command{

@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"log/slog"
@@ -70,20 +69,8 @@ var (
 				Sources: cli.EnvVars("QUALITY_GATE_CHECK"),
 				Value:   false,
 			},
-			&cli.DurationFlag{
-				Name:    "quality-gate-timeout",
-				Aliases: []string{"qgt"},
-				Usage:   "Timeout for quality gate check",
-				Sources: cli.EnvVars("QUALITY_GATE_TIMEOUT"),
-				Value:   1 * time.Minute,
-			},
-			&cli.DurationFlag{
-				Name:    "quality-gate-check-interval",
-				Aliases: []string{"qgci"},
-				Usage:   "Interval for quality gate check",
-				Sources: cli.EnvVars("QUALITY_GATE_CHECK_INTERVAL"),
-				Value:   3 * time.Second,
-			},
+			argQualityGateTimeout,
+			argQualityGateCheckInterval,
 		},
 		Action: reportTest2Json,
 	}
@@ -95,81 +82,23 @@ func reportTest2Json(ctx context.Context, cmd *cli.Command) error {
 		return err
 	}
 
+	// start reporting of the launch
 	launchID, err := reportLaunch(ctx, cfg, cmd)
 	if err != nil {
 		return err
 	}
+	// check if we need to print launch UUID
 	if cmd.Bool("print-launch-uuid") {
 		fmt.Printf("ReportPortal Launch UUID:%s\n", launchID)
 	}
-	if !cmd.Bool("quality-gate-check") {
-		qgErr := checkQualityGate(ctx, launchID, cfg, cmd)
+	// check if we need to check quality gate
+	if cmd.Bool("quality-gate-check") {
+		qgErr := checkQualityGateInternal(ctx, launchID, cfg, cmd)
 		if qgErr != nil {
-			return cli.Exit(fmt.Errorf("quality gate check failed: %w", qgErr), 10)
+			return qgErr
 		}
 	}
 
-	return nil
-}
-
-func checkQualityGate(ctx context.Context,
-	launchID string,
-	cfg *clientConfig,
-	cmd *cli.Command,
-) error {
-	qgTimeout := cmd.Duration("quality-gate-timeout")
-	qgCheckInterval := cmd.Duration("quality-gate-check-interval")
-
-	rpClient, _, err := buildClientFromConfig(cfg)
-	if err != nil {
-		return err
-	}
-
-	ctx, cancel := context.WithTimeout(ctx, qgTimeout)
-	defer cancel()
-
-	checkF := func(ctx context.Context) (bool, error) {
-		launchObject, _, err := rpClient.LaunchAPI.GetLaunch(ctx, launchID, cfg.Project).Execute()
-		if err != nil {
-			return true, err
-		}
-
-		qg, ok := gorppkg.ParseQualityGate(launchObject.GetMetadata())
-		if !ok {
-			return true, errors.New("quality gate metadata not found")
-		}
-		if qg.Status == "IN PROGRESS" {
-			return false, nil
-		}
-		if qg.Status != "PASSED" {
-			return true, fmt.Errorf("quality gate status: %s", qg.Status)
-		}
-		return true, nil
-	}
-
-	pollForStatusF := func(ctx context.Context) error {
-		ticker := time.NewTicker(qgCheckInterval)
-		defer ticker.Stop()
-
-		for {
-			select {
-			case <-ctx.Done():
-				return fmt.Errorf("timeout waiting for quality gate status")
-			default:
-				ok, cErr := checkF(context.Background())
-				if cErr != nil {
-					return cErr
-				}
-				if !ok {
-					continue
-				}
-				return nil
-			}
-		}
-	}
-	if pErr := pollForStatusF(ctx); pErr != nil {
-		return pErr
-	}
 	return nil
 }
 
@@ -178,7 +107,6 @@ func reportLaunch(ctx context.Context, cfg *clientConfig, cmd *cli.Command) (str
 
 	input := make(chan *testEvent)
 
-	// run in separate goroutine
 	launchNameArg := cmd.String("launchName")
 	reportEmptyPkgArg := cmd.Bool("reportEmptyPkg")
 	attrArgs := cmd.StringSlice("attr")
@@ -189,6 +117,8 @@ func reportLaunch(ctx context.Context, cfg *clientConfig, cmd *cli.Command) (str
 
 	wg := &sync.WaitGroup{}
 	wg.Add(1)
+
+	// start reporting in a separate goroutine
 	go func() {
 		defer wg.Done()
 		if recErr := rep.receive(); recErr != nil {
@@ -201,6 +131,7 @@ func reportLaunch(ctx context.Context, cfg *clientConfig, cmd *cli.Command) (str
 
 	defer close(input)
 
+	// decide where to read the input from
 	var reader io.Reader
 	if fileName := cmd.String("file"); fileName != "" {
 		f, fErr := os.Open(filepath.Clean(fileName))
@@ -217,6 +148,7 @@ func reportLaunch(ctx context.Context, cfg *clientConfig, cmd *cli.Command) (str
 		reader = os.Stdin
 	}
 
+	// read the input
 	scanner := bufio.NewScanner(reader)
 	for scanner.Scan() {
 		data := scanner.Text()
@@ -230,12 +162,24 @@ func reportLaunch(ctx context.Context, cfg *clientConfig, cmd *cli.Command) (str
 		case err := <-errChan:
 			slog.Error("input processing interrupted", "error", err)
 			return "", err
-		case input <- &ev:
+		case input <- &ev: // send event to reporter
 		}
 	}
 	return rep.launchUUID, nil
 }
 
+// testEvent represents a golang test event string
+// The Action field is one of a fixed set of action descriptions:
+//
+//	start  - the test binary is about to be executed
+//	run    - the test has started running
+//	pause  - the test has been paused
+//	cont   - the test has continued running
+//	pass   - the test passed
+//	bench  - the benchmark printed log output but did not fail
+//	fail   - the test or benchmark failed
+//	output - the test printed output
+//	skip   - the test was skipped or the package contained no tests
 type testEvent struct {
 	Time    time.Time `json:"time"` // encodes as an RFC3339-format string
 	Action  string    `json:"action"`

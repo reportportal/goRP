@@ -70,7 +70,7 @@ func TestCheckQualityGate_HappyPath(t *testing.T) {
 	cmd := createTestCommand(10*time.Second, 100*time.Millisecond)
 
 	// Act
-	err := checkQualityGate(context.Background(), launchUUID, cfg, cmd)
+	err := checkQualityGateInternal(context.Background(), launchUUID, cfg, cmd)
 
 	// Assert
 	assert.NoError(t, err)
@@ -110,7 +110,7 @@ func TestCheckQualityGate_MultipleAttempts(t *testing.T) {
 	cmd := createTestCommand(2*time.Second, 50*time.Millisecond)
 
 	// Act
-	err := checkQualityGate(context.Background(), launchUUID, cfg, cmd)
+	err := checkQualityGateInternal(context.Background(), launchUUID, cfg, cmd)
 
 	// Assert
 	assert.NoError(t, err)
@@ -146,7 +146,7 @@ func TestCheckQualityGate_Timeout(t *testing.T) {
 	cmd := createTestCommand(300*time.Millisecond, 50*time.Millisecond)
 
 	// Act
-	err := checkQualityGate(context.Background(), launchUUID, cfg, cmd)
+	err := checkQualityGateInternal(context.Background(), launchUUID, cfg, cmd)
 
 	// Assert
 	assert.Error(t, err)
@@ -179,11 +179,11 @@ func TestCheckQualityGate_FailedStatus(t *testing.T) {
 	cmd := createTestCommand(10*time.Second, 100*time.Millisecond)
 
 	// Act
-	err := checkQualityGate(context.Background(), launchUUID, cfg, cmd)
+	err := checkQualityGateInternal(context.Background(), launchUUID, cfg, cmd)
 
 	// Assert
 	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "quality gate status: FAILED")
+	assert.Contains(t, err.Error(), "status: FAILED")
 }
 
 func TestCheckQualityGate_MissingQualityGate(t *testing.T) {
@@ -211,7 +211,7 @@ func TestCheckQualityGate_MissingQualityGate(t *testing.T) {
 	cmd := createTestCommand(10*time.Second, 100*time.Millisecond)
 
 	// Act
-	err := checkQualityGate(context.Background(), launchUUID, cfg, cmd)
+	err := checkQualityGateInternal(context.Background(), launchUUID, cfg, cmd)
 
 	// Assert
 	assert.Error(t, err)

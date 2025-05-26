@@ -14,18 +14,19 @@ import (
 	"github.com/reportportal/goRP/v5/pkg/gorp"
 )
 
-type config struct {
+type clientConfig struct {
 	UUID    string `json:"uuid"`
 	Project string `json:"project"`
-	Host    string `json:"host"`
+	URL     string `json:"host"`
 }
 
 var (
 	// RootCommand is CLI entry point
 	RootCommand = []*cli.Command{
+		initCommand,
 		launchCommand,
 		reportCommand,
-		initCommand,
+		qualityGateCommand,
 	}
 
 	initCommand = &cli.Command{
@@ -63,14 +64,13 @@ func initConfiguration(ctx context.Context, c *cli.Command) error {
 
 	prompt := promptui.Prompt{
 		Label: "Enter ReportPortal hostname",
-		Validate: func(host string) error {
-			_, parseErr := url.Parse(host)
-
-			return parseErr
-		},
 	}
-	host, err := prompt.Run()
+	hostStr, err := prompt.Run()
 	if err != nil {
+		return err
+	}
+	host, parseErr := url.Parse(hostStr)
+	if parseErr != nil {
 		return err
 	}
 
@@ -90,9 +90,9 @@ func initConfiguration(ctx context.Context, c *cli.Command) error {
 		return err
 	}
 
-	err = json.NewEncoder(f).Encode(&config{
+	err = json.NewEncoder(f).Encode(&clientConfig{
+		URL:     host.String(),
 		Project: project,
-		Host:    host,
 		UUID:    uuid,
 	})
 	if err != nil {
@@ -105,8 +105,8 @@ func initConfiguration(ctx context.Context, c *cli.Command) error {
 	return nil
 }
 
-func getConfig(c *cli.Command) (*config, error) {
-	cfg := &config{}
+func getConfig(c *cli.Command) (*clientConfig, error) {
+	cfg := &clientConfig{}
 	if configFilePresent() {
 		f, err := os.Open(getConfigFile())
 		if err != nil {
@@ -124,7 +124,7 @@ func getConfig(c *cli.Command) (*config, error) {
 		cfg.Project = v
 	}
 	if v := c.String("host"); v != "" {
-		cfg.Host = v
+		cfg.URL = v
 	}
 
 	if err := validateConfig(cfg); err != nil {
@@ -134,11 +134,24 @@ func getConfig(c *cli.Command) (*config, error) {
 	return cfg, nil
 }
 
-func buildClient(cmd *cli.Command) (*gorp.Client, error) {
+func buildReportingClient(cfg *clientConfig) *gorp.ReportingClient {
+	return gorp.NewReportingClient(cfg.URL, cfg.Project, cfg.UUID)
+}
+
+func buildClient(cmd *cli.Command) (*gorp.Client, *clientConfig, error) {
 	cfg, err := getConfig(cmd)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	return gorp.NewClient(cfg.Host, cfg.Project, cfg.UUID), nil
+	return buildClientFromConfig(cfg)
+}
+
+func buildClientFromConfig(cfg *clientConfig) (*gorp.Client, *clientConfig, error) {
+	parsedUrl, err := url.Parse(cfg.URL)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return gorp.NewClient(parsedUrl, cfg.UUID), cfg, nil
 }

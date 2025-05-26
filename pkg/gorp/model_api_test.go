@@ -1,50 +1,12 @@
 package gorp
 
 import (
-	"encoding/json"
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
+
+	"github.com/reportportal/goRP/v5/pkg/openapi"
 )
-
-func TestUnixTimeDeserialization(t *testing.T) {
-	t.Parallel()
-	const jsonStr = `"1512114178671"`
-	const expTime = "2017-12-01T07:42:59+00:00"
-
-	var unitTime Timestamp
-	err := json.Unmarshal([]byte(jsonStr), &unitTime)
-	require.NoError(t, err)
-
-	unitTime = Timestamp{unitTime.Truncate(1 * time.Minute)}
-
-	d, _ := time.Parse(time.RFC3339, expTime)
-	d = d.In(time.Local).Truncate(1 * time.Minute)
-
-	assert.Equal(t, d, unitTime.Time)
-}
-
-func TestUnixTimeSerialization(t *testing.T) {
-	t.Parallel()
-	const jsonStr = `1512114179000`
-	const expTime = "2017-12-01T07:42:59+00:00"
-
-	d, _ := time.Parse(time.RFC3339, expTime)
-	bytes, err := json.Marshal(&Timestamp{d})
-	require.NoError(t, err)
-	assert.Equal(t, jsonStr, string(bytes))
-}
-
-func TestErrOnIncorrectTime(t *testing.T) {
-	t.Parallel()
-	const jsonStr = `"hello-world"`
-
-	var unitTime Timestamp
-	err := json.Unmarshal([]byte(jsonStr), &unitTime)
-	assert.Error(t, err)
-}
 
 func TestDirectionConverter(t *testing.T) {
 	t.Parallel()
@@ -54,31 +16,29 @@ func TestDirectionConverter(t *testing.T) {
 
 func TestFiltersConverter(t *testing.T) {
 	t.Parallel()
-	fp := ConvertToFilterParams(&FilterResource{
-		Entities: []*FilterEntity{
+	fp := ConvertToFilterParams(openapi.UserFilterResource{
+		Conditions: []openapi.UserFilterCondition{
 			{
-				Field:     "name",
-				Condition: "cnt",
-				Value:     "value",
+				FilteringField: "name",
+				Condition:      "cnt",
+				Value:          "value",
 			},
 			{
-				Field:     "desc",
-				Condition: "eq",
-				Value:     "valuedesc",
+				FilteringField: "desc",
+				Condition:      "eq",
+				Value:          "valuedesc",
 			},
 		},
-		SelectionParams: &FilterSelectionParam{
-			Orders: []*FilterOrder{
-				{
-					Asc:           false,
-					SortingColumn: "name",
-				},
+		Orders: []openapi.Order{
+			{
+				IsAsc:         false,
+				SortingColumn: "name",
 			},
 		},
 	})
-	assert.Equal(t, map[string]string{
-		"filter.cnt.name": "value",
-		"filter.eq.desc":  "valuedesc",
-		"page.sort":       "name,DESC",
-	}, fp)
+	assert.Equal(t, map[string][]string{
+		"filter.cnt.name": {"value"},
+		"filter.eq.desc":  {"valuedesc"},
+		"page.sort":       {"name,DESC"},
+	}, map[string][]string(fp))
 }

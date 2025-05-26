@@ -15,7 +15,8 @@ import (
 
 	"github.com/urfave/cli/v3"
 
-	gorkpkg "github.com/reportportal/goRP/v5/pkg/gorp"
+	gorppkg "github.com/reportportal/goRP/v5/pkg/gorp"
+	"github.com/reportportal/goRP/v5/pkg/openapi"
 )
 
 const logsBatchSize = 10
@@ -56,31 +57,72 @@ var (
 				Aliases: []string{"a"},
 				Usage:   "Launch attribute with format 'key:value'. Omitting a ':' separator will tag the launch with the value.",
 			},
+			&cli.BoolFlag{
+				Name:  "print-launch-uuid",
+				Usage: "Print launch UUID to console",
+				Value: false,
+			},
+			&cli.BoolFlag{
+				Name:    "quality-gate-check",
+				Aliases: []string{"qgc"},
+				Usage:   "Check quality gate status. Exits with exit code 10 if quality gate check fails.",
+				Sources: cli.EnvVars("QUALITY_GATE_CHECK"),
+				Value:   false,
+			},
+			argQualityGateTimeout,
+			argQualityGateCheckInterval,
 		},
-		Action: reportTest2json,
+		Action: reportTest2Json,
 	}
 )
 
-func reportTest2json(ctx context.Context, cmd *cli.Command) error {
-	rpClient, err := buildClient(cmd)
+func reportTest2Json(ctx context.Context, cmd *cli.Command) error {
+	cfg, err := getConfig(cmd)
 	if err != nil {
 		return err
 	}
+
+	// start reporting of the launch
+	launchID, err := reportLaunch(ctx, cfg, cmd)
+	if err != nil {
+		return err
+	}
+	// check if we need to print launch UUID
+	if cmd.Bool("print-launch-uuid") {
+		fmt.Printf("ReportPortal Launch UUID:%s\n", launchID)
+	}
+	// check if we need to check quality gate
+	if cmd.Bool("quality-gate-check") {
+		qgErr := checkQualityGateInternal(ctx, launchID, cfg, cmd)
+		if qgErr != nil {
+			return qgErr
+		}
+	}
+
+	return nil
+}
+
+func reportLaunch(ctx context.Context, cfg *clientConfig, cmd *cli.Command) (string, error) {
+	rpClient := buildReportingClient(cfg)
+
 	input := make(chan *testEvent)
 
-	// run in separate goroutine
 	launchNameArg := cmd.String("launchName")
 	reportEmptyPkgArg := cmd.Bool("reportEmptyPkg")
 	attrArgs := cmd.StringSlice("attr")
-	rep := newReporter(rpClient, launchNameArg, input, reportEmptyPkgArg, attrArgs...)
+	rep := newReporter(input, rpClient, launchNameArg, reportEmptyPkgArg, attrArgs...)
 
 	errChan := make(chan error)
+	defer close(errChan)
+
 	wg := &sync.WaitGroup{}
 	wg.Add(1)
+
+	// start reporting in a separate goroutine
 	go func() {
 		defer wg.Done()
-		if err := rep.receive(); err != nil {
-			errChan <- err
+		if recErr := rep.receive(); recErr != nil {
+			errChan <- recErr
 			return
 		}
 	}()
@@ -89,11 +131,12 @@ func reportTest2json(ctx context.Context, cmd *cli.Command) error {
 
 	defer close(input)
 
+	// decide where to read the input from
 	var reader io.Reader
 	if fileName := cmd.String("file"); fileName != "" {
 		f, fErr := os.Open(filepath.Clean(fileName))
 		if fErr != nil {
-			return fErr
+			return "", fErr
 		}
 		defer func() {
 			if cErr := f.Close(); cErr != nil {
@@ -105,6 +148,7 @@ func reportTest2json(ctx context.Context, cmd *cli.Command) error {
 		reader = os.Stdin
 	}
 
+	// read the input
 	scanner := bufio.NewScanner(reader)
 	for scanner.Scan() {
 		data := scanner.Text()
@@ -112,18 +156,30 @@ func reportTest2json(ctx context.Context, cmd *cli.Command) error {
 		var ev testEvent
 		if err := json.Unmarshal([]byte(data), &ev); err != nil {
 			slog.Error(err.Error())
-			return err
+			return "", err
 		}
 		select {
 		case err := <-errChan:
 			slog.Error("input processing interrupted", "error", err)
-			return err
-		case input <- &ev:
+			return "", err
+		case input <- &ev: // send event to reporter
 		}
 	}
-	return nil
+	return rep.launchUUID, nil
 }
 
+// testEvent represents a golang test event string
+// The Action field is one of a fixed set of action descriptions:
+//
+//	start  - the test binary is about to be executed
+//	run    - the test has started running
+//	pause  - the test has been paused
+//	cont   - the test has continued running
+//	pass   - the test passed
+//	bench  - the benchmark printed log output but did not fail
+//	fail   - the test or benchmark failed
+//	output - the test printed output
+//	skip   - the test was skipped or the package contained no tests
 type testEvent struct {
 	Time    time.Time `json:"time"` // encodes as an RFC3339-format string
 	Action  string    `json:"action"`
@@ -135,34 +191,39 @@ type testEvent struct {
 
 type reporter struct {
 	input            <-chan *testEvent
-	client           *gorkpkg.Client
+	client           *gorppkg.ReportingClient
 	launchName       string
-	launchID         string
+	launchUUID       string
 	launchOnce       sync.Once
-	launchAttributes []*gorkpkg.Attribute
+	launchAttributes []openapi.ItemAttributesRQ
 	tests            map[string]string
 	suites           map[string]string
-	logs             []*gorkpkg.SaveLogRQ
+	logs             []*openapi.SaveLogRQ
 	logsBatchSize    int
 	waitQueue        sync.WaitGroup
 	reportEmpty      bool
 }
 
-func newReporter(client *gorkpkg.Client, launchName string, input <-chan *testEvent, reportEmpty bool, launchAttrArgs ...string) *reporter {
-	launchAttributes := make([]*gorkpkg.Attribute, len(launchAttrArgs))
+func newReporter(
+	input <-chan *testEvent,
+	client *gorppkg.ReportingClient,
+	launchName string,
+	reportEmpty bool,
+	launchAttrArgs ...string,
+) *reporter {
+	launchAttributes := make([]openapi.ItemAttributesRQ, len(launchAttrArgs))
 	for idx, attr := range launchAttrArgs {
 		// Separate the key:value pair. If `:` is not present, the entire string is considered the value and an empty key is used
-		var p gorkpkg.Parameter
+		attribute := openapi.ItemAttributesRQ{
+			System: openapi.PtrBool(false),
+		}
 		if key, value, ok := strings.Cut(attr, ":"); ok {
-			p.Key = key
-			p.Value = value
+			attribute.SetKey(key)
+			attribute.SetValue(value)
 		} else {
-			p.Value = attr
+			attribute.SetValue(attr)
 		}
-		launchAttributes[idx] = &gorkpkg.Attribute{
-			Parameter: p,
-			System:    false,
-		}
+		launchAttributes[idx] = attribute
 	}
 
 	return &reporter{
@@ -173,7 +234,7 @@ func newReporter(client *gorkpkg.Client, launchName string, input <-chan *testEv
 		launchOnce:       sync.Once{},
 		tests:            map[string]string{},
 		suites:           map[string]string{},
-		logs:             []*gorkpkg.SaveLogRQ{},
+		logs:             []*openapi.SaveLogRQ{},
 		logsBatchSize:    logsBatchSize,
 		reportEmpty:      reportEmpty,
 	}
@@ -191,9 +252,9 @@ func (r *reporter) reportEvent(ev *testEvent) error {
 	case "output":
 		r.log(ev)
 	case "pass":
-		err = r.finish(ev, gorkpkg.Statuses.Passed)
+		err = r.finish(ev, gorppkg.Statuses.Passed)
 	case "fail":
-		err = r.finish(ev, gorkpkg.Statuses.Failed)
+		err = r.finish(ev, gorppkg.Statuses.Failed)
 	}
 	return err
 }
@@ -232,8 +293,8 @@ func (r *reporter) receive() error {
 	r.waitQueue.Wait()
 
 	// finish launch of started
-	if r.launchID != "" {
-		if err := r.finishLaunch(gorkpkg.Statuses.Passed, prevEventTime); err != nil {
+	if r.launchUUID != "" {
+		if err := r.finishLaunch(gorppkg.Statuses.Passed, prevEventTime); err != nil {
 			return err
 		}
 	}
@@ -241,21 +302,19 @@ func (r *reporter) receive() error {
 }
 
 func (r *reporter) startSuite(ev *testEvent) (string, error) {
-	rs, err := r.client.StartTest(&gorkpkg.StartTestRQ{
-		StartRQ: gorkpkg.StartRQ{
-			Name:      ev.Package,
-			StartTime: gorkpkg.NewTimestamp(ev.Time),
-		},
-		LaunchID: r.launchID,
-		HasStats: false,
-		Type:     gorkpkg.TestItemTypes.Suite,
-		Retry:    false,
+	rs, err := r.client.StartTest(&openapi.StartTestItemRQ{
+		Name:       ev.Package,
+		StartTime:  ev.Time,
+		LaunchUuid: r.launchUUID,
+		HasStats:   openapi.PtrBool(false),
+		Type:       string(gorppkg.TestItemTypes.Suite),
+		Retry:      openapi.PtrBool(false),
 	})
 	if err != nil {
 		return "", err
 	}
-	r.suites[ev.Package] = rs.ID
-	return rs.ID, nil
+	r.suites[ev.Package] = *rs.Id
+	return *rs.Id, nil
 }
 
 func (r *reporter) startTest(ev *testEvent) error {
@@ -271,23 +330,21 @@ func (r *reporter) startTest(ev *testEvent) error {
 			return err
 		}
 	}
-	rs, err := r.client.StartChildTest(suiteID, &gorkpkg.StartTestRQ{
-		StartRQ: gorkpkg.StartRQ{
-			Name:      ev.Test,
-			StartTime: gorkpkg.NewTimestamp(ev.Time),
-		},
-		LaunchID:   r.launchID,
-		HasStats:   true,
-		UniqueID:   testID,
-		CodeRef:    testID,
-		TestCaseID: testID,
-		Type:       gorkpkg.TestItemTypes.Test,
-		Retry:      false,
+	rs, err := r.client.StartChildTest(suiteID, &openapi.StartTestItemRQ{
+		Name:       ev.Test,
+		StartTime:  ev.Time,
+		LaunchUuid: r.launchUUID,
+		HasStats:   openapi.PtrBool(true),
+		UniqueId:   openapi.PtrString(testID),
+		CodeRef:    openapi.PtrString(testID),
+		TestCaseId: openapi.PtrString(testID),
+		Type:       string(gorppkg.TestItemTypes.Test),
+		Retry:      openapi.PtrBool(false),
 	})
 	if err != nil {
 		return err
 	}
-	r.tests[testID] = rs.ID
+	r.tests[testID] = *rs.Id
 	return nil
 }
 
@@ -296,22 +353,22 @@ func (r *reporter) log(ev *testEvent) {
 		return
 	}
 	testName := r.getTestName(ev)
-	testID := r.tests[testName]
+	testUuid := r.tests[testName]
 
 	// if output starts from tab
 	if strings.HasPrefix(strings.TrimLeft(ev.Output, " "), "\t") && len(r.logs) > 0 {
 		lastLog := r.logs[len(r.logs)-1]
-		lastLog.Message = lastLog.Message + "\n" + ev.Output
-		lastLog.Level = gorkpkg.LogLevelError
+		lastLog.Message = openapi.PtrString(*lastLog.Message + "\n" + ev.Output)
+		lastLog.Level = openapi.PtrString(gorppkg.LogLevelError)
 		return
 	}
 
-	rq := &gorkpkg.SaveLogRQ{
-		ItemID:     testID,
-		LaunchUUID: r.launchID,
-		Level:      gorkpkg.LogLevelInfo,
-		LogTime:    gorkpkg.NewTimestamp(ev.Time),
-		Message:    ev.Output,
+	rq := &openapi.SaveLogRQ{
+		ItemUuid:   openapi.PtrString(testUuid),
+		LaunchUuid: r.launchUUID,
+		Level:      openapi.PtrString(gorppkg.LogLevelInfo),
+		Time:       ev.Time,
+		Message:    openapi.PtrString(ev.Output),
 	}
 	r.logs = append(r.logs, rq)
 	r.flushLogs(false)
@@ -321,14 +378,14 @@ func (r *reporter) flushLogs(force bool) {
 	if force || (len(r.logs) >= r.logsBatchSize) {
 		batch := r.logs
 		r.waitQueue.Add(1)
-		go func(logs []*gorkpkg.SaveLogRQ) {
+		go func(logs []*openapi.SaveLogRQ) {
 			defer r.waitQueue.Done()
 
 			if _, err := r.client.SaveLogs(logs...); err != nil {
 				slog.Error("unable to report logs", "error", err, "batch_length", len(logs))
 			}
 		}(batch)
-		r.logs = []*gorkpkg.SaveLogRQ{}
+		r.logs = []*openapi.SaveLogRQ{}
 	}
 }
 
@@ -337,45 +394,41 @@ func (r *reporter) getTestName(ev *testEvent) string {
 }
 
 func (r *reporter) startLaunch(startTime time.Time) error {
-	var launch *gorkpkg.EntryCreatedRS
-	launch, err := r.client.StartLaunch(&gorkpkg.StartLaunchRQ{
-		StartRQ: gorkpkg.StartRQ{
-			Name:       r.launchName,
-			StartTime:  gorkpkg.NewTimestamp(startTime),
-			Attributes: r.launchAttributes,
-		},
-		Mode: gorkpkg.LaunchModes.Default,
+	var launch *openapi.EntryCreatedAsyncRS
+	launch, err := r.client.StartLaunch(&openapi.StartLaunchRQ{
+		Name:       r.launchName,
+		StartTime:  startTime,
+		Attributes: r.launchAttributes,
+		Mode:       openapi.PtrString(string(gorppkg.LaunchModes.Default)),
 	})
 	if err != nil {
 		return err
 	}
-	r.launchID = launch.ID
+	r.launchUUID = *launch.Id
 	return err
 }
 
-func (r *reporter) finishLaunch(status gorkpkg.Status, endTime time.Time) error {
-	_, err := r.client.FinishLaunch(r.launchID, &gorkpkg.FinishExecutionRQ{
-		Status:  status,
-		EndTime: gorkpkg.NewTimestamp(endTime),
+func (r *reporter) finishLaunch(status gorppkg.Status, endTime time.Time) error {
+	_, err := r.client.FinishLaunch(r.launchUUID, &openapi.FinishExecutionRQ{
+		Status:  status.Ptr(),
+		EndTime: endTime,
 	})
 	return err
 }
 
-func (r *reporter) finishTest(ev *testEvent, status gorkpkg.Status) error {
+func (r *reporter) finishTest(ev *testEvent, status gorppkg.Status) error {
 	testName := r.getTestName(ev)
 	testID := r.tests[testName]
 
-	_, err := r.client.FinishTest(testID, &gorkpkg.FinishTestRQ{
-		FinishExecutionRQ: gorkpkg.FinishExecutionRQ{
-			EndTime: gorkpkg.NewTimestamp(ev.Time),
-			Status:  status,
-		},
-		LaunchUUID: r.launchID,
+	_, err := r.client.FinishTest(testID, &openapi.FinishTestItemRQ{
+		EndTime:    ev.Time,
+		Status:     status.Ptr(),
+		LaunchUuid: r.launchUUID,
 	})
 	return err
 }
 
-func (r *reporter) finish(ev *testEvent, status gorkpkg.Status) error {
+func (r *reporter) finish(ev *testEvent, status gorppkg.Status) error {
 	var err error
 	if ev.Test == "" {
 		err = r.finishSuite(ev, status)
@@ -385,18 +438,16 @@ func (r *reporter) finish(ev *testEvent, status gorkpkg.Status) error {
 	return err
 }
 
-func (r *reporter) finishSuite(ev *testEvent, status gorkpkg.Status) error {
+func (r *reporter) finishSuite(ev *testEvent, status gorppkg.Status) error {
 	suiteID, found := r.suites[ev.Package]
 	if !found {
 		return fmt.Errorf("unable to find suiteID for package: %s", ev.Package)
 	}
 
-	_, err := r.client.FinishTest(suiteID, &gorkpkg.FinishTestRQ{
-		FinishExecutionRQ: gorkpkg.FinishExecutionRQ{
-			EndTime: gorkpkg.NewTimestamp(ev.Time),
-			Status:  status,
-		},
-		LaunchUUID: r.launchID,
+	_, err := r.client.FinishTest(suiteID, &openapi.FinishTestItemRQ{
+		EndTime:    ev.Time,
+		Status:     status.Ptr(),
+		LaunchUuid: r.launchUUID,
 	})
 	return err
 }

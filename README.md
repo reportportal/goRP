@@ -89,7 +89,6 @@ OPTIONS:
         goRP report command [command options] [arguments...]
     COMMANDS:
         test2json  Input format: test2json
-        help, h    Shows a list of commands or help for one command
     OPTIONS:
         --help, -h  show help (default: false)
 ```
@@ -103,11 +102,51 @@ USAGE:
    goRP report test2json [command options]
 
 OPTIONS:
-   --file value, -f value                             File Name [$FILE]
-   --launchName value, --ln value                     Launch Name (default: "gorp launch") [$LAUNCH_NAME]
-   --reportEmptyPkg, --ep                             Whether empty packages need to be reporter. Default is false (default: false) [$REPORT_EMPTY_PKG]
-   --attr value, -a value [ --attr value, -a value ]  Launch attribute with format 'key:value'. Omitting a ':' separator will tag the launch with the value.
-   --help, -h                                         show help
+   --file string, -f string                                 File Name [$FILE]
+   --launchName string, --ln string                         Launch Name (default: "gorp launch") [$LAUNCH_NAME]
+   --reportEmptyPkg, --ep                                   Whether empty packages need to be reporter. Default is false (default: false) [$REPORT_EMPTY_PKG]
+   --attr string, -a string [ --attr string, -a string ]    Launch attribute with format 'key:value'. Omitting a ':' separator will tag the launch with the value.
+   --print-launch-uuid                                      Print launch UUID to console (default: false)
+   --quality-gate-check, --qgc                              Check quality gate status. Exits with exit code 10 if quality gate check fails. (default: false) [$QUALITY_GATE_CHECK]
+   --quality-gate-timeout duration, --qgt duration          Timeout for quality gate check (default: 1m0s) [$QUALITY_GATE_TIMEOUT]
+   --quality-gate-check-interval duration, --qgci duration  Interval for quality gate check (default: 3s) [$QUALITY_GATE_CHECK_INTERVAL]
+   --help, -h                                               show help
+```
+
+### Quality Gate command
+```
+NAME:
+   goRP quality-gate - Quality gate commands
+
+USAGE:
+   goRP quality-gate [command [command options]] 
+
+COMMANDS:
+   check, qgc  Check the quality gate status of a launch
+
+OPTIONS:
+   --help, -h  show help
+```
+
+#### Check Quality Gate
+```
+NAME:
+   goRP quality-gate check - Check the quality gate status of a launch
+
+USAGE:
+   goRP quality-gate check
+
+OPTIONS:
+   --help, -h                                               show help
+   --quality-gate-check-interval duration, --qgci duration  Interval for quality gate check (default: 3s) [$QUALITY_GATE_CHECK_INTERVAL]
+   --quality-gate-timeout duration, --qgt duration          Timeout for quality gate check (default: 1m0s) [$QUALITY_GATE_TIMEOUT]
+
+   source
+
+   --launch-uuid string  Launch uuid to check the quality gate status for [$LAUNCH_UUID]
+   --stdin               Parse stdin for launch uuid (default: false)
+
+2025/05/23 17:19:21 one of these flags needs to be provided: launch-uuid, stdin
 ```
 
 ## Using as Golang Test Results Agent

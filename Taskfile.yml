@@ -1,0 +1,108 @@
+version: '3'
+
+vars:
+  BUILD_DATE:
+    sh: date +%FT%T%z
+  GO: go
+  BINARY_DIR: bin
+  BUILD_INFO_LDFLAGS: -ldflags "-w -extldflags '"-static"' -X main.buildDate={{.BUILD_DATE}} -X main.version={{.VERSION}}"
+  GOLANG_CI: docker run --rm -v $(pwd):/app -w /app golangci/golangci-lint:v2.1.6 golangci-lint
+  OUTPUT_DIR: "pkg/openapi"
+  CLIENT_FILE: "{{.OUTPUT_DIR}}/client.go"
+  PACKAGE_NAME: "apiclient"
+  SPEC_PATH: "openapi.json"
+  MODIFIED_SPEC_PATH: "openapi-modified.json"
+  # Detect OS for sed compatibility
+  OS:
+    sh: uname -s
+
+tasks:
+  test:
+    desc: Run Go tests with coverage
+    cmds:
+      - "{{.GO}} test -cover ./..."
+
+  lint:
+    desc: Run golangci-lint
+    cmds:
+      - "{{.GOLANG_CI}} run ./..."
+
+  fmt:
+    desc: Format code with golangci-lint
+    cmds:
+      - "{{.GO}} fmt ./..."
+      - "{{.GOLANG_CI}} fmt ./..."
+
+  build:
+    desc: Build the Go binary
+    # deps: [checkstyle, test]  # Uncomment if you want to run these before build
+    cmds:
+      - "{{.GO}} build {{.BUILD_INFO_LDFLAGS}} -o {{.BINARY_DIR}}/gorp ./"
+
+  tag:
+    desc: Create and push a git tag
+    cmds:
+      - git tag -a v{{.VERSION}} -m "creating tag {{.VERSION}}"
+      - git push origin "refs/tags/v{{.VERSION}}"
+    requires:
+      vars: [VERSION]
+
+  release:
+    desc: Run goreleaser to create a release
+    cmds:
+      - rm -rf dist
+      - goreleaser release
+
+  create-output-dir:
+    desc: "Create output directory if it doesn't exist"
+    cmds:
+      - mkdir -p {{.OUTPUT_DIR}}
+    status:
+      - test -d {{.OUTPUT_DIR}}
+
+  clean:
+    desc: "Remove binary,build,generated Remove binary and build directories/files"
+    cmds:
+      - rm -rf {{.OUTPUT_DIR}}
+      - rm -rf {{.BINARY_DIR}} || true
+      - rm -rf build || true
+
+  generate-openapi-client:
+    depends: [ clean, create-output-dir ]
+    desc: "Generate client code"
+    cmds:
+      - >-
+        docker run --rm -v $(pwd)/{{.OUTPUT_DIR}}:/generated 
+        -v $(pwd)/{{.MODIFIED_SPEC_PATH}}:/local/openapi.json openapitools/openapi-generator-cli:v7.13.0 generate 
+        -i /local/openapi.json -g go -o /generated --package-name openapi 
+        --additional-properties=withGoCodegenComment=true,enumClassPrefix=true,onlyGenerateClient=true,withGoMod=false 
+        --git-repo-id gorp/v5/pkg/openapi --git-user-id reportportal
+        --global-property modelDocs=false,apiDocs=false,apiTests=false
+
+  preprocess:schema:
+    desc: Preprocess OpenAPI schema using JQ to fix metadata field type
+    cmds:
+      - |
+        echo "Preprocessing OpenAPI schema with JQ..."
+        # Create a temporary modified schema using JQ in Docker
+        docker run --rm \
+          -v ${PWD}:/workdir \
+          -w /workdir \
+          ghcr.io/jqlang/jq \
+          '
+          # First modify metadata fields
+          walk(
+            if type == "object" and .properties and .properties.metadata and .properties.metadata.type == "object" and .properties.metadata.additionalProperties and .properties.metadata.additionalProperties.type == "object"
+            then .properties.metadata.additionalProperties = true
+            else .
+            end
+          ) |
+          # Then modify the specific plugin endpoint request body
+          if .paths["/v1/plugin/{projectName}/{pluginName}/common/{command}"].put.requestBody.content["application/json"].schema.additionalProperties != null
+          then
+            .paths["/v1/plugin/{projectName}/{pluginName}/common/{command}"].put.requestBody.content["application/json"].schema.additionalProperties = true
+          else .
+          end
+          ' \
+          {{.SPEC_PATH}} > {{.MODIFIED_SPEC_PATH}}
+        echo "Modified schema saved to {{.MODIFIED_SPEC_PATH}}"

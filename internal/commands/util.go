@@ -2,10 +2,13 @@ package commands
 
 import (
 	"errors"
+	"fmt"
 	"os"
 	"os/user"
 	"path/filepath"
 	"strings"
+
+	"github.com/urfave/cli/v3"
 )
 
 var (
@@ -14,7 +17,19 @@ var (
 	errUUIDNotSet    = errors.New("uuid is not set")
 )
 
-func validateConfig(cfg *config) error {
+func checkStdinEmpty() error {
+	fi, statErr := os.Stdin.Stat()
+	if statErr != nil {
+		return cli.Exit(fmt.Errorf("failed to get stdin stat: %w", statErr), 1)
+	}
+	if fi.Mode()&os.ModeCharDevice != 0 || fi.Size() == 0 {
+		// os.Stdin is empty (or attached to a terminal without redirection)
+		return cli.Exit("No input detected on stdin. Exiting...", 1)
+	}
+	return nil
+}
+
+func validateConfig(cfg *clientConfig) error {
 	if cfg.UUID == "" {
 		return errUUIDNotSet
 	}
@@ -23,7 +38,7 @@ func validateConfig(cfg *config) error {
 		return errProjectNotSet
 	}
 
-	if cfg.Host == "" {
+	if cfg.URL == "" {
 		return errHostNotSet
 	}
 

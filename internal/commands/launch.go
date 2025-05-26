@@ -9,6 +9,7 @@ import (
 	"github.com/urfave/cli/v3"
 
 	"github.com/reportportal/goRP/v5/pkg/gorp"
+	"github.com/reportportal/goRP/v5/pkg/openapi"
 )
 
 var errFilterNotProvided = errors.New("either IDs or filter must be provided")
@@ -82,46 +83,48 @@ var (
 )
 
 func mergeLaunches(ctx context.Context, cmd *cli.Command) error {
-	rpClient, err := buildClient(cmd)
+	rpClient, cfg, err := buildClient(cmd)
 	if err != nil {
 		return err
 	}
 
-	ids, err := getMergeIDs(cmd, rpClient)
+	ids, err := getMergeIDs(ctx, cmd, rpClient, cfg.Project)
 	if err != nil {
 		return err
 	}
-	rq := &gorp.MergeLaunchesRQ{
+	rq := openapi.MergeLaunchesRQ{
 		Name:      cmd.String("name"),
-		MergeType: gorp.MergeType(cmd.String("type")),
+		MergeType: cmd.String("type"),
 		Launches:  ids,
 	}
-	launchResource, err := rpClient.MergeLaunches(rq)
+	launchResource, _, err := rpClient.LaunchAsyncAPI.MergeLaunchesOldUuid(ctx, cfg.Project).
+		MergeLaunchesRQ(rq).
+		Execute()
 	if err != nil {
 		return fmt.Errorf("unable to merge launches: %w", err)
 	}
 
 	//nolint:forbidigo //expected output
-	fmt.Println(launchResource.ID)
+	fmt.Println(launchResource.Id)
 
 	return nil
 }
 
 func listLaunches(ctx context.Context, cmd *cli.Command) error {
-	rpClient, err := buildClient(cmd)
+	rpClient, cfg, err := buildClient(cmd)
 	if err != nil {
 		return err
 	}
 
-	var launches *gorp.LaunchPage
+	var launches *openapi.PageLaunchResource
 
 	if filters := cmd.StringSlice("filter"); len(filters) > 0 {
 		filter := strings.Join(filters, "&")
-		launches, err = rpClient.GetLaunchesByFilterString(filter)
+		launches, err = rpClient.GetLaunchesByFilterString(ctx, cfg.Project, filter)
 	} else if filterName := cmd.String("filter-name"); filterName != "" {
-		launches, err = rpClient.GetLaunchesByFilterName(filterName)
+		launches, err = rpClient.GetLaunchesByFilterName(ctx, cfg.Project, filterName)
 	} else {
-		launches, err = rpClient.GetLaunches()
+		launches, _, err = rpClient.LaunchAPI.GetProjectLaunches(ctx, cfg.Project).Execute()
 	}
 	if err != nil {
 		return err
@@ -129,27 +132,32 @@ func listLaunches(ctx context.Context, cmd *cli.Command) error {
 
 	//nolint:forbidigo //expected output
 	for _, launch := range launches.Content {
-		fmt.Printf("%d #%d \"%s\"\n", launch.ID, launch.Number, launch.Name)
+		fmt.Printf("%d #%d \"%s\"\n", launch.Id, launch.Number, launch.Name)
 	}
 
 	return nil
 }
 
-func getMergeIDs(cmd *cli.Command, rpClient *gorp.Client) ([]int64, error) {
-	if ids := cmd.IntSlice("ids"); len(ids) > 0 {
+func getMergeIDs(
+	ctx context.Context,
+	cmd *cli.Command,
+	rpClient *gorp.Client,
+	project string,
+) ([]int64, error) {
+	if ids := cmd.Int64Slice("ids"); len(ids) > 0 {
 		return ids, nil
 	}
 
-	var launches *gorp.LaunchPage
+	var launches *openapi.PageLaunchResource
 	var err error
 
 	filter := cmd.String("filter")
 	filterName := cmd.String("filter-name")
 	switch {
 	case filter != "":
-		launches, err = rpClient.GetLaunchesByFilterString(filter)
+		launches, err = rpClient.GetLaunchesByFilterString(ctx, project, filter)
 	case filterName != "":
-		launches, err = rpClient.GetLaunchesByFilterName(filterName)
+		launches, err = rpClient.GetLaunchesByFilterName(ctx, project, filterName)
 	default:
 		return nil, errFilterNotProvided
 	}
@@ -159,7 +167,7 @@ func getMergeIDs(cmd *cli.Command, rpClient *gorp.Client) ([]int64, error) {
 
 	ids := make([]int64, len(launches.Content))
 	for i, l := range launches.Content {
-		ids[i] = l.ID
+		ids[i] = l.Id
 	}
 
 	return ids, nil

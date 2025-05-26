@@ -19,15 +19,20 @@ var (
 
 func main() {
 	root := cli.Command{
-		Name:    "goRP",
-		Usage:   "ReportPortal CLI Client",
-		Version: fmt.Sprintf("%s (%s)", version, date),
-		Authors: []any{"Andrei Varabyeu <andrei.varabyeu@gmail.com>"},
+		Name:                  "goRP",
+		Usage:                 "ReportPortal CLI Client",
+		EnableShellCompletion: true,
+		Version:               fmt.Sprintf("%s (%s)", version, date),
+		Authors:               []any{"Andrei Varabyeu <andrei.varabyeu@gmail.com>"},
 		Before: func(ctx context.Context, cmd *cli.Command) (context.Context, error) {
 			// configure logging
+			var level slog.Level
+			if err := level.UnmarshalText([]byte(cmd.String("log-level"))); err != nil {
+				return ctx, err
+			}
 			slog.SetDefault(slog.New(
 				slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{
-					Level:     slog.LevelError,
+					Level:     level,
 					AddSource: true,
 				}),
 			))
@@ -50,6 +55,11 @@ func main() {
 			&cli.StringFlag{
 				Name:  "host",
 				Usage: "ReportPortal Server Name",
+			},
+			&cli.StringFlag{
+				Name:  "log-level",
+				Usage: "Logging level" + slog.LevelKey,
+				Value: "debug",
 			},
 		},
 		Commands: rp.RootCommand,

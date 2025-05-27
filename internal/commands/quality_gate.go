@@ -169,7 +169,7 @@ func checkQualityGateInternal(ctx context.Context,
 		}
 	}
 	if pErr := pollForStatusF(ctx); pErr != nil {
-		return cli.Exit(fmt.Errorf("quality gate check failed: %w", pErr), 10)
+		return cli.Exit(fmt.Errorf("quality gate check error: %w", pErr), 10)
 	}
 	return nil
 }

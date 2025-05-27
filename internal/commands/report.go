@@ -306,7 +306,7 @@ func (r *reporter) startSuite(ev *testEvent) (string, error) {
 		Name:       ev.Package,
 		StartTime:  ev.Time,
 		LaunchUuid: r.launchUUID,
-		HasStats:   openapi.PtrBool(false),
+		HasStats:   openapi.PtrBool(true),
 		Type:       string(gorppkg.TestItemTypes.Suite),
 		Retry:      openapi.PtrBool(false),
 	})

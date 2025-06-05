@@ -8,8 +8,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/google/uuid"
-
 	"github.com/reportportal/goRP/v5/pkg/openapi"
 )
 
@@ -18,18 +16,16 @@ func ExampleClient() {
 	client := NewClient(&url.URL{}, "")
 	reportingClient := NewReportingClient("", defaultProject, "")
 
-	launchUUID := uuid.New().String()
-	_, err := reportingClient.StartLaunch(&openapi.StartLaunchRQ{
+	rs, err := reportingClient.StartLaunch(&openapi.StartLaunchRQ{
 		Mode:        openapi.PtrString(string(LaunchModes.Default)),
 		Name:        "gorp-test",
-		Uuid:        launchUUID,
 		StartTime:   time.Now(),
 		Description: openapi.PtrString("Demo Launch"),
 	})
 	checkErr(err, "unable to start launch")
+	launchUUID := *rs.Id
 
-	testUUID := uuid.New()
-	_, err = reportingClient.StartTest(&openapi.StartTestItemRQ{
+	testRS, err := reportingClient.StartTest(&openapi.StartTestItemRQ{
 		LaunchUuid: launchUUID,
 		CodeRef:    openapi.PtrString("example_test.go"),
 		UniqueId:   openapi.PtrString("another one unique ID"),
@@ -37,13 +33,13 @@ func ExampleClient() {
 		Type:       string(TestItemTypes.Test),
 		Name:       "Gorp Test",
 		StartTime:  time.Now(),
-		Uuid:       testUUID.String(),
 	})
 	checkErr(err, "unable to start test")
 
+	testUUID := *testRS.Id
 	_, err = reportingClient.SaveLog(&openapi.SaveLogRQ{
 		LaunchUuid: launchUUID,
-		ItemUuid:   openapi.PtrString(testUUID.String()),
+		ItemUuid:   openapi.PtrString(testUUID),
 		Level:      openapi.PtrString(LogLevelInfo),
 		Time:       time.Now(),
 		Message:    openapi.PtrString("Log without binary"),
@@ -58,7 +54,7 @@ func ExampleClient() {
 	_, err = reportingClient.SaveLogMultipart([]*openapi.SaveLogRQ{
 		{
 			LaunchUuid: launchUUID,
-			ItemUuid:   openapi.PtrString(testUUID.String()),
+			ItemUuid:   openapi.PtrString(testUUID),
 			Level:      openapi.PtrString(LogLevelInfo),
 			Message:    openapi.PtrString("Log with binary one"),
 			File: &openapi.File{
@@ -67,7 +63,7 @@ func ExampleClient() {
 		},
 		{
 			LaunchUuid: launchUUID,
-			ItemUuid:   openapi.PtrString(testUUID.String()),
+			ItemUuid:   openapi.PtrString(testUUID),
 			Level:      openapi.PtrString(LogLevelInfo),
 			Message:    openapi.PtrString("Log with binary two"),
 			File: &openapi.File{
@@ -81,7 +77,7 @@ func ExampleClient() {
 
 	checkErr(err, "unable to save log multipart")
 
-	_, err = reportingClient.FinishTest(testUUID.String(), &openapi.FinishTestItemRQ{
+	_, err = reportingClient.FinishTest(testUUID, &openapi.FinishTestItemRQ{
 		LaunchUuid: launchUUID,
 		EndTime:    time.Now(),
 		Status:     openapi.PtrString(string(Statuses.Passed)),

@@ -570,7 +570,7 @@ func (r ApiGetWidgetPreviewRequest) WidgetPreviewRQ(widgetPreviewRQ WidgetPrevie
 	return r
 }
 
-func (r ApiGetWidgetPreviewRequest) Execute() (map[string]map[string]interface{}, *http.Response, error) {
+func (r ApiGetWidgetPreviewRequest) Execute() (map[string]interface{}, *http.Response, error) {
 	return r.ApiService.GetWidgetPreviewExecute(r)
 }
 
@@ -591,13 +591,13 @@ func (a *WidgetAPIService) GetWidgetPreview(ctx context.Context, projectName str
 
 // Execute executes the request
 //
-//	@return map[string]map[string]interface{}
-func (a *WidgetAPIService) GetWidgetPreviewExecute(r ApiGetWidgetPreviewRequest) (map[string]map[string]interface{}, *http.Response, error) {
+//	@return map[string]interface{}
+func (a *WidgetAPIService) GetWidgetPreviewExecute(r ApiGetWidgetPreviewRequest) (map[string]interface{}, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPost
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue map[string]map[string]interface{}
+		localVarReturnValue map[string]interface{}
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "WidgetAPIService.GetWidgetPreview")

@@ -20,9 +20,9 @@ var _ MappedNullable = &IntegrationRQ{}
 
 // IntegrationRQ struct for IntegrationRQ
 type IntegrationRQ struct {
-	Name                  *string                           `json:"name,omitempty"`
-	IntegrationParameters map[string]map[string]interface{} `json:"integrationParameters,omitempty"`
-	Enabled               *bool                             `json:"enabled,omitempty"`
+	Name                  *string                `json:"name,omitempty"`
+	IntegrationParameters map[string]interface{} `json:"integrationParameters,omitempty"`
+	Enabled               *bool                  `json:"enabled,omitempty"`
 }
 
 // NewIntegrationRQ instantiates a new IntegrationRQ object
@@ -75,9 +75,9 @@ func (o *IntegrationRQ) SetName(v string) {
 }
 
 // GetIntegrationParameters returns the IntegrationParameters field value if set, zero value otherwise.
-func (o *IntegrationRQ) GetIntegrationParameters() map[string]map[string]interface{} {
+func (o *IntegrationRQ) GetIntegrationParameters() map[string]interface{} {
 	if o == nil || IsNil(o.IntegrationParameters) {
-		var ret map[string]map[string]interface{}
+		var ret map[string]interface{}
 		return ret
 	}
 	return o.IntegrationParameters
@@ -85,9 +85,9 @@ func (o *IntegrationRQ) GetIntegrationParameters() map[string]map[string]interfa
 
 // GetIntegrationParametersOk returns a tuple with the IntegrationParameters field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *IntegrationRQ) GetIntegrationParametersOk() (map[string]map[string]interface{}, bool) {
+func (o *IntegrationRQ) GetIntegrationParametersOk() (map[string]interface{}, bool) {
 	if o == nil || IsNil(o.IntegrationParameters) {
-		return map[string]map[string]interface{}{}, false
+		return map[string]interface{}{}, false
 	}
 	return o.IntegrationParameters, true
 }
@@ -101,8 +101,8 @@ func (o *IntegrationRQ) HasIntegrationParameters() bool {
 	return false
 }
 
-// SetIntegrationParameters gets a reference to the given map[string]map[string]interface{} and assigns it to the IntegrationParameters field.
-func (o *IntegrationRQ) SetIntegrationParameters(v map[string]map[string]interface{}) {
+// SetIntegrationParameters gets a reference to the given map[string]interface{} and assigns it to the IntegrationParameters field.
+func (o *IntegrationRQ) SetIntegrationParameters(v map[string]interface{}) {
 	o.IntegrationParameters = v
 }
 

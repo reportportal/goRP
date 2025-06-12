@@ -28,10 +28,10 @@ type ApiExecutePublicPluginCommandRequest struct {
 	ApiService  *PluginPublicAPIService
 	command     string
 	pluginName  string
-	requestBody *map[string]map[string]interface{}
+	requestBody *map[string]interface{}
 }
 
-func (r ApiExecutePublicPluginCommandRequest) RequestBody(requestBody map[string]map[string]interface{}) ApiExecutePublicPluginCommandRequest {
+func (r ApiExecutePublicPluginCommandRequest) RequestBody(requestBody map[string]interface{}) ApiExecutePublicPluginCommandRequest {
 	r.requestBody = &requestBody
 	return r
 }

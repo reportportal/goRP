@@ -20,9 +20,9 @@ var _ MappedNullable = &ContentParameters{}
 
 // ContentParameters struct for ContentParameters
 type ContentParameters struct {
-	ContentFields []string                          `json:"contentFields,omitempty"`
-	ItemsCount    *int32                            `json:"itemsCount,omitempty"`
-	WidgetOptions map[string]map[string]interface{} `json:"widgetOptions,omitempty"`
+	ContentFields []string               `json:"contentFields,omitempty"`
+	ItemsCount    *int32                 `json:"itemsCount,omitempty"`
+	WidgetOptions map[string]interface{} `json:"widgetOptions,omitempty"`
 }
 
 // NewContentParameters instantiates a new ContentParameters object
@@ -107,9 +107,9 @@ func (o *ContentParameters) SetItemsCount(v int32) {
 }
 
 // GetWidgetOptions returns the WidgetOptions field value if set, zero value otherwise.
-func (o *ContentParameters) GetWidgetOptions() map[string]map[string]interface{} {
+func (o *ContentParameters) GetWidgetOptions() map[string]interface{} {
 	if o == nil || IsNil(o.WidgetOptions) {
-		var ret map[string]map[string]interface{}
+		var ret map[string]interface{}
 		return ret
 	}
 	return o.WidgetOptions
@@ -117,9 +117,9 @@ func (o *ContentParameters) GetWidgetOptions() map[string]map[string]interface{}
 
 // GetWidgetOptionsOk returns a tuple with the WidgetOptions field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *ContentParameters) GetWidgetOptionsOk() (map[string]map[string]interface{}, bool) {
+func (o *ContentParameters) GetWidgetOptionsOk() (map[string]interface{}, bool) {
 	if o == nil || IsNil(o.WidgetOptions) {
-		return map[string]map[string]interface{}{}, false
+		return map[string]interface{}{}, false
 	}
 	return o.WidgetOptions, true
 }
@@ -133,8 +133,8 @@ func (o *ContentParameters) HasWidgetOptions() bool {
 	return false
 }
 
-// SetWidgetOptions gets a reference to the given map[string]map[string]interface{} and assigns it to the WidgetOptions field.
-func (o *ContentParameters) SetWidgetOptions(v map[string]map[string]interface{}) {
+// SetWidgetOptions gets a reference to the given map[string]interface{} and assigns it to the WidgetOptions field.
+func (o *ContentParameters) SetWidgetOptions(v map[string]interface{}) {
 	o.WidgetOptions = v
 }
 

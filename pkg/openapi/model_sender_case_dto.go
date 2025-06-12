@@ -22,16 +22,16 @@ var _ MappedNullable = &SenderCaseDTO{}
 
 // SenderCaseDTO struct for SenderCaseDTO
 type SenderCaseDTO struct {
-	Id                 *int64                            `json:"id,omitempty"`
-	RuleName           string                            `json:"ruleName"`
-	Recipients         []string                          `json:"recipients,omitempty"`
-	SendCase           string                            `json:"sendCase"`
-	LaunchNames        []string                          `json:"launchNames,omitempty"`
-	Attributes         []ItemAttributeResource           `json:"attributes,omitempty"`
-	Enabled            *bool                             `json:"enabled,omitempty"`
-	Type               *string                           `json:"type,omitempty"`
-	RuleDetails        map[string]map[string]interface{} `json:"ruleDetails,omitempty"`
-	AttributesOperator string                            `json:"attributesOperator"`
+	Id                 *int64                  `json:"id,omitempty"`
+	RuleName           string                  `json:"ruleName"`
+	Recipients         []string                `json:"recipients,omitempty"`
+	SendCase           string                  `json:"sendCase"`
+	LaunchNames        []string                `json:"launchNames,omitempty"`
+	Attributes         []ItemAttributeResource `json:"attributes,omitempty"`
+	Enabled            *bool                   `json:"enabled,omitempty"`
+	Type               *string                 `json:"type,omitempty"`
+	RuleDetails        map[string]interface{}  `json:"ruleDetails,omitempty"`
+	AttributesOperator string                  `json:"attributesOperator"`
 }
 
 type _SenderCaseDTO SenderCaseDTO
@@ -297,9 +297,9 @@ func (o *SenderCaseDTO) SetType(v string) {
 }
 
 // GetRuleDetails returns the RuleDetails field value if set, zero value otherwise.
-func (o *SenderCaseDTO) GetRuleDetails() map[string]map[string]interface{} {
+func (o *SenderCaseDTO) GetRuleDetails() map[string]interface{} {
 	if o == nil || IsNil(o.RuleDetails) {
-		var ret map[string]map[string]interface{}
+		var ret map[string]interface{}
 		return ret
 	}
 	return o.RuleDetails
@@ -307,9 +307,9 @@ func (o *SenderCaseDTO) GetRuleDetails() map[string]map[string]interface{} {
 
 // GetRuleDetailsOk returns a tuple with the RuleDetails field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *SenderCaseDTO) GetRuleDetailsOk() (map[string]map[string]interface{}, bool) {
+func (o *SenderCaseDTO) GetRuleDetailsOk() (map[string]interface{}, bool) {
 	if o == nil || IsNil(o.RuleDetails) {
-		return map[string]map[string]interface{}{}, false
+		return map[string]interface{}{}, false
 	}
 	return o.RuleDetails, true
 }
@@ -323,8 +323,8 @@ func (o *SenderCaseDTO) HasRuleDetails() bool {
 	return false
 }
 
-// SetRuleDetails gets a reference to the given map[string]map[string]interface{} and assigns it to the RuleDetails field.
-func (o *SenderCaseDTO) SetRuleDetails(v map[string]map[string]interface{}) {
+// SetRuleDetails gets a reference to the given map[string]interface{} and assigns it to the RuleDetails field.
+func (o *SenderCaseDTO) SetRuleDetails(v map[string]interface{}) {
 	o.RuleDetails = v
 }
 

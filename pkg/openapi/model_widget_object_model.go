@@ -22,12 +22,12 @@ var _ MappedNullable = &WidgetObjectModel{}
 
 // WidgetObjectModel struct for WidgetObjectModel
 type WidgetObjectModel struct {
-	WidgetName     *string                           `json:"widgetName,omitempty"`
-	WidgetId       int64                             `json:"widgetId"`
-	WidgetType     *string                           `json:"widgetType,omitempty"`
-	WidgetSize     *Size                             `json:"widgetSize,omitempty"`
-	WidgetPosition *Position                         `json:"widgetPosition,omitempty"`
-	WidgetOptions  map[string]map[string]interface{} `json:"widgetOptions,omitempty"`
+	WidgetName     *string                `json:"widgetName,omitempty"`
+	WidgetId       int64                  `json:"widgetId"`
+	WidgetType     *string                `json:"widgetType,omitempty"`
+	WidgetSize     *Size                  `json:"widgetSize,omitempty"`
+	WidgetPosition *Position              `json:"widgetPosition,omitempty"`
+	WidgetOptions  map[string]interface{} `json:"widgetOptions,omitempty"`
 }
 
 type _WidgetObjectModel WidgetObjectModel
@@ -203,9 +203,9 @@ func (o *WidgetObjectModel) SetWidgetPosition(v Position) {
 }
 
 // GetWidgetOptions returns the WidgetOptions field value if set, zero value otherwise.
-func (o *WidgetObjectModel) GetWidgetOptions() map[string]map[string]interface{} {
+func (o *WidgetObjectModel) GetWidgetOptions() map[string]interface{} {
 	if o == nil || IsNil(o.WidgetOptions) {
-		var ret map[string]map[string]interface{}
+		var ret map[string]interface{}
 		return ret
 	}
 	return o.WidgetOptions
@@ -213,9 +213,9 @@ func (o *WidgetObjectModel) GetWidgetOptions() map[string]map[string]interface{}
 
 // GetWidgetOptionsOk returns a tuple with the WidgetOptions field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *WidgetObjectModel) GetWidgetOptionsOk() (map[string]map[string]interface{}, bool) {
+func (o *WidgetObjectModel) GetWidgetOptionsOk() (map[string]interface{}, bool) {
 	if o == nil || IsNil(o.WidgetOptions) {
-		return map[string]map[string]interface{}{}, false
+		return map[string]interface{}{}, false
 	}
 	return o.WidgetOptions, true
 }
@@ -229,8 +229,8 @@ func (o *WidgetObjectModel) HasWidgetOptions() bool {
 	return false
 }
 
-// SetWidgetOptions gets a reference to the given map[string]map[string]interface{} and assigns it to the WidgetOptions field.
-func (o *WidgetObjectModel) SetWidgetOptions(v map[string]map[string]interface{}) {
+// SetWidgetOptions gets a reference to the given map[string]interface{} and assigns it to the WidgetOptions field.
+func (o *WidgetObjectModel) SetWidgetOptions(v map[string]interface{}) {
 	o.WidgetOptions = v
 }
 

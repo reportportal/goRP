@@ -21,14 +21,14 @@ var _ MappedNullable = &IntegrationTypeResource{}
 
 // IntegrationTypeResource struct for IntegrationTypeResource
 type IntegrationTypeResource struct {
-	Type         *int64                            `json:"type,omitempty"`
-	Name         *string                           `json:"name,omitempty"`
-	Enabled      *bool                             `json:"enabled,omitempty"`
-	AuthFlow     *string                           `json:"authFlow,omitempty"`
-	CreationDate *time.Time                        `json:"creationDate,omitempty"`
-	PluginType   *string                           `json:"pluginType,omitempty"`
-	GroupType    *string                           `json:"groupType,omitempty"`
-	Details      map[string]map[string]interface{} `json:"details,omitempty"`
+	Type         *int64                 `json:"type,omitempty"`
+	Name         *string                `json:"name,omitempty"`
+	Enabled      *bool                  `json:"enabled,omitempty"`
+	AuthFlow     *string                `json:"authFlow,omitempty"`
+	CreationDate *time.Time             `json:"creationDate,omitempty"`
+	PluginType   *string                `json:"pluginType,omitempty"`
+	GroupType    *string                `json:"groupType,omitempty"`
+	Details      map[string]interface{} `json:"details,omitempty"`
 }
 
 // NewIntegrationTypeResource instantiates a new IntegrationTypeResource object
@@ -273,9 +273,9 @@ func (o *IntegrationTypeResource) SetGroupType(v string) {
 }
 
 // GetDetails returns the Details field value if set, zero value otherwise.
-func (o *IntegrationTypeResource) GetDetails() map[string]map[string]interface{} {
+func (o *IntegrationTypeResource) GetDetails() map[string]interface{} {
 	if o == nil || IsNil(o.Details) {
-		var ret map[string]map[string]interface{}
+		var ret map[string]interface{}
 		return ret
 	}
 	return o.Details
@@ -283,9 +283,9 @@ func (o *IntegrationTypeResource) GetDetails() map[string]map[string]interface{}
 
 // GetDetailsOk returns a tuple with the Details field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *IntegrationTypeResource) GetDetailsOk() (map[string]map[string]interface{}, bool) {
+func (o *IntegrationTypeResource) GetDetailsOk() (map[string]interface{}, bool) {
 	if o == nil || IsNil(o.Details) {
-		return map[string]map[string]interface{}{}, false
+		return map[string]interface{}{}, false
 	}
 	return o.Details, true
 }
@@ -299,8 +299,8 @@ func (o *IntegrationTypeResource) HasDetails() bool {
 	return false
 }
 
-// SetDetails gets a reference to the given map[string]map[string]interface{} and assigns it to the Details field.
-func (o *IntegrationTypeResource) SetDetails(v map[string]map[string]interface{}) {
+// SetDetails gets a reference to the given map[string]interface{} and assigns it to the Details field.
+func (o *IntegrationTypeResource) SetDetails(v map[string]interface{}) {
 	o.Details = v
 }
 

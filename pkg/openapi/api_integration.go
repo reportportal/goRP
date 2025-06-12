@@ -675,10 +675,10 @@ type ApiExecuteIntegrationCommandRequest struct {
 	command       string
 	integrationId int64
 	projectName   string
-	requestBody   *map[string]map[string]interface{}
+	requestBody   *map[string]interface{}
 }
 
-func (r ApiExecuteIntegrationCommandRequest) RequestBody(requestBody map[string]map[string]interface{}) ApiExecuteIntegrationCommandRequest {
+func (r ApiExecuteIntegrationCommandRequest) RequestBody(requestBody map[string]interface{}) ApiExecuteIntegrationCommandRequest {
 	r.requestBody = &requestBody
 	return r
 }

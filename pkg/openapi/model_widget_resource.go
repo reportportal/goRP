@@ -22,14 +22,14 @@ var _ MappedNullable = &WidgetResource{}
 
 // WidgetResource struct for WidgetResource
 type WidgetResource struct {
-	Description       *string                           `json:"description,omitempty"`
-	Owner             *string                           `json:"owner,omitempty"`
-	Id                int64                             `json:"id"`
-	Name              string                            `json:"name"`
-	WidgetType        string                            `json:"widgetType"`
-	ContentParameters ContentParameters                 `json:"contentParameters"`
-	AppliedFilters    []UserFilterResource              `json:"appliedFilters,omitempty"`
-	Content           map[string]map[string]interface{} `json:"content,omitempty"`
+	Description       *string                `json:"description,omitempty"`
+	Owner             *string                `json:"owner,omitempty"`
+	Id                int64                  `json:"id"`
+	Name              string                 `json:"name"`
+	WidgetType        string                 `json:"widgetType"`
+	ContentParameters ContentParameters      `json:"contentParameters"`
+	AppliedFilters    []UserFilterResource   `json:"appliedFilters,omitempty"`
+	Content           map[string]interface{} `json:"content,omitempty"`
 }
 
 type _WidgetResource WidgetResource
@@ -248,9 +248,9 @@ func (o *WidgetResource) SetAppliedFilters(v []UserFilterResource) {
 }
 
 // GetContent returns the Content field value if set, zero value otherwise.
-func (o *WidgetResource) GetContent() map[string]map[string]interface{} {
+func (o *WidgetResource) GetContent() map[string]interface{} {
 	if o == nil || IsNil(o.Content) {
-		var ret map[string]map[string]interface{}
+		var ret map[string]interface{}
 		return ret
 	}
 	return o.Content
@@ -258,9 +258,9 @@ func (o *WidgetResource) GetContent() map[string]map[string]interface{} {
 
 // GetContentOk returns a tuple with the Content field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *WidgetResource) GetContentOk() (map[string]map[string]interface{}, bool) {
+func (o *WidgetResource) GetContentOk() (map[string]interface{}, bool) {
 	if o == nil || IsNil(o.Content) {
-		return map[string]map[string]interface{}{}, false
+		return map[string]interface{}{}, false
 	}
 	return o.Content, true
 }
@@ -274,8 +274,8 @@ func (o *WidgetResource) HasContent() bool {
 	return false
 }
 
-// SetContent gets a reference to the given map[string]map[string]interface{} and assigns it to the Content field.
-func (o *WidgetResource) SetContent(v map[string]map[string]interface{}) {
+// SetContent gets a reference to the given map[string]interface{} and assigns it to the Content field.
+func (o *WidgetResource) SetContent(v map[string]interface{}) {
 	o.Content = v
 }
 

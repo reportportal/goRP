@@ -1886,7 +1886,7 @@ func (r ApiGetProjectWidgetRequest) Interval(interval string) ApiGetProjectWidge
 	return r
 }
 
-func (r ApiGetProjectWidgetRequest) Execute() (map[string]map[string]interface{}, *http.Response, error) {
+func (r ApiGetProjectWidgetRequest) Execute() (map[string]interface{}, *http.Response, error) {
 	return r.ApiService.GetProjectWidgetExecute(r)
 }
 
@@ -1909,13 +1909,13 @@ func (a *ProjectAPIService) GetProjectWidget(ctx context.Context, projectName st
 
 // Execute executes the request
 //
-//	@return map[string]map[string]interface{}
-func (a *ProjectAPIService) GetProjectWidgetExecute(r ApiGetProjectWidgetRequest) (map[string]map[string]interface{}, *http.Response, error) {
+//	@return map[string]interface{}
+func (a *ProjectAPIService) GetProjectWidgetExecute(r ApiGetProjectWidgetRequest) (map[string]interface{}, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodGet
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue map[string]map[string]interface{}
+		localVarReturnValue map[string]interface{}
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ProjectAPIService.GetProjectWidget")

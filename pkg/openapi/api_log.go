@@ -1736,7 +1736,7 @@ func (r ApiGetPageNumberRequest) PageSort(pageSort string) ApiGetPageNumberReque
 	return r
 }
 
-func (r ApiGetPageNumberRequest) Execute() (map[string]map[string]interface{}, *http.Response, error) {
+func (r ApiGetPageNumberRequest) Execute() (map[string]interface{}, *http.Response, error) {
 	return r.ApiService.GetPageNumberExecute(r)
 }
 
@@ -1759,13 +1759,13 @@ func (a *LogAPIService) GetPageNumber(ctx context.Context, logId int64, projectN
 
 // Execute executes the request
 //
-//	@return map[string]map[string]interface{}
-func (a *LogAPIService) GetPageNumberExecute(r ApiGetPageNumberRequest) (map[string]map[string]interface{}, *http.Response, error) {
+//	@return map[string]interface{}
+func (a *LogAPIService) GetPageNumberExecute(r ApiGetPageNumberRequest) (map[string]interface{}, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodGet
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue map[string]map[string]interface{}
+		localVarReturnValue map[string]interface{}
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "LogAPIService.GetPageNumber")

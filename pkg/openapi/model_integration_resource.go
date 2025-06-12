@@ -21,14 +21,14 @@ var _ MappedNullable = &IntegrationResource{}
 
 // IntegrationResource struct for IntegrationResource
 type IntegrationResource struct {
-	Id                    *int64                            `json:"id,omitempty"`
-	ProjectId             *int64                            `json:"projectId,omitempty"`
-	Name                  *string                           `json:"name,omitempty"`
-	IntegrationType       *IntegrationTypeResource          `json:"integrationType,omitempty"`
-	IntegrationParameters map[string]map[string]interface{} `json:"integrationParameters,omitempty"`
-	Enabled               *bool                             `json:"enabled,omitempty"`
-	Creator               *string                           `json:"creator,omitempty"`
-	CreationDate          *time.Time                        `json:"creationDate,omitempty"`
+	Id                    *int64                   `json:"id,omitempty"`
+	ProjectId             *int64                   `json:"projectId,omitempty"`
+	Name                  *string                  `json:"name,omitempty"`
+	IntegrationType       *IntegrationTypeResource `json:"integrationType,omitempty"`
+	IntegrationParameters map[string]interface{}   `json:"integrationParameters,omitempty"`
+	Enabled               *bool                    `json:"enabled,omitempty"`
+	Creator               *string                  `json:"creator,omitempty"`
+	CreationDate          *time.Time               `json:"creationDate,omitempty"`
 }
 
 // NewIntegrationResource instantiates a new IntegrationResource object
@@ -177,9 +177,9 @@ func (o *IntegrationResource) SetIntegrationType(v IntegrationTypeResource) {
 }
 
 // GetIntegrationParameters returns the IntegrationParameters field value if set, zero value otherwise.
-func (o *IntegrationResource) GetIntegrationParameters() map[string]map[string]interface{} {
+func (o *IntegrationResource) GetIntegrationParameters() map[string]interface{} {
 	if o == nil || IsNil(o.IntegrationParameters) {
-		var ret map[string]map[string]interface{}
+		var ret map[string]interface{}
 		return ret
 	}
 	return o.IntegrationParameters
@@ -187,9 +187,9 @@ func (o *IntegrationResource) GetIntegrationParameters() map[string]map[string]i
 
 // GetIntegrationParametersOk returns a tuple with the IntegrationParameters field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *IntegrationResource) GetIntegrationParametersOk() (map[string]map[string]interface{}, bool) {
+func (o *IntegrationResource) GetIntegrationParametersOk() (map[string]interface{}, bool) {
 	if o == nil || IsNil(o.IntegrationParameters) {
-		return map[string]map[string]interface{}{}, false
+		return map[string]interface{}{}, false
 	}
 	return o.IntegrationParameters, true
 }
@@ -203,8 +203,8 @@ func (o *IntegrationResource) HasIntegrationParameters() bool {
 	return false
 }
 
-// SetIntegrationParameters gets a reference to the given map[string]map[string]interface{} and assigns it to the IntegrationParameters field.
-func (o *IntegrationResource) SetIntegrationParameters(v map[string]map[string]interface{}) {
+// SetIntegrationParameters gets a reference to the given map[string]interface{} and assigns it to the IntegrationParameters field.
+func (o *IntegrationResource) SetIntegrationParameters(v map[string]interface{}) {
 	o.IntegrationParameters = v
 }
 

@@ -12,9 +12,6 @@ vars:
   PACKAGE_NAME: "apiclient"
   SPEC_PATH: "openapi.json"
   MODIFIED_SPEC_PATH: "openapi-modified.json"
-  # Detect OS for sed compatibility
-  OS:
-    sh: uname -s
 
 tasks:
   test:
@@ -30,7 +27,7 @@ tasks:
   fmt:
     desc: Format code with golangci-lint
     cmds:
-      - "{{.GO}} fmt ./..."
+      - "{{.GO}} fmt $(go list ./... | grep -v /pkg/openapi)"
       - "{{.GOLANG_CI}} fmt ./..."
 
   build:
@@ -89,20 +86,6 @@ tasks:
           -v ${PWD}:/workdir \
           -w /workdir \
           ghcr.io/jqlang/jq \
-          '
-          # First modify metadata fields
-          walk(
-            if type == "object" and .properties and .properties.metadata and .properties.metadata.type == "object" and .properties.metadata.additionalProperties and .properties.metadata.additionalProperties.type == "object"
-            then .properties.metadata.additionalProperties = true
-            else .
-            end
-          ) |
-          # Then modify the specific plugin endpoint request body
-          if .paths["/v1/plugin/{projectName}/{pluginName}/common/{command}"].put.requestBody.content["application/json"].schema.additionalProperties != null
-          then
-            .paths["/v1/plugin/{projectName}/{pluginName}/common/{command}"].put.requestBody.content["application/json"].schema.additionalProperties = true
-          else .
-          end
-          ' \
+          'walk(if type == "object" and .additionalProperties and .additionalProperties.type == "object" and (.additionalProperties.additionalProperties | not) then .additionalProperties = true else . end)' \
           {{.SPEC_PATH}} > {{.MODIFIED_SPEC_PATH}}
         echo "Modified schema saved to {{.MODIFIED_SPEC_PATH}}"

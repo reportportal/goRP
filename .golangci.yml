@@ -17,6 +17,8 @@ formatters:
     - gofumpt
     - goimports
     - golines
+  exclusions:
+    generated: lax
   settings:
     gci:
       sections:

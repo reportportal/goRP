@@ -2089,7 +2089,8 @@ paths:
         content:
           application/json:
             schema:
-              additionalProperties: {}
+              additionalProperties: true
+              type: object
         required: true
       responses:
         "200":
@@ -2172,8 +2173,8 @@ paths:
         content:
           application/json:
             schema:
-              additionalProperties:
-                type: object
+              additionalProperties: true
+              type: object
         required: true
       responses:
         "200":
@@ -2306,8 +2307,8 @@ paths:
         content:
           application/json:
             schema:
-              additionalProperties:
-                type: object
+              additionalProperties: true
+              type: object
         required: true
       responses:
         "200":
@@ -3646,8 +3647,8 @@ paths:
           content:
             application/json:
               schema:
-                additionalProperties:
-                  type: object
+                additionalProperties: true
+                type: object
           description: OK
       summary: Get widget preview
       tags:
@@ -5796,8 +5797,8 @@ paths:
           content:
             application/json:
               schema:
-                additionalProperties:
-                  type: object
+                additionalProperties: true
+                type: object
           description: OK
       summary: Get logs by filter
       tags:
@@ -9851,8 +9852,8 @@ paths:
           content:
             application/json:
               schema:
-                additionalProperties:
-                  type: object
+                additionalProperties: true
+                type: object
           description: OK
       summary: Get Project Widget
       tags:
@@ -12280,7 +12281,7 @@ components:
     ContentParameters:
       example:
         widgetOptions:
-          key: "{}"
+          key: ""
         contentFields:
         - contentFields
         - contentFields
@@ -12294,8 +12295,8 @@ components:
           format: int32
           type: integer
         widgetOptions:
-          additionalProperties:
-            type: object
+          additionalProperties: true
+          type: object
     WidgetRQ:
       example:
         filterIds:
@@ -12305,7 +12306,7 @@ components:
         description: description
         contentParameters:
           widgetOptions:
-            key: "{}"
+            key: ""
           contentFields:
           - contentFields
           - contentFields
@@ -12433,7 +12434,7 @@ components:
         - recipients
         ruleName: ruleName
         ruleDetails:
-          key: "{}"
+          key: ""
         sendCase: always
         attributes:
         - value: value
@@ -12476,8 +12477,8 @@ components:
         type:
           type: string
         ruleDetails:
-          additionalProperties:
-            type: object
+          additionalProperties: true
+          type: object
         attributesOperator:
           enum:
           - "AND, OR"
@@ -13317,7 +13318,7 @@ components:
         updateWidgets:
         - widgetName: widgetName
           widgetOptions:
-            key: "{}"
+            key: ""
           widgetId: 6
           widgetSize:
             width: 1
@@ -13328,7 +13329,7 @@ components:
           widgetType: widgetType
         - widgetName: widgetName
           widgetOptions:
-            key: "{}"
+            key: ""
           widgetId: 6
           widgetSize:
             width: 1
@@ -13354,7 +13355,7 @@ components:
       example:
         widgetName: widgetName
         widgetOptions:
-          key: "{}"
+          key: ""
         widgetId: 6
         widgetSize:
           width: 1
@@ -13376,8 +13377,8 @@ components:
         widgetPosition:
           $ref: '#/components/schemas/Position'
         widgetOptions:
-          additionalProperties:
-            type: object
+          additionalProperties: true
+          type: object
       required:
       - widgetId
     AddWidgetRq:
@@ -13385,7 +13386,7 @@ components:
         addWidget:
           widgetName: widgetName
           widgetOptions:
-            key: "{}"
+            key: ""
           widgetId: 6
           widgetSize:
             width: 1
@@ -13458,7 +13459,7 @@ components:
           - recipients
           ruleName: ruleName
           ruleDetails:
-            key: "{}"
+            key: ""
           sendCase: always
           attributes:
           - value: value
@@ -13477,7 +13478,7 @@ components:
           - recipients
           ruleName: ruleName
           ruleDetails:
-            key: "{}"
+            key: ""
           sendCase: always
           attributes:
           - value: value
@@ -13514,15 +13515,15 @@ components:
     IntegrationRQ:
       example:
         integrationParameters:
-          key: "{}"
+          key: ""
         name: name
         enabled: true
       properties:
         name:
           type: string
         integrationParameters:
-          additionalProperties:
-            type: object
+          additionalProperties: true
+          type: object
         enabled:
           type: boolean
     EditUserRQ:
@@ -14174,7 +14175,7 @@ components:
         - 0
         contentParameters:
           widgetOptions:
-            key: "{}"
+            key: ""
           contentFields:
           - contentFields
           - contentFields
@@ -14617,7 +14618,7 @@ components:
             id: 0
             contentParameters:
               widgetOptions:
-                key: "{}"
+                key: ""
               contentFields:
               - contentFields
               - contentFields
@@ -14628,11 +14629,11 @@ components:
               \ topTestCases, flakyTestCases, passingRateSummary, passingRatePerLaunch,\
               \ productStatus, mostTimeConsuming, cumulative"
             content:
-              key: "{}"
+              key: ""
           widgetObject:
             widgetName: widgetName
             widgetOptions:
-              key: "{}"
+              key: ""
             widgetId: 6
             widgetSize:
               width: 1
@@ -14713,7 +14714,7 @@ components:
             id: 0
             contentParameters:
               widgetOptions:
-                key: "{}"
+                key: ""
               contentFields:
               - contentFields
               - contentFields
@@ -14724,11 +14725,11 @@ components:
               \ topTestCases, flakyTestCases, passingRateSummary, passingRatePerLaunch,\
               \ productStatus, mostTimeConsuming, cumulative"
             content:
-              key: "{}"
+              key: ""
           widgetObject:
             widgetName: widgetName
             widgetOptions:
-              key: "{}"
+              key: ""
             widgetId: 6
             widgetSize:
               width: 1
@@ -14820,7 +14821,7 @@ components:
               id: 0
               contentParameters:
                 widgetOptions:
-                  key: "{}"
+                  key: ""
                 contentFields:
                 - contentFields
                 - contentFields
@@ -14831,11 +14832,11 @@ components:
                 \ launchesTable, topTestCases, flakyTestCases, passingRateSummary,\
                 \ passingRatePerLaunch, productStatus, mostTimeConsuming, cumulative"
               content:
-                key: "{}"
+                key: ""
             widgetObject:
               widgetName: widgetName
               widgetOptions:
-                key: "{}"
+                key: ""
               widgetId: 6
               widgetSize:
                 width: 1
@@ -14916,7 +14917,7 @@ components:
               id: 0
               contentParameters:
                 widgetOptions:
-                  key: "{}"
+                  key: ""
                 contentFields:
                 - contentFields
                 - contentFields
@@ -14927,11 +14928,11 @@ components:
                 \ launchesTable, topTestCases, flakyTestCases, passingRateSummary,\
                 \ passingRatePerLaunch, productStatus, mostTimeConsuming, cumulative"
               content:
-                key: "{}"
+                key: ""
             widgetObject:
               widgetName: widgetName
               widgetOptions:
-                key: "{}"
+                key: ""
               widgetId: 6
               widgetSize:
                 width: 1
@@ -15096,7 +15097,7 @@ components:
           id: 0
           contentParameters:
             widgetOptions:
-              key: "{}"
+              key: ""
             contentFields:
             - contentFields
             - contentFields
@@ -15107,11 +15108,11 @@ components:
             \ topTestCases, flakyTestCases, passingRateSummary, passingRatePerLaunch,\
             \ productStatus, mostTimeConsuming, cumulative"
           content:
-            key: "{}"
+            key: ""
         widgetObject:
           widgetName: widgetName
           widgetOptions:
-            key: "{}"
+            key: ""
           widgetId: 6
           widgetSize:
             width: 1
@@ -15201,7 +15202,7 @@ components:
         id: 0
         contentParameters:
           widgetOptions:
-            key: "{}"
+            key: ""
           contentFields:
           - contentFields
           - contentFields
@@ -15212,7 +15213,7 @@ components:
           \ flakyTestCases, passingRateSummary, passingRatePerLaunch, productStatus,\
           \ mostTimeConsuming, cumulative"
         content:
-          key: "{}"
+          key: ""
       properties:
         description:
           maxLength: 1500
@@ -15242,8 +15243,8 @@ components:
             $ref: '#/components/schemas/UserFilterResource'
           type: array
         content:
-          additionalProperties:
-            type: object
+          additionalProperties: true
+          type: object
       required:
       - contentParameters
       - id
@@ -17742,7 +17743,7 @@ components:
         widgets:
         - widgetName: widgetName
           widgetOptions:
-            key: "{}"
+            key: ""
           widgetId: 6
           widgetSize:
             width: 1
@@ -17753,7 +17754,7 @@ components:
           widgetType: widgetType
         - widgetName: widgetName
           widgetOptions:
-            key: "{}"
+            key: ""
           widgetId: 6
           widgetSize:
             width: 1
@@ -17799,7 +17800,7 @@ components:
           widgets:
           - widgetName: widgetName
             widgetOptions:
-              key: "{}"
+              key: ""
             widgetId: 6
             widgetSize:
               width: 1
@@ -17810,7 +17811,7 @@ components:
             widgetType: widgetType
           - widgetName: widgetName
             widgetOptions:
-              key: "{}"
+              key: ""
             widgetId: 6
             widgetSize:
               width: 1
@@ -17826,7 +17827,7 @@ components:
           widgets:
           - widgetName: widgetName
             widgetOptions:
-              key: "{}"
+              key: ""
             widgetId: 6
             widgetSize:
               width: 1
@@ -17837,7 +17838,7 @@ components:
             widgetType: widgetType
           - widgetName: widgetName
             widgetOptions:
-              key: "{}"
+              key: ""
             widgetId: 6
             widgetSize:
               width: 1
@@ -18056,13 +18057,13 @@ components:
           pluginType: pluginType
           name: name
           details:
-            key: "{}"
+            key: ""
           type: 2
           creationDate: 2000-01-23T04:56:07.000+00:00
           enabled: true
           authFlow: OAUTH
         integrationParameters:
-          key: "{}"
+          key: ""
         name: name
         id: 5
         creationDate: 2000-01-23T04:56:07.000+00:00
@@ -18080,8 +18081,8 @@ components:
         integrationType:
           $ref: '#/components/schemas/IntegrationTypeResource'
         integrationParameters:
-          additionalProperties:
-            type: object
+          additionalProperties: true
+          type: object
         enabled:
           type: boolean
         creator:
@@ -18095,7 +18096,7 @@ components:
         pluginType: pluginType
         name: name
         details:
-          key: "{}"
+          key: ""
         type: 2
         creationDate: 2000-01-23T04:56:07.000+00:00
         enabled: true
@@ -18124,8 +18125,8 @@ components:
         groupType:
           type: string
         details:
-          additionalProperties:
-            type: object
+          additionalProperties: true
+          type: object
     PatternTemplateResource:
       example:
         name: name
@@ -18158,7 +18159,7 @@ components:
             - recipients
             ruleName: ruleName
             ruleDetails:
-              key: "{}"
+              key: ""
             sendCase: always
             attributes:
             - value: value
@@ -18177,7 +18178,7 @@ components:
             - recipients
             ruleName: ruleName
             ruleDetails:
-              key: "{}"
+              key: ""
             sendCase: always
             attributes:
             - value: value
@@ -18247,7 +18248,7 @@ components:
               - recipients
               ruleName: ruleName
               ruleDetails:
-                key: "{}"
+                key: ""
               sendCase: always
               attributes:
               - value: value
@@ -18266,7 +18267,7 @@ components:
               - recipients
               ruleName: ruleName
               ruleDetails:
-                key: "{}"
+                key: ""
               sendCase: always
               attributes:
               - value: value
@@ -18315,13 +18316,13 @@ components:
             pluginType: pluginType
             name: name
             details:
-              key: "{}"
+              key: ""
             type: 2
             creationDate: 2000-01-23T04:56:07.000+00:00
             enabled: true
             authFlow: OAUTH
           integrationParameters:
-            key: "{}"
+            key: ""
           name: name
           id: 5
           creationDate: 2000-01-23T04:56:07.000+00:00
@@ -18333,13 +18334,13 @@ components:
             pluginType: pluginType
             name: name
             details:
-              key: "{}"
+              key: ""
             type: 2
             creationDate: 2000-01-23T04:56:07.000+00:00
             enabled: true
             authFlow: OAUTH
           integrationParameters:
-            key: "{}"
+            key: ""
           name: name
           id: 5
           creationDate: 2000-01-23T04:56:07.000+00:00

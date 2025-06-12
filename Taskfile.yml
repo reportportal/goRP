@@ -41,7 +41,7 @@ tasks:
       - git tag -a v{{.VERSION}} -m "creating tag {{.VERSION}}"
       - git push origin "refs/tags/v{{.VERSION}}"
     requires:
-      vars: [VERSION]
+      vars: [ VERSION ]
 
   release:
     desc: Run goreleaser to create a release
@@ -75,8 +75,32 @@ tasks:
         --git-repo-id gorp/v5/pkg/openapi --git-user-id reportportal
         --global-property modelDocs=false,apiDocs=false,apiTests=false
 
+  # Default ReportPortal's OpenAPI schema needs to be preprocessed
+  # due to incorrect map/dictionary type handling in the Golang OpenAPI generator
+  # For the Java code containing type Map<String, Object> the following OpenAPI schema is generated:
+  # {
+  #   "type": "object",
+  #   "additionalProperties": {
+  #     "type": "object"
+  #   }
+  # }
+  # Which results in a Go type of map[string]map[string]interface{} that
+  # is not compatible with the ReportPortal's API responses, for instance:
+  #     "metadata" : {
+  #      "qualityGate" : {
+  #        "id" : 415,
+  #        "status" : "FAILED"
+  #      },
+  #      "rp.cluster.lastRun" : "1749732585366"
+  #    },
+  # The following JQ command converts mentioned types to:
+  #  {
+  #     "type": "object",
+  #     "additionalProperties": true
+  #  }
+  # This allows the Go OpenAPI generator to create a map[string]interface{} type which accepts any JSON object
   preprocess:schema:
-    desc: Preprocess OpenAPI schema using JQ to fix metadata field type
+    desc: Preprocess OpenAPI schema using JQ to fix Map<String,Object> / Dictionary field type
     cmds:
       - |
         echo "Preprocessing OpenAPI schema with JQ..."

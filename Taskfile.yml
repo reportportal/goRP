@@ -72,6 +72,7 @@ tasks:
         -v $(pwd)/{{.MODIFIED_SPEC_PATH}}:/local/openapi.json openapitools/openapi-generator-cli:v7.13.0 generate 
         -i /local/openapi.json -g go -o /generated --package-name openapi 
         --additional-properties=withGoCodegenComment=true,enumClassPrefix=true,onlyGenerateClient=true,withGoMod=false 
+        --git-repo-id gorp/v5/pkg/openapi --git-user-id reportportal
         --global-property modelDocs=false,apiDocs=false,apiTests=false
 
   preprocess:schema:

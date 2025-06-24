@@ -9,7 +9,7 @@ import (
 
 	"github.com/urfave/cli/v3"
 
-	rp "github.com/reportportal/goRP/v5/internal/commands"
+	rp "github.com/reportportal/goRP/internal/commands"
 )
 
 var (

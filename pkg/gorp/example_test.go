@@ -8,7 +8,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/reportportal/goRP/v5/pkg/openapi"
+	"github.com/reportportal/goRP/pkg/openapi"
 )
 
 func ExampleClient() {

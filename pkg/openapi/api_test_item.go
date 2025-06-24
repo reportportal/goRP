@@ -4030,6 +4030,20 @@ type ApiGetTestItemsV2Request struct {
 	pagePage                                    *int32
 	pageSize                                    *int32
 	pageSort                                    *string
+	launchId                                    *int32
+	providerType                                *string
+}
+
+// Filters by &#39;id&#39;
+func (r ApiGetTestItemsV2Request) LaunchId(launchId int32) ApiGetTestItemsV2Request {
+	r.launchId = &launchId
+	return r
+}
+
+// Filters by &#39;uuid&#39;
+func (r ApiGetTestItemsV2Request) ProviderType(providerType string) ApiGetTestItemsV2Request {
+	r.providerType = &providerType
+	return r
 }
 
 func (r ApiGetTestItemsV2Request) Params(params map[string]string) ApiGetTestItemsV2Request {
@@ -4390,11 +4404,12 @@ func (a *TestItemAPIService) GetTestItemsV2Execute(r ApiGetTestItemsV2Request) (
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
-	if r.params == nil {
-		return localVarReturnValue, nil, reportError("params is required and must be specified")
-	}
+	// if r.params == nil {
+	// 	return localVarReturnValue, nil, reportError("params is required and must be specified")
+	// }
 
-	parameterAddToHeaderOrQuery(localVarQueryParams, "params", r.params, "form", "")
+	//parameterAddToHeaderOrQuery(localVarQueryParams, "params", r.params, "form", "")
+
 	if r.filterEqUuid != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.uuid", r.filterEqUuid, "form", "")
 	}
@@ -4419,6 +4434,12 @@ func (a *TestItemAPIService) GetTestItemsV2Execute(r ApiGetTestItemsV2Request) (
 		} else {
 			parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.levelAttribute", t, "form", "multi")
 		}
+	}
+	if r.launchId != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "launchId", r.launchId, "form", "")
+	}
+	if r.providerType != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "providerType", r.providerType, "form", "")
 	}
 	if r.filterEqId != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.id", r.filterEqId, "form", "")

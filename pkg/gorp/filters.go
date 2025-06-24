@@ -5,7 +5,7 @@ import (
 
 	"resty.dev/v3"
 
-	"github.com/reportportal/goRP/v5/pkg/openapi"
+	"github.com/reportportal/goRP/pkg/openapi"
 )
 
 const baseUrlFilters = "/api/v1/{project}/filter"

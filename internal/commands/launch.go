@@ -8,8 +8,8 @@ import (
 
 	"github.com/urfave/cli/v3"
 
-	"github.com/reportportal/goRP/v5/pkg/gorp"
-	"github.com/reportportal/goRP/v5/pkg/openapi"
+	"github.com/reportportal/goRP/pkg/gorp"
+	"github.com/reportportal/goRP/pkg/openapi"
 )
 
 var errFilterNotProvided = errors.New("either IDs or filter must be provided")

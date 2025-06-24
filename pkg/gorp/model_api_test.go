@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/reportportal/goRP/v5/pkg/openapi"
+	"github.com/reportportal/goRP/pkg/openapi"
 )
 
 func TestDirectionConverter(t *testing.T) {

@@ -11,7 +11,7 @@ import (
 	"github.com/manifoldco/promptui"
 	"github.com/urfave/cli/v3"
 
-	"github.com/reportportal/goRP/v5/pkg/gorp"
+	"github.com/reportportal/goRP/pkg/gorp"
 )
 
 type clientConfig struct {

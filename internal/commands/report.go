@@ -15,8 +15,8 @@ import (
 
 	"github.com/urfave/cli/v3"
 
-	gorppkg "github.com/reportportal/goRP/v5/pkg/gorp"
-	"github.com/reportportal/goRP/v5/pkg/openapi"
+	gorppkg "github.com/reportportal/goRP/pkg/gorp"
+	"github.com/reportportal/goRP/pkg/openapi"
 )
 
 const logsBatchSize = 10

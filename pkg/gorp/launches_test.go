@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/reportportal/goRP/v5/pkg/openapi"
+	"github.com/reportportal/goRP/pkg/openapi"
 )
 
 func TestGetLaunches(t *testing.T) {

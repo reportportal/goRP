@@ -11,7 +11,7 @@ import (
 
 	"github.com/urfave/cli/v3"
 
-	gorppkg "github.com/reportportal/goRP/v5/pkg/gorp"
+	gorppkg "github.com/reportportal/goRP/pkg/gorp"
 )
 
 const uuidParseRegex = `ReportPortal Launch UUID: ([a-fA-F\d]{8}-[a-fA-F\d]{4}-[a-fA-F\d]{4}-[a-fA-F\d]{4}-[a-fA-F\d]{12})`

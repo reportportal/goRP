@@ -1,4 +1,4 @@
-module github.com/reportportal/goRP/v5
+module github.com/reportportal/goRP
 
 go 1.24.0
 

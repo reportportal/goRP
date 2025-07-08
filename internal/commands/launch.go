@@ -83,7 +83,7 @@ var (
 )
 
 func mergeLaunches(ctx context.Context, cmd *cli.Command) error {
-	rpClient, cfg, err := buildClient(cmd)
+	rpClient, cfg, err := buildClient(ctx, cmd)
 	if err != nil {
 		return err
 	}
@@ -111,7 +111,7 @@ func mergeLaunches(ctx context.Context, cmd *cli.Command) error {
 }
 
 func listLaunches(ctx context.Context, cmd *cli.Command) error {
-	rpClient, cfg, err := buildClient(cmd)
+	rpClient, cfg, err := buildClient(ctx, cmd)
 	if err != nil {
 		return err
 	}

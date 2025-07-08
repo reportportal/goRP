@@ -121,7 +121,7 @@ func checkQualityGateInternal(ctx context.Context,
 	qgTimeout := cmd.Duration(argQualityGateTimeout.Name)
 	qgCheckInterval := cmd.Duration(argQualityGateCheckInterval.Name)
 
-	rpClient, _, err := buildClientFromConfig(cfg)
+	rpClient, _, err := buildClientFromConfig(ctx, cfg)
 	if err != nil {
 		return err
 	}

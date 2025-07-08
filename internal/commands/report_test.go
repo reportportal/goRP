@@ -29,7 +29,7 @@ func setupMockServer(
 	cfg := &clientConfig{
 		URL:     server.URL,
 		Project: project,
-		UUID:    "test-api-key",
+		ApiKey:  "test-api-key",
 	}
 
 	return server, cfg

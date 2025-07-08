@@ -14,7 +14,7 @@ import (
 var (
 	errHostNotSet    = errors.New("host is not set")
 	errProjectNotSet = errors.New("project is not set")
-	errUUIDNotSet    = errors.New("uuid is not set")
+	errApiKeyNotSet  = errors.New("api key is not set")
 )
 
 func checkStdinEmpty() error {
@@ -30,8 +30,8 @@ func checkStdinEmpty() error {
 }
 
 func validateConfig(cfg *clientConfig) error {
-	if cfg.UUID == "" {
-		return errUUIDNotSet
+	if cfg.ApiKey == "" {
+		return errApiKeyNotSet
 	}
 
 	if cfg.Project == "" {

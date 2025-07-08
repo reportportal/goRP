@@ -7,17 +7,27 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+
+	"github.com/reportportal/goRP/v5/pkg/openapi"
 )
 
 func TestCreateRPClient(t *testing.T) {
 	t.Parallel()
-	project := "prj"
 
-	client := NewReportingClient("http://host.com", project, "uuid")
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		authHeader := r.Header.Get("Authorization")
+		assert.Equal(t, "Bearer uuid", authHeader)
+	}))
+	defer srv.Close()
+	u, _ := url.Parse(srv.URL)
+
+	project := "prj"
+	client := NewReportingClient(u.String(), project, WithApiKeyAuth(t.Context(), "uuid"))
 
 	assert.Equal(t, "prj", client.project)
-	assert.Equal(t, "http://host.com", client.http.BaseURL())
-	assert.Equal(t, "uuid", client.http.AuthToken())
+	assert.Equal(t, u.String(), client.http.BaseURL())
+	_, err := client.StartLaunch(&openapi.StartLaunchRQ{})
+	assert.NoError(t, err)
 }
 
 func TestHandleErrors(t *testing.T) {
@@ -30,7 +40,7 @@ func TestHandleErrors(t *testing.T) {
 
 	u, _ := url.Parse(server.URL)
 
-	client := NewClient(u, "uuid")
+	client := NewClient(u, WithApiKeyAuth(t.Context(), "uuid"))
 	_, _, err := client.LaunchAPI.GetProjectLaunches(t.Context(), project).Execute()
 	assert.Error(t, err)
 }

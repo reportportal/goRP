@@ -31,7 +31,7 @@ func TestSaveLog(t *testing.T) {
 	}))
 	defer server.Close()
 
-	client := NewReportingClient(server.URL, "prj", "uuid")
+	client := NewReportingClient(server.URL, "prj", WithApiKeyAuth(t.Context(), "uuid"))
 	log := &openapi.SaveLogRQ{
 		ItemUuid: openapi.PtrString("item123"),
 		Level:    openapi.PtrString(LogLevelInfo),
@@ -65,7 +65,7 @@ func TestSaveLogs(t *testing.T) {
 	}))
 	defer server.Close()
 
-	client := NewReportingClient(server.URL, "prj", "uuid")
+	client := NewReportingClient(server.URL, "prj", WithApiKeyAuth(t.Context(), "uuid"))
 	logs := []*openapi.SaveLogRQ{
 		{
 			ItemUuid: openapi.PtrString("item123"),
@@ -121,7 +121,7 @@ func TestSaveLogMultipart(t *testing.T) {
 	}))
 	defer server.Close()
 
-	client := NewReportingClient(server.URL, "prj", "uuid")
+	client := NewReportingClient(server.URL, "prj", WithApiKeyAuth(t.Context(), "uuid"))
 
 	// Open the file again for reading
 	f, err := os.Open(tmpFile.Name())
@@ -155,7 +155,7 @@ func TestSaveLogMultipart(t *testing.T) {
 func TestSaveLogMultipartErrors(t *testing.T) {
 	t.Parallel()
 
-	client := NewReportingClient("http://localhost", "prj", "uuid")
+	client := NewReportingClient("http://localhost", "prj", WithApiKeyAuth(t.Context(), "uuid"))
 
 	// Test with empty filename
 	logs := []*openapi.SaveLogRQ{{

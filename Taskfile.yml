@@ -117,3 +117,8 @@ tasks:
           'walk(if type == "object" and .additionalProperties and .additionalProperties.type == "object" and (.additionalProperties.additionalProperties | not) then .additionalProperties = true else . end)' \
           {{.SPEC_PATH}} > {{.MODIFIED_SPEC_PATH}}
         echo "Modified schema saved to {{.MODIFIED_SPEC_PATH}}"
+
+  report-example:
+    deps: [build]
+    desc: "Run ReportExample to test the generated client"
+    cmd: go test -json ./... | bin/gorp report test2json --launchName gorp-test

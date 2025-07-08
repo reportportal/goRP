@@ -53,7 +53,7 @@ func TestGetLaunches(t *testing.T) {
 	defer server.Close()
 	u, _ := url.Parse(server.URL)
 
-	client := NewClient(u, "uuid")
+	client := NewClient(u, WithApiKeyAuth(t.Context(), "uuid"))
 
 	result, _, err := client.LaunchAPI.GetProjectLaunches(t.Context(), "prj").Execute()
 
@@ -101,7 +101,7 @@ func TestGetLaunchesPage(t *testing.T) {
 	defer server.Close()
 
 	u, _ := url.Parse(server.URL)
-	client := NewClient(u, "uuid")
+	client := NewClient(u, WithApiKeyAuth(t.Context(), "uuid"))
 
 	result, _, err := client.LaunchAPI.GetProjectLaunches(t.Context(), "prj").
 		PagePage(2).
@@ -160,7 +160,7 @@ func TestGetFiltersByName(t *testing.T) {
 	defer server.Close()
 
 	u, _ := url.Parse(server.URL)
-	client := NewClient(u, "uuid")
+	client := NewClient(u, WithApiKeyAuth(t.Context(), "uuid"))
 
 	result, _, err := client.UserFilterAPI.GetAllFilters(t.Context(), "prj").
 		FilterEqName("test-filter").
@@ -204,7 +204,7 @@ func TestMergeLaunches(t *testing.T) {
 	defer server.Close()
 
 	u, _ := url.Parse(server.URL)
-	client := NewClient(u, "uuid")
+	client := NewClient(u, WithApiKeyAuth(t.Context(), "uuid"))
 
 	mergeRQ := openapi.MergeLaunchesRQ{
 		Name:        "Merged Launch",

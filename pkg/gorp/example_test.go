@@ -13,8 +13,9 @@ import (
 
 func ExampleClient() {
 	defaultProject := ""
-	client := NewClient(&url.URL{}, "")
-	reportingClient := NewReportingClient("", defaultProject, "")
+	clientOpt := WithApiKeyAuth(context.Background(), "")
+	client := NewClient(&url.URL{}, clientOpt)
+	reportingClient := NewReportingClient("", defaultProject, clientOpt)
 
 	rs, err := reportingClient.StartLaunch(&openapi.StartLaunchRQ{
 		Mode:        openapi.PtrString(string(LaunchModes.Default)),

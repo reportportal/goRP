@@ -21,11 +21,9 @@ type ReportingClient struct {
 // host - server hostname
 // project - name of the project
 // apiKey - User Token (see user profile page)
-func NewReportingClient(host, project, apiKey string) *ReportingClient {
-	http := resty.New().
-		// SetDebug(true).
+func NewReportingClient(host, project string, clientOption ClientOption) *ReportingClient {
+	http := resty.NewWithClient(clientOption()).
 		SetBaseURL(host).
-		SetAuthToken(apiKey).
 		AddResponseMiddleware(defaultHTTPErrorHandler)
 	return &ReportingClient{
 		project: project,

@@ -103,7 +103,7 @@ func reportTest2Json(ctx context.Context, cmd *cli.Command) error {
 }
 
 func reportLaunch(ctx context.Context, cfg *clientConfig, cmd *cli.Command) (string, error) {
-	rpClient := buildReportingClient(cfg)
+	rpClient := buildReportingClient(ctx, cfg)
 
 	input := make(chan *testEvent)
 

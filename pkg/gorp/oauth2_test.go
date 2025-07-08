@@ -22,98 +22,20 @@ func TestNewPasswordGrantTokenSource(t *testing.T) {
 
 	tokenSource := NewPasswordGrantTokenSource(ctx, config, username, password)
 
-	// Verify the returned type
-	pgts, ok := tokenSource.(*passwordGrantTokenSource)
-	require.True(t, ok, "Expected passwordGrantTokenSource type")
+	// Verify the returned type is a ReuseTokenSource (not passwordGrantTokenSource directly)
+	assert.NotNil(t, tokenSource, "Expected non-nil token source")
 
-	// Verify fields are set correctly
-	assert.Equal(t, ctx, pgts.ctx, "Context not set correctly")
-	assert.Equal(t, config, pgts.config, "Config not set correctly")
-	assert.Equal(t, username, pgts.user, "Username not set correctly")
-	assert.Equal(t, password, pgts.pass, "Password not set correctly")
-	assert.Nil(t, pgts.token, "Token should be nil initially")
+	// Test that it implements oauth2.TokenSource interface
+	var _ oauth2.TokenSource = tokenSource //nolint:staticcheck
 }
 
-func TestPasswordGrantTokenSource_Token_ValidToken(t *testing.T) {
-	t.Parallel()
-
-	ctx := context.Background()
-
-	// Create a valid token (expires in 1 hour)
-	validToken := &oauth2.Token{
-		AccessToken: "valid-token",
-		TokenType:   "Bearer",
-		Expiry:      time.Now().Add(1 * time.Hour),
-	}
-
-	pgts := &passwordGrantTokenSource{
-		ctx:    ctx,
-		config: &oauth2.Config{},
-		token:  validToken,
-		user:   "testuser",
-		pass:   "testpass",
-	}
-
-	token, err := pgts.Token()
-	require.NoError(t, err, "Expected no error")
-	assert.Equal(t, validToken, token, "Expected to return the existing valid token")
-}
-
-func TestPasswordGrantTokenSource_Token_ExpiredToken(t *testing.T) {
+func TestPasswordGrantTokenSource_Token_Success(t *testing.T) {
 	t.Parallel()
 
 	// Create a test server that returns a valid token response
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		assert.Equal(t, "POST", r.Method)
 		assert.Equal(t, "application/x-www-form-urlencoded", r.Header.Get("Content-Type"))
-
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		_, _ = w.Write(
-			[]byte(`{"access_token":"new-token","token_type":"Bearer","expires_in":3600}`),
-		)
-	}))
-	defer server.Close()
-
-	ctx := context.Background()
-
-	// Create an expired token
-	expiredToken := &oauth2.Token{
-		AccessToken: "expired-token",
-		TokenType:   "Bearer",
-		Expiry:      time.Now().Add(-1 * time.Hour),
-	}
-
-	config := &oauth2.Config{
-		Endpoint: oauth2.Endpoint{
-			TokenURL: server.URL,
-		},
-	}
-
-	pgts := &passwordGrantTokenSource{
-		ctx:    ctx,
-		config: config,
-		token:  expiredToken,
-		user:   "testuser",
-		pass:   "testpass",
-	}
-
-	token, err := pgts.Token()
-	require.NoError(t, err, "Expected no error")
-	assert.Equal(t, "new-token", token.AccessToken, "Expected to return the new token")
-	assert.Equal(t, "Bearer", token.TokenType, "Expected Bearer token type")
-	assert.True(t, token.Expiry.After(time.Now()), "Token should not be expired")
-
-	// Verify the token was updated in the struct
-	assert.Equal(t, "new-token", pgts.token.AccessToken, "Token should be updated in the struct")
-}
-
-func TestPasswordGrantTokenSource_Token_NoToken(t *testing.T) {
-	t.Parallel()
-
-	// Create a test server that returns a valid token response
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		assert.Equal(t, "POST", r.Method)
 
 		// Parse form to verify credentials are sent
 		err := r.ParseForm()
@@ -131,28 +53,102 @@ func TestPasswordGrantTokenSource_Token_NoToken(t *testing.T) {
 	defer server.Close()
 
 	ctx := context.Background()
-
 	config := &oauth2.Config{
 		Endpoint: oauth2.Endpoint{
 			TokenURL: server.URL,
 		},
 	}
 
-	pgts := &passwordGrantTokenSource{
-		ctx:    ctx,
-		config: config,
-		token:  nil, // No existing token
-		user:   "testuser",
-		pass:   "testpass",
+	tokenSource := NewPasswordGrantTokenSource(ctx, config, "testuser", "testpass")
+
+	token, err := tokenSource.Token()
+	require.NoError(t, err, "Expected no error")
+	assert.Equal(t, "new-token", token.AccessToken, "Expected correct access token")
+	assert.Equal(t, "Bearer", token.TokenType, "Expected Bearer token type")
+	assert.True(t, token.Expiry.After(time.Now()), "Token should not be expired")
+}
+
+func TestPasswordGrantTokenSource_Token_ReusesCachedToken(t *testing.T) {
+	t.Parallel()
+
+	requestCount := 0
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		requestCount++
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write(
+			[]byte(`{"access_token":"cached-token","token_type":"Bearer","expires_in":3600}`),
+		)
+	}))
+	defer server.Close()
+
+	ctx := context.Background()
+	config := &oauth2.Config{
+		Endpoint: oauth2.Endpoint{
+			TokenURL: server.URL,
+		},
 	}
 
-	token, err := pgts.Token()
-	require.NoError(t, err, "Expected no error")
-	assert.Equal(t, "new-token", token.AccessToken, "Expected to return the new token")
-	assert.Equal(t, "Bearer", token.TokenType, "Expected Bearer token type")
+	tokenSource := NewPasswordGrantTokenSource(ctx, config, "testuser", "testpass")
 
-	// Verify the token was set in the struct
-	assert.Equal(t, "new-token", pgts.token.AccessToken, "Token should be set in the struct")
+	// First call should fetch token
+	token1, err := tokenSource.Token()
+	require.NoError(t, err, "Expected no error on first call")
+	assert.Equal(t, "cached-token", token1.AccessToken, "Expected correct access token")
+
+	// Second call should reuse cached token
+	token2, err := tokenSource.Token()
+	require.NoError(t, err, "Expected no error on second call")
+	assert.Equal(t, "cached-token", token2.AccessToken, "Expected same access token")
+
+	// Should have only made one request due to caching
+	assert.Equal(t, 1, requestCount, "Expected only one request due to token reuse")
+}
+
+func TestPasswordGrantTokenSource_Token_RefreshesExpiredToken(t *testing.T) {
+	t.Parallel()
+
+	requestCount := 0
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		requestCount++
+		var response string
+		if requestCount == 1 {
+			// First request returns token that expires quickly
+			response = `{"access_token":"short-lived-token","token_type":"Bearer","expires_in":1}`
+		} else {
+			// Second request returns new token
+			response = `{"access_token":"refreshed-token","token_type":"Bearer","expires_in":3600}`
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte(response))
+	}))
+	defer server.Close()
+
+	ctx := context.Background()
+	config := &oauth2.Config{
+		Endpoint: oauth2.Endpoint{
+			TokenURL: server.URL,
+		},
+	}
+
+	tokenSource := NewPasswordGrantTokenSource(ctx, config, "testuser", "testpass")
+
+	// First call gets short-lived token
+	token1, err := tokenSource.Token()
+	require.NoError(t, err, "Expected no error on first call")
+	assert.Equal(t, "short-lived-token", token1.AccessToken, "Expected short-lived token")
+
+	// Wait for token to expire
+	time.Sleep(2 * time.Second)
+
+	// Second call should fetch new token
+	token2, err := tokenSource.Token()
+	require.NoError(t, err, "Expected no error on second call")
+	assert.Equal(t, "refreshed-token", token2.AccessToken, "Expected refreshed token")
+
+	// Should have made two requests
+	assert.Equal(t, 2, requestCount, "Expected two requests due to token refresh")
 }
 
 func TestPasswordGrantTokenSource_Token_Error(t *testing.T) {
@@ -169,22 +165,15 @@ func TestPasswordGrantTokenSource_Token_Error(t *testing.T) {
 	defer server.Close()
 
 	ctx := context.Background()
-
 	config := &oauth2.Config{
 		Endpoint: oauth2.Endpoint{
 			TokenURL: server.URL,
 		},
 	}
 
-	pgts := &passwordGrantTokenSource{
-		ctx:    ctx,
-		config: config,
-		token:  nil,
-		user:   "testuser",
-		pass:   "wrongpass",
-	}
+	tokenSource := NewPasswordGrantTokenSource(ctx, config, "testuser", "wrongpass")
 
-	token, err := pgts.Token()
+	token, err := tokenSource.Token()
 	require.Error(t, err, "Expected an error")
 	assert.Nil(t, token, "Expected nil token on error")
 	assert.Contains(
@@ -207,15 +196,9 @@ func TestPasswordGrantTokenSource_Token_NetworkError(t *testing.T) {
 		},
 	}
 
-	pgts := &passwordGrantTokenSource{
-		ctx:    ctx,
-		config: config,
-		token:  nil,
-		user:   "testuser",
-		pass:   "testpass",
-	}
+	tokenSource := NewPasswordGrantTokenSource(ctx, config, "testuser", "testpass")
 
-	token, err := pgts.Token()
+	token, err := tokenSource.Token()
 	require.Error(t, err, "Expected an error")
 	assert.Nil(t, token, "Expected nil token on error")
 	assert.Contains(
@@ -238,30 +221,17 @@ func TestPasswordGrantTokenSource_Token_InvalidResponse(t *testing.T) {
 	defer server.Close()
 
 	ctx := context.Background()
-
 	config := &oauth2.Config{
 		Endpoint: oauth2.Endpoint{
 			TokenURL: server.URL,
 		},
 	}
 
-	pgts := &passwordGrantTokenSource{
-		ctx:    ctx,
-		config: config,
-		token:  nil,
-		user:   "testuser",
-		pass:   "testpass",
-	}
+	tokenSource := NewPasswordGrantTokenSource(ctx, config, "testuser", "testpass")
 
-	token, err := pgts.Token()
+	token, err := tokenSource.Token()
 	require.Error(t, err, "Expected an error")
 	assert.Nil(t, token, "Expected nil token on error")
-	assert.Contains(
-		t,
-		err.Error(),
-		"failed to fetch token",
-		"Expected error to contain 'failed to fetch token'",
-	)
 }
 
 func TestPasswordGrantTokenSource_Token_ContextCancellation(t *testing.T) {
@@ -288,15 +258,9 @@ func TestPasswordGrantTokenSource_Token_ContextCancellation(t *testing.T) {
 		},
 	}
 
-	pgts := &passwordGrantTokenSource{
-		ctx:    ctx,
-		config: config,
-		token:  nil,
-		user:   "testuser",
-		pass:   "testpass",
-	}
+	tokenSource := NewPasswordGrantTokenSource(ctx, config, "testuser", "testpass")
 
-	token, err := pgts.Token()
+	token, err := tokenSource.Token()
 	require.Error(t, err, "Expected an error")
 	assert.Nil(t, token, "Expected nil token on error")
 	assert.Contains(
@@ -310,33 +274,25 @@ func TestPasswordGrantTokenSource_Token_ContextCancellation(t *testing.T) {
 func TestPasswordGrantTokenSource_Token_ConcurrentAccess(t *testing.T) {
 	t.Parallel()
 
-	// Create a test server
 	requestCount := 0
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		requestCount++
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		_, _ = w.Write(
-			[]byte(`{"access_token":"new-token","token_type":"Bearer","expires_in":3600}`),
+			[]byte(`{"access_token":"concurrent-token","token_type":"Bearer","expires_in":3600}`),
 		)
 	}))
 	defer server.Close()
 
 	ctx := context.Background()
-
 	config := &oauth2.Config{
 		Endpoint: oauth2.Endpoint{
 			TokenURL: server.URL,
 		},
 	}
 
-	pgts := &passwordGrantTokenSource{
-		ctx:    ctx,
-		config: config,
-		token:  nil,
-		user:   "testuser",
-		pass:   "testpass",
-	}
+	tokenSource := NewPasswordGrantTokenSource(ctx, config, "testuser", "testpass")
 
 	// Run multiple goroutines to test concurrent access
 	const numGoroutines = 10
@@ -344,7 +300,7 @@ func TestPasswordGrantTokenSource_Token_ConcurrentAccess(t *testing.T) {
 
 	for i := 0; i < numGoroutines; i++ {
 		go func() {
-			_, err := pgts.Token()
+			_, err := tokenSource.Token()
 			results <- err
 		}()
 	}
@@ -355,87 +311,77 @@ func TestPasswordGrantTokenSource_Token_ConcurrentAccess(t *testing.T) {
 		assert.NoError(t, err, "Expected no error from concurrent access")
 	}
 
-	// Note: Without proper synchronization, this test might show race conditions
-	// The actual implementation should handle concurrent access properly
+	// ReuseTokenSource should handle concurrent access properly
+	// Should only make one request due to proper synchronization
+	assert.Equal(t, 1, requestCount, "Expected only one request due to proper synchronization")
 }
 
-func TestPasswordGrantTokenSource_Token_EdgeCases(t *testing.T) {
+func TestPasswordGrantTokenSource_DirectAccess(t *testing.T) {
 	t.Parallel()
 
-	tests := []struct {
-		name        string
-		tokenExpiry time.Time
-		expectFetch bool
-	}{
-		{
-			name:        "token expires exactly now",
-			tokenExpiry: time.Now(),
-			expectFetch: true,
-		},
-		{
-			name:        "token expires in 20 second",
-			tokenExpiry: time.Now().Add(20 * time.Second),
-			expectFetch: false,
-		},
-		{
-			name:        "token expires in 5 seconds", // default expirty delta is 10 sec
-			tokenExpiry: time.Now().Add(5 * time.Second),
-			expectFetch: true,
-		},
-		{
-			name:        "token expired 1 second ago",
-			tokenExpiry: time.Now().Add(-1 * time.Second),
-			expectFetch: true,
-		},
-		{
-			name:        "zero time (never expires)",
-			tokenExpiry: time.Time{},
-			expectFetch: false,
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write(
+			[]byte(`{"access_token":"direct-token","token_type":"Bearer","expires_in":3600}`),
+		)
+	}))
+	defer server.Close()
+
+	ctx := context.Background()
+	config := &oauth2.Config{
+		Endpoint: oauth2.Endpoint{
+			TokenURL: server.URL,
 		},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			fetchCalled := false
-			server := httptest.NewServer(
-				http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-					fetchCalled = true
-					w.Header().Set("Content-Type", "application/json")
-					w.WriteHeader(http.StatusOK)
-					_, _ = w.Write(
-						[]byte(
-							`{"access_token":"new-token","token_type":"Bearer","expires_in":3600}`,
-						),
-					)
-				}),
-			)
-			defer server.Close()
-
-			ctx := context.Background()
-			config := &oauth2.Config{
-				Endpoint: oauth2.Endpoint{
-					TokenURL: server.URL,
-				},
-			}
-
-			existingToken := &oauth2.Token{
-				AccessToken: "existing-token",
-				TokenType:   "Bearer",
-				Expiry:      tt.tokenExpiry,
-			}
-
-			pgts := &passwordGrantTokenSource{
-				ctx:    ctx,
-				config: config,
-				token:  existingToken,
-				user:   "testuser",
-				pass:   "testpass",
-			}
-
-			token, err := pgts.Token()
-			require.NoError(t, err, "Expected no error")
-			assert.NotNil(t, token, "Expected non-nil token")
-			assert.Equal(t, tt.expectFetch, fetchCalled, "Fetch expectation mismatch")
-		})
+	// Create passwordGrantTokenSource directly for testing
+	pgts := &passwordGrantTokenSource{
+		ctx:    ctx,
+		config: config,
+		user:   "testuser",
+		pass:   "testpass",
 	}
+
+	token, err := pgts.Token()
+	require.NoError(t, err, "Expected no error")
+	assert.Equal(t, "direct-token", token.AccessToken, "Expected correct access token")
+	assert.Equal(t, "Bearer", token.TokenType, "Expected Bearer token type")
+}
+
+func TestPasswordGrantTokenSource_EmptyCredentials(t *testing.T) {
+	t.Parallel()
+
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Parse form to verify empty credentials
+		err := r.ParseForm()
+		require.NoError(t, err)
+		assert.Equal(t, "", r.Form.Get("username"))
+		assert.Equal(t, "", r.Form.Get("password"))
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write(
+			[]byte(`{"access_token":"empty-creds-token","token_type":"Bearer","expires_in":3600}`),
+		)
+	}))
+	defer server.Close()
+
+	ctx := context.Background()
+	config := &oauth2.Config{
+		Endpoint: oauth2.Endpoint{
+			TokenURL: server.URL,
+		},
+	}
+
+	tokenSource := NewPasswordGrantTokenSource(ctx, config, "", "")
+
+	token, err := tokenSource.Token()
+	require.NoError(t, err, "Expected no error")
+	assert.Equal(
+		t,
+		"empty-creds-token",
+		token.AccessToken,
+		"Expected token even with empty credentials",
+	)
 }

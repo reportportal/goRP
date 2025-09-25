@@ -6,7 +6,7 @@ vars:
   GO: go
   BINARY_DIR: bin
   BUILD_INFO_LDFLAGS: -ldflags "-w -extldflags '"-static"' -X main.buildDate={{.BUILD_DATE}} -X main.version={{.VERSION}}"
-  GOLANG_CI: docker run --rm -v $(pwd):/app -w /app golangci/golangci-lint:v2.1.6 golangci-lint
+  GOLANG_CI: docker run --rm -v $(pwd):/app -w /app golangci/golangci-lint:v2.4.0 golangci-lint
   OUTPUT_DIR: "pkg/openapi"
   CLIENT_FILE: "{{.OUTPUT_DIR}}/client.go"
   SPEC_PATH: "openapi.json"

@@ -3,7 +3,7 @@ ReportPortal
 
 ReportPortal API documentation
 
-API version: develop-322
+API version: 5.14.4
 Contact: support@reportportal.io
 */
 
@@ -41,7 +41,7 @@ var (
 	queryDescape    = strings.NewReplacer("%5B", "[", "%5D", "]")
 )
 
-// APIClient manages communication with the ReportPortal API vdevelop-322
+// APIClient manages communication with the ReportPortal API v5.14.4
 // In most cases there should be only one, shared, APIClient.
 type APIClient struct {
 	cfg    *Configuration

@@ -6,159 +6,79 @@
 
 # goRP
 
-Golang Client, Reporter and CLI Utility for [ReportPortal](https://reportportal.io)
-
-1. [Installation](#installation)
-2. [CLI Usage](#usage)
-3. [Go Test Reporter](#using-as-golang-test-results-agent)
+Compact CLI, reporter, and Go client for [ReportPortal](https://reportportal.io). Examples use the `gorp` binary name (the release artifact is `goRP`).
 
 ## Installation
-
-- Via Go Install
+- Go toolchain
 ```sh
-go install github.com/reportportal/goRP@latest
+go install github.com/reportportal/goRP/v5@latest
 ```
-- Via cURL (passing version and arch)
-```sh
-curl -sL https://github.com/avarabyeu/goRP/releases/download/v5.0.2/goRP_5.0.2_darwin_amd64.tar.gz | tar zx -C .
-```
-- Via cURL (latest one)
+- Release tarball (auto-detects your OS/arch)
 ```sh
 curl -s https://api.github.com/repos/reportportal/goRP/releases/latest | \
-  jq -r '.assets[] | select(.name | contains ("tar.gz")) | .browser_download_url' | \
+  jq -r '.assets[] | select(.name | contains("tar.gz")) | .browser_download_url' | \
   grep "$(uname)_$(arch)" | \
-  xargs curl -sL |  tar zx -C .
+  xargs curl -sL | tar zx -C /usr/local/bin
 ```
-## Usage
 
+## Configure credentials
+Run `gorp init` once to cache `host`, `uuid`, and `project` in `~/.gorp`. The wizard asks for:
+1. ReportPortal base URL
+2. Personal access token (UUID)
+3. Default project name
+
+Runtime overrides go through flags or env vars: `GORP_UUID`, `GORP_PROJECT`, and `GORP_HOST`. All commands accept `--log-level` (default `debug`).
+
+## CLI overview
 ```
-gorp [global options] command [command options] [arguments...]   
+gorp [global flags] command [command options]
 
+GLOBAL FLAGS:
+  --uuid, -u         Access token (env: GORP_UUID)
+  --project, -p      Project name (env: GORP_PROJECT)
+  --host             ReportPortal server URL
+  --log-level        slog level (trace|debug|info|warn|error)
+```
+```
 COMMANDS:
-   launch   Operations over launches
-   report   Reports input to report portal
-   init     Initializes configuration cache
-   help, h  Shows a list of commands or help for one command
-
-GLOBAL OPTIONS:
-   --uuid value, -u value     Access Token [$GORP_UUID]
-   --project value, -p value  ReportPortal Project Name [$GORP_PROJECT]
-   --host value               ReportPortal Server Name
-   --help, -h                 show help (default: false)
-   --version, -v              print the version (default: false)
+  init            Initialize the local config cache
+  launch          List or merge launches
+  report          Ship test results (currently only Go test2json)
+  quality-gate    Poll a launch quality gate status
 ```
 
-### Init command
+## Launch operations
+`gorp launch list [--filter key=value ... | --filter-name saved_filter]`
+- `--filter` (`Filter` env) joins multiple key=value pairs with `&`.
+- `--filter-name` (`FILTER_NAME` env) reuses a saved ReportPortal filter.
+- No flags lists the most recent launches for the configured project.
 
-    NAME:
-        gorp init - Initializes configuration cache
-    USAGE:
-        gorp init [command options] [arguments...]
-    OPTIONS:
-        --help, -h  show help (default: false)
+`gorp launch merge --name "Nightly" [--ids 1 --ids 2 | --filter ... | --filter-name ...]`
+- Provide either explicit `--ids` or a filter; otherwise the command exits.
+- `--type` (`MERGE_TYPE`, default `DEEP`) controls the merge strategy.
 
-### Launch command
+## Reporting Go tests
+`gorp report test2json [-f results.json] [flags]`
+- Consumes `go test -json` output from a file or stdin.
+- `--launchName, --ln` (`LAUNCH_NAME`, default `"gorp launch"`).
+- `--reportEmptyPkg, --ep` (`REPORT_EMPTY_PKG`) creates suite entries even when packages have no tests.
+- `--attr, -a key:value` attaches launch attributes; omitting `:` creates a tag.
+- `--print-launch-uuid` writes `ReportPortal Launch UUID:<uuid>` for downstream tooling.
+- `--quality-gate-check, --qgc` waits for the launch quality gate using the timeout/interval flags described below (exit code `10` on failure).
 
-```
-USAGE:
-   goRP launch command [command options] [arguments...]
-
-COMMANDS:
-   list     List launches
-   merge    Merge Launches
-   help, h  Shows a list of commands or help for one command
-```
-
-#### List Launches
-
-```
-USAGE:
-   goRP launch list [command options] [arguments...]
-
-OPTIONS:
-   --filter-name value, --fn value  Filter Name [$FILTER_NAME]
-   --filter value, -f value         Filter [$Filter]
-   --help, -h                       show help (default: false)
-```
-
-### Report command
-```
-    NAME:
-        goRP report - Reports input to report portal
-    USAGE:
-        goRP report command [command options] [arguments...]
-    COMMANDS:
-        test2json  Input format: test2json
-    OPTIONS:
-        --help, -h  show help (default: false)
-```
-
-#### Report test2json command
-```
-NAME:
-   goRP report test2json - Input format: test2json
-
-USAGE:
-   goRP report test2json [command options]
-
-OPTIONS:
-   --file string, -f string                                 File Name [$FILE]
-   --launchName string, --ln string                         Launch Name (default: "gorp launch") [$LAUNCH_NAME]
-   --reportEmptyPkg, --ep                                   Whether empty packages need to be reporter. Default is false (default: false) [$REPORT_EMPTY_PKG]
-   --attr string, -a string [ --attr string, -a string ]    Launch attribute with format 'key:value'. Omitting a ':' separator will tag the launch with the value.
-   --print-launch-uuid                                      Print launch UUID to console (default: false)
-   --quality-gate-check, --qgc                              Check quality gate status. Exits with exit code 10 if quality gate check fails. (default: false) [$QUALITY_GATE_CHECK]
-   --quality-gate-timeout duration, --qgt duration          Timeout for quality gate check (default: 1m0s) [$QUALITY_GATE_TIMEOUT]
-   --quality-gate-check-interval duration, --qgci duration  Interval for quality gate check (default: 3s) [$QUALITY_GATE_CHECK_INTERVAL]
-   --help, -h                                               show help
-```
-
-### Quality Gate command
-```
-NAME:
-   goRP quality-gate - Quality gate commands
-
-USAGE:
-   goRP quality-gate [command [command options]] 
-
-COMMANDS:
-   check, qgc  Check the quality gate status of a launch
-
-OPTIONS:
-   --help, -h  show help
-```
-
-#### Check Quality Gate
-```
-NAME:
-   goRP quality-gate check - Check the quality gate status of a launch
-
-USAGE:
-   goRP quality-gate check
-
-OPTIONS:
-   --help, -h                                               show help
-   --quality-gate-check-interval duration, --qgci duration  Interval for quality gate check (default: 3s) [$QUALITY_GATE_CHECK_INTERVAL]
-   --quality-gate-timeout duration, --qgt duration          Timeout for quality gate check (default: 1m0s) [$QUALITY_GATE_TIMEOUT]
-
-   source
-
-   --launch-uuid string  Launch uuid to check the quality gate status for [$LAUNCH_UUID]
-   --stdin               Parse stdin for launch uuid (default: false)
-
-2025/05/23 17:19:21 one of these flags needs to be provided: launch-uuid, stdin
-```
-
-## Using as Golang Test Results Agent
-Run tests with JSON output
+### Go test workflow
 ```
 go test -json ./... > results.txt
+ gorp report test2json -f results.txt --attr build:123 --print-launch-uuid
 ```
-Report The results
+Direct streaming works as well:
 ```
-gorp report test2json -f results.txt
+go test -json ./... | gorp report test2json --attr env:ci
 ```
-Report directly from go test output
-```
-go test -json ./... | gorp report test2json
-```
+
+## Quality gate checks
+`gorp quality-gate check [--launch-uuid UUID | --stdin] [--quality-gate-timeout 1m] [--quality-gate-check-interval 3s]`
+- Supply the launch ID explicitly (`--launch-uuid`, env `LAUNCH_UUID`) or pipe the output of `gorp report ... --print-launch-uuid` and use `--stdin`.
+- The command polls until the launch metadata exposes a quality gate result. It exits with code `0` on pass, `10` on fail, and `1` on timeouts/usage errors.
+
+Use `gorp quality-gate check --stdin <<<'ReportPortal Launch UUID: <id>'` to test the flow locally.

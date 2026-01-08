@@ -3,7 +3,7 @@ ReportPortal
 
 ReportPortal API documentation
 
-API version: develop-322
+API version: 5.14.4
 Contact: support@reportportal.io
 */
 

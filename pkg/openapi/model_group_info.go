@@ -3,7 +3,7 @@ ReportPortal
 
 ReportPortal API documentation
 
-API version: develop-322
+API version: 5.14.4
 Contact: support@reportportal.io
 */
 
@@ -34,7 +34,8 @@ type GroupInfo struct {
 	// Timestamp when group was created.
 	CreatedAt *time.Time `json:"created_at,omitempty"`
 	// Timestamp when group was last updated.
-	UpdatedAt *time.Time `json:"updated_at,omitempty"`
+	UpdatedAt *time.Time      `json:"updated_at,omitempty"`
+	Stats     *GroupInfoStats `json:"stats,omitempty"`
 }
 
 // NewGroupInfo instantiates a new GroupInfo object
@@ -278,6 +279,38 @@ func (o *GroupInfo) SetUpdatedAt(v time.Time) {
 	o.UpdatedAt = &v
 }
 
+// GetStats returns the Stats field value if set, zero value otherwise.
+func (o *GroupInfo) GetStats() GroupInfoStats {
+	if o == nil || IsNil(o.Stats) {
+		var ret GroupInfoStats
+		return ret
+	}
+	return *o.Stats
+}
+
+// GetStatsOk returns a tuple with the Stats field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *GroupInfo) GetStatsOk() (*GroupInfoStats, bool) {
+	if o == nil || IsNil(o.Stats) {
+		return nil, false
+	}
+	return o.Stats, true
+}
+
+// HasStats returns a boolean if a field has been set.
+func (o *GroupInfo) HasStats() bool {
+	if o != nil && !IsNil(o.Stats) {
+		return true
+	}
+
+	return false
+}
+
+// SetStats gets a reference to the given GroupInfoStats and assigns it to the Stats field.
+func (o *GroupInfo) SetStats(v GroupInfoStats) {
+	o.Stats = &v
+}
+
 func (o GroupInfo) MarshalJSON() ([]byte, error) {
 	toSerialize, err := o.ToMap()
 	if err != nil {
@@ -308,6 +341,9 @@ func (o GroupInfo) ToMap() (map[string]interface{}, error) {
 	}
 	if !IsNil(o.UpdatedAt) {
 		toSerialize["updated_at"] = o.UpdatedAt
+	}
+	if !IsNil(o.Stats) {
+		toSerialize["stats"] = o.Stats
 	}
 	return toSerialize, nil
 }

@@ -3,7 +3,7 @@ ReportPortal
 
 ReportPortal API documentation
 
-API version: develop-322
+API version: 5.14.4
 Contact: support@reportportal.io
 */
 
@@ -20,6 +20,7 @@ var _ MappedNullable = &AssignedProject{}
 
 // AssignedProject struct for AssignedProject
 type AssignedProject struct {
+	ProjectId   *int64  `json:"projectId,omitempty"`
 	ProjectRole *string `json:"projectRole,omitempty"`
 	EntryType   *string `json:"entryType,omitempty"`
 }
@@ -39,6 +40,38 @@ func NewAssignedProject() *AssignedProject {
 func NewAssignedProjectWithDefaults() *AssignedProject {
 	this := AssignedProject{}
 	return &this
+}
+
+// GetProjectId returns the ProjectId field value if set, zero value otherwise.
+func (o *AssignedProject) GetProjectId() int64 {
+	if o == nil || IsNil(o.ProjectId) {
+		var ret int64
+		return ret
+	}
+	return *o.ProjectId
+}
+
+// GetProjectIdOk returns a tuple with the ProjectId field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *AssignedProject) GetProjectIdOk() (*int64, bool) {
+	if o == nil || IsNil(o.ProjectId) {
+		return nil, false
+	}
+	return o.ProjectId, true
+}
+
+// HasProjectId returns a boolean if a field has been set.
+func (o *AssignedProject) HasProjectId() bool {
+	if o != nil && !IsNil(o.ProjectId) {
+		return true
+	}
+
+	return false
+}
+
+// SetProjectId gets a reference to the given int64 and assigns it to the ProjectId field.
+func (o *AssignedProject) SetProjectId(v int64) {
+	o.ProjectId = &v
 }
 
 // GetProjectRole returns the ProjectRole field value if set, zero value otherwise.
@@ -115,6 +148,9 @@ func (o AssignedProject) MarshalJSON() ([]byte, error) {
 
 func (o AssignedProject) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
+	if !IsNil(o.ProjectId) {
+		toSerialize["projectId"] = o.ProjectId
+	}
 	if !IsNil(o.ProjectRole) {
 		toSerialize["projectRole"] = o.ProjectRole
 	}

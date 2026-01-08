@@ -83,6 +83,7 @@ model_finish_launch_rs.go
 model_finish_test_item_rq.go
 model_get_logs_under_rq.go
 model_group_info.go
+model_group_info_stats.go
 model_group_page.go
 model_group_project_info.go
 model_group_projects_page.go
@@ -140,6 +141,7 @@ model_problem.go
 model_project_configuration.go
 model_project_configuration_update.go
 model_project_group_info.go
+model_project_group_info_stats.go
 model_project_groups_page.go
 model_project_info_resource.go
 model_project_notification_config_dto.go
@@ -148,6 +150,7 @@ model_project_settings_resource.go
 model_project_user.go
 model_reset_password_rq.go
 model_restore_password_rq.go
+model_save_analytics_settings_1_401_response.go
 model_save_log_rq.go
 model_search_criteria.go
 model_search_criteria_rq.go

@@ -58,7 +58,7 @@ var (
 				Usage:   "Filter Name",
 				Sources: cli.EnvVars("FILTER_NAME"),
 			},
-			&cli.IntSliceFlag{
+			&cli.Int64SliceFlag{
 				Name:    "ids",
 				Usage:   "Launch IDS to Merge",
 				Sources: cli.EnvVars("MERGE_LAUNCH_IDS"),

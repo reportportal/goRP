@@ -39,7 +39,7 @@ func TestSaveLog(t *testing.T) {
 		Time:     time.Now(),
 	}
 
-	result, err := client.SaveLog(log)
+	result, err := client.SaveLog(t.Context(), log)
 
 	assert.NoError(t, err)
 	assert.NotNil(t, result)
@@ -81,7 +81,7 @@ func TestSaveLogs(t *testing.T) {
 		},
 	}
 
-	result, err := client.SaveLogs(logs...)
+	result, err := client.SaveLogs(t.Context(), logs...)
 
 	assert.NoError(t, err)
 	assert.NotNil(t, result)
@@ -144,7 +144,7 @@ func TestSaveLogMultipart(t *testing.T) {
 		&FileMultipart{File: f},
 	}
 
-	result, err := client.SaveLogMultipart(logs, files)
+	result, err := client.SaveLogMultipart(t.Context(), logs, files)
 
 	assert.NoError(t, err)
 	assert.NotNil(t, result)
@@ -171,7 +171,7 @@ func TestSaveLogMultipartErrors(t *testing.T) {
 		err:         nil,
 	}
 
-	_, err := client.SaveLogMultipart(logs, []Multipart{emptyFilename})
+	_, err := client.SaveLogMultipart(t.Context(), logs, []Multipart{emptyFilename})
 	assert.Error(t, err)
 	assert.Equal(t, err, errMultipartFilename)
 
@@ -183,7 +183,7 @@ func TestSaveLogMultipartErrors(t *testing.T) {
 		err:         fmt.Errorf("cannot load file"),
 	}
 
-	_, err = client.SaveLogMultipart(logs, []Multipart{loadError})
+	_, err = client.SaveLogMultipart(t.Context(), logs, []Multipart{loadError})
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "unable to read multipart")
 }

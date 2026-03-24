@@ -35,7 +35,7 @@ func getClient(ctx context.Context) *http.Client {
 	}
 }
 
-type СlientConfigOpts struct {
+type ClientConfigOpts struct {
 	URL      string `json:"host"`
 	Project  string `json:"project"`
 	ApiToken string `json:"api_token"`

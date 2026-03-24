@@ -26,7 +26,7 @@ func TestCreateRPClient(t *testing.T) {
 
 	assert.Equal(t, "prj", client.project)
 	assert.Equal(t, u.String(), client.http.BaseURL())
-	_, err := client.StartLaunch(&openapi.StartLaunchRQ{})
+	_, err := client.StartLaunch(t.Context(), &openapi.StartLaunchRQ{})
 	assert.NoError(t, err)
 }
 

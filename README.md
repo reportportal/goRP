@@ -41,7 +41,7 @@ COMMANDS:
    help, h  Shows a list of commands or help for one command
 
 GLOBAL OPTIONS:
-   --uuid value, -u value     Access Token [$GORP_UUID]
+   --api-key value, -u value  Access Token [$GORP_API_KEY]
    --project value, -p value  ReportPortal Project Name [$GORP_PROJECT]
    --host value               ReportPortal Server Name
    --help, -h                 show help (default: false)

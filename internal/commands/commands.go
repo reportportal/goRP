@@ -74,7 +74,7 @@ func initConfiguration(ctx context.Context, c *cli.Command) error {
 	}
 	host, parseErr := url.Parse(hostStr)
 	if parseErr != nil {
-		return err
+		return parseErr
 	}
 
 	prompt = promptui.Prompt{
@@ -99,7 +99,7 @@ func initConfiguration(ctx context.Context, c *cli.Command) error {
 		ApiKey:  apiKey,
 	})
 	if err != nil {
-		return cli.Exit(fmt.Sprintf("Cannot read config file. %s", err), 1)
+		return cli.Exit(fmt.Sprintf("Cannot write config file. %s", err), 1)
 	}
 
 	//nolint:forbidigo //expected output
@@ -115,6 +115,11 @@ func getConfig(c *cli.Command) (*clientConfig, error) {
 		if err != nil {
 			return nil, err
 		}
+		defer func() {
+			if closeErr := f.Close(); closeErr != nil {
+				slog.Default().Error(closeErr.Error())
+			}
+		}()
 		err = json.NewDecoder(f).Decode(cfg)
 		if err != nil {
 			return nil, err

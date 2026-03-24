@@ -2,6 +2,7 @@ package gorp
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"time"
@@ -33,22 +34,24 @@ func NewReportingClient(host, project string, clientOption ClientOption) *Report
 
 // StartLaunch starts new launch in RP
 func (c *ReportingClient) StartLaunch(
+	ctx context.Context,
 	launch *openapi.StartLaunchRQ,
 ) (*openapi.EntryCreatedAsyncRS, error) {
-	return c.startLaunch(launch)
+	return c.startLaunch(ctx, launch)
 }
 
 // StartLaunchRaw starts new launch in RP with body in form of bytes buffer
 func (c *ReportingClient) StartLaunchRaw(
+	ctx context.Context,
 	body json.RawMessage,
 ) (*openapi.EntryCreatedAsyncRS, error) {
-	return c.startLaunch(body)
+	return c.startLaunch(ctx, body)
 }
 
-// StartLaunch starts new launch in RP
-func (c *ReportingClient) startLaunch(body interface{}) (*openapi.EntryCreatedAsyncRS, error) {
+func (c *ReportingClient) startLaunch(ctx context.Context, body interface{}) (*openapi.EntryCreatedAsyncRS, error) {
 	var rs openapi.EntryCreatedAsyncRS
 	_, err := c.http.R().
+		SetContext(ctx).
 		SetPathParam("project", c.project).
 		SetBody(body).
 		SetResult(&rs).
@@ -59,27 +62,30 @@ func (c *ReportingClient) startLaunch(body interface{}) (*openapi.EntryCreatedAs
 
 // FinishLaunch finishes launch in RP
 func (c *ReportingClient) FinishLaunch(
+	ctx context.Context,
 	id string,
 	launch *openapi.FinishExecutionRQ,
 ) (*openapi.FinishLaunchRS, error) {
-	return c.finishLaunch(id, launch)
+	return c.finishLaunch(ctx, id, launch)
 }
 
 // FinishLaunchRaw finishes launch in RP with body in form of bytes buffer
 func (c *ReportingClient) FinishLaunchRaw(
+	ctx context.Context,
 	id string,
 	body json.RawMessage,
 ) (*openapi.FinishLaunchRS, error) {
-	return c.finishLaunch(id, body)
+	return c.finishLaunch(ctx, id, body)
 }
 
-// FinishLaunch finishes launch in RP
 func (c *ReportingClient) finishLaunch(
+	ctx context.Context,
 	id string,
 	body interface{},
 ) (*openapi.FinishLaunchRS, error) {
 	var rs openapi.FinishLaunchRS
 	_, err := c.http.R().
+		SetContext(ctx).
 		SetPathParams(map[string]string{
 			"project":  c.project,
 			"launchId": id,
@@ -92,9 +98,10 @@ func (c *ReportingClient) finishLaunch(
 }
 
 // StopLaunch forces finishing launch
-func (c *ReportingClient) StopLaunch(id string) (*openapi.OperationCompletionRS, error) {
+func (c *ReportingClient) StopLaunch(ctx context.Context, id string) (*openapi.OperationCompletionRS, error) {
 	var rs openapi.OperationCompletionRS
 	_, err := c.http.R().
+		SetContext(ctx).
 		SetPathParams(map[string]string{
 			"project":  c.project,
 			"launchId": id,
@@ -111,20 +118,21 @@ func (c *ReportingClient) StopLaunch(id string) (*openapi.OperationCompletionRS,
 
 // StartTest starts new test in RP
 func (c *ReportingClient) StartTest(
+	ctx context.Context,
 	item *openapi.StartTestItemRQ,
 ) (*openapi.EntryCreatedAsyncRS, error) {
-	return c.startTest(item)
+	return c.startTest(ctx, item)
 }
 
 // StartTestRaw starts new test in RP accepting request body as array of bytes
-func (c *ReportingClient) StartTestRaw(body json.RawMessage) (*openapi.EntryCreatedAsyncRS, error) {
-	return c.startTest(body)
+func (c *ReportingClient) StartTestRaw(ctx context.Context, body json.RawMessage) (*openapi.EntryCreatedAsyncRS, error) {
+	return c.startTest(ctx, body)
 }
 
-// startTest starts new test in RP
-func (c *ReportingClient) startTest(body interface{}) (*openapi.EntryCreatedAsyncRS, error) {
+func (c *ReportingClient) startTest(ctx context.Context, body interface{}) (*openapi.EntryCreatedAsyncRS, error) {
 	var rs openapi.EntryCreatedAsyncRS
 	_, err := c.http.R().
+		SetContext(ctx).
 		SetPathParam("project", c.project).
 		SetBody(body).
 		SetResult(&rs).
@@ -133,13 +141,14 @@ func (c *ReportingClient) startTest(body interface{}) (*openapi.EntryCreatedAsyn
 	return &rs, err
 }
 
-// startChildTest starts new test in RP
 func (c *ReportingClient) startChildTest(
+	ctx context.Context,
 	parent string,
 	body interface{},
 ) (*openapi.EntryCreatedAsyncRS, error) {
 	var rs openapi.EntryCreatedAsyncRS
 	_, err := c.http.R().
+		SetContext(ctx).
 		SetPathParams(map[string]string{
 			"project": c.project,
 			"itemId":  parent,
@@ -153,43 +162,48 @@ func (c *ReportingClient) startChildTest(
 
 // StartChildTest starts new test in RP
 func (c *ReportingClient) StartChildTest(
+	ctx context.Context,
 	parent string,
 	item *openapi.StartTestItemRQ,
 ) (*openapi.EntryCreatedAsyncRS, error) {
-	return c.startChildTest(parent, item)
+	return c.startChildTest(ctx, parent, item)
 }
 
 // StartChildTestRaw starts new test in RP accepting request body as array of bytes
 func (c *ReportingClient) StartChildTestRaw(
+	ctx context.Context,
 	parent string,
 	body json.RawMessage,
 ) (*openapi.EntryCreatedAsyncRS, error) {
-	return c.startChildTest(parent, body)
+	return c.startChildTest(ctx, parent, body)
 }
 
 // FinishTest finishes test in RP
 func (c *ReportingClient) FinishTest(
+	ctx context.Context,
 	id string,
 	rq *openapi.FinishTestItemRQ,
 ) (*openapi.OperationCompletionRS, error) {
-	return c.finishTest(id, rq)
+	return c.finishTest(ctx, id, rq)
 }
 
 // FinishTestRaw finishes test in RP accepting body as array of bytes
 func (c *ReportingClient) FinishTestRaw(
+	ctx context.Context,
 	id string,
 	body json.RawMessage,
 ) (*openapi.OperationCompletionRS, error) {
-	return c.finishTest(id, body)
+	return c.finishTest(ctx, id, body)
 }
 
-// finishTest finishes test in RP
 func (c *ReportingClient) finishTest(
+	ctx context.Context,
 	id string,
 	body interface{},
 ) (*openapi.OperationCompletionRS, error) {
 	var rs openapi.OperationCompletionRS
 	_, err := c.http.R().
+		SetContext(ctx).
 		SetPathParams(map[string]string{
 			"project": c.project,
 			"itemId":  id,
@@ -201,9 +215,10 @@ func (c *ReportingClient) finishTest(
 }
 
 // SaveLog attaches log in RP
-func (c *ReportingClient) SaveLog(log *openapi.SaveLogRQ) (*openapi.EntryCreatedAsyncRS, error) {
+func (c *ReportingClient) SaveLog(ctx context.Context, log *openapi.SaveLogRQ) (*openapi.EntryCreatedAsyncRS, error) {
 	var rs openapi.EntryCreatedAsyncRS
 	_, err := c.http.R().
+		SetContext(ctx).
 		SetPathParam("project", c.project).
 		SetBody(log).
 		SetResult(&rs).
@@ -213,9 +228,10 @@ func (c *ReportingClient) SaveLog(log *openapi.SaveLogRQ) (*openapi.EntryCreated
 
 // SaveLogs saves logs as batch request
 func (c *ReportingClient) SaveLogs(
+	ctx context.Context,
 	logs ...*openapi.SaveLogRQ,
 ) (*openapi.EntryCreatedAsyncRS, error) {
-	return c.SaveLogMultipart(logs, nil)
+	return c.SaveLogMultipart(ctx, logs, nil)
 }
 
 // SaveLogMultipart saves a batch of logs in RP, along with any associated files (if any).
@@ -240,8 +256,9 @@ func (c *ReportingClient) SaveLogs(
 //					&ReaderMultipart{ContentType: "text/plain", FileName: f.Name(), Reader: f}, // FileName must match the FileAttachment.Name field
 //				}
 //
-//	 resp, err := client.SaveLogMultipart(log, files)
+//	 resp, err := client.SaveLogMultipart(ctx, log, files)
 func (c *ReportingClient) SaveLogMultipart(
+	ctx context.Context,
 	log []*openapi.SaveLogRQ,
 	files []Multipart,
 ) (*openapi.EntryCreatedAsyncRS, error) {
@@ -252,6 +269,7 @@ func (c *ReportingClient) SaveLogMultipart(
 	}
 
 	rq := c.http.R().
+		SetContext(ctx).
 		SetPathParam("project", c.project)
 
 	// JSON PAYLOAD PART

@@ -12,12 +12,13 @@ import (
 )
 
 func ExampleClient() {
+	ctx := context.Background()
 	defaultProject := ""
-	clientOpt := WithApiKeyAuth(context.Background(), "")
+	clientOpt := WithApiKeyAuth(ctx, "")
 	client := NewClient(&url.URL{}, clientOpt)
 	reportingClient := NewReportingClient("", defaultProject, clientOpt)
 
-	rs, err := reportingClient.StartLaunch(&openapi.StartLaunchRQ{
+	rs, err := reportingClient.StartLaunch(ctx, &openapi.StartLaunchRQ{
 		Mode:        openapi.PtrString(string(LaunchModes.Default)),
 		Name:        "gorp-test",
 		StartTime:   time.Now(),
@@ -26,7 +27,7 @@ func ExampleClient() {
 	checkErr(err, "unable to start launch")
 	launchUUID := *rs.Id
 
-	testRS, err := reportingClient.StartTest(&openapi.StartTestItemRQ{
+	testRS, err := reportingClient.StartTest(ctx, &openapi.StartTestItemRQ{
 		LaunchUuid: launchUUID,
 		CodeRef:    openapi.PtrString("example_test.go"),
 		UniqueId:   openapi.PtrString("another one unique ID"),
@@ -38,7 +39,7 @@ func ExampleClient() {
 	checkErr(err, "unable to start test")
 
 	testUUID := *testRS.Id
-	_, err = reportingClient.SaveLog(&openapi.SaveLogRQ{
+	_, err = reportingClient.SaveLog(ctx, &openapi.SaveLogRQ{
 		LaunchUuid: launchUUID,
 		ItemUuid:   openapi.PtrString(testUUID),
 		Level:      openapi.PtrString(LogLevelInfo),
@@ -52,7 +53,7 @@ func ExampleClient() {
 	file2, err := os.Open("../../go.sum")
 	checkErr(err, "unable to read file")
 
-	_, err = reportingClient.SaveLogMultipart([]*openapi.SaveLogRQ{
+	_, err = reportingClient.SaveLogMultipart(ctx, []*openapi.SaveLogRQ{
 		{
 			LaunchUuid: launchUUID,
 			ItemUuid:   openapi.PtrString(testUUID),
@@ -78,27 +79,27 @@ func ExampleClient() {
 
 	checkErr(err, "unable to save log multipart")
 
-	_, err = reportingClient.FinishTest(testUUID, &openapi.FinishTestItemRQ{
+	_, err = reportingClient.FinishTest(ctx, testUUID, &openapi.FinishTestItemRQ{
 		LaunchUuid: launchUUID,
 		EndTime:    time.Now(),
 		Status:     openapi.PtrString(string(Statuses.Passed)),
 	})
 	checkErr(err, "unable to finish test")
 
-	_, err = reportingClient.FinishLaunch(launchUUID, &openapi.FinishExecutionRQ{
+	_, err = reportingClient.FinishLaunch(ctx, launchUUID, &openapi.FinishExecutionRQ{
 		Status:  openapi.PtrString(string(Statuses.Passed)),
 		EndTime: time.Now(),
 	})
 	checkErr(err, "unable to finish launch")
 
-	launches, _, err := client.LaunchAPI.GetProjectLaunches(context.Background(), defaultProject).
+	launches, _, err := client.LaunchAPI.GetProjectLaunches(ctx, defaultProject).
 		Execute()
 	checkErr(err, "unable to get launches")
 	for _, launch := range launches.Content {
 		fmt.Printf("%+v\n", launch)
 	}
 
-	launchesPage, _, err := client.LaunchAPI.GetProjectLaunches(context.Background(), defaultProject).
+	launchesPage, _, err := client.LaunchAPI.GetProjectLaunches(ctx, defaultProject).
 		PagePage(1).
 		PageSize(50).
 		Execute()
@@ -108,7 +109,7 @@ func ExampleClient() {
 		log.Fatal("expected 1 launch while getting launches page")
 	}
 
-	launchesPage, _, err = client.LaunchAPI.GetProjectLaunches(context.Background(), defaultProject).
+	launchesPage, _, err = client.LaunchAPI.GetProjectLaunches(ctx, defaultProject).
 		FilterEqName("gorp-test").
 		PagePage(1).
 		PageSize(1).

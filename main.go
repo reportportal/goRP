@@ -40,10 +40,10 @@ func main() {
 		},
 		Flags: []cli.Flag{
 			&cli.StringFlag{
-				Name:    "uuid",
+				Name:    "api-key",
 				Aliases: []string{"u"},
 				Usage:   "Access Token",
-				Sources: cli.EnvVars("GORP_UUID"),
+				Sources: cli.EnvVars("GORP_API_KEY"),
 			},
 			&cli.StringFlag{
 				Name:    "project",

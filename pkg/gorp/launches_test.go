@@ -158,7 +158,11 @@ func TestGetAllLaunchesByFilterString_MultiplePages(t *testing.T) {
 	u, _ := url.Parse(server.URL)
 	client := NewClient(u, WithApiKeyAuth(t.Context(), "uuid"))
 
-	result, err := client.GetAllLaunchesByFilterString(t.Context(), project, "filter.eq.name=myfilter")
+	result, err := client.GetAllLaunchesByFilterString(
+		t.Context(),
+		project,
+		"filter.eq.name=myfilter",
+	)
 
 	require.NoError(t, err)
 	assert.Len(t, result, 4)

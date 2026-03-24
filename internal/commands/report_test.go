@@ -279,11 +279,15 @@ func reportingMockServer(t *testing.T, project string) (
 	})
 
 	// PUT /api/v2/{project}/launch/{id}/finish  →  finish launch
-	mux.HandleFunc("PUT /api/v2/"+project+"/launch/launch-uuid-1/finish", func(w http.ResponseWriter, _ *http.Request) {
-		launchFinishes.Add(1)
-		w.Header().Set("Content-Type", "application/json")
-		_ = json.NewEncoder(w).Encode(map[string]string{"id": "launch-uuid-1", "message": "finished"})
-	})
+	mux.HandleFunc(
+		"PUT /api/v2/"+project+"/launch/launch-uuid-1/finish",
+		func(w http.ResponseWriter, _ *http.Request) {
+			launchFinishes.Add(1)
+			w.Header().Set("Content-Type", "application/json")
+			_ = json.NewEncoder(w).
+				Encode(map[string]string{"id": "launch-uuid-1", "message": "finished"})
+		},
+	)
 
 	// POST /api/v2/{project}/item/  (trailing slash)  →  start suite
 	mux.HandleFunc("POST /api/v2/"+project+"/item/", func(w http.ResponseWriter, r *http.Request) {
@@ -335,8 +339,7 @@ func TestReportLaunch_SingleTest(t *testing.T) {
 	t.Parallel()
 
 	project := "testproj"
-	srv, launchStarts, launchFinishes, itemStarts, itemFinishes :=
-		reportingMockServer(t, project)
+	srv, launchStarts, launchFinishes, itemStarts, itemFinishes := reportingMockServer(t, project)
 
 	// Build a minimal test2json input: one test, passing.
 	lines := []string{
@@ -370,8 +373,7 @@ func TestReportLaunch_MultipleTests(t *testing.T) {
 	t.Parallel()
 
 	project := "testproj"
-	srv, launchStarts, launchFinishes, itemStarts, itemFinishes :=
-		reportingMockServer(t, project)
+	srv, launchStarts, launchFinishes, itemStarts, itemFinishes := reportingMockServer(t, project)
 
 	lines := []string{
 		`{"time":"2025-01-01T00:00:00Z","action":"run","package":"mypkg","test":"TestA"}`,

@@ -13,9 +13,8 @@ import (
 	"sync"
 	"time"
 
-	"golang.org/x/sync/errgroup"
-
 	"github.com/urfave/cli/v3"
+	"golang.org/x/sync/errgroup"
 
 	gorppkg "github.com/reportportal/goRP/v5/pkg/gorp"
 	"github.com/reportportal/goRP/v5/pkg/openapi"

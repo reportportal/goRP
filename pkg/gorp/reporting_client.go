@@ -48,7 +48,10 @@ func (c *ReportingClient) StartLaunchRaw(
 	return c.startLaunch(ctx, body)
 }
 
-func (c *ReportingClient) startLaunch(ctx context.Context, body interface{}) (*openapi.EntryCreatedAsyncRS, error) {
+func (c *ReportingClient) startLaunch(
+	ctx context.Context,
+	body interface{},
+) (*openapi.EntryCreatedAsyncRS, error) {
 	var rs openapi.EntryCreatedAsyncRS
 	_, err := c.http.R().
 		SetContext(ctx).
@@ -98,7 +101,10 @@ func (c *ReportingClient) finishLaunch(
 }
 
 // StopLaunch forces finishing launch
-func (c *ReportingClient) StopLaunch(ctx context.Context, id string) (*openapi.OperationCompletionRS, error) {
+func (c *ReportingClient) StopLaunch(
+	ctx context.Context,
+	id string,
+) (*openapi.OperationCompletionRS, error) {
 	var rs openapi.OperationCompletionRS
 	_, err := c.http.R().
 		SetContext(ctx).
@@ -125,11 +131,17 @@ func (c *ReportingClient) StartTest(
 }
 
 // StartTestRaw starts new test in RP accepting request body as array of bytes
-func (c *ReportingClient) StartTestRaw(ctx context.Context, body json.RawMessage) (*openapi.EntryCreatedAsyncRS, error) {
+func (c *ReportingClient) StartTestRaw(
+	ctx context.Context,
+	body json.RawMessage,
+) (*openapi.EntryCreatedAsyncRS, error) {
 	return c.startTest(ctx, body)
 }
 
-func (c *ReportingClient) startTest(ctx context.Context, body interface{}) (*openapi.EntryCreatedAsyncRS, error) {
+func (c *ReportingClient) startTest(
+	ctx context.Context,
+	body interface{},
+) (*openapi.EntryCreatedAsyncRS, error) {
 	var rs openapi.EntryCreatedAsyncRS
 	_, err := c.http.R().
 		SetContext(ctx).
@@ -215,7 +227,10 @@ func (c *ReportingClient) finishTest(
 }
 
 // SaveLog attaches log in RP
-func (c *ReportingClient) SaveLog(ctx context.Context, log *openapi.SaveLogRQ) (*openapi.EntryCreatedAsyncRS, error) {
+func (c *ReportingClient) SaveLog(
+	ctx context.Context,
+	log *openapi.SaveLogRQ,
+) (*openapi.EntryCreatedAsyncRS, error) {
 	var rs openapi.EntryCreatedAsyncRS
 	_, err := c.http.R().
 		SetContext(ctx).

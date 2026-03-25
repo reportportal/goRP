@@ -33,9 +33,16 @@ const (
 
 var (
 	reportCommand = &cli.Command{
-		Name:     "report",
-		Usage:    "Reports input to report portal",
-		Commands: []*cli.Command{reportTest2JsonCommand},
+		Name:  "report",
+		Usage: "Reports input to report portal",
+		Commands: []*cli.Command{
+			reportTest2JsonCommand,
+			startLaunchCommand,
+			startTestCommand,
+			reportLogCommand,
+			finishTestCommand,
+			finishLaunchCommand,
+		},
 	}
 
 	reportTest2JsonCommand = &cli.Command{
@@ -99,7 +106,7 @@ func reportTest2Json(ctx context.Context, cmd *cli.Command) error {
 	}
 	// check if we need to print launch UUID
 	if cmd.Bool("print-launch-uuid") {
-		fmt.Printf("ReportPortal Launch UUID:%s\n", launchID)
+		_, _ = fmt.Fprintln(cmd.Writer, launchID)
 	}
 	// check if we need to check quality gate
 	if cmd.Bool("quality-gate-check") {

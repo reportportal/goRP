@@ -29,7 +29,8 @@ A Go CLI tool (`gorp`) and library (`pkg/gorp`) for [ReportPortal](https://repor
 - **Formatting:** `gofumpt` with `extra-rules: true`, max line length 140.
 - **Context:** every `ReportingClient` method takes `ctx context.Context` as the first argument and passes it to the underlying Resty request via `.SetContext(ctx)`.
 - **Errors:** use `fmt.Errorf("…: %w", err)` for wrapping. Do not swallow errors (except in `defer` close, where logging is acceptable).
-- **Tests:** use `httptest.Server` for HTTP mocking. `errcheck` is suppressed in `_test.go` files.
+- **CLI output:** write user-facing output to `cmd.Writer` (e.g. `fmt.Fprintln(cmd.Writer, …)` or `fmt.Fprintf(cmd.Writer, …)`), never to `os.Stdout` directly. This keeps commands testable — tests supply a `bytes.Buffer` as `cmd.Writer` to capture and assert on output.
+- **Tests:** use `httptest.Server` for HTTP mocking. `errcheck` is suppressed in `_test.go` files. Set `cmd.Writer` to a `bytes.Buffer` when testing CLI commands so output can be verified without touching stdout.
 
 ## Key design decisions
 
@@ -44,3 +45,4 @@ A Go CLI tool (`gorp`) and library (`pkg/gorp`) for [ReportPortal](https://repor
 - Do not add `default:` cases to ticker `select` loops — it causes busy-looping.
 - Do not use `sync.WaitGroup` for goroutines that can fail — use `errgroup.Group`.
 - Do not ignore `scanner.Err()` after a `bufio.Scanner` loop.
+- Do not use `fmt.Println`/`fmt.Printf` for CLI command output — use `fmt.Fprintln(cmd.Writer, …)` / `fmt.Fprintf(cmd.Writer, …)` instead.

@@ -104,8 +104,7 @@ func mergeLaunches(ctx context.Context, cmd *cli.Command) error {
 		return fmt.Errorf("unable to merge launches: %w", err)
 	}
 
-	//nolint:forbidigo //expected output
-	fmt.Println(launchResource.Id)
+	_, _ = fmt.Fprintln(cmd.Writer, launchResource.Id)
 
 	return nil
 }
@@ -130,9 +129,8 @@ func listLaunches(ctx context.Context, cmd *cli.Command) error {
 		return err
 	}
 
-	//nolint:forbidigo //expected output
 	for _, launch := range launches.Content {
-		fmt.Printf("%d #%d \"%s\"\n", launch.Id, launch.Number, launch.Name)
+		_, _ = fmt.Fprintf(cmd.Writer, "%d #%d \"%s\"\n", launch.Id, launch.Number, launch.Name)
 	}
 
 	return nil

@@ -112,7 +112,7 @@ func checkQualityGate(ctx context.Context, cmd *cli.Command) error {
 			}
 		}
 	}
-	fmt.Println(launchID)
+	_, _ = fmt.Fprintln(cmd.Writer, launchID)
 
 	if launchID == "" {
 		return cli.Exit("launch uuid not found", 1)

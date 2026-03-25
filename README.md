@@ -23,6 +23,11 @@
    - [launch list](#launch-list)
    - [launch merge](#launch-merge)
    - [report test2json](#report-test2json)
+   - [report start-launch](#report-start-launch)
+   - [report start-test](#report-start-test)
+   - [report log](#report-log)
+   - [report finish-test](#report-finish-test)
+   - [report finish-launch](#report-finish-launch)
    - [quality-gate check](#quality-gate-check)
 4. [CI/CD Integration](#cicd-integration)
 5. [Go Library](#go-library)
@@ -211,6 +216,106 @@ go test -json ./... | gorp report test2json --quality-gate-check
 
 ---
 
+### report start-launch
+
+Start a new launch and print its UUID to stdout. Use the UUID with subsequent commands.
+
+```sh
+LAUNCH_UUID=$(gorp report start-launch --name "Nightly run" --attr "branch:main" --attr "ci")
+```
+
+| Flag | Short | Env var | Default | Description |
+|------|-------|---------|---------|-------------|
+| `--name` | `-n` | | | **Required.** Launch name |
+| `--description` | | | | Launch description |
+| `--attr` | `-a` | | | Attribute, format `key:value` or `value`. Repeatable. |
+| `--mode` | | | `DEFAULT` | Launch mode: `DEFAULT` or `DEBUG` |
+
+---
+
+### report start-test
+
+Start a test item and print its UUID to stdout. Use `--parent-uuid` to create a child item (e.g. a test under a suite).
+
+```sh
+# Root item (suite)
+SUITE_UUID=$(gorp report start-test \
+  --launch-uuid "$LAUNCH_UUID" --name "pkg/foo" --type SUITE)
+
+# Child item (test under suite)
+TEST_UUID=$(gorp report start-test \
+  --launch-uuid "$LAUNCH_UUID" --parent-uuid "$SUITE_UUID" \
+  --name "TestBar" --type TEST --code-ref "pkg/foo/TestBar")
+```
+
+| Flag | Short | Env var | Default | Description |
+|------|-------|---------|---------|-------------|
+| `--launch-uuid` | | `LAUNCH_UUID` | | **Required.** Launch UUID |
+| `--name` | `-n` | | | **Required.** Test item name |
+| `--type` | `-t` | | `TEST` | Item type: `SUITE`, `TEST`, `STEP`, `SCENARIO`, etc. |
+| `--parent-uuid` | | `PARENT_UUID` | | Parent item UUID (creates a child item) |
+| `--description` | | | | Item description |
+| `--code-ref` | | | | Source code reference |
+| `--attr` | `-a` | | | Attribute. Repeatable. |
+
+---
+
+### report log
+
+Report a log entry, optionally with a file attachment. Prints the log ID to stdout.
+
+```sh
+# Plain message
+gorp report log --launch-uuid "$LAUNCH_UUID" --item-uuid "$TEST_UUID" \
+  --message "Test output here" --level INFO
+
+# With file attachment
+gorp report log --launch-uuid "$LAUNCH_UUID" --item-uuid "$TEST_UUID" \
+  --message "Failure screenshot" --level ERROR --file screenshot.png
+```
+
+| Flag | Short | Env var | Default | Description |
+|------|-------|---------|---------|-------------|
+| `--launch-uuid` | | `LAUNCH_UUID` | | **Required.** Launch UUID |
+| `--item-uuid` | | `ITEM_UUID` | | Test item UUID (omit for launch-level log) |
+| `--message` | `-m` | | | **Required.** Log message |
+| `--level` | | | `INFO` | Log level: `DEBUG`, `INFO`, or `ERROR` |
+| `--file` | `-f` | | | File path to attach |
+
+---
+
+### report finish-test
+
+Finish a test item.
+
+```sh
+gorp report finish-test \
+  --launch-uuid "$LAUNCH_UUID" --item-uuid "$TEST_UUID" --status PASSED
+```
+
+| Flag | Short | Env var | Default | Description |
+|------|-------|---------|---------|-------------|
+| `--launch-uuid` | | `LAUNCH_UUID` | | **Required.** Launch UUID |
+| `--item-uuid` | | `ITEM_UUID` | | **Required.** Test item UUID |
+| `--status` | | | | Item status: `PASSED`, `FAILED`, `SKIPPED`, etc. |
+
+---
+
+### report finish-launch
+
+Finish a launch.
+
+```sh
+gorp report finish-launch --launch-uuid "$LAUNCH_UUID" --status PASSED
+```
+
+| Flag | Short | Env var | Default | Description |
+|------|-------|---------|---------|-------------|
+| `--launch-uuid` | | `LAUNCH_UUID` | | **Required.** Launch UUID |
+| `--status` | | | | Launch status: `PASSED`, `FAILED`, `STOPPED`, etc. |
+
+---
+
 ### quality-gate check
 
 Poll a launch for its quality gate result. One of `--launch-uuid` or `--stdin` is required.
@@ -393,7 +498,9 @@ all, err := client.GetAllLaunchesByFilterString(ctx, "my_project",
 | `QUALITY_GATE_CHECK` | `--quality-gate-check` | Enable quality gate check after report |
 | `QUALITY_GATE_TIMEOUT` | `--quality-gate-timeout` | Quality gate poll timeout (e.g. `2m`) |
 | `QUALITY_GATE_CHECK_INTERVAL` | `--quality-gate-check-interval` | Quality gate poll interval (e.g. `5s`) |
-| `LAUNCH_UUID` | `--launch-uuid` | Launch UUID for `quality-gate check` |
+| `LAUNCH_UUID` | `--launch-uuid` | Launch UUID for report step commands and `quality-gate check` |
+| `ITEM_UUID` | `--item-uuid` | Test item UUID for `report log` and `report finish-test` |
+| `PARENT_UUID` | `--parent-uuid` | Parent item UUID for `report start-test` |
 | `FILTER_NAME` | `--filter-name` | Saved filter name for launch queries |
 | `MERGE_LAUNCH_IDS` | `--ids` | Comma-separated launch IDs for merge |
 | `MERGE_LAUNCH_FILTER` | `--filter` | Raw filter for launch merge |

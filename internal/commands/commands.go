@@ -102,8 +102,7 @@ func initConfiguration(ctx context.Context, c *cli.Command) error {
 		return cli.Exit(fmt.Sprintf("Cannot write config file. %s", err), 1)
 	}
 
-	//nolint:forbidigo //expected output
-	fmt.Println("Configuration has been successfully saved!")
+	_, _ = fmt.Fprintln(c.Writer, "Configuration has been successfully saved!")
 
 	return nil
 }

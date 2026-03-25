@@ -29,6 +29,28 @@ func (c *launchClient) GetLaunchesByFilterString(
 	return &launches, err
 }
 
+// GetAllLaunchesByFilterString retrieves every launch matching filter by iterating all pages.
+// It starts at page 1 and keeps requesting the next page until the last page is reached.
+// The filter string must not include page.page; it is managed internally.
+func (c *launchClient) GetAllLaunchesByFilterString(
+	ctx context.Context,
+	project, filter string,
+) ([]openapi.LaunchResource, error) {
+	var all []openapi.LaunchResource
+	for page := int64(1); ; page++ {
+		pageFilter := fmt.Sprintf("page.page=%d&%s", page, filter)
+		result, err := c.GetLaunchesByFilterString(ctx, project, pageFilter)
+		if err != nil {
+			return nil, err
+		}
+		all = append(all, result.Content...)
+		if result.Page == nil || page >= result.Page.GetTotalPages() {
+			break
+		}
+	}
+	return all, nil
+}
+
 // GetLaunchesByFilterName retrieves launches by filter name
 func (c *launchClient) GetLaunchesByFilterName(
 	ctx context.Context,

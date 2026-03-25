@@ -33,7 +33,7 @@ func (fm *FileMultipart) Load() (fileName, contentType string, reader io.Reader,
 	}
 	fName := fm.Name()
 	if _, sErr := os.Stat(fName); os.IsNotExist(sErr) {
-		return "", "", nil, fmt.Errorf("file %s does not exist: :%w", fName, errNoMultipartFile)
+		return "", "", nil, fmt.Errorf("file %s does not exist: %w", fName, errNoMultipartFile)
 	}
 	contentType = mime.TypeByExtension(filepath.Ext(fName))
 	if contentType == "" {

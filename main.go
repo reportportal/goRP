@@ -6,6 +6,7 @@ import (
 	"log"
 	"log/slog"
 	"os"
+	"strings"
 
 	"github.com/urfave/cli/v3"
 
@@ -36,14 +37,30 @@ func main() {
 					AddSource: true,
 				}),
 			))
+
+			// Deprecation warnings for the old --uuid flag and GORP_UUID env var.
+			if os.Getenv("GORP_UUID") != "" {
+				slog.Warn(
+					"GORP_UUID is deprecated and will be removed in a future release; use GORP_API_KEY instead",
+				)
+			}
+			for _, arg := range os.Args[1:] {
+				if arg == "--uuid" || strings.HasPrefix(arg, "--uuid=") {
+					slog.Warn(
+						"--uuid is deprecated and will be removed in a future release; use --api-key instead",
+					)
+					break
+				}
+			}
+
 			return ctx, nil
 		},
 		Flags: []cli.Flag{
 			&cli.StringFlag{
-				Name:    "uuid",
-				Aliases: []string{"u"},
-				Usage:   "Access Token",
-				Sources: cli.EnvVars("GORP_UUID"),
+				Name:    "api-key",
+				Aliases: []string{"u", "uuid"},
+				Usage:   "API Key (user token)",
+				Sources: cli.EnvVars("GORP_API_KEY", "GORP_UUID"),
 			},
 			&cli.StringFlag{
 				Name:    "project",

@@ -36,7 +36,8 @@ func ParseQualityGate(metadata map[string]any) (*QualityGate, bool) {
 			}
 		}
 
-		return &QualityGate{ID: qgID, Status: qgStatus.(string)}, true
+		statusStr, _ := qgStatus.(string)
+		return &QualityGate{ID: qgID, Status: statusStr}, true
 	}
 	return nil, false
 }

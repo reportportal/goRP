@@ -53,7 +53,7 @@ func TestGetLaunches(t *testing.T) {
 	defer server.Close()
 	u, _ := url.Parse(server.URL)
 
-	client := NewClient(u, "uuid")
+	client := NewClient(u, WithApiKeyAuth(t.Context(), "uuid"))
 
 	result, _, err := client.LaunchAPI.GetProjectLaunches(t.Context(), "prj").Execute()
 
@@ -101,7 +101,7 @@ func TestGetLaunchesPage(t *testing.T) {
 	defer server.Close()
 
 	u, _ := url.Parse(server.URL)
-	client := NewClient(u, "uuid")
+	client := NewClient(u, WithApiKeyAuth(t.Context(), "uuid"))
 
 	result, _, err := client.LaunchAPI.GetProjectLaunches(t.Context(), "prj").
 		PagePage(2).
@@ -114,6 +114,87 @@ func TestGetLaunchesPage(t *testing.T) {
 	assert.Len(t, result.Content, 1)
 	assert.Equal(t, int64(3), result.Content[0].Id)
 	assert.Equal(t, int64(2), *result.Page.Number)
+}
+
+func TestGetAllLaunchesByFilterString_MultiplePages(t *testing.T) {
+	t.Parallel()
+
+	project := "prj"
+	callCount := 0
+
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		assert.Equal(t, "/api/v1/prj/launch", r.URL.Path)
+		callCount++
+
+		pageNum := r.URL.Query().Get("page.page")
+
+		var response string
+		switch pageNum {
+		case "1", "":
+			response = `{
+				"content": [
+					{"id": 1, "name": "L1", "uuid": "aaa", "number": 1, "startTime": "2025-01-01T00:00:00Z", "status": "PASSED"},
+					{"id": 2, "name": "L2", "uuid": "bbb", "number": 2, "startTime": "2025-01-01T00:00:00Z", "status": "PASSED"}
+				],
+				"page": {"number": 1, "size": 2, "totalElements": 4, "totalPages": 2}
+			}`
+		case "2":
+			response = `{
+				"content": [
+					{"id": 3, "name": "L3", "uuid": "ccc", "number": 3, "startTime": "2025-01-01T00:00:00Z", "status": "PASSED"},
+					{"id": 4, "name": "L4", "uuid": "ddd", "number": 4, "startTime": "2025-01-01T00:00:00Z", "status": "PASSED"}
+				],
+				"page": {"number": 2, "size": 2, "totalElements": 4, "totalPages": 2}
+			}`
+		default:
+			http.Error(w, "unexpected page", http.StatusBadRequest)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(response))
+	}))
+	defer server.Close()
+
+	u, _ := url.Parse(server.URL)
+	client := NewClient(u, WithApiKeyAuth(t.Context(), "uuid"))
+
+	result, err := client.GetAllLaunchesByFilterString(
+		t.Context(),
+		project,
+		"filter.eq.name=myfilter",
+	)
+
+	require.NoError(t, err)
+	assert.Len(t, result, 4)
+	assert.Equal(t, int64(1), result[0].Id)
+	assert.Equal(t, int64(4), result[3].Id)
+	assert.Equal(t, 2, callCount, "expected exactly 2 page requests")
+}
+
+func TestGetAllLaunchesByFilterString_SinglePage(t *testing.T) {
+	t.Parallel()
+
+	project := "prj"
+
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		response := `{
+			"content": [
+				{"id": 1, "name": "Only", "uuid": "aaa", "number": 1, "startTime": "2025-01-01T00:00:00Z", "status": "PASSED"}
+			],
+			"page": {"number": 1, "size": 10, "totalElements": 1, "totalPages": 1}
+		}`
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(response))
+	}))
+	defer server.Close()
+
+	u, _ := url.Parse(server.URL)
+	client := NewClient(u, WithApiKeyAuth(t.Context(), "uuid"))
+
+	result, err := client.GetAllLaunchesByFilterString(t.Context(), project, "")
+
+	require.NoError(t, err)
+	assert.Len(t, result, 1)
 }
 
 func TestGetFiltersByName(t *testing.T) {
@@ -160,7 +241,7 @@ func TestGetFiltersByName(t *testing.T) {
 	defer server.Close()
 
 	u, _ := url.Parse(server.URL)
-	client := NewClient(u, "uuid")
+	client := NewClient(u, WithApiKeyAuth(t.Context(), "uuid"))
 
 	result, _, err := client.UserFilterAPI.GetAllFilters(t.Context(), "prj").
 		FilterEqName("test-filter").
@@ -204,7 +285,7 @@ func TestMergeLaunches(t *testing.T) {
 	defer server.Close()
 
 	u, _ := url.Parse(server.URL)
-	client := NewClient(u, "uuid")
+	client := NewClient(u, WithApiKeyAuth(t.Context(), "uuid"))
 
 	mergeRQ := openapi.MergeLaunchesRQ{
 		Name:        "Merged Launch",

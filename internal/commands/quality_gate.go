@@ -16,6 +16,12 @@ import (
 
 const uuidParseRegex = `ReportPortal Launch UUID: ([a-fA-F\d]{8}-[a-fA-F\d]{4}-[a-fA-F\d]{4}-[a-fA-F\d]{4}-[a-fA-F\d]{12})`
 
+// ReportPortal quality gate status values.
+const (
+	qgStatusInProgress = "IN PROGRESS"
+	qgStatusPassed     = "PASSED"
+)
+
 // Arguments for quality gate check
 var (
 	argQualityGateTimeout = &cli.DurationFlag{
@@ -88,7 +94,7 @@ func checkQualityGate(ctx context.Context, cmd *cli.Command) error {
 	if launchID == "" {
 		if cmd.Bool("stdin") {
 			if sErr := checkStdinEmpty(); sErr != nil {
-				return err
+				return sErr
 			}
 
 			uuidRegex := regexp.MustCompile(uuidParseRegex)
@@ -100,6 +106,9 @@ func checkQualityGate(ctx context.Context, cmd *cli.Command) error {
 					launchID = found[1]
 					break
 				}
+			}
+			if sErr := scanner.Err(); sErr != nil {
+				return fmt.Errorf("reading stdin: %w", sErr)
 			}
 		}
 	}
@@ -121,7 +130,7 @@ func checkQualityGateInternal(ctx context.Context,
 	qgTimeout := cmd.Duration(argQualityGateTimeout.Name)
 	qgCheckInterval := cmd.Duration(argQualityGateCheckInterval.Name)
 
-	rpClient, _, err := buildClientFromConfig(cfg)
+	rpClient, _, err := buildClientFromConfig(ctx, cfg)
 	if err != nil {
 		return err
 	}
@@ -139,10 +148,10 @@ func checkQualityGateInternal(ctx context.Context,
 		if !ok {
 			return true, errors.New("quality gate metadata not found")
 		}
-		if qg.Status == "IN PROGRESS" {
+		if qg.Status == qgStatusInProgress {
 			return false, nil
 		}
-		if qg.Status != "PASSED" {
+		if qg.Status != qgStatusPassed {
 			return true, fmt.Errorf("status: %s", qg.Status)
 		}
 		return true, nil
@@ -156,8 +165,8 @@ func checkQualityGateInternal(ctx context.Context,
 			select {
 			case <-ctx.Done():
 				return fmt.Errorf("timeout waiting for quality gate status")
-			default:
-				ok, cErr := checkF(context.Background())
+			case <-ticker.C:
+				ok, cErr := checkF(ctx)
 				if cErr != nil {
 					return cErr
 				}

@@ -10,14 +10,17 @@ import (
 
 	"github.com/manifoldco/promptui"
 	"github.com/urfave/cli/v3"
+	"golang.org/x/oauth2"
 
 	"github.com/reportportal/goRP/v5/pkg/gorp"
 )
 
 type clientConfig struct {
-	UUID    string `json:"uuid"`
+	ApiKey  string `json:"api_key"`
 	Project string `json:"project"`
 	URL     string `json:"host"`
+
+	oauth2.Config
 }
 
 var (
@@ -71,13 +74,13 @@ func initConfiguration(ctx context.Context, c *cli.Command) error {
 	}
 	host, parseErr := url.Parse(hostStr)
 	if parseErr != nil {
-		return err
+		return parseErr
 	}
 
 	prompt = promptui.Prompt{
-		Label: "UUID",
+		Label: "Api Key",
 	}
-	uuid, err := prompt.Run()
+	apiKey, err := prompt.Run()
 	if err != nil {
 		return err
 	}
@@ -93,10 +96,10 @@ func initConfiguration(ctx context.Context, c *cli.Command) error {
 	err = json.NewEncoder(f).Encode(&clientConfig{
 		URL:     host.String(),
 		Project: project,
-		UUID:    uuid,
+		ApiKey:  apiKey,
 	})
 	if err != nil {
-		return cli.Exit(fmt.Sprintf("Cannot read config file. %s", err), 1)
+		return cli.Exit(fmt.Sprintf("Cannot write config file. %s", err), 1)
 	}
 
 	//nolint:forbidigo //expected output
@@ -112,13 +115,18 @@ func getConfig(c *cli.Command) (*clientConfig, error) {
 		if err != nil {
 			return nil, err
 		}
+		defer func() {
+			if closeErr := f.Close(); closeErr != nil {
+				slog.Default().Error(closeErr.Error())
+			}
+		}()
 		err = json.NewDecoder(f).Decode(cfg)
 		if err != nil {
 			return nil, err
 		}
 	}
-	if v := c.String("uuid"); v != "" {
-		cfg.UUID = v
+	if v := c.String("api-key"); v != "" {
+		cfg.ApiKey = v
 	}
 	if v := c.String("project"); v != "" {
 		cfg.Project = v
@@ -134,24 +142,27 @@ func getConfig(c *cli.Command) (*clientConfig, error) {
 	return cfg, nil
 }
 
-func buildReportingClient(cfg *clientConfig) *gorp.ReportingClient {
-	return gorp.NewReportingClient(cfg.URL, cfg.Project, cfg.UUID)
+func buildReportingClient(ctx context.Context, cfg *clientConfig) *gorp.ReportingClient {
+	return gorp.NewReportingClient(cfg.URL, cfg.Project, gorp.WithApiKeyAuth(ctx, cfg.ApiKey))
 }
 
-func buildClient(cmd *cli.Command) (*gorp.Client, *clientConfig, error) {
+func buildClient(ctx context.Context, cmd *cli.Command) (*gorp.Client, *clientConfig, error) {
 	cfg, err := getConfig(cmd)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	return buildClientFromConfig(cfg)
+	return buildClientFromConfig(ctx, cfg)
 }
 
-func buildClientFromConfig(cfg *clientConfig) (*gorp.Client, *clientConfig, error) {
+func buildClientFromConfig(
+	ctx context.Context,
+	cfg *clientConfig,
+) (*gorp.Client, *clientConfig, error) {
 	parsedUrl, err := url.Parse(cfg.URL)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	return gorp.NewClient(parsedUrl, cfg.UUID), cfg, nil
+	return gorp.NewClient(parsedUrl, gorp.WithApiKeyAuth(ctx, cfg.ApiKey)), cfg, nil
 }

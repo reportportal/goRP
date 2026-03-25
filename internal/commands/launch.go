@@ -58,7 +58,7 @@ var (
 				Usage:   "Filter Name",
 				Sources: cli.EnvVars("FILTER_NAME"),
 			},
-			&cli.IntSliceFlag{
+			&cli.Int64SliceFlag{
 				Name:    "ids",
 				Usage:   "Launch IDS to Merge",
 				Sources: cli.EnvVars("MERGE_LAUNCH_IDS"),
@@ -83,7 +83,7 @@ var (
 )
 
 func mergeLaunches(ctx context.Context, cmd *cli.Command) error {
-	rpClient, cfg, err := buildClient(cmd)
+	rpClient, cfg, err := buildClient(ctx, cmd)
 	if err != nil {
 		return err
 	}
@@ -111,7 +111,7 @@ func mergeLaunches(ctx context.Context, cmd *cli.Command) error {
 }
 
 func listLaunches(ctx context.Context, cmd *cli.Command) error {
-	rpClient, cfg, err := buildClient(cmd)
+	rpClient, cfg, err := buildClient(ctx, cmd)
 	if err != nil {
 		return err
 	}

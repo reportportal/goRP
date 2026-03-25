@@ -40,11 +40,15 @@ func main() {
 
 			// Deprecation warnings for the old --uuid flag and GORP_UUID env var.
 			if os.Getenv("GORP_UUID") != "" {
-				slog.Warn("GORP_UUID is deprecated and will be removed in a future release; use GORP_API_KEY instead")
+				slog.Warn(
+					"GORP_UUID is deprecated and will be removed in a future release; use GORP_API_KEY instead",
+				)
 			}
 			for _, arg := range os.Args[1:] {
 				if arg == "--uuid" || strings.HasPrefix(arg, "--uuid=") {
-					slog.Warn("--uuid is deprecated and will be removed in a future release; use --api-key instead")
+					slog.Warn(
+						"--uuid is deprecated and will be removed in a future release; use --api-key instead",
+					)
 					break
 				}
 			}

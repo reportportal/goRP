@@ -11,7 +11,6 @@ builds:
       - darwin
     goarch:
       - amd64
-      - arm
       - arm64
 archives:
   - name_template: >-
@@ -24,7 +23,7 @@ archives:
 checksum:
   name_template: 'checksums.txt'
 snapshot:
-  name_template: "{{ .Tag }}-next"
+  version_template: "{{ .Tag }}-next"
 changelog:
   sort: asc
   filters:

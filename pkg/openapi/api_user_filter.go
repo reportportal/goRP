@@ -3,7 +3,7 @@ ReportPortal
 
 ReportPortal API documentation
 
-API version: 5.14.4
+API version: 5.15.1
 Contact: support@reportportal.io
 */
 
@@ -352,10 +352,11 @@ type ApiGetAllFiltersRequest struct {
 	pagePage          *int32
 	pageSize          *int32
 	pageSort          *string
-	filterEqOwner     *string
 	filterEqId        *int32
-	filterEqName      *string
+	filterEqLocked    *bool
 	filterEqProjectId *int32
+	filterEqOwner     *string
+	filterEqName      *string
 }
 
 // Results page you want to retrieve (0..N)
@@ -376,27 +377,33 @@ func (r ApiGetAllFiltersRequest) PageSort(pageSort string) ApiGetAllFiltersReque
 	return r
 }
 
-// Filters by &#39;owner&#39;
-func (r ApiGetAllFiltersRequest) FilterEqOwner(filterEqOwner string) ApiGetAllFiltersRequest {
-	r.filterEqOwner = &filterEqOwner
-	return r
-}
-
 // Filters by &#39;id&#39;
 func (r ApiGetAllFiltersRequest) FilterEqId(filterEqId int32) ApiGetAllFiltersRequest {
 	r.filterEqId = &filterEqId
 	return r
 }
 
-// Filters by &#39;name&#39;
-func (r ApiGetAllFiltersRequest) FilterEqName(filterEqName string) ApiGetAllFiltersRequest {
-	r.filterEqName = &filterEqName
+// Filters by &#39;locked&#39;
+func (r ApiGetAllFiltersRequest) FilterEqLocked(filterEqLocked bool) ApiGetAllFiltersRequest {
+	r.filterEqLocked = &filterEqLocked
 	return r
 }
 
 // Filters by &#39;projectId&#39;
 func (r ApiGetAllFiltersRequest) FilterEqProjectId(filterEqProjectId int32) ApiGetAllFiltersRequest {
 	r.filterEqProjectId = &filterEqProjectId
+	return r
+}
+
+// Filters by &#39;owner&#39;
+func (r ApiGetAllFiltersRequest) FilterEqOwner(filterEqOwner string) ApiGetAllFiltersRequest {
+	r.filterEqOwner = &filterEqOwner
+	return r
+}
+
+// Filters by &#39;name&#39;
+func (r ApiGetAllFiltersRequest) FilterEqName(filterEqName string) ApiGetAllFiltersRequest {
+	r.filterEqName = &filterEqName
 	return r
 }
 
@@ -451,17 +458,20 @@ func (a *UserFilterAPIService) GetAllFiltersExecute(r ApiGetAllFiltersRequest) (
 	if r.pageSort != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "page.sort", r.pageSort, "form", "")
 	}
-	if r.filterEqOwner != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.owner", r.filterEqOwner, "form", "")
-	}
 	if r.filterEqId != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.id", r.filterEqId, "form", "")
 	}
-	if r.filterEqName != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.name", r.filterEqName, "form", "")
+	if r.filterEqLocked != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.locked", r.filterEqLocked, "form", "")
 	}
 	if r.filterEqProjectId != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.projectId", r.filterEqProjectId, "form", "")
+	}
+	if r.filterEqOwner != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.owner", r.filterEqOwner, "form", "")
+	}
+	if r.filterEqName != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.name", r.filterEqName, "form", "")
 	}
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}
@@ -575,10 +585,11 @@ type ApiGetAllFiltersNamesRequest struct {
 	pagePage          *int32
 	pageSize          *int32
 	pageSort          *string
-	filterEqOwner     *string
 	filterEqId        *int32
-	filterEqName      *string
+	filterEqLocked    *bool
 	filterEqProjectId *int32
+	filterEqOwner     *string
+	filterEqName      *string
 }
 
 // Results page you want to retrieve (0..N)
@@ -599,27 +610,33 @@ func (r ApiGetAllFiltersNamesRequest) PageSort(pageSort string) ApiGetAllFilters
 	return r
 }
 
-// Filters by &#39;owner&#39;
-func (r ApiGetAllFiltersNamesRequest) FilterEqOwner(filterEqOwner string) ApiGetAllFiltersNamesRequest {
-	r.filterEqOwner = &filterEqOwner
-	return r
-}
-
 // Filters by &#39;id&#39;
 func (r ApiGetAllFiltersNamesRequest) FilterEqId(filterEqId int32) ApiGetAllFiltersNamesRequest {
 	r.filterEqId = &filterEqId
 	return r
 }
 
-// Filters by &#39;name&#39;
-func (r ApiGetAllFiltersNamesRequest) FilterEqName(filterEqName string) ApiGetAllFiltersNamesRequest {
-	r.filterEqName = &filterEqName
+// Filters by &#39;locked&#39;
+func (r ApiGetAllFiltersNamesRequest) FilterEqLocked(filterEqLocked bool) ApiGetAllFiltersNamesRequest {
+	r.filterEqLocked = &filterEqLocked
 	return r
 }
 
 // Filters by &#39;projectId&#39;
 func (r ApiGetAllFiltersNamesRequest) FilterEqProjectId(filterEqProjectId int32) ApiGetAllFiltersNamesRequest {
 	r.filterEqProjectId = &filterEqProjectId
+	return r
+}
+
+// Filters by &#39;owner&#39;
+func (r ApiGetAllFiltersNamesRequest) FilterEqOwner(filterEqOwner string) ApiGetAllFiltersNamesRequest {
+	r.filterEqOwner = &filterEqOwner
+	return r
+}
+
+// Filters by &#39;name&#39;
+func (r ApiGetAllFiltersNamesRequest) FilterEqName(filterEqName string) ApiGetAllFiltersNamesRequest {
+	r.filterEqName = &filterEqName
 	return r
 }
 
@@ -674,17 +691,20 @@ func (a *UserFilterAPIService) GetAllFiltersNamesExecute(r ApiGetAllFiltersNames
 	if r.pageSort != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "page.sort", r.pageSort, "form", "")
 	}
-	if r.filterEqOwner != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.owner", r.filterEqOwner, "form", "")
-	}
 	if r.filterEqId != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.id", r.filterEqId, "form", "")
 	}
-	if r.filterEqName != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.name", r.filterEqName, "form", "")
+	if r.filterEqLocked != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.locked", r.filterEqLocked, "form", "")
 	}
 	if r.filterEqProjectId != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.projectId", r.filterEqProjectId, "form", "")
+	}
+	if r.filterEqOwner != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.owner", r.filterEqOwner, "form", "")
+	}
+	if r.filterEqName != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.name", r.filterEqName, "form", "")
 	}
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}

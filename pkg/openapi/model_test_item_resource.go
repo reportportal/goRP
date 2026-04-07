@@ -3,7 +3,7 @@ ReportPortal
 
 ReportPortal API documentation
 
-API version: 5.14.4
+API version: 5.15.1
 Contact: support@reportportal.io
 */
 
@@ -45,6 +45,8 @@ type TestItemResource struct {
 	TestCaseHash     *int32                  `json:"testCaseHash,omitempty"`
 	PatternTemplates []string                `json:"patternTemplates,omitempty"`
 	Path             *string                 `json:"path,omitempty"`
+	HasNestedSteps   *bool                   `json:"hasNestedSteps,omitempty"`
+	AnalysisOwner    *string                 `json:"analysisOwner,omitempty"`
 }
 
 // NewTestItemResource instantiates a new TestItemResource object
@@ -832,6 +834,70 @@ func (o *TestItemResource) SetPath(v string) {
 	o.Path = &v
 }
 
+// GetHasNestedSteps returns the HasNestedSteps field value if set, zero value otherwise.
+func (o *TestItemResource) GetHasNestedSteps() bool {
+	if o == nil || IsNil(o.HasNestedSteps) {
+		var ret bool
+		return ret
+	}
+	return *o.HasNestedSteps
+}
+
+// GetHasNestedStepsOk returns a tuple with the HasNestedSteps field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *TestItemResource) GetHasNestedStepsOk() (*bool, bool) {
+	if o == nil || IsNil(o.HasNestedSteps) {
+		return nil, false
+	}
+	return o.HasNestedSteps, true
+}
+
+// HasHasNestedSteps returns a boolean if a field has been set.
+func (o *TestItemResource) HasHasNestedSteps() bool {
+	if o != nil && !IsNil(o.HasNestedSteps) {
+		return true
+	}
+
+	return false
+}
+
+// SetHasNestedSteps gets a reference to the given bool and assigns it to the HasNestedSteps field.
+func (o *TestItemResource) SetHasNestedSteps(v bool) {
+	o.HasNestedSteps = &v
+}
+
+// GetAnalysisOwner returns the AnalysisOwner field value if set, zero value otherwise.
+func (o *TestItemResource) GetAnalysisOwner() string {
+	if o == nil || IsNil(o.AnalysisOwner) {
+		var ret string
+		return ret
+	}
+	return *o.AnalysisOwner
+}
+
+// GetAnalysisOwnerOk returns a tuple with the AnalysisOwner field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *TestItemResource) GetAnalysisOwnerOk() (*string, bool) {
+	if o == nil || IsNil(o.AnalysisOwner) {
+		return nil, false
+	}
+	return o.AnalysisOwner, true
+}
+
+// HasAnalysisOwner returns a boolean if a field has been set.
+func (o *TestItemResource) HasAnalysisOwner() bool {
+	if o != nil && !IsNil(o.AnalysisOwner) {
+		return true
+	}
+
+	return false
+}
+
+// SetAnalysisOwner gets a reference to the given string and assigns it to the AnalysisOwner field.
+func (o *TestItemResource) SetAnalysisOwner(v string) {
+	o.AnalysisOwner = &v
+}
+
 func (o TestItemResource) MarshalJSON() ([]byte, error) {
 	toSerialize, err := o.ToMap()
 	if err != nil {
@@ -913,6 +979,12 @@ func (o TestItemResource) ToMap() (map[string]interface{}, error) {
 	}
 	if !IsNil(o.Path) {
 		toSerialize["path"] = o.Path
+	}
+	if !IsNil(o.HasNestedSteps) {
+		toSerialize["hasNestedSteps"] = o.HasNestedSteps
+	}
+	if !IsNil(o.AnalysisOwner) {
+		toSerialize["analysisOwner"] = o.AnalysisOwner
 	}
 	return toSerialize, nil
 }

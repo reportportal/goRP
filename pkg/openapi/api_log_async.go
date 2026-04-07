@@ -3,7 +3,7 @@ ReportPortal
 
 ReportPortal API documentation
 
-API version: 5.14.4
+API version: 5.15.1
 Contact: support@reportportal.io
 */
 
@@ -27,10 +27,10 @@ type ApiCreateLogRequest struct {
 	ctx             context.Context
 	ApiService      *LogAsyncAPIService
 	projectName     string
-	jsonRequestPart *[]SaveLogRQ
+	jsonRequestPart *string
 }
 
-func (r ApiCreateLogRequest) JsonRequestPart(jsonRequestPart []SaveLogRQ) ApiCreateLogRequest {
+func (r ApiCreateLogRequest) JsonRequestPart(jsonRequestPart string) ApiCreateLogRequest {
 	r.jsonRequestPart = &jsonRequestPart
 	return r
 }
@@ -40,9 +40,7 @@ func (r ApiCreateLogRequest) Execute() (*BatchSaveOperatingRS, *http.Response, e
 }
 
 /*
-CreateLog Create Log
-
-Create log (batching operation)
+CreateLog Create log (batching operation)
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param projectName
@@ -78,9 +76,6 @@ func (a *LogAsyncAPIService) CreateLogExecute(r ApiCreateLogRequest) (*BatchSave
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
-	if r.jsonRequestPart == nil {
-		return localVarReturnValue, nil, reportError("jsonRequestPart is required and must be specified")
-	}
 
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{"multipart/form-data"}
@@ -99,7 +94,9 @@ func (a *LogAsyncAPIService) CreateLogExecute(r ApiCreateLogRequest) (*BatchSave
 	if localVarHTTPHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
-	parameterAddToHeaderOrQuery(localVarFormParams, "json_request_part", r.jsonRequestPart, "", "csv")
+	if r.jsonRequestPart != nil {
+		parameterAddToHeaderOrQuery(localVarFormParams, "json_request_part", r.jsonRequestPart, "form", "")
+	}
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err

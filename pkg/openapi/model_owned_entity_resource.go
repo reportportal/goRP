@@ -3,7 +3,7 @@ ReportPortal
 
 ReportPortal API documentation
 
-API version: 5.14.4
+API version: 5.15.1
 Contact: support@reportportal.io
 */
 
@@ -24,6 +24,7 @@ type OwnedEntityResource struct {
 	Name        *string `json:"name,omitempty"`
 	Owner       *string `json:"owner,omitempty"`
 	Description *string `json:"description,omitempty"`
+	Locked      *bool   `json:"locked,omitempty"`
 }
 
 // NewOwnedEntityResource instantiates a new OwnedEntityResource object
@@ -171,6 +172,38 @@ func (o *OwnedEntityResource) SetDescription(v string) {
 	o.Description = &v
 }
 
+// GetLocked returns the Locked field value if set, zero value otherwise.
+func (o *OwnedEntityResource) GetLocked() bool {
+	if o == nil || IsNil(o.Locked) {
+		var ret bool
+		return ret
+	}
+	return *o.Locked
+}
+
+// GetLockedOk returns a tuple with the Locked field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *OwnedEntityResource) GetLockedOk() (*bool, bool) {
+	if o == nil || IsNil(o.Locked) {
+		return nil, false
+	}
+	return o.Locked, true
+}
+
+// HasLocked returns a boolean if a field has been set.
+func (o *OwnedEntityResource) HasLocked() bool {
+	if o != nil && !IsNil(o.Locked) {
+		return true
+	}
+
+	return false
+}
+
+// SetLocked gets a reference to the given bool and assigns it to the Locked field.
+func (o *OwnedEntityResource) SetLocked(v bool) {
+	o.Locked = &v
+}
+
 func (o OwnedEntityResource) MarshalJSON() ([]byte, error) {
 	toSerialize, err := o.ToMap()
 	if err != nil {
@@ -192,6 +225,9 @@ func (o OwnedEntityResource) ToMap() (map[string]interface{}, error) {
 	}
 	if !IsNil(o.Description) {
 		toSerialize["description"] = o.Description
+	}
+	if !IsNil(o.Locked) {
+		toSerialize["locked"] = o.Locked
 	}
 	return toSerialize, nil
 }

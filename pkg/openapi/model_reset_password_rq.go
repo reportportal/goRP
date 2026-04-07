@@ -3,7 +3,7 @@ ReportPortal
 
 ReportPortal API documentation
 
-API version: 5.14.4
+API version: 5.15.1
 Contact: support@reportportal.io
 */
 
@@ -22,7 +22,7 @@ var _ MappedNullable = &ResetPasswordRQ{}
 
 // ResetPasswordRQ struct for ResetPasswordRQ
 type ResetPasswordRQ struct {
-	Password string `json:"password" validate:"regexp=^(?=.*\\\\d)(?=.*[A-Z])(?=.*[a-z])(?=.*[^a-zA-Z\\\\d\\\\s])([^\\\\s]){8,256}$"`
+	Password string `json:"password"`
 	Uuid     string `json:"uuid"`
 }
 

@@ -3,7 +3,7 @@ ReportPortal
 
 ReportPortal API documentation
 
-API version: 5.14.4
+API version: 5.15.1
 Contact: support@reportportal.io
 */
 
@@ -44,9 +44,8 @@ type ActivityEventResource struct {
 	// The type of the subject who performed the activity
 	SubjectType string `json:"subject_type"`
 	// The ID of the subject who performed the activity
-	SubjectId string `json:"subject_id"`
-	// The details of the activity, for example history of value
-	Details map[string]interface{} `json:"details,omitempty"`
+	SubjectId string      `json:"subject_id"`
+	Details   interface{} `json:"details,omitempty"`
 }
 
 type _ActivityEventResource ActivityEventResource
@@ -343,10 +342,10 @@ func (o *ActivityEventResource) SetSubjectId(v string) {
 	o.SubjectId = v
 }
 
-// GetDetails returns the Details field value if set, zero value otherwise.
-func (o *ActivityEventResource) GetDetails() map[string]interface{} {
-	if o == nil || IsNil(o.Details) {
-		var ret map[string]interface{}
+// GetDetails returns the Details field value if set, zero value otherwise (both if not set or set to explicit null).
+func (o *ActivityEventResource) GetDetails() interface{} {
+	if o == nil {
+		var ret interface{}
 		return ret
 	}
 	return o.Details
@@ -354,11 +353,12 @@ func (o *ActivityEventResource) GetDetails() map[string]interface{} {
 
 // GetDetailsOk returns a tuple with the Details field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *ActivityEventResource) GetDetailsOk() (map[string]interface{}, bool) {
+// NOTE: If the value is an explicit nil, `nil, true` will be returned
+func (o *ActivityEventResource) GetDetailsOk() (*interface{}, bool) {
 	if o == nil || IsNil(o.Details) {
-		return map[string]interface{}{}, false
+		return nil, false
 	}
-	return o.Details, true
+	return &o.Details, true
 }
 
 // HasDetails returns a boolean if a field has been set.
@@ -370,8 +370,8 @@ func (o *ActivityEventResource) HasDetails() bool {
 	return false
 }
 
-// SetDetails gets a reference to the given map[string]interface{} and assigns it to the Details field.
-func (o *ActivityEventResource) SetDetails(v map[string]interface{}) {
+// SetDetails gets a reference to the given interface{} and assigns it to the Details field.
+func (o *ActivityEventResource) SetDetails(v interface{}) {
 	o.Details = v
 }
 
@@ -396,7 +396,7 @@ func (o ActivityEventResource) ToMap() (map[string]interface{}, error) {
 	toSerialize["subject_name"] = o.SubjectName
 	toSerialize["subject_type"] = o.SubjectType
 	toSerialize["subject_id"] = o.SubjectId
-	if !IsNil(o.Details) {
+	if o.Details != nil {
 		toSerialize["details"] = o.Details
 	}
 	return toSerialize, nil

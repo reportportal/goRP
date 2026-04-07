@@ -3,7 +3,7 @@ ReportPortal
 
 ReportPortal API documentation
 
-API version: 5.14.4
+API version: 5.15.1
 Contact: support@reportportal.io
 */
 
@@ -689,11 +689,12 @@ type ApiGetAllDashboardsRequest struct {
 	pagePage             *int32
 	pageSize             *int32
 	pageSort             *string
-	filterEqCreationDate *string
-	filterEqOwner        *string
 	filterEqId           *int32
-	filterEqName         *string
+	filterEqLocked       *bool
 	filterEqProjectId    *int32
+	filterEqOwner        *string
+	filterEqName         *string
+	filterEqCreationDate *string
 }
 
 // Results page you want to retrieve (0..N)
@@ -714,9 +715,21 @@ func (r ApiGetAllDashboardsRequest) PageSort(pageSort string) ApiGetAllDashboard
 	return r
 }
 
-// Filters by &#39;creationDate&#39;
-func (r ApiGetAllDashboardsRequest) FilterEqCreationDate(filterEqCreationDate string) ApiGetAllDashboardsRequest {
-	r.filterEqCreationDate = &filterEqCreationDate
+// Filters by &#39;id&#39;
+func (r ApiGetAllDashboardsRequest) FilterEqId(filterEqId int32) ApiGetAllDashboardsRequest {
+	r.filterEqId = &filterEqId
+	return r
+}
+
+// Filters by &#39;locked&#39;
+func (r ApiGetAllDashboardsRequest) FilterEqLocked(filterEqLocked bool) ApiGetAllDashboardsRequest {
+	r.filterEqLocked = &filterEqLocked
+	return r
+}
+
+// Filters by &#39;projectId&#39;
+func (r ApiGetAllDashboardsRequest) FilterEqProjectId(filterEqProjectId int32) ApiGetAllDashboardsRequest {
+	r.filterEqProjectId = &filterEqProjectId
 	return r
 }
 
@@ -726,21 +739,15 @@ func (r ApiGetAllDashboardsRequest) FilterEqOwner(filterEqOwner string) ApiGetAl
 	return r
 }
 
-// Filters by &#39;id&#39;
-func (r ApiGetAllDashboardsRequest) FilterEqId(filterEqId int32) ApiGetAllDashboardsRequest {
-	r.filterEqId = &filterEqId
-	return r
-}
-
 // Filters by &#39;name&#39;
 func (r ApiGetAllDashboardsRequest) FilterEqName(filterEqName string) ApiGetAllDashboardsRequest {
 	r.filterEqName = &filterEqName
 	return r
 }
 
-// Filters by &#39;projectId&#39;
-func (r ApiGetAllDashboardsRequest) FilterEqProjectId(filterEqProjectId int32) ApiGetAllDashboardsRequest {
-	r.filterEqProjectId = &filterEqProjectId
+// Filters by &#39;creationDate&#39;
+func (r ApiGetAllDashboardsRequest) FilterEqCreationDate(filterEqCreationDate string) ApiGetAllDashboardsRequest {
+	r.filterEqCreationDate = &filterEqCreationDate
 	return r
 }
 
@@ -795,20 +802,23 @@ func (a *DashboardAPIService) GetAllDashboardsExecute(r ApiGetAllDashboardsReque
 	if r.pageSort != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "page.sort", r.pageSort, "form", "")
 	}
-	if r.filterEqCreationDate != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.creationDate", r.filterEqCreationDate, "form", "")
+	if r.filterEqId != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.id", r.filterEqId, "form", "")
+	}
+	if r.filterEqLocked != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.locked", r.filterEqLocked, "form", "")
+	}
+	if r.filterEqProjectId != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.projectId", r.filterEqProjectId, "form", "")
 	}
 	if r.filterEqOwner != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.owner", r.filterEqOwner, "form", "")
 	}
-	if r.filterEqId != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.id", r.filterEqId, "form", "")
-	}
 	if r.filterEqName != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.name", r.filterEqName, "form", "")
 	}
-	if r.filterEqProjectId != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.projectId", r.filterEqProjectId, "form", "")
+	if r.filterEqCreationDate != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.creationDate", r.filterEqCreationDate, "form", "")
 	}
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}
@@ -1141,6 +1151,174 @@ func (a *DashboardAPIService) GetDashboardConfigExecute(r ApiGetDashboardConfigR
 	if localVarHTTPHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
+	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
+	if err != nil {
+		return localVarReturnValue, nil, err
+	}
+
+	localVarHTTPResponse, err := a.client.callAPI(req)
+	if err != nil || localVarHTTPResponse == nil {
+		return localVarReturnValue, localVarHTTPResponse, err
+	}
+
+	localVarBody, err := io.ReadAll(localVarHTTPResponse.Body)
+	localVarHTTPResponse.Body.Close()
+	localVarHTTPResponse.Body = io.NopCloser(bytes.NewBuffer(localVarBody))
+	if err != nil {
+		return localVarReturnValue, localVarHTTPResponse, err
+	}
+
+	if a.client.cfg.ResponseMiddleware != nil {
+		err = a.client.cfg.ResponseMiddleware(localVarHTTPResponse, localVarBody)
+		if err != nil {
+			return localVarReturnValue, localVarHTTPResponse, err
+		}
+	}
+
+	if localVarHTTPResponse.StatusCode >= 300 {
+		newErr := &GenericOpenAPIError{
+			body:  localVarBody,
+			error: localVarHTTPResponse.Status,
+		}
+		if localVarHTTPResponse.StatusCode == 401 {
+			var v SaveAnalyticsSettings1401Response
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarReturnValue, localVarHTTPResponse, newErr
+			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
+			return localVarReturnValue, localVarHTTPResponse, newErr
+		}
+		if localVarHTTPResponse.StatusCode == 500 {
+			var v ErrorRS
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarReturnValue, localVarHTTPResponse, newErr
+			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
+			return localVarReturnValue, localVarHTTPResponse, newErr
+		}
+		if localVarHTTPResponse.StatusCode == 403 {
+			var v ErrorRS
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarReturnValue, localVarHTTPResponse, newErr
+			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
+			return localVarReturnValue, localVarHTTPResponse, newErr
+		}
+		if localVarHTTPResponse.StatusCode == 400 {
+			var v ErrorRS
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarReturnValue, localVarHTTPResponse, newErr
+			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
+			return localVarReturnValue, localVarHTTPResponse, newErr
+		}
+		return localVarReturnValue, localVarHTTPResponse, newErr
+	}
+
+	err = a.client.decode(&localVarReturnValue, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+	if err != nil {
+		newErr := &GenericOpenAPIError{
+			body:  localVarBody,
+			error: err.Error(),
+		}
+		return localVarReturnValue, localVarHTTPResponse, newErr
+	}
+
+	return localVarReturnValue, localVarHTTPResponse, nil
+}
+
+type ApiPatchDashboardRequest struct {
+	ctx              context.Context
+	ApiService       *DashboardAPIService
+	dashboardId      int64
+	projectName      string
+	patchDashboardRQ *PatchDashboardRQ
+}
+
+func (r ApiPatchDashboardRequest) PatchDashboardRQ(patchDashboardRQ PatchDashboardRQ) ApiPatchDashboardRequest {
+	r.patchDashboardRQ = &patchDashboardRQ
+	return r
+}
+
+func (r ApiPatchDashboardRequest) Execute() (*OperationCompletionRS, *http.Response, error) {
+	return r.ApiService.PatchDashboardExecute(r)
+}
+
+/*
+PatchDashboard Patch specified dashboard for specified project
+
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param dashboardId
+	@param projectName
+	@return ApiPatchDashboardRequest
+*/
+func (a *DashboardAPIService) PatchDashboard(ctx context.Context, dashboardId int64, projectName string) ApiPatchDashboardRequest {
+	return ApiPatchDashboardRequest{
+		ApiService:  a,
+		ctx:         ctx,
+		dashboardId: dashboardId,
+		projectName: projectName,
+	}
+}
+
+// Execute executes the request
+//
+//	@return OperationCompletionRS
+func (a *DashboardAPIService) PatchDashboardExecute(r ApiPatchDashboardRequest) (*OperationCompletionRS, *http.Response, error) {
+	var (
+		localVarHTTPMethod  = http.MethodPatch
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *OperationCompletionRS
+	)
+
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "DashboardAPIService.PatchDashboard")
+	if err != nil {
+		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
+	}
+
+	localVarPath := localBasePath + "/v1/{projectName}/dashboard/{dashboardId}"
+	localVarPath = strings.Replace(localVarPath, "{"+"dashboardId"+"}", url.PathEscape(parameterValueToString(r.dashboardId, "dashboardId")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+
+	localVarHeaderParams := make(map[string]string)
+	localVarQueryParams := url.Values{}
+	localVarFormParams := url.Values{}
+	if r.patchDashboardRQ == nil {
+		return localVarReturnValue, nil, reportError("patchDashboardRQ is required and must be specified")
+	}
+
+	// to determine the Content-Type header
+	localVarHTTPContentTypes := []string{"application/json"}
+
+	// set Content-Type header
+	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
+	if localVarHTTPContentType != "" {
+		localVarHeaderParams["Content-Type"] = localVarHTTPContentType
+	}
+
+	// to determine the Accept header
+	localVarHTTPHeaderAccepts := []string{"application/json"}
+
+	// set Accept header
+	localVarHTTPHeaderAccept := selectHeaderAccept(localVarHTTPHeaderAccepts)
+	if localVarHTTPHeaderAccept != "" {
+		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
+	}
+	// body params
+	localVarPostBody = r.patchDashboardRQ
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err

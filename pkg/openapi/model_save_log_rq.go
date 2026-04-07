@@ -3,7 +3,7 @@ ReportPortal
 
 ReportPortal API documentation
 
-API version: 5.14.4
+API version: 5.15.1
 Contact: support@reportportal.io
 */
 
@@ -29,7 +29,7 @@ type SaveLogRQ struct {
 	LaunchUuid string    `json:"launchUuid"`
 	Time       time.Time `json:"time"`
 	Message    *string   `json:"message,omitempty"`
-	Level      *string   `json:"level,omitempty"`
+	Level      *string   `json:"level,omitempty" validate:"regexp=^[A-Za-z0-9 ]+$"`
 	File       *File     `json:"file,omitempty"`
 }
 

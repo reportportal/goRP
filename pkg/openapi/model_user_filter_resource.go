@@ -3,7 +3,7 @@ ReportPortal
 
 ReportPortal API documentation
 
-API version: 5.14.4
+API version: 5.15.1
 Contact: support@reportportal.io
 */
 
@@ -24,6 +24,7 @@ var _ MappedNullable = &UserFilterResource{}
 type UserFilterResource struct {
 	Description *string               `json:"description,omitempty"`
 	Owner       string                `json:"owner"`
+	Locked      *bool                 `json:"locked,omitempty"`
 	Id          int64                 `json:"id"`
 	Name        string                `json:"name"`
 	Conditions  []UserFilterCondition `json:"conditions"`
@@ -110,6 +111,38 @@ func (o *UserFilterResource) GetOwnerOk() (*string, bool) {
 // SetOwner sets field value
 func (o *UserFilterResource) SetOwner(v string) {
 	o.Owner = v
+}
+
+// GetLocked returns the Locked field value if set, zero value otherwise.
+func (o *UserFilterResource) GetLocked() bool {
+	if o == nil || IsNil(o.Locked) {
+		var ret bool
+		return ret
+	}
+	return *o.Locked
+}
+
+// GetLockedOk returns a tuple with the Locked field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *UserFilterResource) GetLockedOk() (*bool, bool) {
+	if o == nil || IsNil(o.Locked) {
+		return nil, false
+	}
+	return o.Locked, true
+}
+
+// HasLocked returns a boolean if a field has been set.
+func (o *UserFilterResource) HasLocked() bool {
+	if o != nil && !IsNil(o.Locked) {
+		return true
+	}
+
+	return false
+}
+
+// SetLocked gets a reference to the given bool and assigns it to the Locked field.
+func (o *UserFilterResource) SetLocked(v bool) {
+	o.Locked = &v
 }
 
 // GetId returns the Id field value
@@ -246,6 +279,9 @@ func (o UserFilterResource) ToMap() (map[string]interface{}, error) {
 		toSerialize["description"] = o.Description
 	}
 	toSerialize["owner"] = o.Owner
+	if !IsNil(o.Locked) {
+		toSerialize["locked"] = o.Locked
+	}
 	toSerialize["id"] = o.Id
 	toSerialize["name"] = o.Name
 	toSerialize["conditions"] = o.Conditions

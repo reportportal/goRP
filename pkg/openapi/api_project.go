@@ -3,7 +3,7 @@ ReportPortal
 
 ReportPortal API documentation
 
-API version: 5.14.4
+API version: 5.15.1
 Contact: support@reportportal.io
 */
 
@@ -990,14 +990,14 @@ type ApiExportProjectsRequest struct {
 	ctx                      context.Context
 	ApiService               *ProjectAPIService
 	view                     *string
-	filterEqCreationDate     *string
-	filterEqUsersQuantity    *int32
 	filterEqId               *int32
-	filterEqName             *string
-	filterEqOrganization     *string
 	filterEqLaunchesQuantity *int32
 	filterEqType             *string
 	filterEqLastRun          *string
+	filterEqName             *string
+	filterEqOrganization     *string
+	filterEqCreationDate     *string
+	filterEqUsersQuantity    *int32
 }
 
 func (r ApiExportProjectsRequest) View(view string) ApiExportProjectsRequest {
@@ -1005,33 +1005,9 @@ func (r ApiExportProjectsRequest) View(view string) ApiExportProjectsRequest {
 	return r
 }
 
-// Filters by &#39;creationDate&#39;
-func (r ApiExportProjectsRequest) FilterEqCreationDate(filterEqCreationDate string) ApiExportProjectsRequest {
-	r.filterEqCreationDate = &filterEqCreationDate
-	return r
-}
-
-// Filters by &#39;usersQuantity&#39;
-func (r ApiExportProjectsRequest) FilterEqUsersQuantity(filterEqUsersQuantity int32) ApiExportProjectsRequest {
-	r.filterEqUsersQuantity = &filterEqUsersQuantity
-	return r
-}
-
 // Filters by &#39;id&#39;
 func (r ApiExportProjectsRequest) FilterEqId(filterEqId int32) ApiExportProjectsRequest {
 	r.filterEqId = &filterEqId
-	return r
-}
-
-// Filters by &#39;name&#39;
-func (r ApiExportProjectsRequest) FilterEqName(filterEqName string) ApiExportProjectsRequest {
-	r.filterEqName = &filterEqName
-	return r
-}
-
-// Filters by &#39;organization&#39;
-func (r ApiExportProjectsRequest) FilterEqOrganization(filterEqOrganization string) ApiExportProjectsRequest {
-	r.filterEqOrganization = &filterEqOrganization
 	return r
 }
 
@@ -1050,6 +1026,30 @@ func (r ApiExportProjectsRequest) FilterEqType(filterEqType string) ApiExportPro
 // Filters by &#39;lastRun&#39;
 func (r ApiExportProjectsRequest) FilterEqLastRun(filterEqLastRun string) ApiExportProjectsRequest {
 	r.filterEqLastRun = &filterEqLastRun
+	return r
+}
+
+// Filters by &#39;name&#39;
+func (r ApiExportProjectsRequest) FilterEqName(filterEqName string) ApiExportProjectsRequest {
+	r.filterEqName = &filterEqName
+	return r
+}
+
+// Filters by &#39;organization&#39;
+func (r ApiExportProjectsRequest) FilterEqOrganization(filterEqOrganization string) ApiExportProjectsRequest {
+	r.filterEqOrganization = &filterEqOrganization
+	return r
+}
+
+// Filters by &#39;creationDate&#39;
+func (r ApiExportProjectsRequest) FilterEqCreationDate(filterEqCreationDate string) ApiExportProjectsRequest {
+	r.filterEqCreationDate = &filterEqCreationDate
+	return r
+}
+
+// Filters by &#39;usersQuantity&#39;
+func (r ApiExportProjectsRequest) FilterEqUsersQuantity(filterEqUsersQuantity int32) ApiExportProjectsRequest {
+	r.filterEqUsersQuantity = &filterEqUsersQuantity
 	return r
 }
 
@@ -1094,20 +1094,8 @@ func (a *ProjectAPIService) ExportProjectsExecute(r ApiExportProjectsRequest) (*
 	if r.view != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "view", r.view, "form", "")
 	}
-	if r.filterEqCreationDate != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.creationDate", r.filterEqCreationDate, "form", "")
-	}
-	if r.filterEqUsersQuantity != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.usersQuantity", r.filterEqUsersQuantity, "form", "")
-	}
 	if r.filterEqId != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.id", r.filterEqId, "form", "")
-	}
-	if r.filterEqName != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.name", r.filterEqName, "form", "")
-	}
-	if r.filterEqOrganization != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.organization", r.filterEqOrganization, "form", "")
 	}
 	if r.filterEqLaunchesQuantity != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.launchesQuantity", r.filterEqLaunchesQuantity, "form", "")
@@ -1117,6 +1105,18 @@ func (a *ProjectAPIService) ExportProjectsExecute(r ApiExportProjectsRequest) (*
 	}
 	if r.filterEqLastRun != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.lastRun", r.filterEqLastRun, "form", "")
+	}
+	if r.filterEqName != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.name", r.filterEqName, "form", "")
+	}
+	if r.filterEqOrganization != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.organization", r.filterEqOrganization, "form", "")
+	}
+	if r.filterEqCreationDate != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.creationDate", r.filterEqCreationDate, "form", "")
+	}
+	if r.filterEqUsersQuantity != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.usersQuantity", r.filterEqUsersQuantity, "form", "")
 	}
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}
@@ -1366,46 +1366,22 @@ func (a *ProjectAPIService) GetAllProjectNamesExecute(r ApiGetAllProjectNamesReq
 type ApiGetAllProjectsInfoRequest struct {
 	ctx                      context.Context
 	ApiService               *ProjectAPIService
-	filterEqCreationDate     *string
-	filterEqUsersQuantity    *int32
 	filterEqId               *int32
-	filterEqName             *string
-	filterEqOrganization     *string
 	filterEqLaunchesQuantity *int32
 	filterEqType             *string
 	filterEqLastRun          *string
+	filterEqName             *string
+	filterEqOrganization     *string
+	filterEqCreationDate     *string
+	filterEqUsersQuantity    *int32
 	pagePage                 *int32
 	pageSize                 *int32
 	pageSort                 *string
 }
 
-// Filters by &#39;creationDate&#39;
-func (r ApiGetAllProjectsInfoRequest) FilterEqCreationDate(filterEqCreationDate string) ApiGetAllProjectsInfoRequest {
-	r.filterEqCreationDate = &filterEqCreationDate
-	return r
-}
-
-// Filters by &#39;usersQuantity&#39;
-func (r ApiGetAllProjectsInfoRequest) FilterEqUsersQuantity(filterEqUsersQuantity int32) ApiGetAllProjectsInfoRequest {
-	r.filterEqUsersQuantity = &filterEqUsersQuantity
-	return r
-}
-
 // Filters by &#39;id&#39;
 func (r ApiGetAllProjectsInfoRequest) FilterEqId(filterEqId int32) ApiGetAllProjectsInfoRequest {
 	r.filterEqId = &filterEqId
-	return r
-}
-
-// Filters by &#39;name&#39;
-func (r ApiGetAllProjectsInfoRequest) FilterEqName(filterEqName string) ApiGetAllProjectsInfoRequest {
-	r.filterEqName = &filterEqName
-	return r
-}
-
-// Filters by &#39;organization&#39;
-func (r ApiGetAllProjectsInfoRequest) FilterEqOrganization(filterEqOrganization string) ApiGetAllProjectsInfoRequest {
-	r.filterEqOrganization = &filterEqOrganization
 	return r
 }
 
@@ -1424,6 +1400,30 @@ func (r ApiGetAllProjectsInfoRequest) FilterEqType(filterEqType string) ApiGetAl
 // Filters by &#39;lastRun&#39;
 func (r ApiGetAllProjectsInfoRequest) FilterEqLastRun(filterEqLastRun string) ApiGetAllProjectsInfoRequest {
 	r.filterEqLastRun = &filterEqLastRun
+	return r
+}
+
+// Filters by &#39;name&#39;
+func (r ApiGetAllProjectsInfoRequest) FilterEqName(filterEqName string) ApiGetAllProjectsInfoRequest {
+	r.filterEqName = &filterEqName
+	return r
+}
+
+// Filters by &#39;organization&#39;
+func (r ApiGetAllProjectsInfoRequest) FilterEqOrganization(filterEqOrganization string) ApiGetAllProjectsInfoRequest {
+	r.filterEqOrganization = &filterEqOrganization
+	return r
+}
+
+// Filters by &#39;creationDate&#39;
+func (r ApiGetAllProjectsInfoRequest) FilterEqCreationDate(filterEqCreationDate string) ApiGetAllProjectsInfoRequest {
+	r.filterEqCreationDate = &filterEqCreationDate
+	return r
+}
+
+// Filters by &#39;usersQuantity&#39;
+func (r ApiGetAllProjectsInfoRequest) FilterEqUsersQuantity(filterEqUsersQuantity int32) ApiGetAllProjectsInfoRequest {
+	r.filterEqUsersQuantity = &filterEqUsersQuantity
 	return r
 }
 
@@ -1484,20 +1484,8 @@ func (a *ProjectAPIService) GetAllProjectsInfoExecute(r ApiGetAllProjectsInfoReq
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	if r.filterEqCreationDate != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.creationDate", r.filterEqCreationDate, "form", "")
-	}
-	if r.filterEqUsersQuantity != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.usersQuantity", r.filterEqUsersQuantity, "form", "")
-	}
 	if r.filterEqId != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.id", r.filterEqId, "form", "")
-	}
-	if r.filterEqName != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.name", r.filterEqName, "form", "")
-	}
-	if r.filterEqOrganization != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.organization", r.filterEqOrganization, "form", "")
 	}
 	if r.filterEqLaunchesQuantity != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.launchesQuantity", r.filterEqLaunchesQuantity, "form", "")
@@ -1507,6 +1495,18 @@ func (a *ProjectAPIService) GetAllProjectsInfoExecute(r ApiGetAllProjectsInfoReq
 	}
 	if r.filterEqLastRun != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.lastRun", r.filterEqLastRun, "form", "")
+	}
+	if r.filterEqName != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.name", r.filterEqName, "form", "")
+	}
+	if r.filterEqOrganization != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.organization", r.filterEqOrganization, "form", "")
+	}
+	if r.filterEqCreationDate != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.creationDate", r.filterEqCreationDate, "form", "")
+	}
+	if r.filterEqUsersQuantity != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.usersQuantity", r.filterEqUsersQuantity, "form", "")
 	}
 	if r.pagePage != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "page.page", r.pagePage, "form", "")
@@ -2096,88 +2096,28 @@ type ApiGetProjectUsersRequest struct {
 	ctx                         context.Context
 	ApiService                  *ProjectAPIService
 	projectName                 string
-	filterEqFullName            *string
-	filterEqUuid                *string
-	filterEqEmail               *string
-	filterEqId                  *int32
-	filterEqRole                *string
-	filterEqSynchronizationDate *int32
-	filterEqExpired             *bool
-	filterEqProject             *[]interface{}
 	filterEqType                *string
-	filterEqUser                *string
-	filterEqActive              *bool
 	filterEqLastLogin           *int32
+	filterEqRole                *string
+	filterEqUser                *string
+	filterEqId                  *int32
+	filterEqExpired             *bool
+	filterEqSynchronizationDate *int32
 	filterEqExternalId          *string
+	filterEqActive              *bool
+	filterEqProject             *[]interface{}
+	filterEqEmail               *string
+	filterEqFullName            *string
 	filterEqProjectId           *int32
+	filterEqUuid                *string
 	pagePage                    *int32
 	pageSize                    *int32
 	pageSort                    *string
 }
 
-// Filters by &#39;fullName&#39;
-func (r ApiGetProjectUsersRequest) FilterEqFullName(filterEqFullName string) ApiGetProjectUsersRequest {
-	r.filterEqFullName = &filterEqFullName
-	return r
-}
-
-// Filters by &#39;uuid&#39;
-func (r ApiGetProjectUsersRequest) FilterEqUuid(filterEqUuid string) ApiGetProjectUsersRequest {
-	r.filterEqUuid = &filterEqUuid
-	return r
-}
-
-// Filters by &#39;email&#39;
-func (r ApiGetProjectUsersRequest) FilterEqEmail(filterEqEmail string) ApiGetProjectUsersRequest {
-	r.filterEqEmail = &filterEqEmail
-	return r
-}
-
-// Filters by &#39;id&#39;
-func (r ApiGetProjectUsersRequest) FilterEqId(filterEqId int32) ApiGetProjectUsersRequest {
-	r.filterEqId = &filterEqId
-	return r
-}
-
-// Filters by &#39;role&#39;
-func (r ApiGetProjectUsersRequest) FilterEqRole(filterEqRole string) ApiGetProjectUsersRequest {
-	r.filterEqRole = &filterEqRole
-	return r
-}
-
-// Filters by &#39;synchronizationDate&#39;
-func (r ApiGetProjectUsersRequest) FilterEqSynchronizationDate(filterEqSynchronizationDate int32) ApiGetProjectUsersRequest {
-	r.filterEqSynchronizationDate = &filterEqSynchronizationDate
-	return r
-}
-
-// Filters by &#39;expired&#39;
-func (r ApiGetProjectUsersRequest) FilterEqExpired(filterEqExpired bool) ApiGetProjectUsersRequest {
-	r.filterEqExpired = &filterEqExpired
-	return r
-}
-
-// Filters by &#39;project&#39;
-func (r ApiGetProjectUsersRequest) FilterEqProject(filterEqProject []interface{}) ApiGetProjectUsersRequest {
-	r.filterEqProject = &filterEqProject
-	return r
-}
-
 // Filters by &#39;type&#39;
 func (r ApiGetProjectUsersRequest) FilterEqType(filterEqType string) ApiGetProjectUsersRequest {
 	r.filterEqType = &filterEqType
-	return r
-}
-
-// Filters by &#39;user&#39;
-func (r ApiGetProjectUsersRequest) FilterEqUser(filterEqUser string) ApiGetProjectUsersRequest {
-	r.filterEqUser = &filterEqUser
-	return r
-}
-
-// Filters by &#39;active&#39;
-func (r ApiGetProjectUsersRequest) FilterEqActive(filterEqActive bool) ApiGetProjectUsersRequest {
-	r.filterEqActive = &filterEqActive
 	return r
 }
 
@@ -2187,15 +2127,75 @@ func (r ApiGetProjectUsersRequest) FilterEqLastLogin(filterEqLastLogin int32) Ap
 	return r
 }
 
+// Filters by &#39;role&#39;
+func (r ApiGetProjectUsersRequest) FilterEqRole(filterEqRole string) ApiGetProjectUsersRequest {
+	r.filterEqRole = &filterEqRole
+	return r
+}
+
+// Filters by &#39;user&#39;
+func (r ApiGetProjectUsersRequest) FilterEqUser(filterEqUser string) ApiGetProjectUsersRequest {
+	r.filterEqUser = &filterEqUser
+	return r
+}
+
+// Filters by &#39;id&#39;
+func (r ApiGetProjectUsersRequest) FilterEqId(filterEqId int32) ApiGetProjectUsersRequest {
+	r.filterEqId = &filterEqId
+	return r
+}
+
+// Filters by &#39;expired&#39;
+func (r ApiGetProjectUsersRequest) FilterEqExpired(filterEqExpired bool) ApiGetProjectUsersRequest {
+	r.filterEqExpired = &filterEqExpired
+	return r
+}
+
+// Filters by &#39;synchronizationDate&#39;
+func (r ApiGetProjectUsersRequest) FilterEqSynchronizationDate(filterEqSynchronizationDate int32) ApiGetProjectUsersRequest {
+	r.filterEqSynchronizationDate = &filterEqSynchronizationDate
+	return r
+}
+
 // Filters by &#39;externalId&#39;
 func (r ApiGetProjectUsersRequest) FilterEqExternalId(filterEqExternalId string) ApiGetProjectUsersRequest {
 	r.filterEqExternalId = &filterEqExternalId
 	return r
 }
 
+// Filters by &#39;active&#39;
+func (r ApiGetProjectUsersRequest) FilterEqActive(filterEqActive bool) ApiGetProjectUsersRequest {
+	r.filterEqActive = &filterEqActive
+	return r
+}
+
+// Filters by &#39;project&#39;
+func (r ApiGetProjectUsersRequest) FilterEqProject(filterEqProject []interface{}) ApiGetProjectUsersRequest {
+	r.filterEqProject = &filterEqProject
+	return r
+}
+
+// Filters by &#39;email&#39;
+func (r ApiGetProjectUsersRequest) FilterEqEmail(filterEqEmail string) ApiGetProjectUsersRequest {
+	r.filterEqEmail = &filterEqEmail
+	return r
+}
+
+// Filters by &#39;fullName&#39;
+func (r ApiGetProjectUsersRequest) FilterEqFullName(filterEqFullName string) ApiGetProjectUsersRequest {
+	r.filterEqFullName = &filterEqFullName
+	return r
+}
+
 // Filters by &#39;projectId&#39;
 func (r ApiGetProjectUsersRequest) FilterEqProjectId(filterEqProjectId int32) ApiGetProjectUsersRequest {
 	r.filterEqProjectId = &filterEqProjectId
+	return r
+}
+
+// Filters by &#39;uuid&#39;
+func (r ApiGetProjectUsersRequest) FilterEqUuid(filterEqUuid string) ApiGetProjectUsersRequest {
+	r.filterEqUuid = &filterEqUuid
 	return r
 }
 
@@ -2259,26 +2259,32 @@ func (a *ProjectAPIService) GetProjectUsersExecute(r ApiGetProjectUsersRequest) 
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	if r.filterEqFullName != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.fullName", r.filterEqFullName, "form", "")
+	if r.filterEqType != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.type", r.filterEqType, "form", "")
 	}
-	if r.filterEqUuid != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.uuid", r.filterEqUuid, "form", "")
-	}
-	if r.filterEqEmail != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.email", r.filterEqEmail, "form", "")
-	}
-	if r.filterEqId != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.id", r.filterEqId, "form", "")
+	if r.filterEqLastLogin != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.lastLogin", r.filterEqLastLogin, "form", "")
 	}
 	if r.filterEqRole != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.role", r.filterEqRole, "form", "")
 	}
-	if r.filterEqSynchronizationDate != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.synchronizationDate", r.filterEqSynchronizationDate, "form", "")
+	if r.filterEqUser != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.user", r.filterEqUser, "form", "")
+	}
+	if r.filterEqId != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.id", r.filterEqId, "form", "")
 	}
 	if r.filterEqExpired != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.expired", r.filterEqExpired, "form", "")
+	}
+	if r.filterEqSynchronizationDate != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.synchronizationDate", r.filterEqSynchronizationDate, "form", "")
+	}
+	if r.filterEqExternalId != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.externalId", r.filterEqExternalId, "form", "")
+	}
+	if r.filterEqActive != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.active", r.filterEqActive, "form", "")
 	}
 	if r.filterEqProject != nil {
 		t := *r.filterEqProject
@@ -2291,23 +2297,17 @@ func (a *ProjectAPIService) GetProjectUsersExecute(r ApiGetProjectUsersRequest) 
 			parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.project", t, "form", "multi")
 		}
 	}
-	if r.filterEqType != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.type", r.filterEqType, "form", "")
+	if r.filterEqEmail != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.email", r.filterEqEmail, "form", "")
 	}
-	if r.filterEqUser != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.user", r.filterEqUser, "form", "")
-	}
-	if r.filterEqActive != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.active", r.filterEqActive, "form", "")
-	}
-	if r.filterEqLastLogin != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.lastLogin", r.filterEqLastLogin, "form", "")
-	}
-	if r.filterEqExternalId != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.externalId", r.filterEqExternalId, "form", "")
+	if r.filterEqFullName != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.fullName", r.filterEqFullName, "form", "")
 	}
 	if r.filterEqProjectId != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.projectId", r.filterEqProjectId, "form", "")
+	}
+	if r.filterEqUuid != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.uuid", r.filterEqUuid, "form", "")
 	}
 	if r.pagePage != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "page.page", r.pagePage, "form", "")
@@ -3072,88 +3072,28 @@ type ApiGetUsersForAssignRequest struct {
 	ctx                         context.Context
 	ApiService                  *ProjectAPIService
 	projectName                 string
-	filterEqFullName            *string
-	filterEqUuid                *string
-	filterEqEmail               *string
-	filterEqId                  *int32
-	filterEqRole                *string
-	filterEqSynchronizationDate *int32
-	filterEqExpired             *bool
-	filterEqProject             *[]interface{}
 	filterEqType                *string
-	filterEqUser                *string
-	filterEqActive              *bool
 	filterEqLastLogin           *int32
+	filterEqRole                *string
+	filterEqUser                *string
+	filterEqId                  *int32
+	filterEqExpired             *bool
+	filterEqSynchronizationDate *int32
 	filterEqExternalId          *string
+	filterEqActive              *bool
+	filterEqProject             *[]interface{}
+	filterEqEmail               *string
+	filterEqFullName            *string
 	filterEqProjectId           *int32
+	filterEqUuid                *string
 	pagePage                    *int32
 	pageSize                    *int32
 	pageSort                    *string
 }
 
-// Filters by &#39;fullName&#39;
-func (r ApiGetUsersForAssignRequest) FilterEqFullName(filterEqFullName string) ApiGetUsersForAssignRequest {
-	r.filterEqFullName = &filterEqFullName
-	return r
-}
-
-// Filters by &#39;uuid&#39;
-func (r ApiGetUsersForAssignRequest) FilterEqUuid(filterEqUuid string) ApiGetUsersForAssignRequest {
-	r.filterEqUuid = &filterEqUuid
-	return r
-}
-
-// Filters by &#39;email&#39;
-func (r ApiGetUsersForAssignRequest) FilterEqEmail(filterEqEmail string) ApiGetUsersForAssignRequest {
-	r.filterEqEmail = &filterEqEmail
-	return r
-}
-
-// Filters by &#39;id&#39;
-func (r ApiGetUsersForAssignRequest) FilterEqId(filterEqId int32) ApiGetUsersForAssignRequest {
-	r.filterEqId = &filterEqId
-	return r
-}
-
-// Filters by &#39;role&#39;
-func (r ApiGetUsersForAssignRequest) FilterEqRole(filterEqRole string) ApiGetUsersForAssignRequest {
-	r.filterEqRole = &filterEqRole
-	return r
-}
-
-// Filters by &#39;synchronizationDate&#39;
-func (r ApiGetUsersForAssignRequest) FilterEqSynchronizationDate(filterEqSynchronizationDate int32) ApiGetUsersForAssignRequest {
-	r.filterEqSynchronizationDate = &filterEqSynchronizationDate
-	return r
-}
-
-// Filters by &#39;expired&#39;
-func (r ApiGetUsersForAssignRequest) FilterEqExpired(filterEqExpired bool) ApiGetUsersForAssignRequest {
-	r.filterEqExpired = &filterEqExpired
-	return r
-}
-
-// Filters by &#39;project&#39;
-func (r ApiGetUsersForAssignRequest) FilterEqProject(filterEqProject []interface{}) ApiGetUsersForAssignRequest {
-	r.filterEqProject = &filterEqProject
-	return r
-}
-
 // Filters by &#39;type&#39;
 func (r ApiGetUsersForAssignRequest) FilterEqType(filterEqType string) ApiGetUsersForAssignRequest {
 	r.filterEqType = &filterEqType
-	return r
-}
-
-// Filters by &#39;user&#39;
-func (r ApiGetUsersForAssignRequest) FilterEqUser(filterEqUser string) ApiGetUsersForAssignRequest {
-	r.filterEqUser = &filterEqUser
-	return r
-}
-
-// Filters by &#39;active&#39;
-func (r ApiGetUsersForAssignRequest) FilterEqActive(filterEqActive bool) ApiGetUsersForAssignRequest {
-	r.filterEqActive = &filterEqActive
 	return r
 }
 
@@ -3163,15 +3103,75 @@ func (r ApiGetUsersForAssignRequest) FilterEqLastLogin(filterEqLastLogin int32) 
 	return r
 }
 
+// Filters by &#39;role&#39;
+func (r ApiGetUsersForAssignRequest) FilterEqRole(filterEqRole string) ApiGetUsersForAssignRequest {
+	r.filterEqRole = &filterEqRole
+	return r
+}
+
+// Filters by &#39;user&#39;
+func (r ApiGetUsersForAssignRequest) FilterEqUser(filterEqUser string) ApiGetUsersForAssignRequest {
+	r.filterEqUser = &filterEqUser
+	return r
+}
+
+// Filters by &#39;id&#39;
+func (r ApiGetUsersForAssignRequest) FilterEqId(filterEqId int32) ApiGetUsersForAssignRequest {
+	r.filterEqId = &filterEqId
+	return r
+}
+
+// Filters by &#39;expired&#39;
+func (r ApiGetUsersForAssignRequest) FilterEqExpired(filterEqExpired bool) ApiGetUsersForAssignRequest {
+	r.filterEqExpired = &filterEqExpired
+	return r
+}
+
+// Filters by &#39;synchronizationDate&#39;
+func (r ApiGetUsersForAssignRequest) FilterEqSynchronizationDate(filterEqSynchronizationDate int32) ApiGetUsersForAssignRequest {
+	r.filterEqSynchronizationDate = &filterEqSynchronizationDate
+	return r
+}
+
 // Filters by &#39;externalId&#39;
 func (r ApiGetUsersForAssignRequest) FilterEqExternalId(filterEqExternalId string) ApiGetUsersForAssignRequest {
 	r.filterEqExternalId = &filterEqExternalId
 	return r
 }
 
+// Filters by &#39;active&#39;
+func (r ApiGetUsersForAssignRequest) FilterEqActive(filterEqActive bool) ApiGetUsersForAssignRequest {
+	r.filterEqActive = &filterEqActive
+	return r
+}
+
+// Filters by &#39;project&#39;
+func (r ApiGetUsersForAssignRequest) FilterEqProject(filterEqProject []interface{}) ApiGetUsersForAssignRequest {
+	r.filterEqProject = &filterEqProject
+	return r
+}
+
+// Filters by &#39;email&#39;
+func (r ApiGetUsersForAssignRequest) FilterEqEmail(filterEqEmail string) ApiGetUsersForAssignRequest {
+	r.filterEqEmail = &filterEqEmail
+	return r
+}
+
+// Filters by &#39;fullName&#39;
+func (r ApiGetUsersForAssignRequest) FilterEqFullName(filterEqFullName string) ApiGetUsersForAssignRequest {
+	r.filterEqFullName = &filterEqFullName
+	return r
+}
+
 // Filters by &#39;projectId&#39;
 func (r ApiGetUsersForAssignRequest) FilterEqProjectId(filterEqProjectId int32) ApiGetUsersForAssignRequest {
 	r.filterEqProjectId = &filterEqProjectId
+	return r
+}
+
+// Filters by &#39;uuid&#39;
+func (r ApiGetUsersForAssignRequest) FilterEqUuid(filterEqUuid string) ApiGetUsersForAssignRequest {
+	r.filterEqUuid = &filterEqUuid
 	return r
 }
 
@@ -3237,26 +3237,32 @@ func (a *ProjectAPIService) GetUsersForAssignExecute(r ApiGetUsersForAssignReque
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	if r.filterEqFullName != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.fullName", r.filterEqFullName, "form", "")
+	if r.filterEqType != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.type", r.filterEqType, "form", "")
 	}
-	if r.filterEqUuid != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.uuid", r.filterEqUuid, "form", "")
-	}
-	if r.filterEqEmail != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.email", r.filterEqEmail, "form", "")
-	}
-	if r.filterEqId != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.id", r.filterEqId, "form", "")
+	if r.filterEqLastLogin != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.lastLogin", r.filterEqLastLogin, "form", "")
 	}
 	if r.filterEqRole != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.role", r.filterEqRole, "form", "")
 	}
-	if r.filterEqSynchronizationDate != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.synchronizationDate", r.filterEqSynchronizationDate, "form", "")
+	if r.filterEqUser != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.user", r.filterEqUser, "form", "")
+	}
+	if r.filterEqId != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.id", r.filterEqId, "form", "")
 	}
 	if r.filterEqExpired != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.expired", r.filterEqExpired, "form", "")
+	}
+	if r.filterEqSynchronizationDate != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.synchronizationDate", r.filterEqSynchronizationDate, "form", "")
+	}
+	if r.filterEqExternalId != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.externalId", r.filterEqExternalId, "form", "")
+	}
+	if r.filterEqActive != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.active", r.filterEqActive, "form", "")
 	}
 	if r.filterEqProject != nil {
 		t := *r.filterEqProject
@@ -3269,23 +3275,17 @@ func (a *ProjectAPIService) GetUsersForAssignExecute(r ApiGetUsersForAssignReque
 			parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.project", t, "form", "multi")
 		}
 	}
-	if r.filterEqType != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.type", r.filterEqType, "form", "")
+	if r.filterEqEmail != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.email", r.filterEqEmail, "form", "")
 	}
-	if r.filterEqUser != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.user", r.filterEqUser, "form", "")
-	}
-	if r.filterEqActive != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.active", r.filterEqActive, "form", "")
-	}
-	if r.filterEqLastLogin != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.lastLogin", r.filterEqLastLogin, "form", "")
-	}
-	if r.filterEqExternalId != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.externalId", r.filterEqExternalId, "form", "")
+	if r.filterEqFullName != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.fullName", r.filterEqFullName, "form", "")
 	}
 	if r.filterEqProjectId != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.projectId", r.filterEqProjectId, "form", "")
+	}
+	if r.filterEqUuid != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.uuid", r.filterEqUuid, "form", "")
 	}
 	if r.pagePage != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "page.page", r.pagePage, "form", "")

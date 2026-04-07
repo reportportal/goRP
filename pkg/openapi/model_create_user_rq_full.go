@@ -3,7 +3,7 @@ ReportPortal
 
 ReportPortal API documentation
 
-API version: 5.14.4
+API version: 5.15.1
 Contact: support@reportportal.io
 */
 
@@ -26,7 +26,7 @@ type CreateUserRQFull struct {
 	ExternalId     *string `json:"externalId,omitempty"`
 	AccountType    *string `json:"accountType,omitempty"`
 	Login          string  `json:"login" validate:"regexp=[a-zA-Z0-9-_.]+"`
-	Password       *string `json:"password,omitempty" validate:"regexp=^(?=.*\\\\d)(?=.*[A-Z])(?=.*[a-z])(?=.*[^a-zA-Z\\\\d\\\\s])([^\\\\s]){8,256}$"`
+	Password       *string `json:"password,omitempty"`
 	FullName       string  `json:"fullName" validate:"regexp=[\\\\pL0-9-_ \\\\.]+"`
 	Email          string  `json:"email"`
 	AccountRole    *string `json:"accountRole,omitempty"`

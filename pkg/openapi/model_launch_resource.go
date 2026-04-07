@@ -3,7 +3,7 @@ ReportPortal
 
 ReportPortal API documentation
 
-API version: 5.14.4
+API version: 5.15.1
 Contact: support@reportportal.io
 */
 
@@ -25,6 +25,7 @@ var _ MappedNullable = &LaunchResource{}
 type LaunchResource struct {
 	Owner               *string                 `json:"owner,omitempty"`
 	Description         *string                 `json:"description,omitempty"`
+	Locked              *bool                   `json:"locked,omitempty"`
 	Id                  int64                   `json:"id"`
 	Uuid                string                  `json:"uuid"`
 	Name                string                  `json:"name"`
@@ -131,6 +132,38 @@ func (o *LaunchResource) HasDescription() bool {
 // SetDescription gets a reference to the given string and assigns it to the Description field.
 func (o *LaunchResource) SetDescription(v string) {
 	o.Description = &v
+}
+
+// GetLocked returns the Locked field value if set, zero value otherwise.
+func (o *LaunchResource) GetLocked() bool {
+	if o == nil || IsNil(o.Locked) {
+		var ret bool
+		return ret
+	}
+	return *o.Locked
+}
+
+// GetLockedOk returns a tuple with the Locked field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *LaunchResource) GetLockedOk() (*bool, bool) {
+	if o == nil || IsNil(o.Locked) {
+		return nil, false
+	}
+	return o.Locked, true
+}
+
+// HasLocked returns a boolean if a field has been set.
+func (o *LaunchResource) HasLocked() bool {
+	if o != nil && !IsNil(o.Locked) {
+		return true
+	}
+
+	return false
+}
+
+// SetLocked gets a reference to the given bool and assigns it to the Locked field.
+func (o *LaunchResource) SetLocked(v bool) {
+	o.Locked = &v
 }
 
 // GetId returns the Id field value
@@ -644,6 +677,9 @@ func (o LaunchResource) ToMap() (map[string]interface{}, error) {
 	}
 	if !IsNil(o.Description) {
 		toSerialize["description"] = o.Description
+	}
+	if !IsNil(o.Locked) {
+		toSerialize["locked"] = o.Locked
 	}
 	toSerialize["id"] = o.Id
 	toSerialize["uuid"] = o.Uuid

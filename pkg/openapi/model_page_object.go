@@ -3,7 +3,7 @@ ReportPortal
 
 ReportPortal API documentation
 
-API version: 5.14.4
+API version: 5.15.1
 Contact: support@reportportal.io
 */
 
@@ -20,8 +20,8 @@ var _ MappedNullable = &PageObject{}
 
 // PageObject struct for PageObject
 type PageObject struct {
-	Content []map[string]interface{} `json:"content,omitempty"`
-	Page    *PageMetadata            `json:"page,omitempty"`
+	Content []interface{} `json:"content,omitempty"`
+	Page    *PageMetadata `json:"page,omitempty"`
 }
 
 // NewPageObject instantiates a new PageObject object
@@ -42,9 +42,9 @@ func NewPageObjectWithDefaults() *PageObject {
 }
 
 // GetContent returns the Content field value if set, zero value otherwise.
-func (o *PageObject) GetContent() []map[string]interface{} {
+func (o *PageObject) GetContent() []interface{} {
 	if o == nil || IsNil(o.Content) {
-		var ret []map[string]interface{}
+		var ret []interface{}
 		return ret
 	}
 	return o.Content
@@ -52,7 +52,7 @@ func (o *PageObject) GetContent() []map[string]interface{} {
 
 // GetContentOk returns a tuple with the Content field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *PageObject) GetContentOk() ([]map[string]interface{}, bool) {
+func (o *PageObject) GetContentOk() ([]interface{}, bool) {
 	if o == nil || IsNil(o.Content) {
 		return nil, false
 	}
@@ -68,8 +68,8 @@ func (o *PageObject) HasContent() bool {
 	return false
 }
 
-// SetContent gets a reference to the given []map[string]interface{} and assigns it to the Content field.
-func (o *PageObject) SetContent(v []map[string]interface{}) {
+// SetContent gets a reference to the given []interface{} and assigns it to the Content field.
+func (o *PageObject) SetContent(v []interface{}) {
 	o.Content = v
 }
 

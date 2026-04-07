@@ -3,7 +3,7 @@ ReportPortal
 
 ReportPortal API documentation
 
-API version: 5.14.4
+API version: 5.15.1
 Contact: support@reportportal.io
 */
 
@@ -27,10 +27,10 @@ type ApiCreateLog1Request struct {
 	ctx             context.Context
 	ApiService      *LogAPIService
 	projectName     string
-	jsonRequestPart *[]SaveLogRQ
+	jsonRequestPart *string
 }
 
-func (r ApiCreateLog1Request) JsonRequestPart(jsonRequestPart []SaveLogRQ) ApiCreateLog1Request {
+func (r ApiCreateLog1Request) JsonRequestPart(jsonRequestPart string) ApiCreateLog1Request {
 	r.jsonRequestPart = &jsonRequestPart
 	return r
 }
@@ -76,9 +76,6 @@ func (a *LogAPIService) CreateLog1Execute(r ApiCreateLog1Request) (*BatchSaveOpe
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
-	if r.jsonRequestPart == nil {
-		return localVarReturnValue, nil, reportError("jsonRequestPart is required and must be specified")
-	}
 
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{"multipart/form-data"}
@@ -97,7 +94,9 @@ func (a *LogAPIService) CreateLog1Execute(r ApiCreateLog1Request) (*BatchSaveOpe
 	if localVarHTTPHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
-	parameterAddToHeaderOrQuery(localVarFormParams, "json_request_part", r.jsonRequestPart, "", "csv")
+	if r.jsonRequestPart != nil {
+		parameterAddToHeaderOrQuery(localVarFormParams, "json_request_part", r.jsonRequestPart, "form", "")
+	}
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -513,22 +512,22 @@ type ApiGetErrorPageRequest struct {
 	params                      *map[string]string
 	parentId                    int64
 	projectName                 string
-	filterEqItem                *int32
-	filterEqLevel               *string
-	filterEqMessage             *string
-	filterEqId                  *int32
-	filterEqPath                *string
-	filterEqAutoAnalyzed        *bool
-	filterEqLaunchId            *int32
-	filterEqLaunch              *int32
-	filterEqStatus              *string
-	filterEqRetryParentId       *int32
 	filterEqLogId               *int32
+	filterEqLaunchId            *int32
+	filterEqStatus              *string
 	filterEqLastModified        *string
-	filterEqBinaryContent       *string
 	filterEqLogTime             *string
+	filterEqItem                *int32
+	filterEqAutoAnalyzed        *bool
+	filterEqLaunch              *int32
+	filterEqId                  *int32
+	filterEqLevel               *string
+	filterEqBinaryContent       *string
+	filterEqRetryParentId       *int32
+	filterEqMessage             *string
 	filterEqProjectId           *int32
 	filterEqRetryParentLaunchId *int32
+	filterEqPath                *string
 	pagePage                    *int32
 	pageSize                    *int32
 	pageSort                    *string
@@ -539,39 +538,9 @@ func (r ApiGetErrorPageRequest) Params(params map[string]string) ApiGetErrorPage
 	return r
 }
 
-// Filters by &#39;item&#39;
-func (r ApiGetErrorPageRequest) FilterEqItem(filterEqItem int32) ApiGetErrorPageRequest {
-	r.filterEqItem = &filterEqItem
-	return r
-}
-
-// Filters by &#39;level&#39;
-func (r ApiGetErrorPageRequest) FilterEqLevel(filterEqLevel string) ApiGetErrorPageRequest {
-	r.filterEqLevel = &filterEqLevel
-	return r
-}
-
-// Filters by &#39;message&#39;
-func (r ApiGetErrorPageRequest) FilterEqMessage(filterEqMessage string) ApiGetErrorPageRequest {
-	r.filterEqMessage = &filterEqMessage
-	return r
-}
-
-// Filters by &#39;id&#39;
-func (r ApiGetErrorPageRequest) FilterEqId(filterEqId int32) ApiGetErrorPageRequest {
-	r.filterEqId = &filterEqId
-	return r
-}
-
-// Filters by &#39;path&#39;
-func (r ApiGetErrorPageRequest) FilterEqPath(filterEqPath string) ApiGetErrorPageRequest {
-	r.filterEqPath = &filterEqPath
-	return r
-}
-
-// Filters by &#39;autoAnalyzed&#39;
-func (r ApiGetErrorPageRequest) FilterEqAutoAnalyzed(filterEqAutoAnalyzed bool) ApiGetErrorPageRequest {
-	r.filterEqAutoAnalyzed = &filterEqAutoAnalyzed
+// Filters by &#39;logId&#39;
+func (r ApiGetErrorPageRequest) FilterEqLogId(filterEqLogId int32) ApiGetErrorPageRequest {
+	r.filterEqLogId = &filterEqLogId
 	return r
 }
 
@@ -581,27 +550,9 @@ func (r ApiGetErrorPageRequest) FilterEqLaunchId(filterEqLaunchId int32) ApiGetE
 	return r
 }
 
-// Filters by &#39;launch&#39;
-func (r ApiGetErrorPageRequest) FilterEqLaunch(filterEqLaunch int32) ApiGetErrorPageRequest {
-	r.filterEqLaunch = &filterEqLaunch
-	return r
-}
-
 // Filters by &#39;status&#39;
 func (r ApiGetErrorPageRequest) FilterEqStatus(filterEqStatus string) ApiGetErrorPageRequest {
 	r.filterEqStatus = &filterEqStatus
-	return r
-}
-
-// Filters by &#39;retryParentId&#39;
-func (r ApiGetErrorPageRequest) FilterEqRetryParentId(filterEqRetryParentId int32) ApiGetErrorPageRequest {
-	r.filterEqRetryParentId = &filterEqRetryParentId
-	return r
-}
-
-// Filters by &#39;logId&#39;
-func (r ApiGetErrorPageRequest) FilterEqLogId(filterEqLogId int32) ApiGetErrorPageRequest {
-	r.filterEqLogId = &filterEqLogId
 	return r
 }
 
@@ -611,15 +562,57 @@ func (r ApiGetErrorPageRequest) FilterEqLastModified(filterEqLastModified string
 	return r
 }
 
+// Filters by &#39;logTime&#39;
+func (r ApiGetErrorPageRequest) FilterEqLogTime(filterEqLogTime string) ApiGetErrorPageRequest {
+	r.filterEqLogTime = &filterEqLogTime
+	return r
+}
+
+// Filters by &#39;item&#39;
+func (r ApiGetErrorPageRequest) FilterEqItem(filterEqItem int32) ApiGetErrorPageRequest {
+	r.filterEqItem = &filterEqItem
+	return r
+}
+
+// Filters by &#39;autoAnalyzed&#39;
+func (r ApiGetErrorPageRequest) FilterEqAutoAnalyzed(filterEqAutoAnalyzed bool) ApiGetErrorPageRequest {
+	r.filterEqAutoAnalyzed = &filterEqAutoAnalyzed
+	return r
+}
+
+// Filters by &#39;launch&#39;
+func (r ApiGetErrorPageRequest) FilterEqLaunch(filterEqLaunch int32) ApiGetErrorPageRequest {
+	r.filterEqLaunch = &filterEqLaunch
+	return r
+}
+
+// Filters by &#39;id&#39;
+func (r ApiGetErrorPageRequest) FilterEqId(filterEqId int32) ApiGetErrorPageRequest {
+	r.filterEqId = &filterEqId
+	return r
+}
+
+// Filters by &#39;level&#39;
+func (r ApiGetErrorPageRequest) FilterEqLevel(filterEqLevel string) ApiGetErrorPageRequest {
+	r.filterEqLevel = &filterEqLevel
+	return r
+}
+
 // Filters by &#39;binaryContent&#39;
 func (r ApiGetErrorPageRequest) FilterEqBinaryContent(filterEqBinaryContent string) ApiGetErrorPageRequest {
 	r.filterEqBinaryContent = &filterEqBinaryContent
 	return r
 }
 
-// Filters by &#39;logTime&#39;
-func (r ApiGetErrorPageRequest) FilterEqLogTime(filterEqLogTime string) ApiGetErrorPageRequest {
-	r.filterEqLogTime = &filterEqLogTime
+// Filters by &#39;retryParentId&#39;
+func (r ApiGetErrorPageRequest) FilterEqRetryParentId(filterEqRetryParentId int32) ApiGetErrorPageRequest {
+	r.filterEqRetryParentId = &filterEqRetryParentId
+	return r
+}
+
+// Filters by &#39;message&#39;
+func (r ApiGetErrorPageRequest) FilterEqMessage(filterEqMessage string) ApiGetErrorPageRequest {
+	r.filterEqMessage = &filterEqMessage
 	return r
 }
 
@@ -632,6 +625,12 @@ func (r ApiGetErrorPageRequest) FilterEqProjectId(filterEqProjectId int32) ApiGe
 // Filters by &#39;retryParentLaunchId&#39;
 func (r ApiGetErrorPageRequest) FilterEqRetryParentLaunchId(filterEqRetryParentLaunchId int32) ApiGetErrorPageRequest {
 	r.filterEqRetryParentLaunchId = &filterEqRetryParentLaunchId
+	return r
+}
+
+// Filters by &#39;path&#39;
+func (r ApiGetErrorPageRequest) FilterEqPath(filterEqPath string) ApiGetErrorPageRequest {
+	r.filterEqPath = &filterEqPath
 	return r
 }
 
@@ -702,53 +701,53 @@ func (a *LogAPIService) GetErrorPageExecute(r ApiGetErrorPageRequest) ([]PagedLo
 	}
 
 	parameterAddToHeaderOrQuery(localVarQueryParams, "params", r.params, "form", "")
-	if r.filterEqItem != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.item", r.filterEqItem, "form", "")
-	}
-	if r.filterEqLevel != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.level", r.filterEqLevel, "form", "")
-	}
-	if r.filterEqMessage != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.message", r.filterEqMessage, "form", "")
-	}
-	if r.filterEqId != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.id", r.filterEqId, "form", "")
-	}
-	if r.filterEqPath != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.path", r.filterEqPath, "form", "")
-	}
-	if r.filterEqAutoAnalyzed != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.autoAnalyzed", r.filterEqAutoAnalyzed, "form", "")
+	if r.filterEqLogId != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.logId", r.filterEqLogId, "form", "")
 	}
 	if r.filterEqLaunchId != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.launchId", r.filterEqLaunchId, "form", "")
 	}
-	if r.filterEqLaunch != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.launch", r.filterEqLaunch, "form", "")
-	}
 	if r.filterEqStatus != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.status", r.filterEqStatus, "form", "")
-	}
-	if r.filterEqRetryParentId != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.retryParentId", r.filterEqRetryParentId, "form", "")
-	}
-	if r.filterEqLogId != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.logId", r.filterEqLogId, "form", "")
 	}
 	if r.filterEqLastModified != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.lastModified", r.filterEqLastModified, "form", "")
 	}
+	if r.filterEqLogTime != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.logTime", r.filterEqLogTime, "form", "")
+	}
+	if r.filterEqItem != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.item", r.filterEqItem, "form", "")
+	}
+	if r.filterEqAutoAnalyzed != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.autoAnalyzed", r.filterEqAutoAnalyzed, "form", "")
+	}
+	if r.filterEqLaunch != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.launch", r.filterEqLaunch, "form", "")
+	}
+	if r.filterEqId != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.id", r.filterEqId, "form", "")
+	}
+	if r.filterEqLevel != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.level", r.filterEqLevel, "form", "")
+	}
 	if r.filterEqBinaryContent != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.binaryContent", r.filterEqBinaryContent, "form", "")
 	}
-	if r.filterEqLogTime != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.logTime", r.filterEqLogTime, "form", "")
+	if r.filterEqRetryParentId != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.retryParentId", r.filterEqRetryParentId, "form", "")
+	}
+	if r.filterEqMessage != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.message", r.filterEqMessage, "form", "")
 	}
 	if r.filterEqProjectId != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.projectId", r.filterEqProjectId, "form", "")
 	}
 	if r.filterEqRetryParentLaunchId != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.retryParentLaunchId", r.filterEqRetryParentLaunchId, "form", "")
+	}
+	if r.filterEqPath != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.path", r.filterEqPath, "form", "")
 	}
 	if r.pagePage != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "page.page", r.pagePage, "form", "")
@@ -1187,22 +1186,22 @@ type ApiGetLogsRequest struct {
 	ApiService                  *LogAPIService
 	projectName                 string
 	filterUnderPath             *string
-	filterEqItem                *int32
-	filterEqLevel               *string
-	filterEqMessage             *string
-	filterEqId                  *int32
-	filterEqPath                *string
-	filterEqAutoAnalyzed        *bool
-	filterEqLaunchId            *int32
-	filterEqLaunch              *int32
-	filterEqStatus              *string
-	filterEqRetryParentId       *int32
 	filterEqLogId               *int32
+	filterEqLaunchId            *int32
+	filterEqStatus              *string
 	filterEqLastModified        *string
-	filterEqBinaryContent       *string
 	filterEqLogTime             *string
+	filterEqItem                *int32
+	filterEqAutoAnalyzed        *bool
+	filterEqLaunch              *int32
+	filterEqId                  *int32
+	filterEqLevel               *string
+	filterEqBinaryContent       *string
+	filterEqRetryParentId       *int32
+	filterEqMessage             *string
 	filterEqProjectId           *int32
 	filterEqRetryParentLaunchId *int32
+	filterEqPath                *string
 	pagePage                    *int32
 	pageSize                    *int32
 	pageSort                    *string
@@ -1213,39 +1212,9 @@ func (r ApiGetLogsRequest) FilterUnderPath(filterUnderPath string) ApiGetLogsReq
 	return r
 }
 
-// Filters by &#39;item&#39;
-func (r ApiGetLogsRequest) FilterEqItem(filterEqItem int32) ApiGetLogsRequest {
-	r.filterEqItem = &filterEqItem
-	return r
-}
-
-// Filters by &#39;level&#39;
-func (r ApiGetLogsRequest) FilterEqLevel(filterEqLevel string) ApiGetLogsRequest {
-	r.filterEqLevel = &filterEqLevel
-	return r
-}
-
-// Filters by &#39;message&#39;
-func (r ApiGetLogsRequest) FilterEqMessage(filterEqMessage string) ApiGetLogsRequest {
-	r.filterEqMessage = &filterEqMessage
-	return r
-}
-
-// Filters by &#39;id&#39;
-func (r ApiGetLogsRequest) FilterEqId(filterEqId int32) ApiGetLogsRequest {
-	r.filterEqId = &filterEqId
-	return r
-}
-
-// Filters by &#39;path&#39;
-func (r ApiGetLogsRequest) FilterEqPath(filterEqPath string) ApiGetLogsRequest {
-	r.filterEqPath = &filterEqPath
-	return r
-}
-
-// Filters by &#39;autoAnalyzed&#39;
-func (r ApiGetLogsRequest) FilterEqAutoAnalyzed(filterEqAutoAnalyzed bool) ApiGetLogsRequest {
-	r.filterEqAutoAnalyzed = &filterEqAutoAnalyzed
+// Filters by &#39;logId&#39;
+func (r ApiGetLogsRequest) FilterEqLogId(filterEqLogId int32) ApiGetLogsRequest {
+	r.filterEqLogId = &filterEqLogId
 	return r
 }
 
@@ -1255,27 +1224,9 @@ func (r ApiGetLogsRequest) FilterEqLaunchId(filterEqLaunchId int32) ApiGetLogsRe
 	return r
 }
 
-// Filters by &#39;launch&#39;
-func (r ApiGetLogsRequest) FilterEqLaunch(filterEqLaunch int32) ApiGetLogsRequest {
-	r.filterEqLaunch = &filterEqLaunch
-	return r
-}
-
 // Filters by &#39;status&#39;
 func (r ApiGetLogsRequest) FilterEqStatus(filterEqStatus string) ApiGetLogsRequest {
 	r.filterEqStatus = &filterEqStatus
-	return r
-}
-
-// Filters by &#39;retryParentId&#39;
-func (r ApiGetLogsRequest) FilterEqRetryParentId(filterEqRetryParentId int32) ApiGetLogsRequest {
-	r.filterEqRetryParentId = &filterEqRetryParentId
-	return r
-}
-
-// Filters by &#39;logId&#39;
-func (r ApiGetLogsRequest) FilterEqLogId(filterEqLogId int32) ApiGetLogsRequest {
-	r.filterEqLogId = &filterEqLogId
 	return r
 }
 
@@ -1285,15 +1236,57 @@ func (r ApiGetLogsRequest) FilterEqLastModified(filterEqLastModified string) Api
 	return r
 }
 
+// Filters by &#39;logTime&#39;
+func (r ApiGetLogsRequest) FilterEqLogTime(filterEqLogTime string) ApiGetLogsRequest {
+	r.filterEqLogTime = &filterEqLogTime
+	return r
+}
+
+// Filters by &#39;item&#39;
+func (r ApiGetLogsRequest) FilterEqItem(filterEqItem int32) ApiGetLogsRequest {
+	r.filterEqItem = &filterEqItem
+	return r
+}
+
+// Filters by &#39;autoAnalyzed&#39;
+func (r ApiGetLogsRequest) FilterEqAutoAnalyzed(filterEqAutoAnalyzed bool) ApiGetLogsRequest {
+	r.filterEqAutoAnalyzed = &filterEqAutoAnalyzed
+	return r
+}
+
+// Filters by &#39;launch&#39;
+func (r ApiGetLogsRequest) FilterEqLaunch(filterEqLaunch int32) ApiGetLogsRequest {
+	r.filterEqLaunch = &filterEqLaunch
+	return r
+}
+
+// Filters by &#39;id&#39;
+func (r ApiGetLogsRequest) FilterEqId(filterEqId int32) ApiGetLogsRequest {
+	r.filterEqId = &filterEqId
+	return r
+}
+
+// Filters by &#39;level&#39;
+func (r ApiGetLogsRequest) FilterEqLevel(filterEqLevel string) ApiGetLogsRequest {
+	r.filterEqLevel = &filterEqLevel
+	return r
+}
+
 // Filters by &#39;binaryContent&#39;
 func (r ApiGetLogsRequest) FilterEqBinaryContent(filterEqBinaryContent string) ApiGetLogsRequest {
 	r.filterEqBinaryContent = &filterEqBinaryContent
 	return r
 }
 
-// Filters by &#39;logTime&#39;
-func (r ApiGetLogsRequest) FilterEqLogTime(filterEqLogTime string) ApiGetLogsRequest {
-	r.filterEqLogTime = &filterEqLogTime
+// Filters by &#39;retryParentId&#39;
+func (r ApiGetLogsRequest) FilterEqRetryParentId(filterEqRetryParentId int32) ApiGetLogsRequest {
+	r.filterEqRetryParentId = &filterEqRetryParentId
+	return r
+}
+
+// Filters by &#39;message&#39;
+func (r ApiGetLogsRequest) FilterEqMessage(filterEqMessage string) ApiGetLogsRequest {
+	r.filterEqMessage = &filterEqMessage
 	return r
 }
 
@@ -1306,6 +1299,12 @@ func (r ApiGetLogsRequest) FilterEqProjectId(filterEqProjectId int32) ApiGetLogs
 // Filters by &#39;retryParentLaunchId&#39;
 func (r ApiGetLogsRequest) FilterEqRetryParentLaunchId(filterEqRetryParentLaunchId int32) ApiGetLogsRequest {
 	r.filterEqRetryParentLaunchId = &filterEqRetryParentLaunchId
+	return r
+}
+
+// Filters by &#39;path&#39;
+func (r ApiGetLogsRequest) FilterEqPath(filterEqPath string) ApiGetLogsRequest {
+	r.filterEqPath = &filterEqPath
 	return r
 }
 
@@ -1372,53 +1371,53 @@ func (a *LogAPIService) GetLogsExecute(r ApiGetLogsRequest) (*PageLogResource, *
 	if r.filterUnderPath != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.under.path", r.filterUnderPath, "form", "")
 	}
-	if r.filterEqItem != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.item", r.filterEqItem, "form", "")
-	}
-	if r.filterEqLevel != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.level", r.filterEqLevel, "form", "")
-	}
-	if r.filterEqMessage != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.message", r.filterEqMessage, "form", "")
-	}
-	if r.filterEqId != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.id", r.filterEqId, "form", "")
-	}
-	if r.filterEqPath != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.path", r.filterEqPath, "form", "")
-	}
-	if r.filterEqAutoAnalyzed != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.autoAnalyzed", r.filterEqAutoAnalyzed, "form", "")
+	if r.filterEqLogId != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.logId", r.filterEqLogId, "form", "")
 	}
 	if r.filterEqLaunchId != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.launchId", r.filterEqLaunchId, "form", "")
 	}
-	if r.filterEqLaunch != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.launch", r.filterEqLaunch, "form", "")
-	}
 	if r.filterEqStatus != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.status", r.filterEqStatus, "form", "")
-	}
-	if r.filterEqRetryParentId != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.retryParentId", r.filterEqRetryParentId, "form", "")
-	}
-	if r.filterEqLogId != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.logId", r.filterEqLogId, "form", "")
 	}
 	if r.filterEqLastModified != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.lastModified", r.filterEqLastModified, "form", "")
 	}
+	if r.filterEqLogTime != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.logTime", r.filterEqLogTime, "form", "")
+	}
+	if r.filterEqItem != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.item", r.filterEqItem, "form", "")
+	}
+	if r.filterEqAutoAnalyzed != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.autoAnalyzed", r.filterEqAutoAnalyzed, "form", "")
+	}
+	if r.filterEqLaunch != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.launch", r.filterEqLaunch, "form", "")
+	}
+	if r.filterEqId != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.id", r.filterEqId, "form", "")
+	}
+	if r.filterEqLevel != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.level", r.filterEqLevel, "form", "")
+	}
 	if r.filterEqBinaryContent != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.binaryContent", r.filterEqBinaryContent, "form", "")
 	}
-	if r.filterEqLogTime != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.logTime", r.filterEqLogTime, "form", "")
+	if r.filterEqRetryParentId != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.retryParentId", r.filterEqRetryParentId, "form", "")
+	}
+	if r.filterEqMessage != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.message", r.filterEqMessage, "form", "")
 	}
 	if r.filterEqProjectId != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.projectId", r.filterEqProjectId, "form", "")
 	}
 	if r.filterEqRetryParentLaunchId != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.retryParentLaunchId", r.filterEqRetryParentLaunchId, "form", "")
+	}
+	if r.filterEqPath != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.path", r.filterEqPath, "form", "")
 	}
 	if r.pagePage != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "page.page", r.pagePage, "form", "")
@@ -1698,28 +1697,385 @@ func (a *LogAPIService) GetLogsUnderExecute(r ApiGetLogsUnderRequest) (*map[stri
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
 
+type ApiGetLogsWithLocationBySearchRequest struct {
+	ctx                         context.Context
+	ApiService                  *LogAPIService
+	params                      *map[string]string
+	parentId                    int64
+	projectName                 string
+	filterEqLogId               *int32
+	filterEqLaunchId            *int32
+	filterEqStatus              *string
+	filterEqLastModified        *string
+	filterEqLogTime             *string
+	filterEqItem                *int32
+	filterEqAutoAnalyzed        *bool
+	filterEqLaunch              *int32
+	filterEqId                  *int32
+	filterEqLevel               *string
+	filterEqBinaryContent       *string
+	filterEqRetryParentId       *int32
+	filterEqMessage             *string
+	filterEqProjectId           *int32
+	filterEqRetryParentLaunchId *int32
+	filterEqPath                *string
+	pagePage                    *int32
+	pageSize                    *int32
+	pageSort                    *string
+}
+
+func (r ApiGetLogsWithLocationBySearchRequest) Params(params map[string]string) ApiGetLogsWithLocationBySearchRequest {
+	r.params = &params
+	return r
+}
+
+// Filters by &#39;logId&#39;
+func (r ApiGetLogsWithLocationBySearchRequest) FilterEqLogId(filterEqLogId int32) ApiGetLogsWithLocationBySearchRequest {
+	r.filterEqLogId = &filterEqLogId
+	return r
+}
+
+// Filters by &#39;launchId&#39;
+func (r ApiGetLogsWithLocationBySearchRequest) FilterEqLaunchId(filterEqLaunchId int32) ApiGetLogsWithLocationBySearchRequest {
+	r.filterEqLaunchId = &filterEqLaunchId
+	return r
+}
+
+// Filters by &#39;status&#39;
+func (r ApiGetLogsWithLocationBySearchRequest) FilterEqStatus(filterEqStatus string) ApiGetLogsWithLocationBySearchRequest {
+	r.filterEqStatus = &filterEqStatus
+	return r
+}
+
+// Filters by &#39;lastModified&#39;
+func (r ApiGetLogsWithLocationBySearchRequest) FilterEqLastModified(filterEqLastModified string) ApiGetLogsWithLocationBySearchRequest {
+	r.filterEqLastModified = &filterEqLastModified
+	return r
+}
+
+// Filters by &#39;logTime&#39;
+func (r ApiGetLogsWithLocationBySearchRequest) FilterEqLogTime(filterEqLogTime string) ApiGetLogsWithLocationBySearchRequest {
+	r.filterEqLogTime = &filterEqLogTime
+	return r
+}
+
+// Filters by &#39;item&#39;
+func (r ApiGetLogsWithLocationBySearchRequest) FilterEqItem(filterEqItem int32) ApiGetLogsWithLocationBySearchRequest {
+	r.filterEqItem = &filterEqItem
+	return r
+}
+
+// Filters by &#39;autoAnalyzed&#39;
+func (r ApiGetLogsWithLocationBySearchRequest) FilterEqAutoAnalyzed(filterEqAutoAnalyzed bool) ApiGetLogsWithLocationBySearchRequest {
+	r.filterEqAutoAnalyzed = &filterEqAutoAnalyzed
+	return r
+}
+
+// Filters by &#39;launch&#39;
+func (r ApiGetLogsWithLocationBySearchRequest) FilterEqLaunch(filterEqLaunch int32) ApiGetLogsWithLocationBySearchRequest {
+	r.filterEqLaunch = &filterEqLaunch
+	return r
+}
+
+// Filters by &#39;id&#39;
+func (r ApiGetLogsWithLocationBySearchRequest) FilterEqId(filterEqId int32) ApiGetLogsWithLocationBySearchRequest {
+	r.filterEqId = &filterEqId
+	return r
+}
+
+// Filters by &#39;level&#39;
+func (r ApiGetLogsWithLocationBySearchRequest) FilterEqLevel(filterEqLevel string) ApiGetLogsWithLocationBySearchRequest {
+	r.filterEqLevel = &filterEqLevel
+	return r
+}
+
+// Filters by &#39;binaryContent&#39;
+func (r ApiGetLogsWithLocationBySearchRequest) FilterEqBinaryContent(filterEqBinaryContent string) ApiGetLogsWithLocationBySearchRequest {
+	r.filterEqBinaryContent = &filterEqBinaryContent
+	return r
+}
+
+// Filters by &#39;retryParentId&#39;
+func (r ApiGetLogsWithLocationBySearchRequest) FilterEqRetryParentId(filterEqRetryParentId int32) ApiGetLogsWithLocationBySearchRequest {
+	r.filterEqRetryParentId = &filterEqRetryParentId
+	return r
+}
+
+// Filters by &#39;message&#39;
+func (r ApiGetLogsWithLocationBySearchRequest) FilterEqMessage(filterEqMessage string) ApiGetLogsWithLocationBySearchRequest {
+	r.filterEqMessage = &filterEqMessage
+	return r
+}
+
+// Filters by &#39;projectId&#39;
+func (r ApiGetLogsWithLocationBySearchRequest) FilterEqProjectId(filterEqProjectId int32) ApiGetLogsWithLocationBySearchRequest {
+	r.filterEqProjectId = &filterEqProjectId
+	return r
+}
+
+// Filters by &#39;retryParentLaunchId&#39;
+func (r ApiGetLogsWithLocationBySearchRequest) FilterEqRetryParentLaunchId(filterEqRetryParentLaunchId int32) ApiGetLogsWithLocationBySearchRequest {
+	r.filterEqRetryParentLaunchId = &filterEqRetryParentLaunchId
+	return r
+}
+
+// Filters by &#39;path&#39;
+func (r ApiGetLogsWithLocationBySearchRequest) FilterEqPath(filterEqPath string) ApiGetLogsWithLocationBySearchRequest {
+	r.filterEqPath = &filterEqPath
+	return r
+}
+
+// Results page you want to retrieve (0..N)
+func (r ApiGetLogsWithLocationBySearchRequest) PagePage(pagePage int32) ApiGetLogsWithLocationBySearchRequest {
+	r.pagePage = &pagePage
+	return r
+}
+
+// Number of records per page
+func (r ApiGetLogsWithLocationBySearchRequest) PageSize(pageSize int32) ApiGetLogsWithLocationBySearchRequest {
+	r.pageSize = &pageSize
+	return r
+}
+
+// Sorting criteria in the format: property, (asc|desc). Default sort order is ascending. Multiple sort criteria are supported.
+func (r ApiGetLogsWithLocationBySearchRequest) PageSort(pageSort string) ApiGetLogsWithLocationBySearchRequest {
+	r.pageSort = &pageSort
+	return r
+}
+
+func (r ApiGetLogsWithLocationBySearchRequest) Execute() (*PagePagedLogResource, *http.Response, error) {
+	return r.ApiService.GetLogsWithLocationBySearchExecute(r)
+}
+
+/*
+GetLogsWithLocationBySearch Get logs with location by search filter
+
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param parentId
+	@param projectName
+	@return ApiGetLogsWithLocationBySearchRequest
+*/
+func (a *LogAPIService) GetLogsWithLocationBySearch(ctx context.Context, parentId int64, projectName string) ApiGetLogsWithLocationBySearchRequest {
+	return ApiGetLogsWithLocationBySearchRequest{
+		ApiService:  a,
+		ctx:         ctx,
+		parentId:    parentId,
+		projectName: projectName,
+	}
+}
+
+// Execute executes the request
+//
+//	@return PagePagedLogResource
+func (a *LogAPIService) GetLogsWithLocationBySearchExecute(r ApiGetLogsWithLocationBySearchRequest) (*PagePagedLogResource, *http.Response, error) {
+	var (
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *PagePagedLogResource
+	)
+
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "LogAPIService.GetLogsWithLocationBySearch")
+	if err != nil {
+		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
+	}
+
+	localVarPath := localBasePath + "/v1/{projectName}/log/locations/search/{parentId}"
+	localVarPath = strings.Replace(localVarPath, "{"+"parentId"+"}", url.PathEscape(parameterValueToString(r.parentId, "parentId")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+
+	localVarHeaderParams := make(map[string]string)
+	localVarQueryParams := url.Values{}
+	localVarFormParams := url.Values{}
+	if r.params == nil {
+		return localVarReturnValue, nil, reportError("params is required and must be specified")
+	}
+
+	parameterAddToHeaderOrQuery(localVarQueryParams, "params", r.params, "form", "")
+	if r.filterEqLogId != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.logId", r.filterEqLogId, "form", "")
+	}
+	if r.filterEqLaunchId != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.launchId", r.filterEqLaunchId, "form", "")
+	}
+	if r.filterEqStatus != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.status", r.filterEqStatus, "form", "")
+	}
+	if r.filterEqLastModified != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.lastModified", r.filterEqLastModified, "form", "")
+	}
+	if r.filterEqLogTime != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.logTime", r.filterEqLogTime, "form", "")
+	}
+	if r.filterEqItem != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.item", r.filterEqItem, "form", "")
+	}
+	if r.filterEqAutoAnalyzed != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.autoAnalyzed", r.filterEqAutoAnalyzed, "form", "")
+	}
+	if r.filterEqLaunch != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.launch", r.filterEqLaunch, "form", "")
+	}
+	if r.filterEqId != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.id", r.filterEqId, "form", "")
+	}
+	if r.filterEqLevel != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.level", r.filterEqLevel, "form", "")
+	}
+	if r.filterEqBinaryContent != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.binaryContent", r.filterEqBinaryContent, "form", "")
+	}
+	if r.filterEqRetryParentId != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.retryParentId", r.filterEqRetryParentId, "form", "")
+	}
+	if r.filterEqMessage != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.message", r.filterEqMessage, "form", "")
+	}
+	if r.filterEqProjectId != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.projectId", r.filterEqProjectId, "form", "")
+	}
+	if r.filterEqRetryParentLaunchId != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.retryParentLaunchId", r.filterEqRetryParentLaunchId, "form", "")
+	}
+	if r.filterEqPath != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.path", r.filterEqPath, "form", "")
+	}
+	if r.pagePage != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "page.page", r.pagePage, "form", "")
+	}
+	if r.pageSize != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "page.size", r.pageSize, "form", "")
+	}
+	if r.pageSort != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "page.sort", r.pageSort, "form", "")
+	}
+	// to determine the Content-Type header
+	localVarHTTPContentTypes := []string{}
+
+	// set Content-Type header
+	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
+	if localVarHTTPContentType != "" {
+		localVarHeaderParams["Content-Type"] = localVarHTTPContentType
+	}
+
+	// to determine the Accept header
+	localVarHTTPHeaderAccepts := []string{"application/json"}
+
+	// set Accept header
+	localVarHTTPHeaderAccept := selectHeaderAccept(localVarHTTPHeaderAccepts)
+	if localVarHTTPHeaderAccept != "" {
+		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
+	}
+	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
+	if err != nil {
+		return localVarReturnValue, nil, err
+	}
+
+	localVarHTTPResponse, err := a.client.callAPI(req)
+	if err != nil || localVarHTTPResponse == nil {
+		return localVarReturnValue, localVarHTTPResponse, err
+	}
+
+	localVarBody, err := io.ReadAll(localVarHTTPResponse.Body)
+	localVarHTTPResponse.Body.Close()
+	localVarHTTPResponse.Body = io.NopCloser(bytes.NewBuffer(localVarBody))
+	if err != nil {
+		return localVarReturnValue, localVarHTTPResponse, err
+	}
+
+	if a.client.cfg.ResponseMiddleware != nil {
+		err = a.client.cfg.ResponseMiddleware(localVarHTTPResponse, localVarBody)
+		if err != nil {
+			return localVarReturnValue, localVarHTTPResponse, err
+		}
+	}
+
+	if localVarHTTPResponse.StatusCode >= 300 {
+		newErr := &GenericOpenAPIError{
+			body:  localVarBody,
+			error: localVarHTTPResponse.Status,
+		}
+		if localVarHTTPResponse.StatusCode == 401 {
+			var v SaveAnalyticsSettings1401Response
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarReturnValue, localVarHTTPResponse, newErr
+			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
+			return localVarReturnValue, localVarHTTPResponse, newErr
+		}
+		if localVarHTTPResponse.StatusCode == 500 {
+			var v ErrorRS
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarReturnValue, localVarHTTPResponse, newErr
+			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
+			return localVarReturnValue, localVarHTTPResponse, newErr
+		}
+		if localVarHTTPResponse.StatusCode == 403 {
+			var v ErrorRS
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarReturnValue, localVarHTTPResponse, newErr
+			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
+			return localVarReturnValue, localVarHTTPResponse, newErr
+		}
+		if localVarHTTPResponse.StatusCode == 400 {
+			var v ErrorRS
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarReturnValue, localVarHTTPResponse, newErr
+			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
+			return localVarReturnValue, localVarHTTPResponse, newErr
+		}
+		return localVarReturnValue, localVarHTTPResponse, newErr
+	}
+
+	err = a.client.decode(&localVarReturnValue, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+	if err != nil {
+		newErr := &GenericOpenAPIError{
+			body:  localVarBody,
+			error: err.Error(),
+		}
+		return localVarReturnValue, localVarHTTPResponse, newErr
+	}
+
+	return localVarReturnValue, localVarHTTPResponse, nil
+}
+
 type ApiGetNestedItemsRequest struct {
 	ctx                         context.Context
 	ApiService                  *LogAPIService
 	params                      *map[string]string
 	parentId                    int64
 	projectName                 string
-	filterEqItem                *int32
-	filterEqLevel               *string
-	filterEqMessage             *string
-	filterEqId                  *int32
-	filterEqPath                *string
-	filterEqAutoAnalyzed        *bool
-	filterEqLaunchId            *int32
-	filterEqLaunch              *int32
-	filterEqStatus              *string
-	filterEqRetryParentId       *int32
 	filterEqLogId               *int32
+	filterEqLaunchId            *int32
+	filterEqStatus              *string
 	filterEqLastModified        *string
-	filterEqBinaryContent       *string
 	filterEqLogTime             *string
+	filterEqItem                *int32
+	filterEqAutoAnalyzed        *bool
+	filterEqLaunch              *int32
+	filterEqId                  *int32
+	filterEqLevel               *string
+	filterEqBinaryContent       *string
+	filterEqRetryParentId       *int32
+	filterEqMessage             *string
 	filterEqProjectId           *int32
 	filterEqRetryParentLaunchId *int32
+	filterEqPath                *string
 	pagePage                    *int32
 	pageSize                    *int32
 	pageSort                    *string
@@ -1730,39 +2086,9 @@ func (r ApiGetNestedItemsRequest) Params(params map[string]string) ApiGetNestedI
 	return r
 }
 
-// Filters by &#39;item&#39;
-func (r ApiGetNestedItemsRequest) FilterEqItem(filterEqItem int32) ApiGetNestedItemsRequest {
-	r.filterEqItem = &filterEqItem
-	return r
-}
-
-// Filters by &#39;level&#39;
-func (r ApiGetNestedItemsRequest) FilterEqLevel(filterEqLevel string) ApiGetNestedItemsRequest {
-	r.filterEqLevel = &filterEqLevel
-	return r
-}
-
-// Filters by &#39;message&#39;
-func (r ApiGetNestedItemsRequest) FilterEqMessage(filterEqMessage string) ApiGetNestedItemsRequest {
-	r.filterEqMessage = &filterEqMessage
-	return r
-}
-
-// Filters by &#39;id&#39;
-func (r ApiGetNestedItemsRequest) FilterEqId(filterEqId int32) ApiGetNestedItemsRequest {
-	r.filterEqId = &filterEqId
-	return r
-}
-
-// Filters by &#39;path&#39;
-func (r ApiGetNestedItemsRequest) FilterEqPath(filterEqPath string) ApiGetNestedItemsRequest {
-	r.filterEqPath = &filterEqPath
-	return r
-}
-
-// Filters by &#39;autoAnalyzed&#39;
-func (r ApiGetNestedItemsRequest) FilterEqAutoAnalyzed(filterEqAutoAnalyzed bool) ApiGetNestedItemsRequest {
-	r.filterEqAutoAnalyzed = &filterEqAutoAnalyzed
+// Filters by &#39;logId&#39;
+func (r ApiGetNestedItemsRequest) FilterEqLogId(filterEqLogId int32) ApiGetNestedItemsRequest {
+	r.filterEqLogId = &filterEqLogId
 	return r
 }
 
@@ -1772,27 +2098,9 @@ func (r ApiGetNestedItemsRequest) FilterEqLaunchId(filterEqLaunchId int32) ApiGe
 	return r
 }
 
-// Filters by &#39;launch&#39;
-func (r ApiGetNestedItemsRequest) FilterEqLaunch(filterEqLaunch int32) ApiGetNestedItemsRequest {
-	r.filterEqLaunch = &filterEqLaunch
-	return r
-}
-
 // Filters by &#39;status&#39;
 func (r ApiGetNestedItemsRequest) FilterEqStatus(filterEqStatus string) ApiGetNestedItemsRequest {
 	r.filterEqStatus = &filterEqStatus
-	return r
-}
-
-// Filters by &#39;retryParentId&#39;
-func (r ApiGetNestedItemsRequest) FilterEqRetryParentId(filterEqRetryParentId int32) ApiGetNestedItemsRequest {
-	r.filterEqRetryParentId = &filterEqRetryParentId
-	return r
-}
-
-// Filters by &#39;logId&#39;
-func (r ApiGetNestedItemsRequest) FilterEqLogId(filterEqLogId int32) ApiGetNestedItemsRequest {
-	r.filterEqLogId = &filterEqLogId
 	return r
 }
 
@@ -1802,15 +2110,57 @@ func (r ApiGetNestedItemsRequest) FilterEqLastModified(filterEqLastModified stri
 	return r
 }
 
+// Filters by &#39;logTime&#39;
+func (r ApiGetNestedItemsRequest) FilterEqLogTime(filterEqLogTime string) ApiGetNestedItemsRequest {
+	r.filterEqLogTime = &filterEqLogTime
+	return r
+}
+
+// Filters by &#39;item&#39;
+func (r ApiGetNestedItemsRequest) FilterEqItem(filterEqItem int32) ApiGetNestedItemsRequest {
+	r.filterEqItem = &filterEqItem
+	return r
+}
+
+// Filters by &#39;autoAnalyzed&#39;
+func (r ApiGetNestedItemsRequest) FilterEqAutoAnalyzed(filterEqAutoAnalyzed bool) ApiGetNestedItemsRequest {
+	r.filterEqAutoAnalyzed = &filterEqAutoAnalyzed
+	return r
+}
+
+// Filters by &#39;launch&#39;
+func (r ApiGetNestedItemsRequest) FilterEqLaunch(filterEqLaunch int32) ApiGetNestedItemsRequest {
+	r.filterEqLaunch = &filterEqLaunch
+	return r
+}
+
+// Filters by &#39;id&#39;
+func (r ApiGetNestedItemsRequest) FilterEqId(filterEqId int32) ApiGetNestedItemsRequest {
+	r.filterEqId = &filterEqId
+	return r
+}
+
+// Filters by &#39;level&#39;
+func (r ApiGetNestedItemsRequest) FilterEqLevel(filterEqLevel string) ApiGetNestedItemsRequest {
+	r.filterEqLevel = &filterEqLevel
+	return r
+}
+
 // Filters by &#39;binaryContent&#39;
 func (r ApiGetNestedItemsRequest) FilterEqBinaryContent(filterEqBinaryContent string) ApiGetNestedItemsRequest {
 	r.filterEqBinaryContent = &filterEqBinaryContent
 	return r
 }
 
-// Filters by &#39;logTime&#39;
-func (r ApiGetNestedItemsRequest) FilterEqLogTime(filterEqLogTime string) ApiGetNestedItemsRequest {
-	r.filterEqLogTime = &filterEqLogTime
+// Filters by &#39;retryParentId&#39;
+func (r ApiGetNestedItemsRequest) FilterEqRetryParentId(filterEqRetryParentId int32) ApiGetNestedItemsRequest {
+	r.filterEqRetryParentId = &filterEqRetryParentId
+	return r
+}
+
+// Filters by &#39;message&#39;
+func (r ApiGetNestedItemsRequest) FilterEqMessage(filterEqMessage string) ApiGetNestedItemsRequest {
+	r.filterEqMessage = &filterEqMessage
 	return r
 }
 
@@ -1823,6 +2173,12 @@ func (r ApiGetNestedItemsRequest) FilterEqProjectId(filterEqProjectId int32) Api
 // Filters by &#39;retryParentLaunchId&#39;
 func (r ApiGetNestedItemsRequest) FilterEqRetryParentLaunchId(filterEqRetryParentLaunchId int32) ApiGetNestedItemsRequest {
 	r.filterEqRetryParentLaunchId = &filterEqRetryParentLaunchId
+	return r
+}
+
+// Filters by &#39;path&#39;
+func (r ApiGetNestedItemsRequest) FilterEqPath(filterEqPath string) ApiGetNestedItemsRequest {
+	r.filterEqPath = &filterEqPath
 	return r
 }
 
@@ -1893,53 +2249,53 @@ func (a *LogAPIService) GetNestedItemsExecute(r ApiGetNestedItemsRequest) (*Page
 	}
 
 	parameterAddToHeaderOrQuery(localVarQueryParams, "params", r.params, "form", "")
-	if r.filterEqItem != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.item", r.filterEqItem, "form", "")
-	}
-	if r.filterEqLevel != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.level", r.filterEqLevel, "form", "")
-	}
-	if r.filterEqMessage != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.message", r.filterEqMessage, "form", "")
-	}
-	if r.filterEqId != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.id", r.filterEqId, "form", "")
-	}
-	if r.filterEqPath != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.path", r.filterEqPath, "form", "")
-	}
-	if r.filterEqAutoAnalyzed != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.autoAnalyzed", r.filterEqAutoAnalyzed, "form", "")
+	if r.filterEqLogId != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.logId", r.filterEqLogId, "form", "")
 	}
 	if r.filterEqLaunchId != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.launchId", r.filterEqLaunchId, "form", "")
 	}
-	if r.filterEqLaunch != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.launch", r.filterEqLaunch, "form", "")
-	}
 	if r.filterEqStatus != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.status", r.filterEqStatus, "form", "")
-	}
-	if r.filterEqRetryParentId != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.retryParentId", r.filterEqRetryParentId, "form", "")
-	}
-	if r.filterEqLogId != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.logId", r.filterEqLogId, "form", "")
 	}
 	if r.filterEqLastModified != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.lastModified", r.filterEqLastModified, "form", "")
 	}
+	if r.filterEqLogTime != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.logTime", r.filterEqLogTime, "form", "")
+	}
+	if r.filterEqItem != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.item", r.filterEqItem, "form", "")
+	}
+	if r.filterEqAutoAnalyzed != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.autoAnalyzed", r.filterEqAutoAnalyzed, "form", "")
+	}
+	if r.filterEqLaunch != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.launch", r.filterEqLaunch, "form", "")
+	}
+	if r.filterEqId != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.id", r.filterEqId, "form", "")
+	}
+	if r.filterEqLevel != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.level", r.filterEqLevel, "form", "")
+	}
 	if r.filterEqBinaryContent != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.binaryContent", r.filterEqBinaryContent, "form", "")
 	}
-	if r.filterEqLogTime != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.logTime", r.filterEqLogTime, "form", "")
+	if r.filterEqRetryParentId != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.retryParentId", r.filterEqRetryParentId, "form", "")
+	}
+	if r.filterEqMessage != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.message", r.filterEqMessage, "form", "")
 	}
 	if r.filterEqProjectId != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.projectId", r.filterEqProjectId, "form", "")
 	}
 	if r.filterEqRetryParentLaunchId != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.retryParentLaunchId", r.filterEqRetryParentLaunchId, "form", "")
+	}
+	if r.filterEqPath != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.path", r.filterEqPath, "form", "")
 	}
 	if r.pagePage != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "page.page", r.pagePage, "form", "")
@@ -2060,60 +2416,30 @@ type ApiGetPageNumberRequest struct {
 	ApiService                  *LogAPIService
 	logId                       int64
 	projectName                 string
-	filterEqItem                *int32
-	filterEqLevel               *string
-	filterEqMessage             *string
-	filterEqId                  *int32
-	filterEqPath                *string
-	filterEqAutoAnalyzed        *bool
-	filterEqLaunchId            *int32
-	filterEqLaunch              *int32
-	filterEqStatus              *string
-	filterEqRetryParentId       *int32
 	filterEqLogId               *int32
+	filterEqLaunchId            *int32
+	filterEqStatus              *string
 	filterEqLastModified        *string
-	filterEqBinaryContent       *string
 	filterEqLogTime             *string
+	filterEqItem                *int32
+	filterEqAutoAnalyzed        *bool
+	filterEqLaunch              *int32
+	filterEqId                  *int32
+	filterEqLevel               *string
+	filterEqBinaryContent       *string
+	filterEqRetryParentId       *int32
+	filterEqMessage             *string
 	filterEqProjectId           *int32
 	filterEqRetryParentLaunchId *int32
+	filterEqPath                *string
 	pagePage                    *int32
 	pageSize                    *int32
 	pageSort                    *string
 }
 
-// Filters by &#39;item&#39;
-func (r ApiGetPageNumberRequest) FilterEqItem(filterEqItem int32) ApiGetPageNumberRequest {
-	r.filterEqItem = &filterEqItem
-	return r
-}
-
-// Filters by &#39;level&#39;
-func (r ApiGetPageNumberRequest) FilterEqLevel(filterEqLevel string) ApiGetPageNumberRequest {
-	r.filterEqLevel = &filterEqLevel
-	return r
-}
-
-// Filters by &#39;message&#39;
-func (r ApiGetPageNumberRequest) FilterEqMessage(filterEqMessage string) ApiGetPageNumberRequest {
-	r.filterEqMessage = &filterEqMessage
-	return r
-}
-
-// Filters by &#39;id&#39;
-func (r ApiGetPageNumberRequest) FilterEqId(filterEqId int32) ApiGetPageNumberRequest {
-	r.filterEqId = &filterEqId
-	return r
-}
-
-// Filters by &#39;path&#39;
-func (r ApiGetPageNumberRequest) FilterEqPath(filterEqPath string) ApiGetPageNumberRequest {
-	r.filterEqPath = &filterEqPath
-	return r
-}
-
-// Filters by &#39;autoAnalyzed&#39;
-func (r ApiGetPageNumberRequest) FilterEqAutoAnalyzed(filterEqAutoAnalyzed bool) ApiGetPageNumberRequest {
-	r.filterEqAutoAnalyzed = &filterEqAutoAnalyzed
+// Filters by &#39;logId&#39;
+func (r ApiGetPageNumberRequest) FilterEqLogId(filterEqLogId int32) ApiGetPageNumberRequest {
+	r.filterEqLogId = &filterEqLogId
 	return r
 }
 
@@ -2123,27 +2449,9 @@ func (r ApiGetPageNumberRequest) FilterEqLaunchId(filterEqLaunchId int32) ApiGet
 	return r
 }
 
-// Filters by &#39;launch&#39;
-func (r ApiGetPageNumberRequest) FilterEqLaunch(filterEqLaunch int32) ApiGetPageNumberRequest {
-	r.filterEqLaunch = &filterEqLaunch
-	return r
-}
-
 // Filters by &#39;status&#39;
 func (r ApiGetPageNumberRequest) FilterEqStatus(filterEqStatus string) ApiGetPageNumberRequest {
 	r.filterEqStatus = &filterEqStatus
-	return r
-}
-
-// Filters by &#39;retryParentId&#39;
-func (r ApiGetPageNumberRequest) FilterEqRetryParentId(filterEqRetryParentId int32) ApiGetPageNumberRequest {
-	r.filterEqRetryParentId = &filterEqRetryParentId
-	return r
-}
-
-// Filters by &#39;logId&#39;
-func (r ApiGetPageNumberRequest) FilterEqLogId(filterEqLogId int32) ApiGetPageNumberRequest {
-	r.filterEqLogId = &filterEqLogId
 	return r
 }
 
@@ -2153,15 +2461,57 @@ func (r ApiGetPageNumberRequest) FilterEqLastModified(filterEqLastModified strin
 	return r
 }
 
+// Filters by &#39;logTime&#39;
+func (r ApiGetPageNumberRequest) FilterEqLogTime(filterEqLogTime string) ApiGetPageNumberRequest {
+	r.filterEqLogTime = &filterEqLogTime
+	return r
+}
+
+// Filters by &#39;item&#39;
+func (r ApiGetPageNumberRequest) FilterEqItem(filterEqItem int32) ApiGetPageNumberRequest {
+	r.filterEqItem = &filterEqItem
+	return r
+}
+
+// Filters by &#39;autoAnalyzed&#39;
+func (r ApiGetPageNumberRequest) FilterEqAutoAnalyzed(filterEqAutoAnalyzed bool) ApiGetPageNumberRequest {
+	r.filterEqAutoAnalyzed = &filterEqAutoAnalyzed
+	return r
+}
+
+// Filters by &#39;launch&#39;
+func (r ApiGetPageNumberRequest) FilterEqLaunch(filterEqLaunch int32) ApiGetPageNumberRequest {
+	r.filterEqLaunch = &filterEqLaunch
+	return r
+}
+
+// Filters by &#39;id&#39;
+func (r ApiGetPageNumberRequest) FilterEqId(filterEqId int32) ApiGetPageNumberRequest {
+	r.filterEqId = &filterEqId
+	return r
+}
+
+// Filters by &#39;level&#39;
+func (r ApiGetPageNumberRequest) FilterEqLevel(filterEqLevel string) ApiGetPageNumberRequest {
+	r.filterEqLevel = &filterEqLevel
+	return r
+}
+
 // Filters by &#39;binaryContent&#39;
 func (r ApiGetPageNumberRequest) FilterEqBinaryContent(filterEqBinaryContent string) ApiGetPageNumberRequest {
 	r.filterEqBinaryContent = &filterEqBinaryContent
 	return r
 }
 
-// Filters by &#39;logTime&#39;
-func (r ApiGetPageNumberRequest) FilterEqLogTime(filterEqLogTime string) ApiGetPageNumberRequest {
-	r.filterEqLogTime = &filterEqLogTime
+// Filters by &#39;retryParentId&#39;
+func (r ApiGetPageNumberRequest) FilterEqRetryParentId(filterEqRetryParentId int32) ApiGetPageNumberRequest {
+	r.filterEqRetryParentId = &filterEqRetryParentId
+	return r
+}
+
+// Filters by &#39;message&#39;
+func (r ApiGetPageNumberRequest) FilterEqMessage(filterEqMessage string) ApiGetPageNumberRequest {
+	r.filterEqMessage = &filterEqMessage
 	return r
 }
 
@@ -2174,6 +2524,12 @@ func (r ApiGetPageNumberRequest) FilterEqProjectId(filterEqProjectId int32) ApiG
 // Filters by &#39;retryParentLaunchId&#39;
 func (r ApiGetPageNumberRequest) FilterEqRetryParentLaunchId(filterEqRetryParentLaunchId int32) ApiGetPageNumberRequest {
 	r.filterEqRetryParentLaunchId = &filterEqRetryParentLaunchId
+	return r
+}
+
+// Filters by &#39;path&#39;
+func (r ApiGetPageNumberRequest) FilterEqPath(filterEqPath string) ApiGetPageNumberRequest {
+	r.filterEqPath = &filterEqPath
 	return r
 }
 
@@ -2240,53 +2596,53 @@ func (a *LogAPIService) GetPageNumberExecute(r ApiGetPageNumberRequest) (map[str
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	if r.filterEqItem != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.item", r.filterEqItem, "form", "")
-	}
-	if r.filterEqLevel != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.level", r.filterEqLevel, "form", "")
-	}
-	if r.filterEqMessage != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.message", r.filterEqMessage, "form", "")
-	}
-	if r.filterEqId != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.id", r.filterEqId, "form", "")
-	}
-	if r.filterEqPath != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.path", r.filterEqPath, "form", "")
-	}
-	if r.filterEqAutoAnalyzed != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.autoAnalyzed", r.filterEqAutoAnalyzed, "form", "")
+	if r.filterEqLogId != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.logId", r.filterEqLogId, "form", "")
 	}
 	if r.filterEqLaunchId != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.launchId", r.filterEqLaunchId, "form", "")
 	}
-	if r.filterEqLaunch != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.launch", r.filterEqLaunch, "form", "")
-	}
 	if r.filterEqStatus != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.status", r.filterEqStatus, "form", "")
-	}
-	if r.filterEqRetryParentId != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.retryParentId", r.filterEqRetryParentId, "form", "")
-	}
-	if r.filterEqLogId != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.logId", r.filterEqLogId, "form", "")
 	}
 	if r.filterEqLastModified != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.lastModified", r.filterEqLastModified, "form", "")
 	}
+	if r.filterEqLogTime != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.logTime", r.filterEqLogTime, "form", "")
+	}
+	if r.filterEqItem != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.item", r.filterEqItem, "form", "")
+	}
+	if r.filterEqAutoAnalyzed != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.autoAnalyzed", r.filterEqAutoAnalyzed, "form", "")
+	}
+	if r.filterEqLaunch != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.launch", r.filterEqLaunch, "form", "")
+	}
+	if r.filterEqId != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.id", r.filterEqId, "form", "")
+	}
+	if r.filterEqLevel != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.level", r.filterEqLevel, "form", "")
+	}
 	if r.filterEqBinaryContent != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.binaryContent", r.filterEqBinaryContent, "form", "")
 	}
-	if r.filterEqLogTime != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.logTime", r.filterEqLogTime, "form", "")
+	if r.filterEqRetryParentId != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.retryParentId", r.filterEqRetryParentId, "form", "")
+	}
+	if r.filterEqMessage != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.message", r.filterEqMessage, "form", "")
 	}
 	if r.filterEqProjectId != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.projectId", r.filterEqProjectId, "form", "")
 	}
 	if r.filterEqRetryParentLaunchId != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.retryParentLaunchId", r.filterEqRetryParentLaunchId, "form", "")
+	}
+	if r.filterEqPath != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.path", r.filterEqPath, "form", "")
 	}
 	if r.pagePage != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "page.page", r.pagePage, "form", "")

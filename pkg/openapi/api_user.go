@@ -3,7 +3,7 @@ ReportPortal
 
 ReportPortal API documentation
 
-API version: 5.14.4
+API version: 5.15.1
 Contact: support@reportportal.io
 */
 
@@ -1489,72 +1489,24 @@ type ApiExportRequest struct {
 	ctx                         context.Context
 	ApiService                  *UserAPIService
 	view                        *string
-	filterEqFullName            *string
-	filterEqUuid                *string
-	filterEqEmail               *string
-	filterEqId                  *int32
-	filterEqRole                *string
-	filterEqSynchronizationDate *int32
-	filterEqExpired             *bool
-	filterEqProject             *[]interface{}
 	filterEqType                *string
-	filterEqUser                *string
-	filterEqActive              *bool
 	filterEqLastLogin           *int32
+	filterEqRole                *string
+	filterEqUser                *string
+	filterEqId                  *int32
+	filterEqExpired             *bool
+	filterEqSynchronizationDate *int32
 	filterEqExternalId          *string
+	filterEqActive              *bool
+	filterEqProject             *[]interface{}
+	filterEqEmail               *string
+	filterEqFullName            *string
 	filterEqProjectId           *int32
+	filterEqUuid                *string
 }
 
 func (r ApiExportRequest) View(view string) ApiExportRequest {
 	r.view = &view
-	return r
-}
-
-// Filters by &#39;fullName&#39;
-func (r ApiExportRequest) FilterEqFullName(filterEqFullName string) ApiExportRequest {
-	r.filterEqFullName = &filterEqFullName
-	return r
-}
-
-// Filters by &#39;uuid&#39;
-func (r ApiExportRequest) FilterEqUuid(filterEqUuid string) ApiExportRequest {
-	r.filterEqUuid = &filterEqUuid
-	return r
-}
-
-// Filters by &#39;email&#39;
-func (r ApiExportRequest) FilterEqEmail(filterEqEmail string) ApiExportRequest {
-	r.filterEqEmail = &filterEqEmail
-	return r
-}
-
-// Filters by &#39;id&#39;
-func (r ApiExportRequest) FilterEqId(filterEqId int32) ApiExportRequest {
-	r.filterEqId = &filterEqId
-	return r
-}
-
-// Filters by &#39;role&#39;
-func (r ApiExportRequest) FilterEqRole(filterEqRole string) ApiExportRequest {
-	r.filterEqRole = &filterEqRole
-	return r
-}
-
-// Filters by &#39;synchronizationDate&#39;
-func (r ApiExportRequest) FilterEqSynchronizationDate(filterEqSynchronizationDate int32) ApiExportRequest {
-	r.filterEqSynchronizationDate = &filterEqSynchronizationDate
-	return r
-}
-
-// Filters by &#39;expired&#39;
-func (r ApiExportRequest) FilterEqExpired(filterEqExpired bool) ApiExportRequest {
-	r.filterEqExpired = &filterEqExpired
-	return r
-}
-
-// Filters by &#39;project&#39;
-func (r ApiExportRequest) FilterEqProject(filterEqProject []interface{}) ApiExportRequest {
-	r.filterEqProject = &filterEqProject
 	return r
 }
 
@@ -1564,21 +1516,39 @@ func (r ApiExportRequest) FilterEqType(filterEqType string) ApiExportRequest {
 	return r
 }
 
+// Filters by &#39;lastLogin&#39;
+func (r ApiExportRequest) FilterEqLastLogin(filterEqLastLogin int32) ApiExportRequest {
+	r.filterEqLastLogin = &filterEqLastLogin
+	return r
+}
+
+// Filters by &#39;role&#39;
+func (r ApiExportRequest) FilterEqRole(filterEqRole string) ApiExportRequest {
+	r.filterEqRole = &filterEqRole
+	return r
+}
+
 // Filters by &#39;user&#39;
 func (r ApiExportRequest) FilterEqUser(filterEqUser string) ApiExportRequest {
 	r.filterEqUser = &filterEqUser
 	return r
 }
 
-// Filters by &#39;active&#39;
-func (r ApiExportRequest) FilterEqActive(filterEqActive bool) ApiExportRequest {
-	r.filterEqActive = &filterEqActive
+// Filters by &#39;id&#39;
+func (r ApiExportRequest) FilterEqId(filterEqId int32) ApiExportRequest {
+	r.filterEqId = &filterEqId
 	return r
 }
 
-// Filters by &#39;lastLogin&#39;
-func (r ApiExportRequest) FilterEqLastLogin(filterEqLastLogin int32) ApiExportRequest {
-	r.filterEqLastLogin = &filterEqLastLogin
+// Filters by &#39;expired&#39;
+func (r ApiExportRequest) FilterEqExpired(filterEqExpired bool) ApiExportRequest {
+	r.filterEqExpired = &filterEqExpired
+	return r
+}
+
+// Filters by &#39;synchronizationDate&#39;
+func (r ApiExportRequest) FilterEqSynchronizationDate(filterEqSynchronizationDate int32) ApiExportRequest {
+	r.filterEqSynchronizationDate = &filterEqSynchronizationDate
 	return r
 }
 
@@ -1588,9 +1558,39 @@ func (r ApiExportRequest) FilterEqExternalId(filterEqExternalId string) ApiExpor
 	return r
 }
 
+// Filters by &#39;active&#39;
+func (r ApiExportRequest) FilterEqActive(filterEqActive bool) ApiExportRequest {
+	r.filterEqActive = &filterEqActive
+	return r
+}
+
+// Filters by &#39;project&#39;
+func (r ApiExportRequest) FilterEqProject(filterEqProject []interface{}) ApiExportRequest {
+	r.filterEqProject = &filterEqProject
+	return r
+}
+
+// Filters by &#39;email&#39;
+func (r ApiExportRequest) FilterEqEmail(filterEqEmail string) ApiExportRequest {
+	r.filterEqEmail = &filterEqEmail
+	return r
+}
+
+// Filters by &#39;fullName&#39;
+func (r ApiExportRequest) FilterEqFullName(filterEqFullName string) ApiExportRequest {
+	r.filterEqFullName = &filterEqFullName
+	return r
+}
+
 // Filters by &#39;projectId&#39;
 func (r ApiExportRequest) FilterEqProjectId(filterEqProjectId int32) ApiExportRequest {
 	r.filterEqProjectId = &filterEqProjectId
+	return r
+}
+
+// Filters by &#39;uuid&#39;
+func (r ApiExportRequest) FilterEqUuid(filterEqUuid string) ApiExportRequest {
+	r.filterEqUuid = &filterEqUuid
 	return r
 }
 
@@ -1635,26 +1635,32 @@ func (a *UserAPIService) ExportExecute(r ApiExportRequest) (*http.Response, erro
 	if r.view != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "view", r.view, "form", "")
 	}
-	if r.filterEqFullName != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.fullName", r.filterEqFullName, "form", "")
+	if r.filterEqType != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.type", r.filterEqType, "form", "")
 	}
-	if r.filterEqUuid != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.uuid", r.filterEqUuid, "form", "")
-	}
-	if r.filterEqEmail != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.email", r.filterEqEmail, "form", "")
-	}
-	if r.filterEqId != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.id", r.filterEqId, "form", "")
+	if r.filterEqLastLogin != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.lastLogin", r.filterEqLastLogin, "form", "")
 	}
 	if r.filterEqRole != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.role", r.filterEqRole, "form", "")
 	}
-	if r.filterEqSynchronizationDate != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.synchronizationDate", r.filterEqSynchronizationDate, "form", "")
+	if r.filterEqUser != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.user", r.filterEqUser, "form", "")
+	}
+	if r.filterEqId != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.id", r.filterEqId, "form", "")
 	}
 	if r.filterEqExpired != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.expired", r.filterEqExpired, "form", "")
+	}
+	if r.filterEqSynchronizationDate != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.synchronizationDate", r.filterEqSynchronizationDate, "form", "")
+	}
+	if r.filterEqExternalId != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.externalId", r.filterEqExternalId, "form", "")
+	}
+	if r.filterEqActive != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.active", r.filterEqActive, "form", "")
 	}
 	if r.filterEqProject != nil {
 		t := *r.filterEqProject
@@ -1667,23 +1673,17 @@ func (a *UserAPIService) ExportExecute(r ApiExportRequest) (*http.Response, erro
 			parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.project", t, "form", "multi")
 		}
 	}
-	if r.filterEqType != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.type", r.filterEqType, "form", "")
+	if r.filterEqEmail != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.email", r.filterEqEmail, "form", "")
 	}
-	if r.filterEqUser != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.user", r.filterEqUser, "form", "")
-	}
-	if r.filterEqActive != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.active", r.filterEqActive, "form", "")
-	}
-	if r.filterEqLastLogin != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.lastLogin", r.filterEqLastLogin, "form", "")
-	}
-	if r.filterEqExternalId != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.externalId", r.filterEqExternalId, "form", "")
+	if r.filterEqFullName != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.fullName", r.filterEqFullName, "form", "")
 	}
 	if r.filterEqProjectId != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.projectId", r.filterEqProjectId, "form", "")
+	}
+	if r.filterEqUuid != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.uuid", r.filterEqUuid, "form", "")
 	}
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}
@@ -2738,88 +2738,28 @@ func (a *UserAPIService) GetUserProjectsExecute(r ApiGetUserProjectsRequest) (*m
 type ApiGetUsersRequest struct {
 	ctx                         context.Context
 	ApiService                  *UserAPIService
-	filterEqFullName            *string
-	filterEqUuid                *string
-	filterEqEmail               *string
-	filterEqId                  *int32
-	filterEqRole                *string
-	filterEqSynchronizationDate *int32
-	filterEqExpired             *bool
-	filterEqProject             *[]interface{}
 	filterEqType                *string
-	filterEqUser                *string
-	filterEqActive              *bool
 	filterEqLastLogin           *int32
+	filterEqRole                *string
+	filterEqUser                *string
+	filterEqId                  *int32
+	filterEqExpired             *bool
+	filterEqSynchronizationDate *int32
 	filterEqExternalId          *string
+	filterEqActive              *bool
+	filterEqProject             *[]interface{}
+	filterEqEmail               *string
+	filterEqFullName            *string
 	filterEqProjectId           *int32
+	filterEqUuid                *string
 	pagePage                    *int32
 	pageSize                    *int32
 	pageSort                    *string
 }
 
-// Filters by &#39;fullName&#39;
-func (r ApiGetUsersRequest) FilterEqFullName(filterEqFullName string) ApiGetUsersRequest {
-	r.filterEqFullName = &filterEqFullName
-	return r
-}
-
-// Filters by &#39;uuid&#39;
-func (r ApiGetUsersRequest) FilterEqUuid(filterEqUuid string) ApiGetUsersRequest {
-	r.filterEqUuid = &filterEqUuid
-	return r
-}
-
-// Filters by &#39;email&#39;
-func (r ApiGetUsersRequest) FilterEqEmail(filterEqEmail string) ApiGetUsersRequest {
-	r.filterEqEmail = &filterEqEmail
-	return r
-}
-
-// Filters by &#39;id&#39;
-func (r ApiGetUsersRequest) FilterEqId(filterEqId int32) ApiGetUsersRequest {
-	r.filterEqId = &filterEqId
-	return r
-}
-
-// Filters by &#39;role&#39;
-func (r ApiGetUsersRequest) FilterEqRole(filterEqRole string) ApiGetUsersRequest {
-	r.filterEqRole = &filterEqRole
-	return r
-}
-
-// Filters by &#39;synchronizationDate&#39;
-func (r ApiGetUsersRequest) FilterEqSynchronizationDate(filterEqSynchronizationDate int32) ApiGetUsersRequest {
-	r.filterEqSynchronizationDate = &filterEqSynchronizationDate
-	return r
-}
-
-// Filters by &#39;expired&#39;
-func (r ApiGetUsersRequest) FilterEqExpired(filterEqExpired bool) ApiGetUsersRequest {
-	r.filterEqExpired = &filterEqExpired
-	return r
-}
-
-// Filters by &#39;project&#39;
-func (r ApiGetUsersRequest) FilterEqProject(filterEqProject []interface{}) ApiGetUsersRequest {
-	r.filterEqProject = &filterEqProject
-	return r
-}
-
 // Filters by &#39;type&#39;
 func (r ApiGetUsersRequest) FilterEqType(filterEqType string) ApiGetUsersRequest {
 	r.filterEqType = &filterEqType
-	return r
-}
-
-// Filters by &#39;user&#39;
-func (r ApiGetUsersRequest) FilterEqUser(filterEqUser string) ApiGetUsersRequest {
-	r.filterEqUser = &filterEqUser
-	return r
-}
-
-// Filters by &#39;active&#39;
-func (r ApiGetUsersRequest) FilterEqActive(filterEqActive bool) ApiGetUsersRequest {
-	r.filterEqActive = &filterEqActive
 	return r
 }
 
@@ -2829,15 +2769,75 @@ func (r ApiGetUsersRequest) FilterEqLastLogin(filterEqLastLogin int32) ApiGetUse
 	return r
 }
 
+// Filters by &#39;role&#39;
+func (r ApiGetUsersRequest) FilterEqRole(filterEqRole string) ApiGetUsersRequest {
+	r.filterEqRole = &filterEqRole
+	return r
+}
+
+// Filters by &#39;user&#39;
+func (r ApiGetUsersRequest) FilterEqUser(filterEqUser string) ApiGetUsersRequest {
+	r.filterEqUser = &filterEqUser
+	return r
+}
+
+// Filters by &#39;id&#39;
+func (r ApiGetUsersRequest) FilterEqId(filterEqId int32) ApiGetUsersRequest {
+	r.filterEqId = &filterEqId
+	return r
+}
+
+// Filters by &#39;expired&#39;
+func (r ApiGetUsersRequest) FilterEqExpired(filterEqExpired bool) ApiGetUsersRequest {
+	r.filterEqExpired = &filterEqExpired
+	return r
+}
+
+// Filters by &#39;synchronizationDate&#39;
+func (r ApiGetUsersRequest) FilterEqSynchronizationDate(filterEqSynchronizationDate int32) ApiGetUsersRequest {
+	r.filterEqSynchronizationDate = &filterEqSynchronizationDate
+	return r
+}
+
 // Filters by &#39;externalId&#39;
 func (r ApiGetUsersRequest) FilterEqExternalId(filterEqExternalId string) ApiGetUsersRequest {
 	r.filterEqExternalId = &filterEqExternalId
 	return r
 }
 
+// Filters by &#39;active&#39;
+func (r ApiGetUsersRequest) FilterEqActive(filterEqActive bool) ApiGetUsersRequest {
+	r.filterEqActive = &filterEqActive
+	return r
+}
+
+// Filters by &#39;project&#39;
+func (r ApiGetUsersRequest) FilterEqProject(filterEqProject []interface{}) ApiGetUsersRequest {
+	r.filterEqProject = &filterEqProject
+	return r
+}
+
+// Filters by &#39;email&#39;
+func (r ApiGetUsersRequest) FilterEqEmail(filterEqEmail string) ApiGetUsersRequest {
+	r.filterEqEmail = &filterEqEmail
+	return r
+}
+
+// Filters by &#39;fullName&#39;
+func (r ApiGetUsersRequest) FilterEqFullName(filterEqFullName string) ApiGetUsersRequest {
+	r.filterEqFullName = &filterEqFullName
+	return r
+}
+
 // Filters by &#39;projectId&#39;
 func (r ApiGetUsersRequest) FilterEqProjectId(filterEqProjectId int32) ApiGetUsersRequest {
 	r.filterEqProjectId = &filterEqProjectId
+	return r
+}
+
+// Filters by &#39;uuid&#39;
+func (r ApiGetUsersRequest) FilterEqUuid(filterEqUuid string) ApiGetUsersRequest {
+	r.filterEqUuid = &filterEqUuid
 	return r
 }
 
@@ -2900,26 +2900,32 @@ func (a *UserAPIService) GetUsersExecute(r ApiGetUsersRequest) (*PageUserResourc
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	if r.filterEqFullName != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.fullName", r.filterEqFullName, "form", "")
+	if r.filterEqType != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.type", r.filterEqType, "form", "")
 	}
-	if r.filterEqUuid != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.uuid", r.filterEqUuid, "form", "")
-	}
-	if r.filterEqEmail != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.email", r.filterEqEmail, "form", "")
-	}
-	if r.filterEqId != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.id", r.filterEqId, "form", "")
+	if r.filterEqLastLogin != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.lastLogin", r.filterEqLastLogin, "form", "")
 	}
 	if r.filterEqRole != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.role", r.filterEqRole, "form", "")
 	}
-	if r.filterEqSynchronizationDate != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.synchronizationDate", r.filterEqSynchronizationDate, "form", "")
+	if r.filterEqUser != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.user", r.filterEqUser, "form", "")
+	}
+	if r.filterEqId != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.id", r.filterEqId, "form", "")
 	}
 	if r.filterEqExpired != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.expired", r.filterEqExpired, "form", "")
+	}
+	if r.filterEqSynchronizationDate != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.synchronizationDate", r.filterEqSynchronizationDate, "form", "")
+	}
+	if r.filterEqExternalId != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.externalId", r.filterEqExternalId, "form", "")
+	}
+	if r.filterEqActive != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.active", r.filterEqActive, "form", "")
 	}
 	if r.filterEqProject != nil {
 		t := *r.filterEqProject
@@ -2932,23 +2938,17 @@ func (a *UserAPIService) GetUsersExecute(r ApiGetUsersRequest) (*PageUserResourc
 			parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.project", t, "form", "multi")
 		}
 	}
-	if r.filterEqType != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.type", r.filterEqType, "form", "")
+	if r.filterEqEmail != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.email", r.filterEqEmail, "form", "")
 	}
-	if r.filterEqUser != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.user", r.filterEqUser, "form", "")
-	}
-	if r.filterEqActive != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.active", r.filterEqActive, "form", "")
-	}
-	if r.filterEqLastLogin != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.lastLogin", r.filterEqLastLogin, "form", "")
-	}
-	if r.filterEqExternalId != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.externalId", r.filterEqExternalId, "form", "")
+	if r.filterEqFullName != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.fullName", r.filterEqFullName, "form", "")
 	}
 	if r.filterEqProjectId != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.projectId", r.filterEqProjectId, "form", "")
+	}
+	if r.filterEqUuid != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.uuid", r.filterEqUuid, "form", "")
 	}
 	if r.pagePage != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "page.page", r.pagePage, "form", "")
@@ -3602,173 +3602,6 @@ func (a *UserAPIService) RestorePasswordExecute(r ApiRestorePasswordRequest) (*O
 	}
 	// body params
 	localVarPostBody = r.restorePasswordRQ
-	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
-	if err != nil {
-		return localVarReturnValue, nil, err
-	}
-
-	localVarHTTPResponse, err := a.client.callAPI(req)
-	if err != nil || localVarHTTPResponse == nil {
-		return localVarReturnValue, localVarHTTPResponse, err
-	}
-
-	localVarBody, err := io.ReadAll(localVarHTTPResponse.Body)
-	localVarHTTPResponse.Body.Close()
-	localVarHTTPResponse.Body = io.NopCloser(bytes.NewBuffer(localVarBody))
-	if err != nil {
-		return localVarReturnValue, localVarHTTPResponse, err
-	}
-
-	if a.client.cfg.ResponseMiddleware != nil {
-		err = a.client.cfg.ResponseMiddleware(localVarHTTPResponse, localVarBody)
-		if err != nil {
-			return localVarReturnValue, localVarHTTPResponse, err
-		}
-	}
-
-	if localVarHTTPResponse.StatusCode >= 300 {
-		newErr := &GenericOpenAPIError{
-			body:  localVarBody,
-			error: localVarHTTPResponse.Status,
-		}
-		if localVarHTTPResponse.StatusCode == 401 {
-			var v SaveAnalyticsSettings1401Response
-			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return localVarReturnValue, localVarHTTPResponse, newErr
-			}
-			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-			newErr.model = v
-			return localVarReturnValue, localVarHTTPResponse, newErr
-		}
-		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
-			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return localVarReturnValue, localVarHTTPResponse, newErr
-			}
-			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-			newErr.model = v
-			return localVarReturnValue, localVarHTTPResponse, newErr
-		}
-		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
-			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return localVarReturnValue, localVarHTTPResponse, newErr
-			}
-			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-			newErr.model = v
-			return localVarReturnValue, localVarHTTPResponse, newErr
-		}
-		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
-			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return localVarReturnValue, localVarHTTPResponse, newErr
-			}
-			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-			newErr.model = v
-			return localVarReturnValue, localVarHTTPResponse, newErr
-		}
-		return localVarReturnValue, localVarHTTPResponse, newErr
-	}
-
-	err = a.client.decode(&localVarReturnValue, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
-	if err != nil {
-		newErr := &GenericOpenAPIError{
-			body:  localVarBody,
-			error: err.Error(),
-		}
-		return localVarReturnValue, localVarHTTPResponse, newErr
-	}
-
-	return localVarReturnValue, localVarHTTPResponse, nil
-}
-
-type ApiValidateInfoRequest struct {
-	ctx        context.Context
-	ApiService *UserAPIService
-	email      *string
-	username   *string
-}
-
-func (r ApiValidateInfoRequest) Email(email string) ApiValidateInfoRequest {
-	r.email = &email
-	return r
-}
-
-func (r ApiValidateInfoRequest) Username(username string) ApiValidateInfoRequest {
-	r.username = &username
-	return r
-}
-
-func (r ApiValidateInfoRequest) Execute() (*YesNoRS, *http.Response, error) {
-	return r.ApiService.ValidateInfoExecute(r)
-}
-
-/*
-ValidateInfo Validate Info
-
-	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@return ApiValidateInfoRequest
-*/
-func (a *UserAPIService) ValidateInfo(ctx context.Context) ApiValidateInfoRequest {
-	return ApiValidateInfoRequest{
-		ApiService: a,
-		ctx:        ctx,
-	}
-}
-
-// Execute executes the request
-//
-//	@return YesNoRS
-func (a *UserAPIService) ValidateInfoExecute(r ApiValidateInfoRequest) (*YesNoRS, *http.Response, error) {
-	var (
-		localVarHTTPMethod  = http.MethodGet
-		localVarPostBody    interface{}
-		formFiles           []formFile
-		localVarReturnValue *YesNoRS
-	)
-
-	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "UserAPIService.ValidateInfo")
-	if err != nil {
-		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
-	}
-
-	localVarPath := localBasePath + "/users/registration/info"
-
-	localVarHeaderParams := make(map[string]string)
-	localVarQueryParams := url.Values{}
-	localVarFormParams := url.Values{}
-
-	if r.email != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "email", r.email, "form", "")
-	}
-	if r.username != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "username", r.username, "form", "")
-	}
-	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
-
-	// set Content-Type header
-	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
-	if localVarHTTPContentType != "" {
-		localVarHeaderParams["Content-Type"] = localVarHTTPContentType
-	}
-
-	// to determine the Accept header
-	localVarHTTPHeaderAccepts := []string{"application/json"}
-
-	// set Accept header
-	localVarHTTPHeaderAccept := selectHeaderAccept(localVarHTTPHeaderAccepts)
-	if localVarHTTPHeaderAccept != "" {
-		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
-	}
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err

@@ -3,7 +3,7 @@ ReportPortal
 
 ReportPortal API documentation
 
-API version: 5.14.4
+API version: 5.15.1
 Contact: support@reportportal.io
 */
 
@@ -38,9 +38,8 @@ type ActivityResource struct {
 	// The ID of the project in which the activity was performed
 	ProjectId int64 `json:"projectId"`
 	// The name of the project in which the activity was performed
-	ProjectName *string `json:"projectName,omitempty"`
-	// The details of the activity, for example history of value
-	Details map[string]interface{} `json:"details,omitempty"`
+	ProjectName *string     `json:"projectName,omitempty"`
+	Details     interface{} `json:"details,omitempty"`
 	// The name of the object on which the activity was performed
 	ObjectName *string `json:"objectName,omitempty"`
 }
@@ -271,10 +270,10 @@ func (o *ActivityResource) SetProjectName(v string) {
 	o.ProjectName = &v
 }
 
-// GetDetails returns the Details field value if set, zero value otherwise.
-func (o *ActivityResource) GetDetails() map[string]interface{} {
-	if o == nil || IsNil(o.Details) {
-		var ret map[string]interface{}
+// GetDetails returns the Details field value if set, zero value otherwise (both if not set or set to explicit null).
+func (o *ActivityResource) GetDetails() interface{} {
+	if o == nil {
+		var ret interface{}
 		return ret
 	}
 	return o.Details
@@ -282,11 +281,12 @@ func (o *ActivityResource) GetDetails() map[string]interface{} {
 
 // GetDetailsOk returns a tuple with the Details field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *ActivityResource) GetDetailsOk() (map[string]interface{}, bool) {
+// NOTE: If the value is an explicit nil, `nil, true` will be returned
+func (o *ActivityResource) GetDetailsOk() (*interface{}, bool) {
 	if o == nil || IsNil(o.Details) {
-		return map[string]interface{}{}, false
+		return nil, false
 	}
-	return o.Details, true
+	return &o.Details, true
 }
 
 // HasDetails returns a boolean if a field has been set.
@@ -298,8 +298,8 @@ func (o *ActivityResource) HasDetails() bool {
 	return false
 }
 
-// SetDetails gets a reference to the given map[string]interface{} and assigns it to the Details field.
-func (o *ActivityResource) SetDetails(v map[string]interface{}) {
+// SetDetails gets a reference to the given interface{} and assigns it to the Details field.
+func (o *ActivityResource) SetDetails(v interface{}) {
 	o.Details = v
 }
 
@@ -355,7 +355,7 @@ func (o ActivityResource) ToMap() (map[string]interface{}, error) {
 	if !IsNil(o.ProjectName) {
 		toSerialize["projectName"] = o.ProjectName
 	}
-	if !IsNil(o.Details) {
+	if o.Details != nil {
 		toSerialize["details"] = o.Details
 	}
 	if !IsNil(o.ObjectName) {

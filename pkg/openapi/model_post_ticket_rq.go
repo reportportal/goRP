@@ -3,7 +3,7 @@ ReportPortal
 
 ReportPortal API documentation
 
-API version: 5.14.4
+API version: 5.15.1
 Contact: support@reportportal.io
 */
 
@@ -22,17 +22,18 @@ var _ MappedNullable = &PostTicketRQ{}
 
 // PostTicketRQ struct for PostTicketRQ
 type PostTicketRQ struct {
-	Username        *string           `json:"username,omitempty"`
-	Password        *string           `json:"password,omitempty"`
-	Domain          *string           `json:"domain,omitempty"`
-	Token           *string           `json:"token,omitempty"`
-	Fields          []PostFormField   `json:"fields"`
-	IncludeLogs     *bool             `json:"includeLogs,omitempty"`
-	IncludeData     *bool             `json:"includeData,omitempty"`
-	IncludeComments *bool             `json:"includeComments,omitempty"`
-	LogQuantity     *int32            `json:"logQuantity,omitempty"`
-	Item            int64             `json:"item"`
-	BackLinks       map[string]string `json:"backLinks"`
+	IncludeLogs        *bool             `json:"includeLogs,omitempty"`
+	IncludeScreenshots *bool             `json:"includeScreenshots,omitempty"`
+	IncludeComments    *bool             `json:"includeComments,omitempty"`
+	Username           *string           `json:"username,omitempty"`
+	Password           *string           `json:"password,omitempty"`
+	Domain             *string           `json:"domain,omitempty"`
+	Token              *string           `json:"token,omitempty"`
+	Fields             []PostFormField   `json:"fields"`
+	IncludeData        *bool             `json:"includeData,omitempty"`
+	LogQuantity        *int32            `json:"logQuantity,omitempty"`
+	Item               int64             `json:"item"`
+	BackLinks          map[string]string `json:"backLinks"`
 }
 
 type _PostTicketRQ PostTicketRQ
@@ -55,6 +56,102 @@ func NewPostTicketRQ(fields []PostFormField, item int64, backLinks map[string]st
 func NewPostTicketRQWithDefaults() *PostTicketRQ {
 	this := PostTicketRQ{}
 	return &this
+}
+
+// GetIncludeLogs returns the IncludeLogs field value if set, zero value otherwise.
+func (o *PostTicketRQ) GetIncludeLogs() bool {
+	if o == nil || IsNil(o.IncludeLogs) {
+		var ret bool
+		return ret
+	}
+	return *o.IncludeLogs
+}
+
+// GetIncludeLogsOk returns a tuple with the IncludeLogs field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *PostTicketRQ) GetIncludeLogsOk() (*bool, bool) {
+	if o == nil || IsNil(o.IncludeLogs) {
+		return nil, false
+	}
+	return o.IncludeLogs, true
+}
+
+// HasIncludeLogs returns a boolean if a field has been set.
+func (o *PostTicketRQ) HasIncludeLogs() bool {
+	if o != nil && !IsNil(o.IncludeLogs) {
+		return true
+	}
+
+	return false
+}
+
+// SetIncludeLogs gets a reference to the given bool and assigns it to the IncludeLogs field.
+func (o *PostTicketRQ) SetIncludeLogs(v bool) {
+	o.IncludeLogs = &v
+}
+
+// GetIncludeScreenshots returns the IncludeScreenshots field value if set, zero value otherwise.
+func (o *PostTicketRQ) GetIncludeScreenshots() bool {
+	if o == nil || IsNil(o.IncludeScreenshots) {
+		var ret bool
+		return ret
+	}
+	return *o.IncludeScreenshots
+}
+
+// GetIncludeScreenshotsOk returns a tuple with the IncludeScreenshots field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *PostTicketRQ) GetIncludeScreenshotsOk() (*bool, bool) {
+	if o == nil || IsNil(o.IncludeScreenshots) {
+		return nil, false
+	}
+	return o.IncludeScreenshots, true
+}
+
+// HasIncludeScreenshots returns a boolean if a field has been set.
+func (o *PostTicketRQ) HasIncludeScreenshots() bool {
+	if o != nil && !IsNil(o.IncludeScreenshots) {
+		return true
+	}
+
+	return false
+}
+
+// SetIncludeScreenshots gets a reference to the given bool and assigns it to the IncludeScreenshots field.
+func (o *PostTicketRQ) SetIncludeScreenshots(v bool) {
+	o.IncludeScreenshots = &v
+}
+
+// GetIncludeComments returns the IncludeComments field value if set, zero value otherwise.
+func (o *PostTicketRQ) GetIncludeComments() bool {
+	if o == nil || IsNil(o.IncludeComments) {
+		var ret bool
+		return ret
+	}
+	return *o.IncludeComments
+}
+
+// GetIncludeCommentsOk returns a tuple with the IncludeComments field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *PostTicketRQ) GetIncludeCommentsOk() (*bool, bool) {
+	if o == nil || IsNil(o.IncludeComments) {
+		return nil, false
+	}
+	return o.IncludeComments, true
+}
+
+// HasIncludeComments returns a boolean if a field has been set.
+func (o *PostTicketRQ) HasIncludeComments() bool {
+	if o != nil && !IsNil(o.IncludeComments) {
+		return true
+	}
+
+	return false
+}
+
+// SetIncludeComments gets a reference to the given bool and assigns it to the IncludeComments field.
+func (o *PostTicketRQ) SetIncludeComments(v bool) {
+	o.IncludeComments = &v
 }
 
 // GetUsername returns the Username field value if set, zero value otherwise.
@@ -209,38 +306,6 @@ func (o *PostTicketRQ) SetFields(v []PostFormField) {
 	o.Fields = v
 }
 
-// GetIncludeLogs returns the IncludeLogs field value if set, zero value otherwise.
-func (o *PostTicketRQ) GetIncludeLogs() bool {
-	if o == nil || IsNil(o.IncludeLogs) {
-		var ret bool
-		return ret
-	}
-	return *o.IncludeLogs
-}
-
-// GetIncludeLogsOk returns a tuple with the IncludeLogs field value if set, nil otherwise
-// and a boolean to check if the value has been set.
-func (o *PostTicketRQ) GetIncludeLogsOk() (*bool, bool) {
-	if o == nil || IsNil(o.IncludeLogs) {
-		return nil, false
-	}
-	return o.IncludeLogs, true
-}
-
-// HasIncludeLogs returns a boolean if a field has been set.
-func (o *PostTicketRQ) HasIncludeLogs() bool {
-	if o != nil && !IsNil(o.IncludeLogs) {
-		return true
-	}
-
-	return false
-}
-
-// SetIncludeLogs gets a reference to the given bool and assigns it to the IncludeLogs field.
-func (o *PostTicketRQ) SetIncludeLogs(v bool) {
-	o.IncludeLogs = &v
-}
-
 // GetIncludeData returns the IncludeData field value if set, zero value otherwise.
 func (o *PostTicketRQ) GetIncludeData() bool {
 	if o == nil || IsNil(o.IncludeData) {
@@ -271,38 +336,6 @@ func (o *PostTicketRQ) HasIncludeData() bool {
 // SetIncludeData gets a reference to the given bool and assigns it to the IncludeData field.
 func (o *PostTicketRQ) SetIncludeData(v bool) {
 	o.IncludeData = &v
-}
-
-// GetIncludeComments returns the IncludeComments field value if set, zero value otherwise.
-func (o *PostTicketRQ) GetIncludeComments() bool {
-	if o == nil || IsNil(o.IncludeComments) {
-		var ret bool
-		return ret
-	}
-	return *o.IncludeComments
-}
-
-// GetIncludeCommentsOk returns a tuple with the IncludeComments field value if set, nil otherwise
-// and a boolean to check if the value has been set.
-func (o *PostTicketRQ) GetIncludeCommentsOk() (*bool, bool) {
-	if o == nil || IsNil(o.IncludeComments) {
-		return nil, false
-	}
-	return o.IncludeComments, true
-}
-
-// HasIncludeComments returns a boolean if a field has been set.
-func (o *PostTicketRQ) HasIncludeComments() bool {
-	if o != nil && !IsNil(o.IncludeComments) {
-		return true
-	}
-
-	return false
-}
-
-// SetIncludeComments gets a reference to the given bool and assigns it to the IncludeComments field.
-func (o *PostTicketRQ) SetIncludeComments(v bool) {
-	o.IncludeComments = &v
 }
 
 // GetLogQuantity returns the LogQuantity field value if set, zero value otherwise.
@@ -395,6 +428,15 @@ func (o PostTicketRQ) MarshalJSON() ([]byte, error) {
 
 func (o PostTicketRQ) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
+	if !IsNil(o.IncludeLogs) {
+		toSerialize["includeLogs"] = o.IncludeLogs
+	}
+	if !IsNil(o.IncludeScreenshots) {
+		toSerialize["includeScreenshots"] = o.IncludeScreenshots
+	}
+	if !IsNil(o.IncludeComments) {
+		toSerialize["includeComments"] = o.IncludeComments
+	}
 	if !IsNil(o.Username) {
 		toSerialize["username"] = o.Username
 	}
@@ -408,14 +450,8 @@ func (o PostTicketRQ) ToMap() (map[string]interface{}, error) {
 		toSerialize["token"] = o.Token
 	}
 	toSerialize["fields"] = o.Fields
-	if !IsNil(o.IncludeLogs) {
-		toSerialize["includeLogs"] = o.IncludeLogs
-	}
 	if !IsNil(o.IncludeData) {
 		toSerialize["includeData"] = o.IncludeData
-	}
-	if !IsNil(o.IncludeComments) {
-		toSerialize["includeComments"] = o.IncludeComments
 	}
 	if !IsNil(o.LogQuantity) {
 		toSerialize["logQuantity"] = o.LogQuantity

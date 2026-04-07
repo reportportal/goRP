@@ -3,7 +3,7 @@ ReportPortal
 
 ReportPortal API documentation
 
-API version: 5.14.4
+API version: 5.15.1
 Contact: support@reportportal.io
 */
 
@@ -536,11 +536,12 @@ type ApiGetWidgetNamesRequest struct {
 	pagePage            *int32
 	pageSize            *int32
 	pageSort            *string
-	filterEqDescription *string
-	filterEqOwner       *string
 	filterEqId          *int32
-	filterEqName        *string
+	filterEqLocked      *bool
 	filterEqProjectId   *int32
+	filterEqOwner       *string
+	filterEqName        *string
+	filterEqDescription *string
 }
 
 // Results page you want to retrieve (0..N)
@@ -561,9 +562,21 @@ func (r ApiGetWidgetNamesRequest) PageSort(pageSort string) ApiGetWidgetNamesReq
 	return r
 }
 
-// Filters by &#39;description&#39;
-func (r ApiGetWidgetNamesRequest) FilterEqDescription(filterEqDescription string) ApiGetWidgetNamesRequest {
-	r.filterEqDescription = &filterEqDescription
+// Filters by &#39;id&#39;
+func (r ApiGetWidgetNamesRequest) FilterEqId(filterEqId int32) ApiGetWidgetNamesRequest {
+	r.filterEqId = &filterEqId
+	return r
+}
+
+// Filters by &#39;locked&#39;
+func (r ApiGetWidgetNamesRequest) FilterEqLocked(filterEqLocked bool) ApiGetWidgetNamesRequest {
+	r.filterEqLocked = &filterEqLocked
+	return r
+}
+
+// Filters by &#39;projectId&#39;
+func (r ApiGetWidgetNamesRequest) FilterEqProjectId(filterEqProjectId int32) ApiGetWidgetNamesRequest {
+	r.filterEqProjectId = &filterEqProjectId
 	return r
 }
 
@@ -573,21 +586,15 @@ func (r ApiGetWidgetNamesRequest) FilterEqOwner(filterEqOwner string) ApiGetWidg
 	return r
 }
 
-// Filters by &#39;id&#39;
-func (r ApiGetWidgetNamesRequest) FilterEqId(filterEqId int32) ApiGetWidgetNamesRequest {
-	r.filterEqId = &filterEqId
-	return r
-}
-
 // Filters by &#39;name&#39;
 func (r ApiGetWidgetNamesRequest) FilterEqName(filterEqName string) ApiGetWidgetNamesRequest {
 	r.filterEqName = &filterEqName
 	return r
 }
 
-// Filters by &#39;projectId&#39;
-func (r ApiGetWidgetNamesRequest) FilterEqProjectId(filterEqProjectId int32) ApiGetWidgetNamesRequest {
-	r.filterEqProjectId = &filterEqProjectId
+// Filters by &#39;description&#39;
+func (r ApiGetWidgetNamesRequest) FilterEqDescription(filterEqDescription string) ApiGetWidgetNamesRequest {
+	r.filterEqDescription = &filterEqDescription
 	return r
 }
 
@@ -642,20 +649,23 @@ func (a *WidgetAPIService) GetWidgetNamesExecute(r ApiGetWidgetNamesRequest) (*P
 	if r.pageSort != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "page.sort", r.pageSort, "form", "")
 	}
-	if r.filterEqDescription != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.description", r.filterEqDescription, "form", "")
+	if r.filterEqId != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.id", r.filterEqId, "form", "")
+	}
+	if r.filterEqLocked != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.locked", r.filterEqLocked, "form", "")
+	}
+	if r.filterEqProjectId != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.projectId", r.filterEqProjectId, "form", "")
 	}
 	if r.filterEqOwner != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.owner", r.filterEqOwner, "form", "")
 	}
-	if r.filterEqId != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.id", r.filterEqId, "form", "")
-	}
 	if r.filterEqName != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.name", r.filterEqName, "form", "")
 	}
-	if r.filterEqProjectId != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.projectId", r.filterEqProjectId, "form", "")
+	if r.filterEqDescription != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.description", r.filterEqDescription, "form", "")
 	}
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}

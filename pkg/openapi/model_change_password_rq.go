@@ -3,7 +3,7 @@ ReportPortal
 
 ReportPortal API documentation
 
-API version: 5.14.4
+API version: 5.15.1
 Contact: support@reportportal.io
 */
 
@@ -22,8 +22,8 @@ var _ MappedNullable = &ChangePasswordRQ{}
 
 // ChangePasswordRQ struct for ChangePasswordRQ
 type ChangePasswordRQ struct {
-	NewPassword string `json:"newPassword" validate:"regexp=^(?=.*\\\\d)(?=.*[A-Z])(?=.*[a-z])(?=.*[^a-zA-Z\\\\d\\\\s])([^\\\\s]){8,256}$"`
-	OldPassword string `json:"oldPassword"`
+	NewPassword *string `json:"newPassword,omitempty"`
+	OldPassword string  `json:"oldPassword"`
 }
 
 type _ChangePasswordRQ ChangePasswordRQ
@@ -32,9 +32,8 @@ type _ChangePasswordRQ ChangePasswordRQ
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewChangePasswordRQ(newPassword string, oldPassword string) *ChangePasswordRQ {
+func NewChangePasswordRQ(oldPassword string) *ChangePasswordRQ {
 	this := ChangePasswordRQ{}
-	this.NewPassword = newPassword
 	this.OldPassword = oldPassword
 	return &this
 }
@@ -47,28 +46,36 @@ func NewChangePasswordRQWithDefaults() *ChangePasswordRQ {
 	return &this
 }
 
-// GetNewPassword returns the NewPassword field value
+// GetNewPassword returns the NewPassword field value if set, zero value otherwise.
 func (o *ChangePasswordRQ) GetNewPassword() string {
-	if o == nil {
+	if o == nil || IsNil(o.NewPassword) {
 		var ret string
 		return ret
 	}
-
-	return o.NewPassword
+	return *o.NewPassword
 }
 
-// GetNewPasswordOk returns a tuple with the NewPassword field value
+// GetNewPasswordOk returns a tuple with the NewPassword field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 func (o *ChangePasswordRQ) GetNewPasswordOk() (*string, bool) {
-	if o == nil {
+	if o == nil || IsNil(o.NewPassword) {
 		return nil, false
 	}
-	return &o.NewPassword, true
+	return o.NewPassword, true
 }
 
-// SetNewPassword sets field value
+// HasNewPassword returns a boolean if a field has been set.
+func (o *ChangePasswordRQ) HasNewPassword() bool {
+	if o != nil && !IsNil(o.NewPassword) {
+		return true
+	}
+
+	return false
+}
+
+// SetNewPassword gets a reference to the given string and assigns it to the NewPassword field.
 func (o *ChangePasswordRQ) SetNewPassword(v string) {
-	o.NewPassword = v
+	o.NewPassword = &v
 }
 
 // GetOldPassword returns the OldPassword field value
@@ -105,7 +112,9 @@ func (o ChangePasswordRQ) MarshalJSON() ([]byte, error) {
 
 func (o ChangePasswordRQ) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
-	toSerialize["newPassword"] = o.NewPassword
+	if !IsNil(o.NewPassword) {
+		toSerialize["newPassword"] = o.NewPassword
+	}
 	toSerialize["oldPassword"] = o.OldPassword
 	return toSerialize, nil
 }
@@ -115,7 +124,6 @@ func (o *ChangePasswordRQ) UnmarshalJSON(data []byte) (err error) {
 	// by unmarshalling the object into a generic map with string keys and checking
 	// that every required field exists as a key in the generic map.
 	requiredProperties := []string{
-		"newPassword",
 		"oldPassword",
 	}
 

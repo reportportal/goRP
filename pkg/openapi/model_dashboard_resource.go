@@ -3,7 +3,7 @@ ReportPortal
 
 ReportPortal API documentation
 
-API version: 5.14.4
+API version: 5.15.1
 Contact: support@reportportal.io
 */
 
@@ -24,6 +24,7 @@ var _ MappedNullable = &DashboardResource{}
 type DashboardResource struct {
 	Description *string             `json:"description,omitempty"`
 	Owner       *string             `json:"owner,omitempty"`
+	Locked      *bool               `json:"locked,omitempty"`
 	Id          int64               `json:"id"`
 	Name        string              `json:"name"`
 	Widgets     []WidgetObjectModel `json:"widgets,omitempty"`
@@ -112,6 +113,38 @@ func (o *DashboardResource) HasOwner() bool {
 // SetOwner gets a reference to the given string and assigns it to the Owner field.
 func (o *DashboardResource) SetOwner(v string) {
 	o.Owner = &v
+}
+
+// GetLocked returns the Locked field value if set, zero value otherwise.
+func (o *DashboardResource) GetLocked() bool {
+	if o == nil || IsNil(o.Locked) {
+		var ret bool
+		return ret
+	}
+	return *o.Locked
+}
+
+// GetLockedOk returns a tuple with the Locked field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *DashboardResource) GetLockedOk() (*bool, bool) {
+	if o == nil || IsNil(o.Locked) {
+		return nil, false
+	}
+	return o.Locked, true
+}
+
+// HasLocked returns a boolean if a field has been set.
+func (o *DashboardResource) HasLocked() bool {
+	if o != nil && !IsNil(o.Locked) {
+		return true
+	}
+
+	return false
+}
+
+// SetLocked gets a reference to the given bool and assigns it to the Locked field.
+func (o *DashboardResource) SetLocked(v bool) {
+	o.Locked = &v
 }
 
 // GetId returns the Id field value
@@ -209,6 +242,9 @@ func (o DashboardResource) ToMap() (map[string]interface{}, error) {
 	}
 	if !IsNil(o.Owner) {
 		toSerialize["owner"] = o.Owner
+	}
+	if !IsNil(o.Locked) {
+		toSerialize["locked"] = o.Locked
 	}
 	toSerialize["id"] = o.Id
 	toSerialize["name"] = o.Name

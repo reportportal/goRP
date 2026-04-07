@@ -3,7 +3,7 @@ ReportPortal
 
 ReportPortal API documentation
 
-API version: 5.14.4
+API version: 5.15.1
 Contact: support@reportportal.io
 */
 
@@ -25,6 +25,7 @@ type UserResource struct {
 	Uuid             *string                    `json:"uuid,omitempty"`
 	ExternalId       *string                    `json:"externalId,omitempty"`
 	Active           *bool                      `json:"active,omitempty"`
+	Loaded           *bool                      `json:"loaded,omitempty"`
 	Id               int64                      `json:"id"`
 	UserId           string                     `json:"userId"`
 	Email            string                     `json:"email"`
@@ -33,7 +34,7 @@ type UserResource struct {
 	AccountType      *string                    `json:"accountType,omitempty"`
 	UserRole         *string                    `json:"userRole,omitempty"`
 	PhotoLoaded      *bool                      `json:"photoLoaded,omitempty"`
-	Metadata         map[string]interface{}     `json:"metadata,omitempty"`
+	Metadata         interface{}                `json:"metadata,omitempty"`
 	AssignedProjects map[string]AssignedProject `json:"assignedProjects,omitempty"`
 }
 
@@ -153,6 +154,38 @@ func (o *UserResource) HasActive() bool {
 // SetActive gets a reference to the given bool and assigns it to the Active field.
 func (o *UserResource) SetActive(v bool) {
 	o.Active = &v
+}
+
+// GetLoaded returns the Loaded field value if set, zero value otherwise.
+func (o *UserResource) GetLoaded() bool {
+	if o == nil || IsNil(o.Loaded) {
+		var ret bool
+		return ret
+	}
+	return *o.Loaded
+}
+
+// GetLoadedOk returns a tuple with the Loaded field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *UserResource) GetLoadedOk() (*bool, bool) {
+	if o == nil || IsNil(o.Loaded) {
+		return nil, false
+	}
+	return o.Loaded, true
+}
+
+// HasLoaded returns a boolean if a field has been set.
+func (o *UserResource) HasLoaded() bool {
+	if o != nil && !IsNil(o.Loaded) {
+		return true
+	}
+
+	return false
+}
+
+// SetLoaded gets a reference to the given bool and assigns it to the Loaded field.
+func (o *UserResource) SetLoaded(v bool) {
+	o.Loaded = &v
 }
 
 // GetId returns the Id field value
@@ -387,10 +420,10 @@ func (o *UserResource) SetPhotoLoaded(v bool) {
 	o.PhotoLoaded = &v
 }
 
-// GetMetadata returns the Metadata field value if set, zero value otherwise.
-func (o *UserResource) GetMetadata() map[string]interface{} {
-	if o == nil || IsNil(o.Metadata) {
-		var ret map[string]interface{}
+// GetMetadata returns the Metadata field value if set, zero value otherwise (both if not set or set to explicit null).
+func (o *UserResource) GetMetadata() interface{} {
+	if o == nil {
+		var ret interface{}
 		return ret
 	}
 	return o.Metadata
@@ -398,11 +431,12 @@ func (o *UserResource) GetMetadata() map[string]interface{} {
 
 // GetMetadataOk returns a tuple with the Metadata field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *UserResource) GetMetadataOk() (map[string]interface{}, bool) {
+// NOTE: If the value is an explicit nil, `nil, true` will be returned
+func (o *UserResource) GetMetadataOk() (*interface{}, bool) {
 	if o == nil || IsNil(o.Metadata) {
-		return map[string]interface{}{}, false
+		return nil, false
 	}
-	return o.Metadata, true
+	return &o.Metadata, true
 }
 
 // HasMetadata returns a boolean if a field has been set.
@@ -414,8 +448,8 @@ func (o *UserResource) HasMetadata() bool {
 	return false
 }
 
-// SetMetadata gets a reference to the given map[string]interface{} and assigns it to the Metadata field.
-func (o *UserResource) SetMetadata(v map[string]interface{}) {
+// SetMetadata gets a reference to the given interface{} and assigns it to the Metadata field.
+func (o *UserResource) SetMetadata(v interface{}) {
 	o.Metadata = v
 }
 
@@ -470,6 +504,9 @@ func (o UserResource) ToMap() (map[string]interface{}, error) {
 	if !IsNil(o.Active) {
 		toSerialize["active"] = o.Active
 	}
+	if !IsNil(o.Loaded) {
+		toSerialize["loaded"] = o.Loaded
+	}
 	toSerialize["id"] = o.Id
 	toSerialize["userId"] = o.UserId
 	toSerialize["email"] = o.Email
@@ -488,7 +525,7 @@ func (o UserResource) ToMap() (map[string]interface{}, error) {
 	if !IsNil(o.PhotoLoaded) {
 		toSerialize["photoLoaded"] = o.PhotoLoaded
 	}
-	if !IsNil(o.Metadata) {
+	if o.Metadata != nil {
 		toSerialize["metadata"] = o.Metadata
 	}
 	if !IsNil(o.AssignedProjects) {

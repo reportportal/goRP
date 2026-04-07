@@ -1,4 +1,5 @@
 .gitignore
+.openapi-generator-ignore
 .travis.yml
 README.md
 api/openapi.yaml
@@ -45,6 +46,7 @@ model_batch_element_created_rs.go
 model_batch_save_operating_rs.go
 model_binary_content.go
 model_bulk_info_update_rq.go
+model_bulk_items_rq.go
 model_bulk_rq_long_finish_execution_rq.go
 model_bulk_rq_long_update_launch_rq.go
 model_bulk_update_filter_rq.go
@@ -75,12 +77,14 @@ model_description.go
 model_edit_user_rq.go
 model_entry_created_async_rs.go
 model_entry_created_rs.go
+model_error.go
 model_error_rs.go
 model_external_system_issue.go
 model_file.go
 model_finish_execution_rq.go
 model_finish_launch_rs.go
 model_finish_test_item_rq.go
+model_get_log_types200_response.go
 model_get_logs_under_rq.go
 model_group_info.go
 model_group_info_stats.go
@@ -107,6 +111,9 @@ model_launches_per_user.go
 model_link_external_issue_rq.go
 model_log_entry.go
 model_log_resource.go
+model_log_type_request.go
+model_log_type_response.go
+model_log_type_style.go
 model_merge_launches_rq.go
 model_multi_value_map_string_string.go
 model_named_value.go
@@ -121,6 +128,7 @@ model_page_log_resource.go
 model_page_metadata.go
 model_page_object.go
 model_page_owned_entity_resource.go
+model_page_paged_log_resource.go
 model_page_project_info_resource.go
 model_page_search_user_resource.go
 model_page_test_item_history_element.go
@@ -131,13 +139,13 @@ model_paged_log_resource.go
 model_paged_log_resource_pages_location_inner.go
 model_paged_response_activity_event_resource.go
 model_parameter_resource.go
+model_patch_dashboard_rq.go
 model_path_name_resource.go
 model_pattern_template_resource.go
 model_position.go
 model_post_form_field.go
 model_post_ticket_rq.go
 model_preference_resource.go
-model_problem.go
 model_project_configuration.go
 model_project_configuration_update.go
 model_project_group_info.go

@@ -3,7 +3,7 @@ ReportPortal
 
 ReportPortal API documentation
 
-API version: 5.14.4
+API version: 5.15.1
 Contact: support@reportportal.io
 */
 
@@ -197,40 +197,28 @@ type ApiGetTestItemActivitiesRequest struct {
 	ApiService          *ActivityAPIService
 	itemId              int64
 	projectName         string
-	filterEqId          *int32
-	filterEqAction      *string
-	filterEqObjectId    *int32
+	filterEqObjectName  *string
 	filterEqSubjectName *string
 	filterEqProjectName *string
-	filterEqUser        *string
-	filterEqCreatedAt   *string
-	filterEqObjectName  *string
-	filterEqSubjectType *string
-	filterEqPriority    *string
+	filterEqObjectId    *int32
 	filterEqSubjectId   *int32
-	filterEqEventName   *string
 	filterEqObjectType  *string
+	filterEqSubjectType *string
+	filterEqUser        *string
+	filterEqPriority    *string
+	filterEqId          *int32
+	filterEqEventName   *string
 	filterEqProjectId   *int32
+	filterEqAction      *string
+	filterEqCreatedAt   *string
 	pagePage            *int32
 	pageSize            *int32
 	pageSort            *string
 }
 
-// Filters by &#39;id&#39;
-func (r ApiGetTestItemActivitiesRequest) FilterEqId(filterEqId int32) ApiGetTestItemActivitiesRequest {
-	r.filterEqId = &filterEqId
-	return r
-}
-
-// Filters by &#39;action&#39;
-func (r ApiGetTestItemActivitiesRequest) FilterEqAction(filterEqAction string) ApiGetTestItemActivitiesRequest {
-	r.filterEqAction = &filterEqAction
-	return r
-}
-
-// Filters by &#39;objectId&#39;
-func (r ApiGetTestItemActivitiesRequest) FilterEqObjectId(filterEqObjectId int32) ApiGetTestItemActivitiesRequest {
-	r.filterEqObjectId = &filterEqObjectId
+// Filters by &#39;objectName&#39;
+func (r ApiGetTestItemActivitiesRequest) FilterEqObjectName(filterEqObjectName string) ApiGetTestItemActivitiesRequest {
+	r.filterEqObjectName = &filterEqObjectName
 	return r
 }
 
@@ -246,33 +234,9 @@ func (r ApiGetTestItemActivitiesRequest) FilterEqProjectName(filterEqProjectName
 	return r
 }
 
-// Filters by &#39;user&#39;
-func (r ApiGetTestItemActivitiesRequest) FilterEqUser(filterEqUser string) ApiGetTestItemActivitiesRequest {
-	r.filterEqUser = &filterEqUser
-	return r
-}
-
-// Filters by &#39;createdAt&#39;
-func (r ApiGetTestItemActivitiesRequest) FilterEqCreatedAt(filterEqCreatedAt string) ApiGetTestItemActivitiesRequest {
-	r.filterEqCreatedAt = &filterEqCreatedAt
-	return r
-}
-
-// Filters by &#39;objectName&#39;
-func (r ApiGetTestItemActivitiesRequest) FilterEqObjectName(filterEqObjectName string) ApiGetTestItemActivitiesRequest {
-	r.filterEqObjectName = &filterEqObjectName
-	return r
-}
-
-// Filters by &#39;subjectType&#39;
-func (r ApiGetTestItemActivitiesRequest) FilterEqSubjectType(filterEqSubjectType string) ApiGetTestItemActivitiesRequest {
-	r.filterEqSubjectType = &filterEqSubjectType
-	return r
-}
-
-// Filters by &#39;priority&#39;
-func (r ApiGetTestItemActivitiesRequest) FilterEqPriority(filterEqPriority string) ApiGetTestItemActivitiesRequest {
-	r.filterEqPriority = &filterEqPriority
+// Filters by &#39;objectId&#39;
+func (r ApiGetTestItemActivitiesRequest) FilterEqObjectId(filterEqObjectId int32) ApiGetTestItemActivitiesRequest {
+	r.filterEqObjectId = &filterEqObjectId
 	return r
 }
 
@@ -282,21 +246,57 @@ func (r ApiGetTestItemActivitiesRequest) FilterEqSubjectId(filterEqSubjectId int
 	return r
 }
 
-// Filters by &#39;eventName&#39;
-func (r ApiGetTestItemActivitiesRequest) FilterEqEventName(filterEqEventName string) ApiGetTestItemActivitiesRequest {
-	r.filterEqEventName = &filterEqEventName
-	return r
-}
-
 // Filters by &#39;objectType&#39;
 func (r ApiGetTestItemActivitiesRequest) FilterEqObjectType(filterEqObjectType string) ApiGetTestItemActivitiesRequest {
 	r.filterEqObjectType = &filterEqObjectType
 	return r
 }
 
+// Filters by &#39;subjectType&#39;
+func (r ApiGetTestItemActivitiesRequest) FilterEqSubjectType(filterEqSubjectType string) ApiGetTestItemActivitiesRequest {
+	r.filterEqSubjectType = &filterEqSubjectType
+	return r
+}
+
+// Filters by &#39;user&#39;
+func (r ApiGetTestItemActivitiesRequest) FilterEqUser(filterEqUser string) ApiGetTestItemActivitiesRequest {
+	r.filterEqUser = &filterEqUser
+	return r
+}
+
+// Filters by &#39;priority&#39;
+func (r ApiGetTestItemActivitiesRequest) FilterEqPriority(filterEqPriority string) ApiGetTestItemActivitiesRequest {
+	r.filterEqPriority = &filterEqPriority
+	return r
+}
+
+// Filters by &#39;id&#39;
+func (r ApiGetTestItemActivitiesRequest) FilterEqId(filterEqId int32) ApiGetTestItemActivitiesRequest {
+	r.filterEqId = &filterEqId
+	return r
+}
+
+// Filters by &#39;eventName&#39;
+func (r ApiGetTestItemActivitiesRequest) FilterEqEventName(filterEqEventName string) ApiGetTestItemActivitiesRequest {
+	r.filterEqEventName = &filterEqEventName
+	return r
+}
+
 // Filters by &#39;projectId&#39;
 func (r ApiGetTestItemActivitiesRequest) FilterEqProjectId(filterEqProjectId int32) ApiGetTestItemActivitiesRequest {
 	r.filterEqProjectId = &filterEqProjectId
+	return r
+}
+
+// Filters by &#39;action&#39;
+func (r ApiGetTestItemActivitiesRequest) FilterEqAction(filterEqAction string) ApiGetTestItemActivitiesRequest {
+	r.filterEqAction = &filterEqAction
+	return r
+}
+
+// Filters by &#39;createdAt&#39;
+func (r ApiGetTestItemActivitiesRequest) FilterEqCreatedAt(filterEqCreatedAt string) ApiGetTestItemActivitiesRequest {
+	r.filterEqCreatedAt = &filterEqCreatedAt
 	return r
 }
 
@@ -440,14 +440,8 @@ func (a *ActivityAPIService) GetTestItemActivitiesExecute(r ApiGetTestItemActivi
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	if r.filterEqId != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.id", r.filterEqId, "form", "")
-	}
-	if r.filterEqAction != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.action", r.filterEqAction, "form", "")
-	}
-	if r.filterEqObjectId != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.objectId", r.filterEqObjectId, "form", "")
+	if r.filterEqObjectName != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.objectName", r.filterEqObjectName, "form", "")
 	}
 	if r.filterEqSubjectName != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.subjectName", r.filterEqSubjectName, "form", "")
@@ -455,32 +449,38 @@ func (a *ActivityAPIService) GetTestItemActivitiesExecute(r ApiGetTestItemActivi
 	if r.filterEqProjectName != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.projectName", r.filterEqProjectName, "form", "")
 	}
-	if r.filterEqUser != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.user", r.filterEqUser, "form", "")
-	}
-	if r.filterEqCreatedAt != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.createdAt", r.filterEqCreatedAt, "form", "")
-	}
-	if r.filterEqObjectName != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.objectName", r.filterEqObjectName, "form", "")
-	}
-	if r.filterEqSubjectType != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.subjectType", r.filterEqSubjectType, "form", "")
-	}
-	if r.filterEqPriority != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.priority", r.filterEqPriority, "form", "")
+	if r.filterEqObjectId != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.objectId", r.filterEqObjectId, "form", "")
 	}
 	if r.filterEqSubjectId != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.subjectId", r.filterEqSubjectId, "form", "")
 	}
-	if r.filterEqEventName != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.eventName", r.filterEqEventName, "form", "")
-	}
 	if r.filterEqObjectType != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.objectType", r.filterEqObjectType, "form", "")
 	}
+	if r.filterEqSubjectType != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.subjectType", r.filterEqSubjectType, "form", "")
+	}
+	if r.filterEqUser != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.user", r.filterEqUser, "form", "")
+	}
+	if r.filterEqPriority != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.priority", r.filterEqPriority, "form", "")
+	}
+	if r.filterEqId != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.id", r.filterEqId, "form", "")
+	}
+	if r.filterEqEventName != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.eventName", r.filterEqEventName, "form", "")
+	}
 	if r.filterEqProjectId != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.projectId", r.filterEqProjectId, "form", "")
+	}
+	if r.filterEqAction != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.action", r.filterEqAction, "form", "")
+	}
+	if r.filterEqCreatedAt != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.createdAt", r.filterEqCreatedAt, "form", "")
 	}
 	if r.pagePage != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "page.page", r.pagePage, "form", "")

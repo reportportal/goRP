@@ -3,7 +3,7 @@ ReportPortal
 
 ReportPortal API documentation
 
-API version: 5.14.4
+API version: 5.15.1
 Contact: support@reportportal.io
 */
 
@@ -1760,55 +1760,55 @@ type ApiGetItemsHistoryRequest struct {
 	isLatest                                    *bool
 	launchesLimit                               *int32
 	type_                                       *string
-	filterEqUuid                                *string
-	filterEqAttributeValue                      *[]interface{}
-	filterEqLevelAttribute                      *[]interface{}
-	filterEqId                                  *int32
-	filterEqStatus                              *string
-	filterEqStartTime                           *string
-	filterEqIssueType                           *string
-	filterEqClusterId                           *int32
-	filterEqPath                                *int32
-	filterEqIssueGroupId                        *string
-	filterEqHasRetries                          *bool
-	filterEqIssueTypeId                         *int32
-	filterEqValue                               *string
-	filterEqDuration                            *int32
-	filterHasCompositeAttribute                 *string
-	filterEqEndTime                             *string
-	filterEqStatisticsexecutionspassed          *int32
-	filterEqName                                *string
-	filterEqAutoAnalyzed                        *bool
 	filterEqLocator                             *string
-	filterEqDescription                         *string
-	filterEqStatisticsexecutionsfailed          *int32
-	filterEqTestCaseHash                        *int32
-	filterEqStatisticsdefectssystemIssuesi001   *int32
-	filterEqHasStats                            *bool
-	filterEqStatisticsexecutionstotal           *int32
-	filterEqStatisticsexecutionsskipped         *int32
-	filterEqLastModified                        *string
-	filterEqStatisticsdefectsproductBugpb001    *int32
-	filterEqStatisticsdefectsautomationBugab001 *int32
-	filterEqType                                *string
-	filterEqIssueId                             *int32
-	filterEqMode                                *string
-	filterEqTestCaseId                          *string
-	filterEqUniqueId                            *string
-	filterHasCompositeSystemAttribute           *string
-	filterEqProjectId                           *int32
-	filterEqIssueComment                        *string
-	filterEqIgnoreAnalyzer                      *bool
-	filterEqLaunchId                            *int32
+	filterEqHasRetries                          *bool
+	filterEqEndTime                             *string
 	filterEqStatisticsdefectsnoDefectnd001      *int32
-	filterEqHasChildren                         *bool
-	filterEqPatternName                         *[]interface{}
-	filterEqRetryParentId                       *int32
+	filterEqId                                  *int32
 	filterEqTicketId                            *string
-	filterEqAttributeKey                        *[]interface{}
-	filterEqKey                                 *string
 	filterEqParentId                            *int32
+	filterEqHasStats                            *bool
+	filterEqTestCaseHash                        *int32
 	filterEqStatisticsdefectstoInvestigateti001 *int32
+	filterEqUuid                                *string
+	filterEqStatisticsdefectssystemIssuesi001   *int32
+	filterEqIssueType                           *string
+	filterEqStatisticsexecutionsskipped         *int32
+	filterEqType                                *string
+	filterEqStatisticsdefectsautomationBugab001 *int32
+	filterEqAttributeValue                      *[]interface{}
+	filterEqPath                                *int32
+	filterHasCompositeSystemAttribute           *string
+	filterEqIssueGroupId                        *string
+	filterEqDescription                         *string
+	filterEqUniqueId                            *string
+	filterEqStatisticsexecutionspassed          *int32
+	filterEqIgnoreAnalyzer                      *bool
+	filterEqIssueComment                        *string
+	filterEqStartTime                           *string
+	filterHasCompositeAttribute                 *string
+	filterEqValue                               *string
+	filterEqIssueTypeId                         *int32
+	filterEqName                                *string
+	filterEqPatternName                         *[]interface{}
+	filterEqLaunchId                            *int32
+	filterEqAttributeKey                        *[]interface{}
+	filterEqHasChildren                         *bool
+	filterEqRetryParentId                       *int32
+	filterEqStatisticsexecutionstotal           *int32
+	filterEqStatisticsdefectsproductBugpb001    *int32
+	filterEqStatisticsexecutionsfailed          *int32
+	filterEqLastModified                        *string
+	filterEqStatus                              *string
+	filterEqTestCaseId                          *string
+	filterEqKey                                 *string
+	filterEqAutoAnalyzed                        *bool
+	filterEqLevelAttribute                      *[]interface{}
+	filterEqMode                                *string
+	filterEqClusterId                           *int32
+	filterEqIssueId                             *int32
+	filterEqDuration                            *int32
+	filterEqProjectId                           *int32
 	pagePage                                    *int32
 	pageSize                                    *int32
 	pageSort                                    *string
@@ -1839,63 +1839,9 @@ func (r ApiGetItemsHistoryRequest) Type_(type_ string) ApiGetItemsHistoryRequest
 	return r
 }
 
-// Filters by &#39;uuid&#39;
-func (r ApiGetItemsHistoryRequest) FilterEqUuid(filterEqUuid string) ApiGetItemsHistoryRequest {
-	r.filterEqUuid = &filterEqUuid
-	return r
-}
-
-// Filters by &#39;attributeValue&#39;
-func (r ApiGetItemsHistoryRequest) FilterEqAttributeValue(filterEqAttributeValue []interface{}) ApiGetItemsHistoryRequest {
-	r.filterEqAttributeValue = &filterEqAttributeValue
-	return r
-}
-
-// Filters by &#39;levelAttribute&#39;
-func (r ApiGetItemsHistoryRequest) FilterEqLevelAttribute(filterEqLevelAttribute []interface{}) ApiGetItemsHistoryRequest {
-	r.filterEqLevelAttribute = &filterEqLevelAttribute
-	return r
-}
-
-// Filters by &#39;id&#39;
-func (r ApiGetItemsHistoryRequest) FilterEqId(filterEqId int32) ApiGetItemsHistoryRequest {
-	r.filterEqId = &filterEqId
-	return r
-}
-
-// Filters by &#39;status&#39;
-func (r ApiGetItemsHistoryRequest) FilterEqStatus(filterEqStatus string) ApiGetItemsHistoryRequest {
-	r.filterEqStatus = &filterEqStatus
-	return r
-}
-
-// Filters by &#39;startTime&#39;
-func (r ApiGetItemsHistoryRequest) FilterEqStartTime(filterEqStartTime string) ApiGetItemsHistoryRequest {
-	r.filterEqStartTime = &filterEqStartTime
-	return r
-}
-
-// Filters by &#39;issueType&#39;
-func (r ApiGetItemsHistoryRequest) FilterEqIssueType(filterEqIssueType string) ApiGetItemsHistoryRequest {
-	r.filterEqIssueType = &filterEqIssueType
-	return r
-}
-
-// Filters by &#39;clusterId&#39;
-func (r ApiGetItemsHistoryRequest) FilterEqClusterId(filterEqClusterId int32) ApiGetItemsHistoryRequest {
-	r.filterEqClusterId = &filterEqClusterId
-	return r
-}
-
-// Filters by &#39;path&#39;
-func (r ApiGetItemsHistoryRequest) FilterEqPath(filterEqPath int32) ApiGetItemsHistoryRequest {
-	r.filterEqPath = &filterEqPath
-	return r
-}
-
-// Filters by &#39;issueGroupId&#39;
-func (r ApiGetItemsHistoryRequest) FilterEqIssueGroupId(filterEqIssueGroupId string) ApiGetItemsHistoryRequest {
-	r.filterEqIssueGroupId = &filterEqIssueGroupId
+// Filters by &#39;locator&#39;
+func (r ApiGetItemsHistoryRequest) FilterEqLocator(filterEqLocator string) ApiGetItemsHistoryRequest {
+	r.filterEqLocator = &filterEqLocator
 	return r
 }
 
@@ -1905,177 +1851,9 @@ func (r ApiGetItemsHistoryRequest) FilterEqHasRetries(filterEqHasRetries bool) A
 	return r
 }
 
-// Filters by &#39;issueTypeId&#39;
-func (r ApiGetItemsHistoryRequest) FilterEqIssueTypeId(filterEqIssueTypeId int32) ApiGetItemsHistoryRequest {
-	r.filterEqIssueTypeId = &filterEqIssueTypeId
-	return r
-}
-
-// Filters by &#39;value&#39;
-func (r ApiGetItemsHistoryRequest) FilterEqValue(filterEqValue string) ApiGetItemsHistoryRequest {
-	r.filterEqValue = &filterEqValue
-	return r
-}
-
-// Filters by &#39;duration&#39;
-func (r ApiGetItemsHistoryRequest) FilterEqDuration(filterEqDuration int32) ApiGetItemsHistoryRequest {
-	r.filterEqDuration = &filterEqDuration
-	return r
-}
-
-// Filters by &#39;compositeAttribute&#39;
-func (r ApiGetItemsHistoryRequest) FilterHasCompositeAttribute(filterHasCompositeAttribute string) ApiGetItemsHistoryRequest {
-	r.filterHasCompositeAttribute = &filterHasCompositeAttribute
-	return r
-}
-
 // Filters by &#39;endTime&#39;
 func (r ApiGetItemsHistoryRequest) FilterEqEndTime(filterEqEndTime string) ApiGetItemsHistoryRequest {
 	r.filterEqEndTime = &filterEqEndTime
-	return r
-}
-
-// Filters by &#39;statistics$executions$passed&#39;
-func (r ApiGetItemsHistoryRequest) FilterEqStatisticsexecutionspassed(filterEqStatisticsexecutionspassed int32) ApiGetItemsHistoryRequest {
-	r.filterEqStatisticsexecutionspassed = &filterEqStatisticsexecutionspassed
-	return r
-}
-
-// Filters by &#39;name&#39;
-func (r ApiGetItemsHistoryRequest) FilterEqName(filterEqName string) ApiGetItemsHistoryRequest {
-	r.filterEqName = &filterEqName
-	return r
-}
-
-// Filters by &#39;autoAnalyzed&#39;
-func (r ApiGetItemsHistoryRequest) FilterEqAutoAnalyzed(filterEqAutoAnalyzed bool) ApiGetItemsHistoryRequest {
-	r.filterEqAutoAnalyzed = &filterEqAutoAnalyzed
-	return r
-}
-
-// Filters by &#39;locator&#39;
-func (r ApiGetItemsHistoryRequest) FilterEqLocator(filterEqLocator string) ApiGetItemsHistoryRequest {
-	r.filterEqLocator = &filterEqLocator
-	return r
-}
-
-// Filters by &#39;description&#39;
-func (r ApiGetItemsHistoryRequest) FilterEqDescription(filterEqDescription string) ApiGetItemsHistoryRequest {
-	r.filterEqDescription = &filterEqDescription
-	return r
-}
-
-// Filters by &#39;statistics$executions$failed&#39;
-func (r ApiGetItemsHistoryRequest) FilterEqStatisticsexecutionsfailed(filterEqStatisticsexecutionsfailed int32) ApiGetItemsHistoryRequest {
-	r.filterEqStatisticsexecutionsfailed = &filterEqStatisticsexecutionsfailed
-	return r
-}
-
-// Filters by &#39;testCaseHash&#39;
-func (r ApiGetItemsHistoryRequest) FilterEqTestCaseHash(filterEqTestCaseHash int32) ApiGetItemsHistoryRequest {
-	r.filterEqTestCaseHash = &filterEqTestCaseHash
-	return r
-}
-
-// Filters by &#39;statistics$defects$system_issue$si001&#39;
-func (r ApiGetItemsHistoryRequest) FilterEqStatisticsdefectssystemIssuesi001(filterEqStatisticsdefectssystemIssuesi001 int32) ApiGetItemsHistoryRequest {
-	r.filterEqStatisticsdefectssystemIssuesi001 = &filterEqStatisticsdefectssystemIssuesi001
-	return r
-}
-
-// Filters by &#39;hasStats&#39;
-func (r ApiGetItemsHistoryRequest) FilterEqHasStats(filterEqHasStats bool) ApiGetItemsHistoryRequest {
-	r.filterEqHasStats = &filterEqHasStats
-	return r
-}
-
-// Filters by &#39;statistics$executions$total&#39;
-func (r ApiGetItemsHistoryRequest) FilterEqStatisticsexecutionstotal(filterEqStatisticsexecutionstotal int32) ApiGetItemsHistoryRequest {
-	r.filterEqStatisticsexecutionstotal = &filterEqStatisticsexecutionstotal
-	return r
-}
-
-// Filters by &#39;statistics$executions$skipped&#39;
-func (r ApiGetItemsHistoryRequest) FilterEqStatisticsexecutionsskipped(filterEqStatisticsexecutionsskipped int32) ApiGetItemsHistoryRequest {
-	r.filterEqStatisticsexecutionsskipped = &filterEqStatisticsexecutionsskipped
-	return r
-}
-
-// Filters by &#39;lastModified&#39;
-func (r ApiGetItemsHistoryRequest) FilterEqLastModified(filterEqLastModified string) ApiGetItemsHistoryRequest {
-	r.filterEqLastModified = &filterEqLastModified
-	return r
-}
-
-// Filters by &#39;statistics$defects$product_bug$pb001&#39;
-func (r ApiGetItemsHistoryRequest) FilterEqStatisticsdefectsproductBugpb001(filterEqStatisticsdefectsproductBugpb001 int32) ApiGetItemsHistoryRequest {
-	r.filterEqStatisticsdefectsproductBugpb001 = &filterEqStatisticsdefectsproductBugpb001
-	return r
-}
-
-// Filters by &#39;statistics$defects$automation_bug$ab001&#39;
-func (r ApiGetItemsHistoryRequest) FilterEqStatisticsdefectsautomationBugab001(filterEqStatisticsdefectsautomationBugab001 int32) ApiGetItemsHistoryRequest {
-	r.filterEqStatisticsdefectsautomationBugab001 = &filterEqStatisticsdefectsautomationBugab001
-	return r
-}
-
-// Filters by &#39;type&#39;
-func (r ApiGetItemsHistoryRequest) FilterEqType(filterEqType string) ApiGetItemsHistoryRequest {
-	r.filterEqType = &filterEqType
-	return r
-}
-
-// Filters by &#39;issueId&#39;
-func (r ApiGetItemsHistoryRequest) FilterEqIssueId(filterEqIssueId int32) ApiGetItemsHistoryRequest {
-	r.filterEqIssueId = &filterEqIssueId
-	return r
-}
-
-// Filters by &#39;mode&#39;
-func (r ApiGetItemsHistoryRequest) FilterEqMode(filterEqMode string) ApiGetItemsHistoryRequest {
-	r.filterEqMode = &filterEqMode
-	return r
-}
-
-// Filters by &#39;testCaseId&#39;
-func (r ApiGetItemsHistoryRequest) FilterEqTestCaseId(filterEqTestCaseId string) ApiGetItemsHistoryRequest {
-	r.filterEqTestCaseId = &filterEqTestCaseId
-	return r
-}
-
-// Filters by &#39;uniqueId&#39;
-func (r ApiGetItemsHistoryRequest) FilterEqUniqueId(filterEqUniqueId string) ApiGetItemsHistoryRequest {
-	r.filterEqUniqueId = &filterEqUniqueId
-	return r
-}
-
-// Filters by &#39;compositeSystemAttribute&#39;
-func (r ApiGetItemsHistoryRequest) FilterHasCompositeSystemAttribute(filterHasCompositeSystemAttribute string) ApiGetItemsHistoryRequest {
-	r.filterHasCompositeSystemAttribute = &filterHasCompositeSystemAttribute
-	return r
-}
-
-// Filters by &#39;projectId&#39;
-func (r ApiGetItemsHistoryRequest) FilterEqProjectId(filterEqProjectId int32) ApiGetItemsHistoryRequest {
-	r.filterEqProjectId = &filterEqProjectId
-	return r
-}
-
-// Filters by &#39;issueComment&#39;
-func (r ApiGetItemsHistoryRequest) FilterEqIssueComment(filterEqIssueComment string) ApiGetItemsHistoryRequest {
-	r.filterEqIssueComment = &filterEqIssueComment
-	return r
-}
-
-// Filters by &#39;ignoreAnalyzer&#39;
-func (r ApiGetItemsHistoryRequest) FilterEqIgnoreAnalyzer(filterEqIgnoreAnalyzer bool) ApiGetItemsHistoryRequest {
-	r.filterEqIgnoreAnalyzer = &filterEqIgnoreAnalyzer
-	return r
-}
-
-// Filters by &#39;launchId&#39;
-func (r ApiGetItemsHistoryRequest) FilterEqLaunchId(filterEqLaunchId int32) ApiGetItemsHistoryRequest {
-	r.filterEqLaunchId = &filterEqLaunchId
 	return r
 }
 
@@ -2085,21 +1863,9 @@ func (r ApiGetItemsHistoryRequest) FilterEqStatisticsdefectsnoDefectnd001(filter
 	return r
 }
 
-// Filters by &#39;hasChildren&#39;
-func (r ApiGetItemsHistoryRequest) FilterEqHasChildren(filterEqHasChildren bool) ApiGetItemsHistoryRequest {
-	r.filterEqHasChildren = &filterEqHasChildren
-	return r
-}
-
-// Filters by &#39;patternName&#39;
-func (r ApiGetItemsHistoryRequest) FilterEqPatternName(filterEqPatternName []interface{}) ApiGetItemsHistoryRequest {
-	r.filterEqPatternName = &filterEqPatternName
-	return r
-}
-
-// Filters by &#39;retryParentId&#39;
-func (r ApiGetItemsHistoryRequest) FilterEqRetryParentId(filterEqRetryParentId int32) ApiGetItemsHistoryRequest {
-	r.filterEqRetryParentId = &filterEqRetryParentId
+// Filters by &#39;id&#39;
+func (r ApiGetItemsHistoryRequest) FilterEqId(filterEqId int32) ApiGetItemsHistoryRequest {
+	r.filterEqId = &filterEqId
 	return r
 }
 
@@ -2109,9 +1875,213 @@ func (r ApiGetItemsHistoryRequest) FilterEqTicketId(filterEqTicketId string) Api
 	return r
 }
 
+// Filters by &#39;parentId&#39;
+func (r ApiGetItemsHistoryRequest) FilterEqParentId(filterEqParentId int32) ApiGetItemsHistoryRequest {
+	r.filterEqParentId = &filterEqParentId
+	return r
+}
+
+// Filters by &#39;hasStats&#39;
+func (r ApiGetItemsHistoryRequest) FilterEqHasStats(filterEqHasStats bool) ApiGetItemsHistoryRequest {
+	r.filterEqHasStats = &filterEqHasStats
+	return r
+}
+
+// Filters by &#39;testCaseHash&#39;
+func (r ApiGetItemsHistoryRequest) FilterEqTestCaseHash(filterEqTestCaseHash int32) ApiGetItemsHistoryRequest {
+	r.filterEqTestCaseHash = &filterEqTestCaseHash
+	return r
+}
+
+// Filters by &#39;statistics$defects$to_investigate$ti001&#39;
+func (r ApiGetItemsHistoryRequest) FilterEqStatisticsdefectstoInvestigateti001(filterEqStatisticsdefectstoInvestigateti001 int32) ApiGetItemsHistoryRequest {
+	r.filterEqStatisticsdefectstoInvestigateti001 = &filterEqStatisticsdefectstoInvestigateti001
+	return r
+}
+
+// Filters by &#39;uuid&#39;
+func (r ApiGetItemsHistoryRequest) FilterEqUuid(filterEqUuid string) ApiGetItemsHistoryRequest {
+	r.filterEqUuid = &filterEqUuid
+	return r
+}
+
+// Filters by &#39;statistics$defects$system_issue$si001&#39;
+func (r ApiGetItemsHistoryRequest) FilterEqStatisticsdefectssystemIssuesi001(filterEqStatisticsdefectssystemIssuesi001 int32) ApiGetItemsHistoryRequest {
+	r.filterEqStatisticsdefectssystemIssuesi001 = &filterEqStatisticsdefectssystemIssuesi001
+	return r
+}
+
+// Filters by &#39;issueType&#39;
+func (r ApiGetItemsHistoryRequest) FilterEqIssueType(filterEqIssueType string) ApiGetItemsHistoryRequest {
+	r.filterEqIssueType = &filterEqIssueType
+	return r
+}
+
+// Filters by &#39;statistics$executions$skipped&#39;
+func (r ApiGetItemsHistoryRequest) FilterEqStatisticsexecutionsskipped(filterEqStatisticsexecutionsskipped int32) ApiGetItemsHistoryRequest {
+	r.filterEqStatisticsexecutionsskipped = &filterEqStatisticsexecutionsskipped
+	return r
+}
+
+// Filters by &#39;type&#39;
+func (r ApiGetItemsHistoryRequest) FilterEqType(filterEqType string) ApiGetItemsHistoryRequest {
+	r.filterEqType = &filterEqType
+	return r
+}
+
+// Filters by &#39;statistics$defects$automation_bug$ab001&#39;
+func (r ApiGetItemsHistoryRequest) FilterEqStatisticsdefectsautomationBugab001(filterEqStatisticsdefectsautomationBugab001 int32) ApiGetItemsHistoryRequest {
+	r.filterEqStatisticsdefectsautomationBugab001 = &filterEqStatisticsdefectsautomationBugab001
+	return r
+}
+
+// Filters by &#39;attributeValue&#39;
+func (r ApiGetItemsHistoryRequest) FilterEqAttributeValue(filterEqAttributeValue []interface{}) ApiGetItemsHistoryRequest {
+	r.filterEqAttributeValue = &filterEqAttributeValue
+	return r
+}
+
+// Filters by &#39;path&#39;
+func (r ApiGetItemsHistoryRequest) FilterEqPath(filterEqPath int32) ApiGetItemsHistoryRequest {
+	r.filterEqPath = &filterEqPath
+	return r
+}
+
+// Filters by &#39;compositeSystemAttribute&#39;
+func (r ApiGetItemsHistoryRequest) FilterHasCompositeSystemAttribute(filterHasCompositeSystemAttribute string) ApiGetItemsHistoryRequest {
+	r.filterHasCompositeSystemAttribute = &filterHasCompositeSystemAttribute
+	return r
+}
+
+// Filters by &#39;issueGroupId&#39;
+func (r ApiGetItemsHistoryRequest) FilterEqIssueGroupId(filterEqIssueGroupId string) ApiGetItemsHistoryRequest {
+	r.filterEqIssueGroupId = &filterEqIssueGroupId
+	return r
+}
+
+// Filters by &#39;description&#39;
+func (r ApiGetItemsHistoryRequest) FilterEqDescription(filterEqDescription string) ApiGetItemsHistoryRequest {
+	r.filterEqDescription = &filterEqDescription
+	return r
+}
+
+// Filters by &#39;uniqueId&#39;
+func (r ApiGetItemsHistoryRequest) FilterEqUniqueId(filterEqUniqueId string) ApiGetItemsHistoryRequest {
+	r.filterEqUniqueId = &filterEqUniqueId
+	return r
+}
+
+// Filters by &#39;statistics$executions$passed&#39;
+func (r ApiGetItemsHistoryRequest) FilterEqStatisticsexecutionspassed(filterEqStatisticsexecutionspassed int32) ApiGetItemsHistoryRequest {
+	r.filterEqStatisticsexecutionspassed = &filterEqStatisticsexecutionspassed
+	return r
+}
+
+// Filters by &#39;ignoreAnalyzer&#39;
+func (r ApiGetItemsHistoryRequest) FilterEqIgnoreAnalyzer(filterEqIgnoreAnalyzer bool) ApiGetItemsHistoryRequest {
+	r.filterEqIgnoreAnalyzer = &filterEqIgnoreAnalyzer
+	return r
+}
+
+// Filters by &#39;issueComment&#39;
+func (r ApiGetItemsHistoryRequest) FilterEqIssueComment(filterEqIssueComment string) ApiGetItemsHistoryRequest {
+	r.filterEqIssueComment = &filterEqIssueComment
+	return r
+}
+
+// Filters by &#39;startTime&#39;
+func (r ApiGetItemsHistoryRequest) FilterEqStartTime(filterEqStartTime string) ApiGetItemsHistoryRequest {
+	r.filterEqStartTime = &filterEqStartTime
+	return r
+}
+
+// Filters by &#39;compositeAttribute&#39;
+func (r ApiGetItemsHistoryRequest) FilterHasCompositeAttribute(filterHasCompositeAttribute string) ApiGetItemsHistoryRequest {
+	r.filterHasCompositeAttribute = &filterHasCompositeAttribute
+	return r
+}
+
+// Filters by &#39;value&#39;
+func (r ApiGetItemsHistoryRequest) FilterEqValue(filterEqValue string) ApiGetItemsHistoryRequest {
+	r.filterEqValue = &filterEqValue
+	return r
+}
+
+// Filters by &#39;issueTypeId&#39;
+func (r ApiGetItemsHistoryRequest) FilterEqIssueTypeId(filterEqIssueTypeId int32) ApiGetItemsHistoryRequest {
+	r.filterEqIssueTypeId = &filterEqIssueTypeId
+	return r
+}
+
+// Filters by &#39;name&#39;
+func (r ApiGetItemsHistoryRequest) FilterEqName(filterEqName string) ApiGetItemsHistoryRequest {
+	r.filterEqName = &filterEqName
+	return r
+}
+
+// Filters by &#39;patternName&#39;
+func (r ApiGetItemsHistoryRequest) FilterEqPatternName(filterEqPatternName []interface{}) ApiGetItemsHistoryRequest {
+	r.filterEqPatternName = &filterEqPatternName
+	return r
+}
+
+// Filters by &#39;launchId&#39;
+func (r ApiGetItemsHistoryRequest) FilterEqLaunchId(filterEqLaunchId int32) ApiGetItemsHistoryRequest {
+	r.filterEqLaunchId = &filterEqLaunchId
+	return r
+}
+
 // Filters by &#39;attributeKey&#39;
 func (r ApiGetItemsHistoryRequest) FilterEqAttributeKey(filterEqAttributeKey []interface{}) ApiGetItemsHistoryRequest {
 	r.filterEqAttributeKey = &filterEqAttributeKey
+	return r
+}
+
+// Filters by &#39;hasChildren&#39;
+func (r ApiGetItemsHistoryRequest) FilterEqHasChildren(filterEqHasChildren bool) ApiGetItemsHistoryRequest {
+	r.filterEqHasChildren = &filterEqHasChildren
+	return r
+}
+
+// Filters by &#39;retryParentId&#39;
+func (r ApiGetItemsHistoryRequest) FilterEqRetryParentId(filterEqRetryParentId int32) ApiGetItemsHistoryRequest {
+	r.filterEqRetryParentId = &filterEqRetryParentId
+	return r
+}
+
+// Filters by &#39;statistics$executions$total&#39;
+func (r ApiGetItemsHistoryRequest) FilterEqStatisticsexecutionstotal(filterEqStatisticsexecutionstotal int32) ApiGetItemsHistoryRequest {
+	r.filterEqStatisticsexecutionstotal = &filterEqStatisticsexecutionstotal
+	return r
+}
+
+// Filters by &#39;statistics$defects$product_bug$pb001&#39;
+func (r ApiGetItemsHistoryRequest) FilterEqStatisticsdefectsproductBugpb001(filterEqStatisticsdefectsproductBugpb001 int32) ApiGetItemsHistoryRequest {
+	r.filterEqStatisticsdefectsproductBugpb001 = &filterEqStatisticsdefectsproductBugpb001
+	return r
+}
+
+// Filters by &#39;statistics$executions$failed&#39;
+func (r ApiGetItemsHistoryRequest) FilterEqStatisticsexecutionsfailed(filterEqStatisticsexecutionsfailed int32) ApiGetItemsHistoryRequest {
+	r.filterEqStatisticsexecutionsfailed = &filterEqStatisticsexecutionsfailed
+	return r
+}
+
+// Filters by &#39;lastModified&#39;
+func (r ApiGetItemsHistoryRequest) FilterEqLastModified(filterEqLastModified string) ApiGetItemsHistoryRequest {
+	r.filterEqLastModified = &filterEqLastModified
+	return r
+}
+
+// Filters by &#39;status&#39;
+func (r ApiGetItemsHistoryRequest) FilterEqStatus(filterEqStatus string) ApiGetItemsHistoryRequest {
+	r.filterEqStatus = &filterEqStatus
+	return r
+}
+
+// Filters by &#39;testCaseId&#39;
+func (r ApiGetItemsHistoryRequest) FilterEqTestCaseId(filterEqTestCaseId string) ApiGetItemsHistoryRequest {
+	r.filterEqTestCaseId = &filterEqTestCaseId
 	return r
 }
 
@@ -2121,15 +2091,45 @@ func (r ApiGetItemsHistoryRequest) FilterEqKey(filterEqKey string) ApiGetItemsHi
 	return r
 }
 
-// Filters by &#39;parentId&#39;
-func (r ApiGetItemsHistoryRequest) FilterEqParentId(filterEqParentId int32) ApiGetItemsHistoryRequest {
-	r.filterEqParentId = &filterEqParentId
+// Filters by &#39;autoAnalyzed&#39;
+func (r ApiGetItemsHistoryRequest) FilterEqAutoAnalyzed(filterEqAutoAnalyzed bool) ApiGetItemsHistoryRequest {
+	r.filterEqAutoAnalyzed = &filterEqAutoAnalyzed
 	return r
 }
 
-// Filters by &#39;statistics$defects$to_investigate$ti001&#39;
-func (r ApiGetItemsHistoryRequest) FilterEqStatisticsdefectstoInvestigateti001(filterEqStatisticsdefectstoInvestigateti001 int32) ApiGetItemsHistoryRequest {
-	r.filterEqStatisticsdefectstoInvestigateti001 = &filterEqStatisticsdefectstoInvestigateti001
+// Filters by &#39;levelAttribute&#39;
+func (r ApiGetItemsHistoryRequest) FilterEqLevelAttribute(filterEqLevelAttribute []interface{}) ApiGetItemsHistoryRequest {
+	r.filterEqLevelAttribute = &filterEqLevelAttribute
+	return r
+}
+
+// Filters by &#39;mode&#39;
+func (r ApiGetItemsHistoryRequest) FilterEqMode(filterEqMode string) ApiGetItemsHistoryRequest {
+	r.filterEqMode = &filterEqMode
+	return r
+}
+
+// Filters by &#39;clusterId&#39;
+func (r ApiGetItemsHistoryRequest) FilterEqClusterId(filterEqClusterId int32) ApiGetItemsHistoryRequest {
+	r.filterEqClusterId = &filterEqClusterId
+	return r
+}
+
+// Filters by &#39;issueId&#39;
+func (r ApiGetItemsHistoryRequest) FilterEqIssueId(filterEqIssueId int32) ApiGetItemsHistoryRequest {
+	r.filterEqIssueId = &filterEqIssueId
+	return r
+}
+
+// Filters by &#39;duration&#39;
+func (r ApiGetItemsHistoryRequest) FilterEqDuration(filterEqDuration int32) ApiGetItemsHistoryRequest {
+	r.filterEqDuration = &filterEqDuration
+	return r
+}
+
+// Filters by &#39;projectId&#39;
+func (r ApiGetItemsHistoryRequest) FilterEqProjectId(filterEqProjectId int32) ApiGetItemsHistoryRequest {
+	r.filterEqProjectId = &filterEqProjectId
 	return r
 }
 
@@ -2220,8 +2220,53 @@ func (a *TestItemAPIService) GetItemsHistoryExecute(r ApiGetItemsHistoryRequest)
 	if r.type_ != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "type", r.type_, "form", "")
 	}
+	if r.filterEqLocator != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.locator", r.filterEqLocator, "form", "")
+	}
+	if r.filterEqHasRetries != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.hasRetries", r.filterEqHasRetries, "form", "")
+	}
+	if r.filterEqEndTime != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.endTime", r.filterEqEndTime, "form", "")
+	}
+	if r.filterEqStatisticsdefectsnoDefectnd001 != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.statistics$defects$no_defect$nd001", r.filterEqStatisticsdefectsnoDefectnd001, "form", "")
+	}
+	if r.filterEqId != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.id", r.filterEqId, "form", "")
+	}
+	if r.filterEqTicketId != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.ticketId", r.filterEqTicketId, "form", "")
+	}
+	if r.filterEqParentId != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.parentId", r.filterEqParentId, "form", "")
+	}
+	if r.filterEqHasStats != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.hasStats", r.filterEqHasStats, "form", "")
+	}
+	if r.filterEqTestCaseHash != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.testCaseHash", r.filterEqTestCaseHash, "form", "")
+	}
+	if r.filterEqStatisticsdefectstoInvestigateti001 != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.statistics$defects$to_investigate$ti001", r.filterEqStatisticsdefectstoInvestigateti001, "form", "")
+	}
 	if r.filterEqUuid != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.uuid", r.filterEqUuid, "form", "")
+	}
+	if r.filterEqStatisticsdefectssystemIssuesi001 != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.statistics$defects$system_issue$si001", r.filterEqStatisticsdefectssystemIssuesi001, "form", "")
+	}
+	if r.filterEqIssueType != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.issueType", r.filterEqIssueType, "form", "")
+	}
+	if r.filterEqStatisticsexecutionsskipped != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.statistics$executions$skipped", r.filterEqStatisticsexecutionsskipped, "form", "")
+	}
+	if r.filterEqType != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.type", r.filterEqType, "form", "")
+	}
+	if r.filterEqStatisticsdefectsautomationBugab001 != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.statistics$defects$automation_bug$ab001", r.filterEqStatisticsdefectsautomationBugab001, "form", "")
 	}
 	if r.filterEqAttributeValue != nil {
 		t := *r.filterEqAttributeValue
@@ -2234,133 +2279,44 @@ func (a *TestItemAPIService) GetItemsHistoryExecute(r ApiGetItemsHistoryRequest)
 			parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.attributeValue", t, "form", "multi")
 		}
 	}
-	if r.filterEqLevelAttribute != nil {
-		t := *r.filterEqLevelAttribute
-		if reflect.TypeOf(t).Kind() == reflect.Slice {
-			s := reflect.ValueOf(t)
-			for i := 0; i < s.Len(); i++ {
-				parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.levelAttribute", s.Index(i).Interface(), "form", "multi")
-			}
-		} else {
-			parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.levelAttribute", t, "form", "multi")
-		}
-	}
-	if r.filterEqId != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.id", r.filterEqId, "form", "")
-	}
-	if r.filterEqStatus != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.status", r.filterEqStatus, "form", "")
-	}
-	if r.filterEqStartTime != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.startTime", r.filterEqStartTime, "form", "")
-	}
-	if r.filterEqIssueType != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.issueType", r.filterEqIssueType, "form", "")
-	}
-	if r.filterEqClusterId != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.clusterId", r.filterEqClusterId, "form", "")
-	}
 	if r.filterEqPath != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.path", r.filterEqPath, "form", "")
-	}
-	if r.filterEqIssueGroupId != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.issueGroupId", r.filterEqIssueGroupId, "form", "")
-	}
-	if r.filterEqHasRetries != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.hasRetries", r.filterEqHasRetries, "form", "")
-	}
-	if r.filterEqIssueTypeId != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.issueTypeId", r.filterEqIssueTypeId, "form", "")
-	}
-	if r.filterEqValue != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.value", r.filterEqValue, "form", "")
-	}
-	if r.filterEqDuration != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.duration", r.filterEqDuration, "form", "")
-	}
-	if r.filterHasCompositeAttribute != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.has.compositeAttribute", r.filterHasCompositeAttribute, "form", "")
-	}
-	if r.filterEqEndTime != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.endTime", r.filterEqEndTime, "form", "")
-	}
-	if r.filterEqStatisticsexecutionspassed != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.statistics$executions$passed", r.filterEqStatisticsexecutionspassed, "form", "")
-	}
-	if r.filterEqName != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.name", r.filterEqName, "form", "")
-	}
-	if r.filterEqAutoAnalyzed != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.autoAnalyzed", r.filterEqAutoAnalyzed, "form", "")
-	}
-	if r.filterEqLocator != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.locator", r.filterEqLocator, "form", "")
-	}
-	if r.filterEqDescription != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.description", r.filterEqDescription, "form", "")
-	}
-	if r.filterEqStatisticsexecutionsfailed != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.statistics$executions$failed", r.filterEqStatisticsexecutionsfailed, "form", "")
-	}
-	if r.filterEqTestCaseHash != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.testCaseHash", r.filterEqTestCaseHash, "form", "")
-	}
-	if r.filterEqStatisticsdefectssystemIssuesi001 != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.statistics$defects$system_issue$si001", r.filterEqStatisticsdefectssystemIssuesi001, "form", "")
-	}
-	if r.filterEqHasStats != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.hasStats", r.filterEqHasStats, "form", "")
-	}
-	if r.filterEqStatisticsexecutionstotal != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.statistics$executions$total", r.filterEqStatisticsexecutionstotal, "form", "")
-	}
-	if r.filterEqStatisticsexecutionsskipped != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.statistics$executions$skipped", r.filterEqStatisticsexecutionsskipped, "form", "")
-	}
-	if r.filterEqLastModified != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.lastModified", r.filterEqLastModified, "form", "")
-	}
-	if r.filterEqStatisticsdefectsproductBugpb001 != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.statistics$defects$product_bug$pb001", r.filterEqStatisticsdefectsproductBugpb001, "form", "")
-	}
-	if r.filterEqStatisticsdefectsautomationBugab001 != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.statistics$defects$automation_bug$ab001", r.filterEqStatisticsdefectsautomationBugab001, "form", "")
-	}
-	if r.filterEqType != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.type", r.filterEqType, "form", "")
-	}
-	if r.filterEqIssueId != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.issueId", r.filterEqIssueId, "form", "")
-	}
-	if r.filterEqMode != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.mode", r.filterEqMode, "form", "")
-	}
-	if r.filterEqTestCaseId != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.testCaseId", r.filterEqTestCaseId, "form", "")
-	}
-	if r.filterEqUniqueId != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.uniqueId", r.filterEqUniqueId, "form", "")
 	}
 	if r.filterHasCompositeSystemAttribute != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.has.compositeSystemAttribute", r.filterHasCompositeSystemAttribute, "form", "")
 	}
-	if r.filterEqProjectId != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.projectId", r.filterEqProjectId, "form", "")
+	if r.filterEqIssueGroupId != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.issueGroupId", r.filterEqIssueGroupId, "form", "")
 	}
-	if r.filterEqIssueComment != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.issueComment", r.filterEqIssueComment, "form", "")
+	if r.filterEqDescription != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.description", r.filterEqDescription, "form", "")
+	}
+	if r.filterEqUniqueId != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.uniqueId", r.filterEqUniqueId, "form", "")
+	}
+	if r.filterEqStatisticsexecutionspassed != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.statistics$executions$passed", r.filterEqStatisticsexecutionspassed, "form", "")
 	}
 	if r.filterEqIgnoreAnalyzer != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.ignoreAnalyzer", r.filterEqIgnoreAnalyzer, "form", "")
 	}
-	if r.filterEqLaunchId != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.launchId", r.filterEqLaunchId, "form", "")
+	if r.filterEqIssueComment != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.issueComment", r.filterEqIssueComment, "form", "")
 	}
-	if r.filterEqStatisticsdefectsnoDefectnd001 != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.statistics$defects$no_defect$nd001", r.filterEqStatisticsdefectsnoDefectnd001, "form", "")
+	if r.filterEqStartTime != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.startTime", r.filterEqStartTime, "form", "")
 	}
-	if r.filterEqHasChildren != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.hasChildren", r.filterEqHasChildren, "form", "")
+	if r.filterHasCompositeAttribute != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.has.compositeAttribute", r.filterHasCompositeAttribute, "form", "")
+	}
+	if r.filterEqValue != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.value", r.filterEqValue, "form", "")
+	}
+	if r.filterEqIssueTypeId != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.issueTypeId", r.filterEqIssueTypeId, "form", "")
+	}
+	if r.filterEqName != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.name", r.filterEqName, "form", "")
 	}
 	if r.filterEqPatternName != nil {
 		t := *r.filterEqPatternName
@@ -2373,11 +2329,8 @@ func (a *TestItemAPIService) GetItemsHistoryExecute(r ApiGetItemsHistoryRequest)
 			parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.patternName", t, "form", "multi")
 		}
 	}
-	if r.filterEqRetryParentId != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.retryParentId", r.filterEqRetryParentId, "form", "")
-	}
-	if r.filterEqTicketId != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.ticketId", r.filterEqTicketId, "form", "")
+	if r.filterEqLaunchId != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.launchId", r.filterEqLaunchId, "form", "")
 	}
 	if r.filterEqAttributeKey != nil {
 		t := *r.filterEqAttributeKey
@@ -2390,14 +2343,61 @@ func (a *TestItemAPIService) GetItemsHistoryExecute(r ApiGetItemsHistoryRequest)
 			parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.attributeKey", t, "form", "multi")
 		}
 	}
+	if r.filterEqHasChildren != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.hasChildren", r.filterEqHasChildren, "form", "")
+	}
+	if r.filterEqRetryParentId != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.retryParentId", r.filterEqRetryParentId, "form", "")
+	}
+	if r.filterEqStatisticsexecutionstotal != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.statistics$executions$total", r.filterEqStatisticsexecutionstotal, "form", "")
+	}
+	if r.filterEqStatisticsdefectsproductBugpb001 != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.statistics$defects$product_bug$pb001", r.filterEqStatisticsdefectsproductBugpb001, "form", "")
+	}
+	if r.filterEqStatisticsexecutionsfailed != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.statistics$executions$failed", r.filterEqStatisticsexecutionsfailed, "form", "")
+	}
+	if r.filterEqLastModified != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.lastModified", r.filterEqLastModified, "form", "")
+	}
+	if r.filterEqStatus != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.status", r.filterEqStatus, "form", "")
+	}
+	if r.filterEqTestCaseId != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.testCaseId", r.filterEqTestCaseId, "form", "")
+	}
 	if r.filterEqKey != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.key", r.filterEqKey, "form", "")
 	}
-	if r.filterEqParentId != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.parentId", r.filterEqParentId, "form", "")
+	if r.filterEqAutoAnalyzed != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.autoAnalyzed", r.filterEqAutoAnalyzed, "form", "")
 	}
-	if r.filterEqStatisticsdefectstoInvestigateti001 != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.statistics$defects$to_investigate$ti001", r.filterEqStatisticsdefectstoInvestigateti001, "form", "")
+	if r.filterEqLevelAttribute != nil {
+		t := *r.filterEqLevelAttribute
+		if reflect.TypeOf(t).Kind() == reflect.Slice {
+			s := reflect.ValueOf(t)
+			for i := 0; i < s.Len(); i++ {
+				parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.levelAttribute", s.Index(i).Interface(), "form", "multi")
+			}
+		} else {
+			parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.levelAttribute", t, "form", "multi")
+		}
+	}
+	if r.filterEqMode != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.mode", r.filterEqMode, "form", "")
+	}
+	if r.filterEqClusterId != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.clusterId", r.filterEqClusterId, "form", "")
+	}
+	if r.filterEqIssueId != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.issueId", r.filterEqIssueId, "form", "")
+	}
+	if r.filterEqDuration != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.duration", r.filterEqDuration, "form", "")
+	}
+	if r.filterEqProjectId != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.projectId", r.filterEqProjectId, "form", "")
 	}
 	if r.pagePage != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "page.page", r.pagePage, "form", "")
@@ -3148,55 +3148,55 @@ type ApiGetTestItemsRequest struct {
 	filterId                                    *int64
 	isLatest                                    *bool
 	launchesLimit                               *int32
-	filterEqUuid                                *string
-	filterEqAttributeValue                      *[]interface{}
-	filterEqLevelAttribute                      *[]interface{}
-	filterEqId                                  *int32
-	filterEqStatus                              *string
-	filterEqStartTime                           *string
-	filterEqIssueType                           *string
-	filterEqClusterId                           *int32
-	filterEqPath                                *int32
-	filterEqIssueGroupId                        *string
-	filterEqHasRetries                          *bool
-	filterEqIssueTypeId                         *int32
-	filterEqValue                               *string
-	filterEqDuration                            *int32
-	filterHasCompositeAttribute                 *string
-	filterEqEndTime                             *string
-	filterEqStatisticsexecutionspassed          *int32
-	filterEqName                                *string
-	filterEqAutoAnalyzed                        *bool
 	filterEqLocator                             *string
-	filterEqDescription                         *string
-	filterEqStatisticsexecutionsfailed          *int32
-	filterEqTestCaseHash                        *int32
-	filterEqStatisticsdefectssystemIssuesi001   *int32
-	filterEqHasStats                            *bool
-	filterEqStatisticsexecutionstotal           *int32
-	filterEqStatisticsexecutionsskipped         *int32
-	filterEqLastModified                        *string
-	filterEqStatisticsdefectsproductBugpb001    *int32
-	filterEqStatisticsdefectsautomationBugab001 *int32
-	filterEqType                                *string
-	filterEqIssueId                             *int32
-	filterEqMode                                *string
-	filterEqTestCaseId                          *string
-	filterEqUniqueId                            *string
-	filterHasCompositeSystemAttribute           *string
-	filterEqProjectId                           *int32
-	filterEqIssueComment                        *string
-	filterEqIgnoreAnalyzer                      *bool
-	filterEqLaunchId                            *int32
+	filterEqHasRetries                          *bool
+	filterEqEndTime                             *string
 	filterEqStatisticsdefectsnoDefectnd001      *int32
-	filterEqHasChildren                         *bool
-	filterEqPatternName                         *[]interface{}
-	filterEqRetryParentId                       *int32
+	filterEqId                                  *int32
 	filterEqTicketId                            *string
-	filterEqAttributeKey                        *[]interface{}
-	filterEqKey                                 *string
 	filterEqParentId                            *int32
+	filterEqHasStats                            *bool
+	filterEqTestCaseHash                        *int32
 	filterEqStatisticsdefectstoInvestigateti001 *int32
+	filterEqUuid                                *string
+	filterEqStatisticsdefectssystemIssuesi001   *int32
+	filterEqIssueType                           *string
+	filterEqStatisticsexecutionsskipped         *int32
+	filterEqType                                *string
+	filterEqStatisticsdefectsautomationBugab001 *int32
+	filterEqAttributeValue                      *[]interface{}
+	filterEqPath                                *int32
+	filterHasCompositeSystemAttribute           *string
+	filterEqIssueGroupId                        *string
+	filterEqDescription                         *string
+	filterEqUniqueId                            *string
+	filterEqStatisticsexecutionspassed          *int32
+	filterEqIgnoreAnalyzer                      *bool
+	filterEqIssueComment                        *string
+	filterEqStartTime                           *string
+	filterHasCompositeAttribute                 *string
+	filterEqValue                               *string
+	filterEqIssueTypeId                         *int32
+	filterEqName                                *string
+	filterEqPatternName                         *[]interface{}
+	filterEqLaunchId                            *int32
+	filterEqAttributeKey                        *[]interface{}
+	filterEqHasChildren                         *bool
+	filterEqRetryParentId                       *int32
+	filterEqStatisticsexecutionstotal           *int32
+	filterEqStatisticsdefectsproductBugpb001    *int32
+	filterEqStatisticsexecutionsfailed          *int32
+	filterEqLastModified                        *string
+	filterEqStatus                              *string
+	filterEqTestCaseId                          *string
+	filterEqKey                                 *string
+	filterEqAutoAnalyzed                        *bool
+	filterEqLevelAttribute                      *[]interface{}
+	filterEqMode                                *string
+	filterEqClusterId                           *int32
+	filterEqIssueId                             *int32
+	filterEqDuration                            *int32
+	filterEqProjectId                           *int32
 	pagePage                                    *int32
 	pageSize                                    *int32
 	pageSort                                    *string
@@ -3217,63 +3217,9 @@ func (r ApiGetTestItemsRequest) LaunchesLimit(launchesLimit int32) ApiGetTestIte
 	return r
 }
 
-// Filters by &#39;uuid&#39;
-func (r ApiGetTestItemsRequest) FilterEqUuid(filterEqUuid string) ApiGetTestItemsRequest {
-	r.filterEqUuid = &filterEqUuid
-	return r
-}
-
-// Filters by &#39;attributeValue&#39;
-func (r ApiGetTestItemsRequest) FilterEqAttributeValue(filterEqAttributeValue []interface{}) ApiGetTestItemsRequest {
-	r.filterEqAttributeValue = &filterEqAttributeValue
-	return r
-}
-
-// Filters by &#39;levelAttribute&#39;
-func (r ApiGetTestItemsRequest) FilterEqLevelAttribute(filterEqLevelAttribute []interface{}) ApiGetTestItemsRequest {
-	r.filterEqLevelAttribute = &filterEqLevelAttribute
-	return r
-}
-
-// Filters by &#39;id&#39;
-func (r ApiGetTestItemsRequest) FilterEqId(filterEqId int32) ApiGetTestItemsRequest {
-	r.filterEqId = &filterEqId
-	return r
-}
-
-// Filters by &#39;status&#39;
-func (r ApiGetTestItemsRequest) FilterEqStatus(filterEqStatus string) ApiGetTestItemsRequest {
-	r.filterEqStatus = &filterEqStatus
-	return r
-}
-
-// Filters by &#39;startTime&#39;
-func (r ApiGetTestItemsRequest) FilterEqStartTime(filterEqStartTime string) ApiGetTestItemsRequest {
-	r.filterEqStartTime = &filterEqStartTime
-	return r
-}
-
-// Filters by &#39;issueType&#39;
-func (r ApiGetTestItemsRequest) FilterEqIssueType(filterEqIssueType string) ApiGetTestItemsRequest {
-	r.filterEqIssueType = &filterEqIssueType
-	return r
-}
-
-// Filters by &#39;clusterId&#39;
-func (r ApiGetTestItemsRequest) FilterEqClusterId(filterEqClusterId int32) ApiGetTestItemsRequest {
-	r.filterEqClusterId = &filterEqClusterId
-	return r
-}
-
-// Filters by &#39;path&#39;
-func (r ApiGetTestItemsRequest) FilterEqPath(filterEqPath int32) ApiGetTestItemsRequest {
-	r.filterEqPath = &filterEqPath
-	return r
-}
-
-// Filters by &#39;issueGroupId&#39;
-func (r ApiGetTestItemsRequest) FilterEqIssueGroupId(filterEqIssueGroupId string) ApiGetTestItemsRequest {
-	r.filterEqIssueGroupId = &filterEqIssueGroupId
+// Filters by &#39;locator&#39;
+func (r ApiGetTestItemsRequest) FilterEqLocator(filterEqLocator string) ApiGetTestItemsRequest {
+	r.filterEqLocator = &filterEqLocator
 	return r
 }
 
@@ -3283,177 +3229,9 @@ func (r ApiGetTestItemsRequest) FilterEqHasRetries(filterEqHasRetries bool) ApiG
 	return r
 }
 
-// Filters by &#39;issueTypeId&#39;
-func (r ApiGetTestItemsRequest) FilterEqIssueTypeId(filterEqIssueTypeId int32) ApiGetTestItemsRequest {
-	r.filterEqIssueTypeId = &filterEqIssueTypeId
-	return r
-}
-
-// Filters by &#39;value&#39;
-func (r ApiGetTestItemsRequest) FilterEqValue(filterEqValue string) ApiGetTestItemsRequest {
-	r.filterEqValue = &filterEqValue
-	return r
-}
-
-// Filters by &#39;duration&#39;
-func (r ApiGetTestItemsRequest) FilterEqDuration(filterEqDuration int32) ApiGetTestItemsRequest {
-	r.filterEqDuration = &filterEqDuration
-	return r
-}
-
-// Filters by &#39;compositeAttribute&#39;
-func (r ApiGetTestItemsRequest) FilterHasCompositeAttribute(filterHasCompositeAttribute string) ApiGetTestItemsRequest {
-	r.filterHasCompositeAttribute = &filterHasCompositeAttribute
-	return r
-}
-
 // Filters by &#39;endTime&#39;
 func (r ApiGetTestItemsRequest) FilterEqEndTime(filterEqEndTime string) ApiGetTestItemsRequest {
 	r.filterEqEndTime = &filterEqEndTime
-	return r
-}
-
-// Filters by &#39;statistics$executions$passed&#39;
-func (r ApiGetTestItemsRequest) FilterEqStatisticsexecutionspassed(filterEqStatisticsexecutionspassed int32) ApiGetTestItemsRequest {
-	r.filterEqStatisticsexecutionspassed = &filterEqStatisticsexecutionspassed
-	return r
-}
-
-// Filters by &#39;name&#39;
-func (r ApiGetTestItemsRequest) FilterEqName(filterEqName string) ApiGetTestItemsRequest {
-	r.filterEqName = &filterEqName
-	return r
-}
-
-// Filters by &#39;autoAnalyzed&#39;
-func (r ApiGetTestItemsRequest) FilterEqAutoAnalyzed(filterEqAutoAnalyzed bool) ApiGetTestItemsRequest {
-	r.filterEqAutoAnalyzed = &filterEqAutoAnalyzed
-	return r
-}
-
-// Filters by &#39;locator&#39;
-func (r ApiGetTestItemsRequest) FilterEqLocator(filterEqLocator string) ApiGetTestItemsRequest {
-	r.filterEqLocator = &filterEqLocator
-	return r
-}
-
-// Filters by &#39;description&#39;
-func (r ApiGetTestItemsRequest) FilterEqDescription(filterEqDescription string) ApiGetTestItemsRequest {
-	r.filterEqDescription = &filterEqDescription
-	return r
-}
-
-// Filters by &#39;statistics$executions$failed&#39;
-func (r ApiGetTestItemsRequest) FilterEqStatisticsexecutionsfailed(filterEqStatisticsexecutionsfailed int32) ApiGetTestItemsRequest {
-	r.filterEqStatisticsexecutionsfailed = &filterEqStatisticsexecutionsfailed
-	return r
-}
-
-// Filters by &#39;testCaseHash&#39;
-func (r ApiGetTestItemsRequest) FilterEqTestCaseHash(filterEqTestCaseHash int32) ApiGetTestItemsRequest {
-	r.filterEqTestCaseHash = &filterEqTestCaseHash
-	return r
-}
-
-// Filters by &#39;statistics$defects$system_issue$si001&#39;
-func (r ApiGetTestItemsRequest) FilterEqStatisticsdefectssystemIssuesi001(filterEqStatisticsdefectssystemIssuesi001 int32) ApiGetTestItemsRequest {
-	r.filterEqStatisticsdefectssystemIssuesi001 = &filterEqStatisticsdefectssystemIssuesi001
-	return r
-}
-
-// Filters by &#39;hasStats&#39;
-func (r ApiGetTestItemsRequest) FilterEqHasStats(filterEqHasStats bool) ApiGetTestItemsRequest {
-	r.filterEqHasStats = &filterEqHasStats
-	return r
-}
-
-// Filters by &#39;statistics$executions$total&#39;
-func (r ApiGetTestItemsRequest) FilterEqStatisticsexecutionstotal(filterEqStatisticsexecutionstotal int32) ApiGetTestItemsRequest {
-	r.filterEqStatisticsexecutionstotal = &filterEqStatisticsexecutionstotal
-	return r
-}
-
-// Filters by &#39;statistics$executions$skipped&#39;
-func (r ApiGetTestItemsRequest) FilterEqStatisticsexecutionsskipped(filterEqStatisticsexecutionsskipped int32) ApiGetTestItemsRequest {
-	r.filterEqStatisticsexecutionsskipped = &filterEqStatisticsexecutionsskipped
-	return r
-}
-
-// Filters by &#39;lastModified&#39;
-func (r ApiGetTestItemsRequest) FilterEqLastModified(filterEqLastModified string) ApiGetTestItemsRequest {
-	r.filterEqLastModified = &filterEqLastModified
-	return r
-}
-
-// Filters by &#39;statistics$defects$product_bug$pb001&#39;
-func (r ApiGetTestItemsRequest) FilterEqStatisticsdefectsproductBugpb001(filterEqStatisticsdefectsproductBugpb001 int32) ApiGetTestItemsRequest {
-	r.filterEqStatisticsdefectsproductBugpb001 = &filterEqStatisticsdefectsproductBugpb001
-	return r
-}
-
-// Filters by &#39;statistics$defects$automation_bug$ab001&#39;
-func (r ApiGetTestItemsRequest) FilterEqStatisticsdefectsautomationBugab001(filterEqStatisticsdefectsautomationBugab001 int32) ApiGetTestItemsRequest {
-	r.filterEqStatisticsdefectsautomationBugab001 = &filterEqStatisticsdefectsautomationBugab001
-	return r
-}
-
-// Filters by &#39;type&#39;
-func (r ApiGetTestItemsRequest) FilterEqType(filterEqType string) ApiGetTestItemsRequest {
-	r.filterEqType = &filterEqType
-	return r
-}
-
-// Filters by &#39;issueId&#39;
-func (r ApiGetTestItemsRequest) FilterEqIssueId(filterEqIssueId int32) ApiGetTestItemsRequest {
-	r.filterEqIssueId = &filterEqIssueId
-	return r
-}
-
-// Filters by &#39;mode&#39;
-func (r ApiGetTestItemsRequest) FilterEqMode(filterEqMode string) ApiGetTestItemsRequest {
-	r.filterEqMode = &filterEqMode
-	return r
-}
-
-// Filters by &#39;testCaseId&#39;
-func (r ApiGetTestItemsRequest) FilterEqTestCaseId(filterEqTestCaseId string) ApiGetTestItemsRequest {
-	r.filterEqTestCaseId = &filterEqTestCaseId
-	return r
-}
-
-// Filters by &#39;uniqueId&#39;
-func (r ApiGetTestItemsRequest) FilterEqUniqueId(filterEqUniqueId string) ApiGetTestItemsRequest {
-	r.filterEqUniqueId = &filterEqUniqueId
-	return r
-}
-
-// Filters by &#39;compositeSystemAttribute&#39;
-func (r ApiGetTestItemsRequest) FilterHasCompositeSystemAttribute(filterHasCompositeSystemAttribute string) ApiGetTestItemsRequest {
-	r.filterHasCompositeSystemAttribute = &filterHasCompositeSystemAttribute
-	return r
-}
-
-// Filters by &#39;projectId&#39;
-func (r ApiGetTestItemsRequest) FilterEqProjectId(filterEqProjectId int32) ApiGetTestItemsRequest {
-	r.filterEqProjectId = &filterEqProjectId
-	return r
-}
-
-// Filters by &#39;issueComment&#39;
-func (r ApiGetTestItemsRequest) FilterEqIssueComment(filterEqIssueComment string) ApiGetTestItemsRequest {
-	r.filterEqIssueComment = &filterEqIssueComment
-	return r
-}
-
-// Filters by &#39;ignoreAnalyzer&#39;
-func (r ApiGetTestItemsRequest) FilterEqIgnoreAnalyzer(filterEqIgnoreAnalyzer bool) ApiGetTestItemsRequest {
-	r.filterEqIgnoreAnalyzer = &filterEqIgnoreAnalyzer
-	return r
-}
-
-// Filters by &#39;launchId&#39;
-func (r ApiGetTestItemsRequest) FilterEqLaunchId(filterEqLaunchId int32) ApiGetTestItemsRequest {
-	r.filterEqLaunchId = &filterEqLaunchId
 	return r
 }
 
@@ -3463,21 +3241,9 @@ func (r ApiGetTestItemsRequest) FilterEqStatisticsdefectsnoDefectnd001(filterEqS
 	return r
 }
 
-// Filters by &#39;hasChildren&#39;
-func (r ApiGetTestItemsRequest) FilterEqHasChildren(filterEqHasChildren bool) ApiGetTestItemsRequest {
-	r.filterEqHasChildren = &filterEqHasChildren
-	return r
-}
-
-// Filters by &#39;patternName&#39;
-func (r ApiGetTestItemsRequest) FilterEqPatternName(filterEqPatternName []interface{}) ApiGetTestItemsRequest {
-	r.filterEqPatternName = &filterEqPatternName
-	return r
-}
-
-// Filters by &#39;retryParentId&#39;
-func (r ApiGetTestItemsRequest) FilterEqRetryParentId(filterEqRetryParentId int32) ApiGetTestItemsRequest {
-	r.filterEqRetryParentId = &filterEqRetryParentId
+// Filters by &#39;id&#39;
+func (r ApiGetTestItemsRequest) FilterEqId(filterEqId int32) ApiGetTestItemsRequest {
+	r.filterEqId = &filterEqId
 	return r
 }
 
@@ -3487,9 +3253,213 @@ func (r ApiGetTestItemsRequest) FilterEqTicketId(filterEqTicketId string) ApiGet
 	return r
 }
 
+// Filters by &#39;parentId&#39;
+func (r ApiGetTestItemsRequest) FilterEqParentId(filterEqParentId int32) ApiGetTestItemsRequest {
+	r.filterEqParentId = &filterEqParentId
+	return r
+}
+
+// Filters by &#39;hasStats&#39;
+func (r ApiGetTestItemsRequest) FilterEqHasStats(filterEqHasStats bool) ApiGetTestItemsRequest {
+	r.filterEqHasStats = &filterEqHasStats
+	return r
+}
+
+// Filters by &#39;testCaseHash&#39;
+func (r ApiGetTestItemsRequest) FilterEqTestCaseHash(filterEqTestCaseHash int32) ApiGetTestItemsRequest {
+	r.filterEqTestCaseHash = &filterEqTestCaseHash
+	return r
+}
+
+// Filters by &#39;statistics$defects$to_investigate$ti001&#39;
+func (r ApiGetTestItemsRequest) FilterEqStatisticsdefectstoInvestigateti001(filterEqStatisticsdefectstoInvestigateti001 int32) ApiGetTestItemsRequest {
+	r.filterEqStatisticsdefectstoInvestigateti001 = &filterEqStatisticsdefectstoInvestigateti001
+	return r
+}
+
+// Filters by &#39;uuid&#39;
+func (r ApiGetTestItemsRequest) FilterEqUuid(filterEqUuid string) ApiGetTestItemsRequest {
+	r.filterEqUuid = &filterEqUuid
+	return r
+}
+
+// Filters by &#39;statistics$defects$system_issue$si001&#39;
+func (r ApiGetTestItemsRequest) FilterEqStatisticsdefectssystemIssuesi001(filterEqStatisticsdefectssystemIssuesi001 int32) ApiGetTestItemsRequest {
+	r.filterEqStatisticsdefectssystemIssuesi001 = &filterEqStatisticsdefectssystemIssuesi001
+	return r
+}
+
+// Filters by &#39;issueType&#39;
+func (r ApiGetTestItemsRequest) FilterEqIssueType(filterEqIssueType string) ApiGetTestItemsRequest {
+	r.filterEqIssueType = &filterEqIssueType
+	return r
+}
+
+// Filters by &#39;statistics$executions$skipped&#39;
+func (r ApiGetTestItemsRequest) FilterEqStatisticsexecutionsskipped(filterEqStatisticsexecutionsskipped int32) ApiGetTestItemsRequest {
+	r.filterEqStatisticsexecutionsskipped = &filterEqStatisticsexecutionsskipped
+	return r
+}
+
+// Filters by &#39;type&#39;
+func (r ApiGetTestItemsRequest) FilterEqType(filterEqType string) ApiGetTestItemsRequest {
+	r.filterEqType = &filterEqType
+	return r
+}
+
+// Filters by &#39;statistics$defects$automation_bug$ab001&#39;
+func (r ApiGetTestItemsRequest) FilterEqStatisticsdefectsautomationBugab001(filterEqStatisticsdefectsautomationBugab001 int32) ApiGetTestItemsRequest {
+	r.filterEqStatisticsdefectsautomationBugab001 = &filterEqStatisticsdefectsautomationBugab001
+	return r
+}
+
+// Filters by &#39;attributeValue&#39;
+func (r ApiGetTestItemsRequest) FilterEqAttributeValue(filterEqAttributeValue []interface{}) ApiGetTestItemsRequest {
+	r.filterEqAttributeValue = &filterEqAttributeValue
+	return r
+}
+
+// Filters by &#39;path&#39;
+func (r ApiGetTestItemsRequest) FilterEqPath(filterEqPath int32) ApiGetTestItemsRequest {
+	r.filterEqPath = &filterEqPath
+	return r
+}
+
+// Filters by &#39;compositeSystemAttribute&#39;
+func (r ApiGetTestItemsRequest) FilterHasCompositeSystemAttribute(filterHasCompositeSystemAttribute string) ApiGetTestItemsRequest {
+	r.filterHasCompositeSystemAttribute = &filterHasCompositeSystemAttribute
+	return r
+}
+
+// Filters by &#39;issueGroupId&#39;
+func (r ApiGetTestItemsRequest) FilterEqIssueGroupId(filterEqIssueGroupId string) ApiGetTestItemsRequest {
+	r.filterEqIssueGroupId = &filterEqIssueGroupId
+	return r
+}
+
+// Filters by &#39;description&#39;
+func (r ApiGetTestItemsRequest) FilterEqDescription(filterEqDescription string) ApiGetTestItemsRequest {
+	r.filterEqDescription = &filterEqDescription
+	return r
+}
+
+// Filters by &#39;uniqueId&#39;
+func (r ApiGetTestItemsRequest) FilterEqUniqueId(filterEqUniqueId string) ApiGetTestItemsRequest {
+	r.filterEqUniqueId = &filterEqUniqueId
+	return r
+}
+
+// Filters by &#39;statistics$executions$passed&#39;
+func (r ApiGetTestItemsRequest) FilterEqStatisticsexecutionspassed(filterEqStatisticsexecutionspassed int32) ApiGetTestItemsRequest {
+	r.filterEqStatisticsexecutionspassed = &filterEqStatisticsexecutionspassed
+	return r
+}
+
+// Filters by &#39;ignoreAnalyzer&#39;
+func (r ApiGetTestItemsRequest) FilterEqIgnoreAnalyzer(filterEqIgnoreAnalyzer bool) ApiGetTestItemsRequest {
+	r.filterEqIgnoreAnalyzer = &filterEqIgnoreAnalyzer
+	return r
+}
+
+// Filters by &#39;issueComment&#39;
+func (r ApiGetTestItemsRequest) FilterEqIssueComment(filterEqIssueComment string) ApiGetTestItemsRequest {
+	r.filterEqIssueComment = &filterEqIssueComment
+	return r
+}
+
+// Filters by &#39;startTime&#39;
+func (r ApiGetTestItemsRequest) FilterEqStartTime(filterEqStartTime string) ApiGetTestItemsRequest {
+	r.filterEqStartTime = &filterEqStartTime
+	return r
+}
+
+// Filters by &#39;compositeAttribute&#39;
+func (r ApiGetTestItemsRequest) FilterHasCompositeAttribute(filterHasCompositeAttribute string) ApiGetTestItemsRequest {
+	r.filterHasCompositeAttribute = &filterHasCompositeAttribute
+	return r
+}
+
+// Filters by &#39;value&#39;
+func (r ApiGetTestItemsRequest) FilterEqValue(filterEqValue string) ApiGetTestItemsRequest {
+	r.filterEqValue = &filterEqValue
+	return r
+}
+
+// Filters by &#39;issueTypeId&#39;
+func (r ApiGetTestItemsRequest) FilterEqIssueTypeId(filterEqIssueTypeId int32) ApiGetTestItemsRequest {
+	r.filterEqIssueTypeId = &filterEqIssueTypeId
+	return r
+}
+
+// Filters by &#39;name&#39;
+func (r ApiGetTestItemsRequest) FilterEqName(filterEqName string) ApiGetTestItemsRequest {
+	r.filterEqName = &filterEqName
+	return r
+}
+
+// Filters by &#39;patternName&#39;
+func (r ApiGetTestItemsRequest) FilterEqPatternName(filterEqPatternName []interface{}) ApiGetTestItemsRequest {
+	r.filterEqPatternName = &filterEqPatternName
+	return r
+}
+
+// Filters by &#39;launchId&#39;
+func (r ApiGetTestItemsRequest) FilterEqLaunchId(filterEqLaunchId int32) ApiGetTestItemsRequest {
+	r.filterEqLaunchId = &filterEqLaunchId
+	return r
+}
+
 // Filters by &#39;attributeKey&#39;
 func (r ApiGetTestItemsRequest) FilterEqAttributeKey(filterEqAttributeKey []interface{}) ApiGetTestItemsRequest {
 	r.filterEqAttributeKey = &filterEqAttributeKey
+	return r
+}
+
+// Filters by &#39;hasChildren&#39;
+func (r ApiGetTestItemsRequest) FilterEqHasChildren(filterEqHasChildren bool) ApiGetTestItemsRequest {
+	r.filterEqHasChildren = &filterEqHasChildren
+	return r
+}
+
+// Filters by &#39;retryParentId&#39;
+func (r ApiGetTestItemsRequest) FilterEqRetryParentId(filterEqRetryParentId int32) ApiGetTestItemsRequest {
+	r.filterEqRetryParentId = &filterEqRetryParentId
+	return r
+}
+
+// Filters by &#39;statistics$executions$total&#39;
+func (r ApiGetTestItemsRequest) FilterEqStatisticsexecutionstotal(filterEqStatisticsexecutionstotal int32) ApiGetTestItemsRequest {
+	r.filterEqStatisticsexecutionstotal = &filterEqStatisticsexecutionstotal
+	return r
+}
+
+// Filters by &#39;statistics$defects$product_bug$pb001&#39;
+func (r ApiGetTestItemsRequest) FilterEqStatisticsdefectsproductBugpb001(filterEqStatisticsdefectsproductBugpb001 int32) ApiGetTestItemsRequest {
+	r.filterEqStatisticsdefectsproductBugpb001 = &filterEqStatisticsdefectsproductBugpb001
+	return r
+}
+
+// Filters by &#39;statistics$executions$failed&#39;
+func (r ApiGetTestItemsRequest) FilterEqStatisticsexecutionsfailed(filterEqStatisticsexecutionsfailed int32) ApiGetTestItemsRequest {
+	r.filterEqStatisticsexecutionsfailed = &filterEqStatisticsexecutionsfailed
+	return r
+}
+
+// Filters by &#39;lastModified&#39;
+func (r ApiGetTestItemsRequest) FilterEqLastModified(filterEqLastModified string) ApiGetTestItemsRequest {
+	r.filterEqLastModified = &filterEqLastModified
+	return r
+}
+
+// Filters by &#39;status&#39;
+func (r ApiGetTestItemsRequest) FilterEqStatus(filterEqStatus string) ApiGetTestItemsRequest {
+	r.filterEqStatus = &filterEqStatus
+	return r
+}
+
+// Filters by &#39;testCaseId&#39;
+func (r ApiGetTestItemsRequest) FilterEqTestCaseId(filterEqTestCaseId string) ApiGetTestItemsRequest {
+	r.filterEqTestCaseId = &filterEqTestCaseId
 	return r
 }
 
@@ -3499,15 +3469,45 @@ func (r ApiGetTestItemsRequest) FilterEqKey(filterEqKey string) ApiGetTestItemsR
 	return r
 }
 
-// Filters by &#39;parentId&#39;
-func (r ApiGetTestItemsRequest) FilterEqParentId(filterEqParentId int32) ApiGetTestItemsRequest {
-	r.filterEqParentId = &filterEqParentId
+// Filters by &#39;autoAnalyzed&#39;
+func (r ApiGetTestItemsRequest) FilterEqAutoAnalyzed(filterEqAutoAnalyzed bool) ApiGetTestItemsRequest {
+	r.filterEqAutoAnalyzed = &filterEqAutoAnalyzed
 	return r
 }
 
-// Filters by &#39;statistics$defects$to_investigate$ti001&#39;
-func (r ApiGetTestItemsRequest) FilterEqStatisticsdefectstoInvestigateti001(filterEqStatisticsdefectstoInvestigateti001 int32) ApiGetTestItemsRequest {
-	r.filterEqStatisticsdefectstoInvestigateti001 = &filterEqStatisticsdefectstoInvestigateti001
+// Filters by &#39;levelAttribute&#39;
+func (r ApiGetTestItemsRequest) FilterEqLevelAttribute(filterEqLevelAttribute []interface{}) ApiGetTestItemsRequest {
+	r.filterEqLevelAttribute = &filterEqLevelAttribute
+	return r
+}
+
+// Filters by &#39;mode&#39;
+func (r ApiGetTestItemsRequest) FilterEqMode(filterEqMode string) ApiGetTestItemsRequest {
+	r.filterEqMode = &filterEqMode
+	return r
+}
+
+// Filters by &#39;clusterId&#39;
+func (r ApiGetTestItemsRequest) FilterEqClusterId(filterEqClusterId int32) ApiGetTestItemsRequest {
+	r.filterEqClusterId = &filterEqClusterId
+	return r
+}
+
+// Filters by &#39;issueId&#39;
+func (r ApiGetTestItemsRequest) FilterEqIssueId(filterEqIssueId int32) ApiGetTestItemsRequest {
+	r.filterEqIssueId = &filterEqIssueId
+	return r
+}
+
+// Filters by &#39;duration&#39;
+func (r ApiGetTestItemsRequest) FilterEqDuration(filterEqDuration int32) ApiGetTestItemsRequest {
+	r.filterEqDuration = &filterEqDuration
+	return r
+}
+
+// Filters by &#39;projectId&#39;
+func (r ApiGetTestItemsRequest) FilterEqProjectId(filterEqProjectId int32) ApiGetTestItemsRequest {
+	r.filterEqProjectId = &filterEqProjectId
 	return r
 }
 
@@ -3588,8 +3588,53 @@ func (a *TestItemAPIService) GetTestItemsExecute(r ApiGetTestItemsRequest) (*Pag
 		parameterAddToHeaderOrQuery(localVarQueryParams, "launchesLimit", defaultValue, "form", "")
 		r.launchesLimit = &defaultValue
 	}
+	if r.filterEqLocator != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.locator", r.filterEqLocator, "form", "")
+	}
+	if r.filterEqHasRetries != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.hasRetries", r.filterEqHasRetries, "form", "")
+	}
+	if r.filterEqEndTime != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.endTime", r.filterEqEndTime, "form", "")
+	}
+	if r.filterEqStatisticsdefectsnoDefectnd001 != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.statistics$defects$no_defect$nd001", r.filterEqStatisticsdefectsnoDefectnd001, "form", "")
+	}
+	if r.filterEqId != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.id", r.filterEqId, "form", "")
+	}
+	if r.filterEqTicketId != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.ticketId", r.filterEqTicketId, "form", "")
+	}
+	if r.filterEqParentId != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.parentId", r.filterEqParentId, "form", "")
+	}
+	if r.filterEqHasStats != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.hasStats", r.filterEqHasStats, "form", "")
+	}
+	if r.filterEqTestCaseHash != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.testCaseHash", r.filterEqTestCaseHash, "form", "")
+	}
+	if r.filterEqStatisticsdefectstoInvestigateti001 != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.statistics$defects$to_investigate$ti001", r.filterEqStatisticsdefectstoInvestigateti001, "form", "")
+	}
 	if r.filterEqUuid != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.uuid", r.filterEqUuid, "form", "")
+	}
+	if r.filterEqStatisticsdefectssystemIssuesi001 != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.statistics$defects$system_issue$si001", r.filterEqStatisticsdefectssystemIssuesi001, "form", "")
+	}
+	if r.filterEqIssueType != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.issueType", r.filterEqIssueType, "form", "")
+	}
+	if r.filterEqStatisticsexecutionsskipped != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.statistics$executions$skipped", r.filterEqStatisticsexecutionsskipped, "form", "")
+	}
+	if r.filterEqType != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.type", r.filterEqType, "form", "")
+	}
+	if r.filterEqStatisticsdefectsautomationBugab001 != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.statistics$defects$automation_bug$ab001", r.filterEqStatisticsdefectsautomationBugab001, "form", "")
 	}
 	if r.filterEqAttributeValue != nil {
 		t := *r.filterEqAttributeValue
@@ -3602,133 +3647,44 @@ func (a *TestItemAPIService) GetTestItemsExecute(r ApiGetTestItemsRequest) (*Pag
 			parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.attributeValue", t, "form", "multi")
 		}
 	}
-	if r.filterEqLevelAttribute != nil {
-		t := *r.filterEqLevelAttribute
-		if reflect.TypeOf(t).Kind() == reflect.Slice {
-			s := reflect.ValueOf(t)
-			for i := 0; i < s.Len(); i++ {
-				parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.levelAttribute", s.Index(i).Interface(), "form", "multi")
-			}
-		} else {
-			parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.levelAttribute", t, "form", "multi")
-		}
-	}
-	if r.filterEqId != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.id", r.filterEqId, "form", "")
-	}
-	if r.filterEqStatus != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.status", r.filterEqStatus, "form", "")
-	}
-	if r.filterEqStartTime != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.startTime", r.filterEqStartTime, "form", "")
-	}
-	if r.filterEqIssueType != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.issueType", r.filterEqIssueType, "form", "")
-	}
-	if r.filterEqClusterId != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.clusterId", r.filterEqClusterId, "form", "")
-	}
 	if r.filterEqPath != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.path", r.filterEqPath, "form", "")
-	}
-	if r.filterEqIssueGroupId != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.issueGroupId", r.filterEqIssueGroupId, "form", "")
-	}
-	if r.filterEqHasRetries != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.hasRetries", r.filterEqHasRetries, "form", "")
-	}
-	if r.filterEqIssueTypeId != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.issueTypeId", r.filterEqIssueTypeId, "form", "")
-	}
-	if r.filterEqValue != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.value", r.filterEqValue, "form", "")
-	}
-	if r.filterEqDuration != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.duration", r.filterEqDuration, "form", "")
-	}
-	if r.filterHasCompositeAttribute != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.has.compositeAttribute", r.filterHasCompositeAttribute, "form", "")
-	}
-	if r.filterEqEndTime != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.endTime", r.filterEqEndTime, "form", "")
-	}
-	if r.filterEqStatisticsexecutionspassed != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.statistics$executions$passed", r.filterEqStatisticsexecutionspassed, "form", "")
-	}
-	if r.filterEqName != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.name", r.filterEqName, "form", "")
-	}
-	if r.filterEqAutoAnalyzed != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.autoAnalyzed", r.filterEqAutoAnalyzed, "form", "")
-	}
-	if r.filterEqLocator != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.locator", r.filterEqLocator, "form", "")
-	}
-	if r.filterEqDescription != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.description", r.filterEqDescription, "form", "")
-	}
-	if r.filterEqStatisticsexecutionsfailed != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.statistics$executions$failed", r.filterEqStatisticsexecutionsfailed, "form", "")
-	}
-	if r.filterEqTestCaseHash != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.testCaseHash", r.filterEqTestCaseHash, "form", "")
-	}
-	if r.filterEqStatisticsdefectssystemIssuesi001 != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.statistics$defects$system_issue$si001", r.filterEqStatisticsdefectssystemIssuesi001, "form", "")
-	}
-	if r.filterEqHasStats != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.hasStats", r.filterEqHasStats, "form", "")
-	}
-	if r.filterEqStatisticsexecutionstotal != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.statistics$executions$total", r.filterEqStatisticsexecutionstotal, "form", "")
-	}
-	if r.filterEqStatisticsexecutionsskipped != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.statistics$executions$skipped", r.filterEqStatisticsexecutionsskipped, "form", "")
-	}
-	if r.filterEqLastModified != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.lastModified", r.filterEqLastModified, "form", "")
-	}
-	if r.filterEqStatisticsdefectsproductBugpb001 != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.statistics$defects$product_bug$pb001", r.filterEqStatisticsdefectsproductBugpb001, "form", "")
-	}
-	if r.filterEqStatisticsdefectsautomationBugab001 != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.statistics$defects$automation_bug$ab001", r.filterEqStatisticsdefectsautomationBugab001, "form", "")
-	}
-	if r.filterEqType != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.type", r.filterEqType, "form", "")
-	}
-	if r.filterEqIssueId != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.issueId", r.filterEqIssueId, "form", "")
-	}
-	if r.filterEqMode != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.mode", r.filterEqMode, "form", "")
-	}
-	if r.filterEqTestCaseId != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.testCaseId", r.filterEqTestCaseId, "form", "")
-	}
-	if r.filterEqUniqueId != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.uniqueId", r.filterEqUniqueId, "form", "")
 	}
 	if r.filterHasCompositeSystemAttribute != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.has.compositeSystemAttribute", r.filterHasCompositeSystemAttribute, "form", "")
 	}
-	if r.filterEqProjectId != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.projectId", r.filterEqProjectId, "form", "")
+	if r.filterEqIssueGroupId != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.issueGroupId", r.filterEqIssueGroupId, "form", "")
 	}
-	if r.filterEqIssueComment != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.issueComment", r.filterEqIssueComment, "form", "")
+	if r.filterEqDescription != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.description", r.filterEqDescription, "form", "")
+	}
+	if r.filterEqUniqueId != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.uniqueId", r.filterEqUniqueId, "form", "")
+	}
+	if r.filterEqStatisticsexecutionspassed != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.statistics$executions$passed", r.filterEqStatisticsexecutionspassed, "form", "")
 	}
 	if r.filterEqIgnoreAnalyzer != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.ignoreAnalyzer", r.filterEqIgnoreAnalyzer, "form", "")
 	}
-	if r.filterEqLaunchId != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.launchId", r.filterEqLaunchId, "form", "")
+	if r.filterEqIssueComment != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.issueComment", r.filterEqIssueComment, "form", "")
 	}
-	if r.filterEqStatisticsdefectsnoDefectnd001 != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.statistics$defects$no_defect$nd001", r.filterEqStatisticsdefectsnoDefectnd001, "form", "")
+	if r.filterEqStartTime != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.startTime", r.filterEqStartTime, "form", "")
 	}
-	if r.filterEqHasChildren != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.hasChildren", r.filterEqHasChildren, "form", "")
+	if r.filterHasCompositeAttribute != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.has.compositeAttribute", r.filterHasCompositeAttribute, "form", "")
+	}
+	if r.filterEqValue != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.value", r.filterEqValue, "form", "")
+	}
+	if r.filterEqIssueTypeId != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.issueTypeId", r.filterEqIssueTypeId, "form", "")
+	}
+	if r.filterEqName != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.name", r.filterEqName, "form", "")
 	}
 	if r.filterEqPatternName != nil {
 		t := *r.filterEqPatternName
@@ -3741,11 +3697,8 @@ func (a *TestItemAPIService) GetTestItemsExecute(r ApiGetTestItemsRequest) (*Pag
 			parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.patternName", t, "form", "multi")
 		}
 	}
-	if r.filterEqRetryParentId != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.retryParentId", r.filterEqRetryParentId, "form", "")
-	}
-	if r.filterEqTicketId != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.ticketId", r.filterEqTicketId, "form", "")
+	if r.filterEqLaunchId != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.launchId", r.filterEqLaunchId, "form", "")
 	}
 	if r.filterEqAttributeKey != nil {
 		t := *r.filterEqAttributeKey
@@ -3758,14 +3711,61 @@ func (a *TestItemAPIService) GetTestItemsExecute(r ApiGetTestItemsRequest) (*Pag
 			parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.attributeKey", t, "form", "multi")
 		}
 	}
+	if r.filterEqHasChildren != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.hasChildren", r.filterEqHasChildren, "form", "")
+	}
+	if r.filterEqRetryParentId != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.retryParentId", r.filterEqRetryParentId, "form", "")
+	}
+	if r.filterEqStatisticsexecutionstotal != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.statistics$executions$total", r.filterEqStatisticsexecutionstotal, "form", "")
+	}
+	if r.filterEqStatisticsdefectsproductBugpb001 != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.statistics$defects$product_bug$pb001", r.filterEqStatisticsdefectsproductBugpb001, "form", "")
+	}
+	if r.filterEqStatisticsexecutionsfailed != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.statistics$executions$failed", r.filterEqStatisticsexecutionsfailed, "form", "")
+	}
+	if r.filterEqLastModified != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.lastModified", r.filterEqLastModified, "form", "")
+	}
+	if r.filterEqStatus != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.status", r.filterEqStatus, "form", "")
+	}
+	if r.filterEqTestCaseId != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.testCaseId", r.filterEqTestCaseId, "form", "")
+	}
 	if r.filterEqKey != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.key", r.filterEqKey, "form", "")
 	}
-	if r.filterEqParentId != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.parentId", r.filterEqParentId, "form", "")
+	if r.filterEqAutoAnalyzed != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.autoAnalyzed", r.filterEqAutoAnalyzed, "form", "")
 	}
-	if r.filterEqStatisticsdefectstoInvestigateti001 != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.statistics$defects$to_investigate$ti001", r.filterEqStatisticsdefectstoInvestigateti001, "form", "")
+	if r.filterEqLevelAttribute != nil {
+		t := *r.filterEqLevelAttribute
+		if reflect.TypeOf(t).Kind() == reflect.Slice {
+			s := reflect.ValueOf(t)
+			for i := 0; i < s.Len(); i++ {
+				parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.levelAttribute", s.Index(i).Interface(), "form", "multi")
+			}
+		} else {
+			parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.levelAttribute", t, "form", "multi")
+		}
+	}
+	if r.filterEqMode != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.mode", r.filterEqMode, "form", "")
+	}
+	if r.filterEqClusterId != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.clusterId", r.filterEqClusterId, "form", "")
+	}
+	if r.filterEqIssueId != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.issueId", r.filterEqIssueId, "form", "")
+	}
+	if r.filterEqDuration != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.duration", r.filterEqDuration, "form", "")
+	}
+	if r.filterEqProjectId != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.projectId", r.filterEqProjectId, "form", "")
 	}
 	if r.pagePage != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "page.page", r.pagePage, "form", "")
@@ -3886,173 +3886,59 @@ type ApiGetTestItems1Request struct {
 	ApiService                                  *TestItemAPIService
 	params                                      *map[string]string
 	projectName                                 string
-	filterEqUuid                                *string
-	filterEqAttributeValue                      *[]interface{}
-	filterEqLevelAttribute                      *[]interface{}
-	filterEqId                                  *int32
-	filterEqStatus                              *string
-	filterEqStartTime                           *string
-	filterEqIssueType                           *string
-	filterEqClusterId                           *int32
-	filterEqPath                                *int32
-	filterEqIssueGroupId                        *string
-	filterEqHasRetries                          *bool
-	filterEqIssueTypeId                         *int32
-	filterEqValue                               *string
-	filterEqDuration                            *int32
-	filterHasCompositeAttribute                 *string
-	filterEqEndTime                             *string
-	filterEqStatisticsexecutionspassed          *int32
-	filterEqName                                *string
-	filterEqAutoAnalyzed                        *bool
 	filterEqLocator                             *string
-	filterEqDescription                         *string
-	filterEqStatisticsexecutionsfailed          *int32
-	filterEqTestCaseHash                        *int32
-	filterEqStatisticsdefectssystemIssuesi001   *int32
-	filterEqHasStats                            *bool
-	filterEqStatisticsexecutionstotal           *int32
-	filterEqStatisticsexecutionsskipped         *int32
-	filterEqLastModified                        *string
-	filterEqStatisticsdefectsproductBugpb001    *int32
-	filterEqStatisticsdefectsautomationBugab001 *int32
-	filterEqType                                *string
-	filterEqIssueId                             *int32
-	filterEqMode                                *string
-	filterEqTestCaseId                          *string
-	filterEqUniqueId                            *string
-	filterHasCompositeSystemAttribute           *string
-	filterEqProjectId                           *int32
-	filterEqIssueComment                        *string
-	filterEqIgnoreAnalyzer                      *bool
-	filterEqLaunchId                            *int32
+	filterEqHasRetries                          *bool
+	filterEqEndTime                             *string
 	filterEqStatisticsdefectsnoDefectnd001      *int32
-	filterEqHasChildren                         *bool
-	filterEqPatternName                         *[]interface{}
-	filterEqRetryParentId                       *int32
+	filterEqId                                  *int32
 	filterEqTicketId                            *string
-	filterEqAttributeKey                        *[]interface{}
-	filterEqKey                                 *string
 	filterEqParentId                            *int32
+	filterEqHasStats                            *bool
+	filterEqTestCaseHash                        *int32
 	filterEqStatisticsdefectstoInvestigateti001 *int32
+	filterEqUuid                                *string
+	filterEqStatisticsdefectssystemIssuesi001   *int32
+	filterEqIssueType                           *string
+	filterEqStatisticsexecutionsskipped         *int32
+	filterEqType                                *string
+	filterEqStatisticsdefectsautomationBugab001 *int32
+	filterEqAttributeValue                      *[]interface{}
+	filterEqPath                                *int32
+	filterHasCompositeSystemAttribute           *string
+	filterEqIssueGroupId                        *string
+	filterEqDescription                         *string
+	filterEqUniqueId                            *string
+	filterEqStatisticsexecutionspassed          *int32
+	filterEqIgnoreAnalyzer                      *bool
+	filterEqIssueComment                        *string
+	filterEqStartTime                           *string
+	filterHasCompositeAttribute                 *string
+	filterEqValue                               *string
+	filterEqIssueTypeId                         *int32
+	filterEqName                                *string
+	filterEqPatternName                         *[]interface{}
+	filterEqLaunchId                            *int32
+	filterEqAttributeKey                        *[]interface{}
+	filterEqHasChildren                         *bool
+	filterEqRetryParentId                       *int32
+	filterEqStatisticsexecutionstotal           *int32
+	filterEqStatisticsdefectsproductBugpb001    *int32
+	filterEqStatisticsexecutionsfailed          *int32
+	filterEqLastModified                        *string
+	filterEqStatus                              *string
+	filterEqTestCaseId                          *string
+	filterEqKey                                 *string
+	filterEqAutoAnalyzed                        *bool
+	filterEqLevelAttribute                      *[]interface{}
+	filterEqMode                                *string
+	filterEqClusterId                           *int32
+	filterEqIssueId                             *int32
+	filterEqDuration                            *int32
+	filterEqProjectId                           *int32
 }
 
 func (r ApiGetTestItems1Request) Params(params map[string]string) ApiGetTestItems1Request {
 	r.params = &params
-	return r
-}
-
-// Filters by &#39;uuid&#39;
-func (r ApiGetTestItems1Request) FilterEqUuid(filterEqUuid string) ApiGetTestItems1Request {
-	r.filterEqUuid = &filterEqUuid
-	return r
-}
-
-// Filters by &#39;attributeValue&#39;
-func (r ApiGetTestItems1Request) FilterEqAttributeValue(filterEqAttributeValue []interface{}) ApiGetTestItems1Request {
-	r.filterEqAttributeValue = &filterEqAttributeValue
-	return r
-}
-
-// Filters by &#39;levelAttribute&#39;
-func (r ApiGetTestItems1Request) FilterEqLevelAttribute(filterEqLevelAttribute []interface{}) ApiGetTestItems1Request {
-	r.filterEqLevelAttribute = &filterEqLevelAttribute
-	return r
-}
-
-// Filters by &#39;id&#39;
-func (r ApiGetTestItems1Request) FilterEqId(filterEqId int32) ApiGetTestItems1Request {
-	r.filterEqId = &filterEqId
-	return r
-}
-
-// Filters by &#39;status&#39;
-func (r ApiGetTestItems1Request) FilterEqStatus(filterEqStatus string) ApiGetTestItems1Request {
-	r.filterEqStatus = &filterEqStatus
-	return r
-}
-
-// Filters by &#39;startTime&#39;
-func (r ApiGetTestItems1Request) FilterEqStartTime(filterEqStartTime string) ApiGetTestItems1Request {
-	r.filterEqStartTime = &filterEqStartTime
-	return r
-}
-
-// Filters by &#39;issueType&#39;
-func (r ApiGetTestItems1Request) FilterEqIssueType(filterEqIssueType string) ApiGetTestItems1Request {
-	r.filterEqIssueType = &filterEqIssueType
-	return r
-}
-
-// Filters by &#39;clusterId&#39;
-func (r ApiGetTestItems1Request) FilterEqClusterId(filterEqClusterId int32) ApiGetTestItems1Request {
-	r.filterEqClusterId = &filterEqClusterId
-	return r
-}
-
-// Filters by &#39;path&#39;
-func (r ApiGetTestItems1Request) FilterEqPath(filterEqPath int32) ApiGetTestItems1Request {
-	r.filterEqPath = &filterEqPath
-	return r
-}
-
-// Filters by &#39;issueGroupId&#39;
-func (r ApiGetTestItems1Request) FilterEqIssueGroupId(filterEqIssueGroupId string) ApiGetTestItems1Request {
-	r.filterEqIssueGroupId = &filterEqIssueGroupId
-	return r
-}
-
-// Filters by &#39;hasRetries&#39;
-func (r ApiGetTestItems1Request) FilterEqHasRetries(filterEqHasRetries bool) ApiGetTestItems1Request {
-	r.filterEqHasRetries = &filterEqHasRetries
-	return r
-}
-
-// Filters by &#39;issueTypeId&#39;
-func (r ApiGetTestItems1Request) FilterEqIssueTypeId(filterEqIssueTypeId int32) ApiGetTestItems1Request {
-	r.filterEqIssueTypeId = &filterEqIssueTypeId
-	return r
-}
-
-// Filters by &#39;value&#39;
-func (r ApiGetTestItems1Request) FilterEqValue(filterEqValue string) ApiGetTestItems1Request {
-	r.filterEqValue = &filterEqValue
-	return r
-}
-
-// Filters by &#39;duration&#39;
-func (r ApiGetTestItems1Request) FilterEqDuration(filterEqDuration int32) ApiGetTestItems1Request {
-	r.filterEqDuration = &filterEqDuration
-	return r
-}
-
-// Filters by &#39;compositeAttribute&#39;
-func (r ApiGetTestItems1Request) FilterHasCompositeAttribute(filterHasCompositeAttribute string) ApiGetTestItems1Request {
-	r.filterHasCompositeAttribute = &filterHasCompositeAttribute
-	return r
-}
-
-// Filters by &#39;endTime&#39;
-func (r ApiGetTestItems1Request) FilterEqEndTime(filterEqEndTime string) ApiGetTestItems1Request {
-	r.filterEqEndTime = &filterEqEndTime
-	return r
-}
-
-// Filters by &#39;statistics$executions$passed&#39;
-func (r ApiGetTestItems1Request) FilterEqStatisticsexecutionspassed(filterEqStatisticsexecutionspassed int32) ApiGetTestItems1Request {
-	r.filterEqStatisticsexecutionspassed = &filterEqStatisticsexecutionspassed
-	return r
-}
-
-// Filters by &#39;name&#39;
-func (r ApiGetTestItems1Request) FilterEqName(filterEqName string) ApiGetTestItems1Request {
-	r.filterEqName = &filterEqName
-	return r
-}
-
-// Filters by &#39;autoAnalyzed&#39;
-func (r ApiGetTestItems1Request) FilterEqAutoAnalyzed(filterEqAutoAnalyzed bool) ApiGetTestItems1Request {
-	r.filterEqAutoAnalyzed = &filterEqAutoAnalyzed
 	return r
 }
 
@@ -4062,123 +3948,15 @@ func (r ApiGetTestItems1Request) FilterEqLocator(filterEqLocator string) ApiGetT
 	return r
 }
 
-// Filters by &#39;description&#39;
-func (r ApiGetTestItems1Request) FilterEqDescription(filterEqDescription string) ApiGetTestItems1Request {
-	r.filterEqDescription = &filterEqDescription
+// Filters by &#39;hasRetries&#39;
+func (r ApiGetTestItems1Request) FilterEqHasRetries(filterEqHasRetries bool) ApiGetTestItems1Request {
+	r.filterEqHasRetries = &filterEqHasRetries
 	return r
 }
 
-// Filters by &#39;statistics$executions$failed&#39;
-func (r ApiGetTestItems1Request) FilterEqStatisticsexecutionsfailed(filterEqStatisticsexecutionsfailed int32) ApiGetTestItems1Request {
-	r.filterEqStatisticsexecutionsfailed = &filterEqStatisticsexecutionsfailed
-	return r
-}
-
-// Filters by &#39;testCaseHash&#39;
-func (r ApiGetTestItems1Request) FilterEqTestCaseHash(filterEqTestCaseHash int32) ApiGetTestItems1Request {
-	r.filterEqTestCaseHash = &filterEqTestCaseHash
-	return r
-}
-
-// Filters by &#39;statistics$defects$system_issue$si001&#39;
-func (r ApiGetTestItems1Request) FilterEqStatisticsdefectssystemIssuesi001(filterEqStatisticsdefectssystemIssuesi001 int32) ApiGetTestItems1Request {
-	r.filterEqStatisticsdefectssystemIssuesi001 = &filterEqStatisticsdefectssystemIssuesi001
-	return r
-}
-
-// Filters by &#39;hasStats&#39;
-func (r ApiGetTestItems1Request) FilterEqHasStats(filterEqHasStats bool) ApiGetTestItems1Request {
-	r.filterEqHasStats = &filterEqHasStats
-	return r
-}
-
-// Filters by &#39;statistics$executions$total&#39;
-func (r ApiGetTestItems1Request) FilterEqStatisticsexecutionstotal(filterEqStatisticsexecutionstotal int32) ApiGetTestItems1Request {
-	r.filterEqStatisticsexecutionstotal = &filterEqStatisticsexecutionstotal
-	return r
-}
-
-// Filters by &#39;statistics$executions$skipped&#39;
-func (r ApiGetTestItems1Request) FilterEqStatisticsexecutionsskipped(filterEqStatisticsexecutionsskipped int32) ApiGetTestItems1Request {
-	r.filterEqStatisticsexecutionsskipped = &filterEqStatisticsexecutionsskipped
-	return r
-}
-
-// Filters by &#39;lastModified&#39;
-func (r ApiGetTestItems1Request) FilterEqLastModified(filterEqLastModified string) ApiGetTestItems1Request {
-	r.filterEqLastModified = &filterEqLastModified
-	return r
-}
-
-// Filters by &#39;statistics$defects$product_bug$pb001&#39;
-func (r ApiGetTestItems1Request) FilterEqStatisticsdefectsproductBugpb001(filterEqStatisticsdefectsproductBugpb001 int32) ApiGetTestItems1Request {
-	r.filterEqStatisticsdefectsproductBugpb001 = &filterEqStatisticsdefectsproductBugpb001
-	return r
-}
-
-// Filters by &#39;statistics$defects$automation_bug$ab001&#39;
-func (r ApiGetTestItems1Request) FilterEqStatisticsdefectsautomationBugab001(filterEqStatisticsdefectsautomationBugab001 int32) ApiGetTestItems1Request {
-	r.filterEqStatisticsdefectsautomationBugab001 = &filterEqStatisticsdefectsautomationBugab001
-	return r
-}
-
-// Filters by &#39;type&#39;
-func (r ApiGetTestItems1Request) FilterEqType(filterEqType string) ApiGetTestItems1Request {
-	r.filterEqType = &filterEqType
-	return r
-}
-
-// Filters by &#39;issueId&#39;
-func (r ApiGetTestItems1Request) FilterEqIssueId(filterEqIssueId int32) ApiGetTestItems1Request {
-	r.filterEqIssueId = &filterEqIssueId
-	return r
-}
-
-// Filters by &#39;mode&#39;
-func (r ApiGetTestItems1Request) FilterEqMode(filterEqMode string) ApiGetTestItems1Request {
-	r.filterEqMode = &filterEqMode
-	return r
-}
-
-// Filters by &#39;testCaseId&#39;
-func (r ApiGetTestItems1Request) FilterEqTestCaseId(filterEqTestCaseId string) ApiGetTestItems1Request {
-	r.filterEqTestCaseId = &filterEqTestCaseId
-	return r
-}
-
-// Filters by &#39;uniqueId&#39;
-func (r ApiGetTestItems1Request) FilterEqUniqueId(filterEqUniqueId string) ApiGetTestItems1Request {
-	r.filterEqUniqueId = &filterEqUniqueId
-	return r
-}
-
-// Filters by &#39;compositeSystemAttribute&#39;
-func (r ApiGetTestItems1Request) FilterHasCompositeSystemAttribute(filterHasCompositeSystemAttribute string) ApiGetTestItems1Request {
-	r.filterHasCompositeSystemAttribute = &filterHasCompositeSystemAttribute
-	return r
-}
-
-// Filters by &#39;projectId&#39;
-func (r ApiGetTestItems1Request) FilterEqProjectId(filterEqProjectId int32) ApiGetTestItems1Request {
-	r.filterEqProjectId = &filterEqProjectId
-	return r
-}
-
-// Filters by &#39;issueComment&#39;
-func (r ApiGetTestItems1Request) FilterEqIssueComment(filterEqIssueComment string) ApiGetTestItems1Request {
-	r.filterEqIssueComment = &filterEqIssueComment
-	return r
-}
-
-// Filters by &#39;ignoreAnalyzer&#39;
-func (r ApiGetTestItems1Request) FilterEqIgnoreAnalyzer(filterEqIgnoreAnalyzer bool) ApiGetTestItems1Request {
-	r.filterEqIgnoreAnalyzer = &filterEqIgnoreAnalyzer
-	return r
-}
-
-// Filters by &#39;launchId&#39;
-func (r ApiGetTestItems1Request) FilterEqLaunchId(filterEqLaunchId int32) ApiGetTestItems1Request {
-	r.filterEqLaunchId = &filterEqLaunchId
+// Filters by &#39;endTime&#39;
+func (r ApiGetTestItems1Request) FilterEqEndTime(filterEqEndTime string) ApiGetTestItems1Request {
+	r.filterEqEndTime = &filterEqEndTime
 	return r
 }
 
@@ -4188,21 +3966,9 @@ func (r ApiGetTestItems1Request) FilterEqStatisticsdefectsnoDefectnd001(filterEq
 	return r
 }
 
-// Filters by &#39;hasChildren&#39;
-func (r ApiGetTestItems1Request) FilterEqHasChildren(filterEqHasChildren bool) ApiGetTestItems1Request {
-	r.filterEqHasChildren = &filterEqHasChildren
-	return r
-}
-
-// Filters by &#39;patternName&#39;
-func (r ApiGetTestItems1Request) FilterEqPatternName(filterEqPatternName []interface{}) ApiGetTestItems1Request {
-	r.filterEqPatternName = &filterEqPatternName
-	return r
-}
-
-// Filters by &#39;retryParentId&#39;
-func (r ApiGetTestItems1Request) FilterEqRetryParentId(filterEqRetryParentId int32) ApiGetTestItems1Request {
-	r.filterEqRetryParentId = &filterEqRetryParentId
+// Filters by &#39;id&#39;
+func (r ApiGetTestItems1Request) FilterEqId(filterEqId int32) ApiGetTestItems1Request {
+	r.filterEqId = &filterEqId
 	return r
 }
 
@@ -4212,9 +3978,213 @@ func (r ApiGetTestItems1Request) FilterEqTicketId(filterEqTicketId string) ApiGe
 	return r
 }
 
+// Filters by &#39;parentId&#39;
+func (r ApiGetTestItems1Request) FilterEqParentId(filterEqParentId int32) ApiGetTestItems1Request {
+	r.filterEqParentId = &filterEqParentId
+	return r
+}
+
+// Filters by &#39;hasStats&#39;
+func (r ApiGetTestItems1Request) FilterEqHasStats(filterEqHasStats bool) ApiGetTestItems1Request {
+	r.filterEqHasStats = &filterEqHasStats
+	return r
+}
+
+// Filters by &#39;testCaseHash&#39;
+func (r ApiGetTestItems1Request) FilterEqTestCaseHash(filterEqTestCaseHash int32) ApiGetTestItems1Request {
+	r.filterEqTestCaseHash = &filterEqTestCaseHash
+	return r
+}
+
+// Filters by &#39;statistics$defects$to_investigate$ti001&#39;
+func (r ApiGetTestItems1Request) FilterEqStatisticsdefectstoInvestigateti001(filterEqStatisticsdefectstoInvestigateti001 int32) ApiGetTestItems1Request {
+	r.filterEqStatisticsdefectstoInvestigateti001 = &filterEqStatisticsdefectstoInvestigateti001
+	return r
+}
+
+// Filters by &#39;uuid&#39;
+func (r ApiGetTestItems1Request) FilterEqUuid(filterEqUuid string) ApiGetTestItems1Request {
+	r.filterEqUuid = &filterEqUuid
+	return r
+}
+
+// Filters by &#39;statistics$defects$system_issue$si001&#39;
+func (r ApiGetTestItems1Request) FilterEqStatisticsdefectssystemIssuesi001(filterEqStatisticsdefectssystemIssuesi001 int32) ApiGetTestItems1Request {
+	r.filterEqStatisticsdefectssystemIssuesi001 = &filterEqStatisticsdefectssystemIssuesi001
+	return r
+}
+
+// Filters by &#39;issueType&#39;
+func (r ApiGetTestItems1Request) FilterEqIssueType(filterEqIssueType string) ApiGetTestItems1Request {
+	r.filterEqIssueType = &filterEqIssueType
+	return r
+}
+
+// Filters by &#39;statistics$executions$skipped&#39;
+func (r ApiGetTestItems1Request) FilterEqStatisticsexecutionsskipped(filterEqStatisticsexecutionsskipped int32) ApiGetTestItems1Request {
+	r.filterEqStatisticsexecutionsskipped = &filterEqStatisticsexecutionsskipped
+	return r
+}
+
+// Filters by &#39;type&#39;
+func (r ApiGetTestItems1Request) FilterEqType(filterEqType string) ApiGetTestItems1Request {
+	r.filterEqType = &filterEqType
+	return r
+}
+
+// Filters by &#39;statistics$defects$automation_bug$ab001&#39;
+func (r ApiGetTestItems1Request) FilterEqStatisticsdefectsautomationBugab001(filterEqStatisticsdefectsautomationBugab001 int32) ApiGetTestItems1Request {
+	r.filterEqStatisticsdefectsautomationBugab001 = &filterEqStatisticsdefectsautomationBugab001
+	return r
+}
+
+// Filters by &#39;attributeValue&#39;
+func (r ApiGetTestItems1Request) FilterEqAttributeValue(filterEqAttributeValue []interface{}) ApiGetTestItems1Request {
+	r.filterEqAttributeValue = &filterEqAttributeValue
+	return r
+}
+
+// Filters by &#39;path&#39;
+func (r ApiGetTestItems1Request) FilterEqPath(filterEqPath int32) ApiGetTestItems1Request {
+	r.filterEqPath = &filterEqPath
+	return r
+}
+
+// Filters by &#39;compositeSystemAttribute&#39;
+func (r ApiGetTestItems1Request) FilterHasCompositeSystemAttribute(filterHasCompositeSystemAttribute string) ApiGetTestItems1Request {
+	r.filterHasCompositeSystemAttribute = &filterHasCompositeSystemAttribute
+	return r
+}
+
+// Filters by &#39;issueGroupId&#39;
+func (r ApiGetTestItems1Request) FilterEqIssueGroupId(filterEqIssueGroupId string) ApiGetTestItems1Request {
+	r.filterEqIssueGroupId = &filterEqIssueGroupId
+	return r
+}
+
+// Filters by &#39;description&#39;
+func (r ApiGetTestItems1Request) FilterEqDescription(filterEqDescription string) ApiGetTestItems1Request {
+	r.filterEqDescription = &filterEqDescription
+	return r
+}
+
+// Filters by &#39;uniqueId&#39;
+func (r ApiGetTestItems1Request) FilterEqUniqueId(filterEqUniqueId string) ApiGetTestItems1Request {
+	r.filterEqUniqueId = &filterEqUniqueId
+	return r
+}
+
+// Filters by &#39;statistics$executions$passed&#39;
+func (r ApiGetTestItems1Request) FilterEqStatisticsexecutionspassed(filterEqStatisticsexecutionspassed int32) ApiGetTestItems1Request {
+	r.filterEqStatisticsexecutionspassed = &filterEqStatisticsexecutionspassed
+	return r
+}
+
+// Filters by &#39;ignoreAnalyzer&#39;
+func (r ApiGetTestItems1Request) FilterEqIgnoreAnalyzer(filterEqIgnoreAnalyzer bool) ApiGetTestItems1Request {
+	r.filterEqIgnoreAnalyzer = &filterEqIgnoreAnalyzer
+	return r
+}
+
+// Filters by &#39;issueComment&#39;
+func (r ApiGetTestItems1Request) FilterEqIssueComment(filterEqIssueComment string) ApiGetTestItems1Request {
+	r.filterEqIssueComment = &filterEqIssueComment
+	return r
+}
+
+// Filters by &#39;startTime&#39;
+func (r ApiGetTestItems1Request) FilterEqStartTime(filterEqStartTime string) ApiGetTestItems1Request {
+	r.filterEqStartTime = &filterEqStartTime
+	return r
+}
+
+// Filters by &#39;compositeAttribute&#39;
+func (r ApiGetTestItems1Request) FilterHasCompositeAttribute(filterHasCompositeAttribute string) ApiGetTestItems1Request {
+	r.filterHasCompositeAttribute = &filterHasCompositeAttribute
+	return r
+}
+
+// Filters by &#39;value&#39;
+func (r ApiGetTestItems1Request) FilterEqValue(filterEqValue string) ApiGetTestItems1Request {
+	r.filterEqValue = &filterEqValue
+	return r
+}
+
+// Filters by &#39;issueTypeId&#39;
+func (r ApiGetTestItems1Request) FilterEqIssueTypeId(filterEqIssueTypeId int32) ApiGetTestItems1Request {
+	r.filterEqIssueTypeId = &filterEqIssueTypeId
+	return r
+}
+
+// Filters by &#39;name&#39;
+func (r ApiGetTestItems1Request) FilterEqName(filterEqName string) ApiGetTestItems1Request {
+	r.filterEqName = &filterEqName
+	return r
+}
+
+// Filters by &#39;patternName&#39;
+func (r ApiGetTestItems1Request) FilterEqPatternName(filterEqPatternName []interface{}) ApiGetTestItems1Request {
+	r.filterEqPatternName = &filterEqPatternName
+	return r
+}
+
+// Filters by &#39;launchId&#39;
+func (r ApiGetTestItems1Request) FilterEqLaunchId(filterEqLaunchId int32) ApiGetTestItems1Request {
+	r.filterEqLaunchId = &filterEqLaunchId
+	return r
+}
+
 // Filters by &#39;attributeKey&#39;
 func (r ApiGetTestItems1Request) FilterEqAttributeKey(filterEqAttributeKey []interface{}) ApiGetTestItems1Request {
 	r.filterEqAttributeKey = &filterEqAttributeKey
+	return r
+}
+
+// Filters by &#39;hasChildren&#39;
+func (r ApiGetTestItems1Request) FilterEqHasChildren(filterEqHasChildren bool) ApiGetTestItems1Request {
+	r.filterEqHasChildren = &filterEqHasChildren
+	return r
+}
+
+// Filters by &#39;retryParentId&#39;
+func (r ApiGetTestItems1Request) FilterEqRetryParentId(filterEqRetryParentId int32) ApiGetTestItems1Request {
+	r.filterEqRetryParentId = &filterEqRetryParentId
+	return r
+}
+
+// Filters by &#39;statistics$executions$total&#39;
+func (r ApiGetTestItems1Request) FilterEqStatisticsexecutionstotal(filterEqStatisticsexecutionstotal int32) ApiGetTestItems1Request {
+	r.filterEqStatisticsexecutionstotal = &filterEqStatisticsexecutionstotal
+	return r
+}
+
+// Filters by &#39;statistics$defects$product_bug$pb001&#39;
+func (r ApiGetTestItems1Request) FilterEqStatisticsdefectsproductBugpb001(filterEqStatisticsdefectsproductBugpb001 int32) ApiGetTestItems1Request {
+	r.filterEqStatisticsdefectsproductBugpb001 = &filterEqStatisticsdefectsproductBugpb001
+	return r
+}
+
+// Filters by &#39;statistics$executions$failed&#39;
+func (r ApiGetTestItems1Request) FilterEqStatisticsexecutionsfailed(filterEqStatisticsexecutionsfailed int32) ApiGetTestItems1Request {
+	r.filterEqStatisticsexecutionsfailed = &filterEqStatisticsexecutionsfailed
+	return r
+}
+
+// Filters by &#39;lastModified&#39;
+func (r ApiGetTestItems1Request) FilterEqLastModified(filterEqLastModified string) ApiGetTestItems1Request {
+	r.filterEqLastModified = &filterEqLastModified
+	return r
+}
+
+// Filters by &#39;status&#39;
+func (r ApiGetTestItems1Request) FilterEqStatus(filterEqStatus string) ApiGetTestItems1Request {
+	r.filterEqStatus = &filterEqStatus
+	return r
+}
+
+// Filters by &#39;testCaseId&#39;
+func (r ApiGetTestItems1Request) FilterEqTestCaseId(filterEqTestCaseId string) ApiGetTestItems1Request {
+	r.filterEqTestCaseId = &filterEqTestCaseId
 	return r
 }
 
@@ -4224,15 +4194,45 @@ func (r ApiGetTestItems1Request) FilterEqKey(filterEqKey string) ApiGetTestItems
 	return r
 }
 
-// Filters by &#39;parentId&#39;
-func (r ApiGetTestItems1Request) FilterEqParentId(filterEqParentId int32) ApiGetTestItems1Request {
-	r.filterEqParentId = &filterEqParentId
+// Filters by &#39;autoAnalyzed&#39;
+func (r ApiGetTestItems1Request) FilterEqAutoAnalyzed(filterEqAutoAnalyzed bool) ApiGetTestItems1Request {
+	r.filterEqAutoAnalyzed = &filterEqAutoAnalyzed
 	return r
 }
 
-// Filters by &#39;statistics$defects$to_investigate$ti001&#39;
-func (r ApiGetTestItems1Request) FilterEqStatisticsdefectstoInvestigateti001(filterEqStatisticsdefectstoInvestigateti001 int32) ApiGetTestItems1Request {
-	r.filterEqStatisticsdefectstoInvestigateti001 = &filterEqStatisticsdefectstoInvestigateti001
+// Filters by &#39;levelAttribute&#39;
+func (r ApiGetTestItems1Request) FilterEqLevelAttribute(filterEqLevelAttribute []interface{}) ApiGetTestItems1Request {
+	r.filterEqLevelAttribute = &filterEqLevelAttribute
+	return r
+}
+
+// Filters by &#39;mode&#39;
+func (r ApiGetTestItems1Request) FilterEqMode(filterEqMode string) ApiGetTestItems1Request {
+	r.filterEqMode = &filterEqMode
+	return r
+}
+
+// Filters by &#39;clusterId&#39;
+func (r ApiGetTestItems1Request) FilterEqClusterId(filterEqClusterId int32) ApiGetTestItems1Request {
+	r.filterEqClusterId = &filterEqClusterId
+	return r
+}
+
+// Filters by &#39;issueId&#39;
+func (r ApiGetTestItems1Request) FilterEqIssueId(filterEqIssueId int32) ApiGetTestItems1Request {
+	r.filterEqIssueId = &filterEqIssueId
+	return r
+}
+
+// Filters by &#39;duration&#39;
+func (r ApiGetTestItems1Request) FilterEqDuration(filterEqDuration int32) ApiGetTestItems1Request {
+	r.filterEqDuration = &filterEqDuration
+	return r
+}
+
+// Filters by &#39;projectId&#39;
+func (r ApiGetTestItems1Request) FilterEqProjectId(filterEqProjectId int32) ApiGetTestItems1Request {
+	r.filterEqProjectId = &filterEqProjectId
 	return r
 }
 
@@ -4282,8 +4282,53 @@ func (a *TestItemAPIService) GetTestItems1Execute(r ApiGetTestItems1Request) (*S
 	}
 
 	parameterAddToHeaderOrQuery(localVarQueryParams, "params", r.params, "form", "")
+	if r.filterEqLocator != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.locator", r.filterEqLocator, "form", "")
+	}
+	if r.filterEqHasRetries != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.hasRetries", r.filterEqHasRetries, "form", "")
+	}
+	if r.filterEqEndTime != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.endTime", r.filterEqEndTime, "form", "")
+	}
+	if r.filterEqStatisticsdefectsnoDefectnd001 != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.statistics$defects$no_defect$nd001", r.filterEqStatisticsdefectsnoDefectnd001, "form", "")
+	}
+	if r.filterEqId != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.id", r.filterEqId, "form", "")
+	}
+	if r.filterEqTicketId != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.ticketId", r.filterEqTicketId, "form", "")
+	}
+	if r.filterEqParentId != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.parentId", r.filterEqParentId, "form", "")
+	}
+	if r.filterEqHasStats != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.hasStats", r.filterEqHasStats, "form", "")
+	}
+	if r.filterEqTestCaseHash != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.testCaseHash", r.filterEqTestCaseHash, "form", "")
+	}
+	if r.filterEqStatisticsdefectstoInvestigateti001 != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.statistics$defects$to_investigate$ti001", r.filterEqStatisticsdefectstoInvestigateti001, "form", "")
+	}
 	if r.filterEqUuid != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.uuid", r.filterEqUuid, "form", "")
+	}
+	if r.filterEqStatisticsdefectssystemIssuesi001 != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.statistics$defects$system_issue$si001", r.filterEqStatisticsdefectssystemIssuesi001, "form", "")
+	}
+	if r.filterEqIssueType != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.issueType", r.filterEqIssueType, "form", "")
+	}
+	if r.filterEqStatisticsexecutionsskipped != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.statistics$executions$skipped", r.filterEqStatisticsexecutionsskipped, "form", "")
+	}
+	if r.filterEqType != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.type", r.filterEqType, "form", "")
+	}
+	if r.filterEqStatisticsdefectsautomationBugab001 != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.statistics$defects$automation_bug$ab001", r.filterEqStatisticsdefectsautomationBugab001, "form", "")
 	}
 	if r.filterEqAttributeValue != nil {
 		t := *r.filterEqAttributeValue
@@ -4296,133 +4341,44 @@ func (a *TestItemAPIService) GetTestItems1Execute(r ApiGetTestItems1Request) (*S
 			parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.attributeValue", t, "form", "multi")
 		}
 	}
-	if r.filterEqLevelAttribute != nil {
-		t := *r.filterEqLevelAttribute
-		if reflect.TypeOf(t).Kind() == reflect.Slice {
-			s := reflect.ValueOf(t)
-			for i := 0; i < s.Len(); i++ {
-				parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.levelAttribute", s.Index(i).Interface(), "form", "multi")
-			}
-		} else {
-			parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.levelAttribute", t, "form", "multi")
-		}
-	}
-	if r.filterEqId != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.id", r.filterEqId, "form", "")
-	}
-	if r.filterEqStatus != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.status", r.filterEqStatus, "form", "")
-	}
-	if r.filterEqStartTime != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.startTime", r.filterEqStartTime, "form", "")
-	}
-	if r.filterEqIssueType != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.issueType", r.filterEqIssueType, "form", "")
-	}
-	if r.filterEqClusterId != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.clusterId", r.filterEqClusterId, "form", "")
-	}
 	if r.filterEqPath != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.path", r.filterEqPath, "form", "")
-	}
-	if r.filterEqIssueGroupId != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.issueGroupId", r.filterEqIssueGroupId, "form", "")
-	}
-	if r.filterEqHasRetries != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.hasRetries", r.filterEqHasRetries, "form", "")
-	}
-	if r.filterEqIssueTypeId != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.issueTypeId", r.filterEqIssueTypeId, "form", "")
-	}
-	if r.filterEqValue != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.value", r.filterEqValue, "form", "")
-	}
-	if r.filterEqDuration != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.duration", r.filterEqDuration, "form", "")
-	}
-	if r.filterHasCompositeAttribute != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.has.compositeAttribute", r.filterHasCompositeAttribute, "form", "")
-	}
-	if r.filterEqEndTime != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.endTime", r.filterEqEndTime, "form", "")
-	}
-	if r.filterEqStatisticsexecutionspassed != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.statistics$executions$passed", r.filterEqStatisticsexecutionspassed, "form", "")
-	}
-	if r.filterEqName != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.name", r.filterEqName, "form", "")
-	}
-	if r.filterEqAutoAnalyzed != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.autoAnalyzed", r.filterEqAutoAnalyzed, "form", "")
-	}
-	if r.filterEqLocator != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.locator", r.filterEqLocator, "form", "")
-	}
-	if r.filterEqDescription != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.description", r.filterEqDescription, "form", "")
-	}
-	if r.filterEqStatisticsexecutionsfailed != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.statistics$executions$failed", r.filterEqStatisticsexecutionsfailed, "form", "")
-	}
-	if r.filterEqTestCaseHash != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.testCaseHash", r.filterEqTestCaseHash, "form", "")
-	}
-	if r.filterEqStatisticsdefectssystemIssuesi001 != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.statistics$defects$system_issue$si001", r.filterEqStatisticsdefectssystemIssuesi001, "form", "")
-	}
-	if r.filterEqHasStats != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.hasStats", r.filterEqHasStats, "form", "")
-	}
-	if r.filterEqStatisticsexecutionstotal != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.statistics$executions$total", r.filterEqStatisticsexecutionstotal, "form", "")
-	}
-	if r.filterEqStatisticsexecutionsskipped != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.statistics$executions$skipped", r.filterEqStatisticsexecutionsskipped, "form", "")
-	}
-	if r.filterEqLastModified != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.lastModified", r.filterEqLastModified, "form", "")
-	}
-	if r.filterEqStatisticsdefectsproductBugpb001 != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.statistics$defects$product_bug$pb001", r.filterEqStatisticsdefectsproductBugpb001, "form", "")
-	}
-	if r.filterEqStatisticsdefectsautomationBugab001 != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.statistics$defects$automation_bug$ab001", r.filterEqStatisticsdefectsautomationBugab001, "form", "")
-	}
-	if r.filterEqType != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.type", r.filterEqType, "form", "")
-	}
-	if r.filterEqIssueId != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.issueId", r.filterEqIssueId, "form", "")
-	}
-	if r.filterEqMode != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.mode", r.filterEqMode, "form", "")
-	}
-	if r.filterEqTestCaseId != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.testCaseId", r.filterEqTestCaseId, "form", "")
-	}
-	if r.filterEqUniqueId != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.uniqueId", r.filterEqUniqueId, "form", "")
 	}
 	if r.filterHasCompositeSystemAttribute != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.has.compositeSystemAttribute", r.filterHasCompositeSystemAttribute, "form", "")
 	}
-	if r.filterEqProjectId != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.projectId", r.filterEqProjectId, "form", "")
+	if r.filterEqIssueGroupId != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.issueGroupId", r.filterEqIssueGroupId, "form", "")
 	}
-	if r.filterEqIssueComment != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.issueComment", r.filterEqIssueComment, "form", "")
+	if r.filterEqDescription != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.description", r.filterEqDescription, "form", "")
+	}
+	if r.filterEqUniqueId != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.uniqueId", r.filterEqUniqueId, "form", "")
+	}
+	if r.filterEqStatisticsexecutionspassed != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.statistics$executions$passed", r.filterEqStatisticsexecutionspassed, "form", "")
 	}
 	if r.filterEqIgnoreAnalyzer != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.ignoreAnalyzer", r.filterEqIgnoreAnalyzer, "form", "")
 	}
-	if r.filterEqLaunchId != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.launchId", r.filterEqLaunchId, "form", "")
+	if r.filterEqIssueComment != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.issueComment", r.filterEqIssueComment, "form", "")
 	}
-	if r.filterEqStatisticsdefectsnoDefectnd001 != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.statistics$defects$no_defect$nd001", r.filterEqStatisticsdefectsnoDefectnd001, "form", "")
+	if r.filterEqStartTime != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.startTime", r.filterEqStartTime, "form", "")
 	}
-	if r.filterEqHasChildren != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.hasChildren", r.filterEqHasChildren, "form", "")
+	if r.filterHasCompositeAttribute != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.has.compositeAttribute", r.filterHasCompositeAttribute, "form", "")
+	}
+	if r.filterEqValue != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.value", r.filterEqValue, "form", "")
+	}
+	if r.filterEqIssueTypeId != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.issueTypeId", r.filterEqIssueTypeId, "form", "")
+	}
+	if r.filterEqName != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.name", r.filterEqName, "form", "")
 	}
 	if r.filterEqPatternName != nil {
 		t := *r.filterEqPatternName
@@ -4435,11 +4391,8 @@ func (a *TestItemAPIService) GetTestItems1Execute(r ApiGetTestItems1Request) (*S
 			parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.patternName", t, "form", "multi")
 		}
 	}
-	if r.filterEqRetryParentId != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.retryParentId", r.filterEqRetryParentId, "form", "")
-	}
-	if r.filterEqTicketId != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.ticketId", r.filterEqTicketId, "form", "")
+	if r.filterEqLaunchId != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.launchId", r.filterEqLaunchId, "form", "")
 	}
 	if r.filterEqAttributeKey != nil {
 		t := *r.filterEqAttributeKey
@@ -4452,14 +4405,61 @@ func (a *TestItemAPIService) GetTestItems1Execute(r ApiGetTestItems1Request) (*S
 			parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.attributeKey", t, "form", "multi")
 		}
 	}
+	if r.filterEqHasChildren != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.hasChildren", r.filterEqHasChildren, "form", "")
+	}
+	if r.filterEqRetryParentId != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.retryParentId", r.filterEqRetryParentId, "form", "")
+	}
+	if r.filterEqStatisticsexecutionstotal != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.statistics$executions$total", r.filterEqStatisticsexecutionstotal, "form", "")
+	}
+	if r.filterEqStatisticsdefectsproductBugpb001 != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.statistics$defects$product_bug$pb001", r.filterEqStatisticsdefectsproductBugpb001, "form", "")
+	}
+	if r.filterEqStatisticsexecutionsfailed != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.statistics$executions$failed", r.filterEqStatisticsexecutionsfailed, "form", "")
+	}
+	if r.filterEqLastModified != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.lastModified", r.filterEqLastModified, "form", "")
+	}
+	if r.filterEqStatus != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.status", r.filterEqStatus, "form", "")
+	}
+	if r.filterEqTestCaseId != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.testCaseId", r.filterEqTestCaseId, "form", "")
+	}
 	if r.filterEqKey != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.key", r.filterEqKey, "form", "")
 	}
-	if r.filterEqParentId != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.parentId", r.filterEqParentId, "form", "")
+	if r.filterEqAutoAnalyzed != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.autoAnalyzed", r.filterEqAutoAnalyzed, "form", "")
 	}
-	if r.filterEqStatisticsdefectstoInvestigateti001 != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.statistics$defects$to_investigate$ti001", r.filterEqStatisticsdefectstoInvestigateti001, "form", "")
+	if r.filterEqLevelAttribute != nil {
+		t := *r.filterEqLevelAttribute
+		if reflect.TypeOf(t).Kind() == reflect.Slice {
+			s := reflect.ValueOf(t)
+			for i := 0; i < s.Len(); i++ {
+				parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.levelAttribute", s.Index(i).Interface(), "form", "multi")
+			}
+		} else {
+			parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.levelAttribute", t, "form", "multi")
+		}
+	}
+	if r.filterEqMode != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.mode", r.filterEqMode, "form", "")
+	}
+	if r.filterEqClusterId != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.clusterId", r.filterEqClusterId, "form", "")
+	}
+	if r.filterEqIssueId != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.issueId", r.filterEqIssueId, "form", "")
+	}
+	if r.filterEqDuration != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.duration", r.filterEqDuration, "form", "")
+	}
+	if r.filterEqProjectId != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.projectId", r.filterEqProjectId, "form", "")
 	}
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}
@@ -4798,6 +4798,8 @@ GetTestItems3 Get test items by specified ids
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param projectName
 	@return ApiGetTestItems3Request
+
+Deprecated
 */
 func (a *TestItemAPIService) GetTestItems3(ctx context.Context, projectName string) ApiGetTestItems3Request {
 	return ApiGetTestItems3Request{
@@ -4810,6 +4812,8 @@ func (a *TestItemAPIService) GetTestItems3(ctx context.Context, projectName stri
 // Execute executes the request
 //
 //	@return []TestItemResource
+//
+// Deprecated
 func (a *TestItemAPIService) GetTestItems3Execute(r ApiGetTestItems3Request) ([]TestItemResource, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodGet
@@ -4949,60 +4953,224 @@ func (a *TestItemAPIService) GetTestItems3Execute(r ApiGetTestItems3Request) ([]
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
 
+type ApiGetTestItemsByIdsRequest struct {
+	ctx         context.Context
+	ApiService  *TestItemAPIService
+	projectName string
+	bulkItemsRQ *BulkItemsRQ
+}
+
+func (r ApiGetTestItemsByIdsRequest) BulkItemsRQ(bulkItemsRQ BulkItemsRQ) ApiGetTestItemsByIdsRequest {
+	r.bulkItemsRQ = &bulkItemsRQ
+	return r
+}
+
+func (r ApiGetTestItemsByIdsRequest) Execute() ([]TestItemResource, *http.Response, error) {
+	return r.ApiService.GetTestItemsByIdsExecute(r)
+}
+
+/*
+GetTestItemsByIds Get test items by list of IDs (max 300)
+
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param projectName
+	@return ApiGetTestItemsByIdsRequest
+*/
+func (a *TestItemAPIService) GetTestItemsByIds(ctx context.Context, projectName string) ApiGetTestItemsByIdsRequest {
+	return ApiGetTestItemsByIdsRequest{
+		ApiService:  a,
+		ctx:         ctx,
+		projectName: projectName,
+	}
+}
+
+// Execute executes the request
+//
+//	@return []TestItemResource
+func (a *TestItemAPIService) GetTestItemsByIdsExecute(r ApiGetTestItemsByIdsRequest) ([]TestItemResource, *http.Response, error) {
+	var (
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue []TestItemResource
+	)
+
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "TestItemAPIService.GetTestItemsByIds")
+	if err != nil {
+		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
+	}
+
+	localVarPath := localBasePath + "/v1/{projectName}/item/bulk"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+
+	localVarHeaderParams := make(map[string]string)
+	localVarQueryParams := url.Values{}
+	localVarFormParams := url.Values{}
+	if r.bulkItemsRQ == nil {
+		return localVarReturnValue, nil, reportError("bulkItemsRQ is required and must be specified")
+	}
+
+	// to determine the Content-Type header
+	localVarHTTPContentTypes := []string{"application/json"}
+
+	// set Content-Type header
+	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
+	if localVarHTTPContentType != "" {
+		localVarHeaderParams["Content-Type"] = localVarHTTPContentType
+	}
+
+	// to determine the Accept header
+	localVarHTTPHeaderAccepts := []string{"application/json"}
+
+	// set Accept header
+	localVarHTTPHeaderAccept := selectHeaderAccept(localVarHTTPHeaderAccepts)
+	if localVarHTTPHeaderAccept != "" {
+		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
+	}
+	// body params
+	localVarPostBody = r.bulkItemsRQ
+	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
+	if err != nil {
+		return localVarReturnValue, nil, err
+	}
+
+	localVarHTTPResponse, err := a.client.callAPI(req)
+	if err != nil || localVarHTTPResponse == nil {
+		return localVarReturnValue, localVarHTTPResponse, err
+	}
+
+	localVarBody, err := io.ReadAll(localVarHTTPResponse.Body)
+	localVarHTTPResponse.Body.Close()
+	localVarHTTPResponse.Body = io.NopCloser(bytes.NewBuffer(localVarBody))
+	if err != nil {
+		return localVarReturnValue, localVarHTTPResponse, err
+	}
+
+	if a.client.cfg.ResponseMiddleware != nil {
+		err = a.client.cfg.ResponseMiddleware(localVarHTTPResponse, localVarBody)
+		if err != nil {
+			return localVarReturnValue, localVarHTTPResponse, err
+		}
+	}
+
+	if localVarHTTPResponse.StatusCode >= 300 {
+		newErr := &GenericOpenAPIError{
+			body:  localVarBody,
+			error: localVarHTTPResponse.Status,
+		}
+		if localVarHTTPResponse.StatusCode == 401 {
+			var v SaveAnalyticsSettings1401Response
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarReturnValue, localVarHTTPResponse, newErr
+			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
+			return localVarReturnValue, localVarHTTPResponse, newErr
+		}
+		if localVarHTTPResponse.StatusCode == 500 {
+			var v ErrorRS
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarReturnValue, localVarHTTPResponse, newErr
+			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
+			return localVarReturnValue, localVarHTTPResponse, newErr
+		}
+		if localVarHTTPResponse.StatusCode == 403 {
+			var v ErrorRS
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarReturnValue, localVarHTTPResponse, newErr
+			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
+			return localVarReturnValue, localVarHTTPResponse, newErr
+		}
+		if localVarHTTPResponse.StatusCode == 400 {
+			var v ErrorRS
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarReturnValue, localVarHTTPResponse, newErr
+			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
+			return localVarReturnValue, localVarHTTPResponse, newErr
+		}
+		return localVarReturnValue, localVarHTTPResponse, newErr
+	}
+
+	err = a.client.decode(&localVarReturnValue, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+	if err != nil {
+		newErr := &GenericOpenAPIError{
+			body:  localVarBody,
+			error: err.Error(),
+		}
+		return localVarReturnValue, localVarHTTPResponse, newErr
+	}
+
+	return localVarReturnValue, localVarHTTPResponse, nil
+}
+
 type ApiGetTestItemsV2Request struct {
 	ctx                                         context.Context
 	ApiService                                  *TestItemAPIService
 	params                                      *map[string]string
 	projectName                                 string
-	filterEqUuid                                *string
-	filterEqAttributeValue                      *[]interface{}
-	filterEqLevelAttribute                      *[]interface{}
-	filterEqId                                  *int32
-	filterEqStatus                              *string
-	filterEqStartTime                           *string
-	filterEqIssueType                           *string
-	filterEqClusterId                           *int32
-	filterEqPath                                *int32
-	filterEqIssueGroupId                        *string
-	filterEqHasRetries                          *bool
-	filterEqIssueTypeId                         *int32
-	filterEqValue                               *string
-	filterEqDuration                            *int32
-	filterHasCompositeAttribute                 *string
-	filterEqEndTime                             *string
-	filterEqStatisticsexecutionspassed          *int32
-	filterEqName                                *string
-	filterEqAutoAnalyzed                        *bool
 	filterEqLocator                             *string
-	filterEqDescription                         *string
-	filterEqStatisticsexecutionsfailed          *int32
-	filterEqTestCaseHash                        *int32
-	filterEqStatisticsdefectssystemIssuesi001   *int32
-	filterEqHasStats                            *bool
-	filterEqStatisticsexecutionstotal           *int32
-	filterEqStatisticsexecutionsskipped         *int32
-	filterEqLastModified                        *string
-	filterEqStatisticsdefectsproductBugpb001    *int32
-	filterEqStatisticsdefectsautomationBugab001 *int32
-	filterEqType                                *string
-	filterEqIssueId                             *int32
-	filterEqMode                                *string
-	filterEqTestCaseId                          *string
-	filterEqUniqueId                            *string
-	filterHasCompositeSystemAttribute           *string
-	filterEqProjectId                           *int32
-	filterEqIssueComment                        *string
-	filterEqIgnoreAnalyzer                      *bool
-	filterEqLaunchId                            *int32
+	filterEqHasRetries                          *bool
+	filterEqEndTime                             *string
 	filterEqStatisticsdefectsnoDefectnd001      *int32
-	filterEqHasChildren                         *bool
-	filterEqPatternName                         *[]interface{}
-	filterEqRetryParentId                       *int32
+	filterEqId                                  *int32
 	filterEqTicketId                            *string
-	filterEqAttributeKey                        *[]interface{}
-	filterEqKey                                 *string
 	filterEqParentId                            *int32
+	filterEqHasStats                            *bool
+	filterEqTestCaseHash                        *int32
 	filterEqStatisticsdefectstoInvestigateti001 *int32
+	filterEqUuid                                *string
+	filterEqStatisticsdefectssystemIssuesi001   *int32
+	filterEqIssueType                           *string
+	filterEqStatisticsexecutionsskipped         *int32
+	filterEqType                                *string
+	filterEqStatisticsdefectsautomationBugab001 *int32
+	filterEqAttributeValue                      *[]interface{}
+	filterEqPath                                *int32
+	filterHasCompositeSystemAttribute           *string
+	filterEqIssueGroupId                        *string
+	filterEqDescription                         *string
+	filterEqUniqueId                            *string
+	filterEqStatisticsexecutionspassed          *int32
+	filterEqIgnoreAnalyzer                      *bool
+	filterEqIssueComment                        *string
+	filterEqStartTime                           *string
+	filterHasCompositeAttribute                 *string
+	filterEqValue                               *string
+	filterEqIssueTypeId                         *int32
+	filterEqName                                *string
+	filterEqPatternName                         *[]interface{}
+	filterEqLaunchId                            *int32
+	filterEqAttributeKey                        *[]interface{}
+	filterEqHasChildren                         *bool
+	filterEqRetryParentId                       *int32
+	filterEqStatisticsexecutionstotal           *int32
+	filterEqStatisticsdefectsproductBugpb001    *int32
+	filterEqStatisticsexecutionsfailed          *int32
+	filterEqLastModified                        *string
+	filterEqStatus                              *string
+	filterEqTestCaseId                          *string
+	filterEqKey                                 *string
+	filterEqAutoAnalyzed                        *bool
+	filterEqLevelAttribute                      *[]interface{}
+	filterEqMode                                *string
+	filterEqClusterId                           *int32
+	filterEqIssueId                             *int32
+	filterEqDuration                            *int32
+	filterEqProjectId                           *int32
 	pagePage                                    *int32
 	pageSize                                    *int32
 	pageSort                                    *string
@@ -5013,63 +5181,9 @@ func (r ApiGetTestItemsV2Request) Params(params map[string]string) ApiGetTestIte
 	return r
 }
 
-// Filters by &#39;uuid&#39;
-func (r ApiGetTestItemsV2Request) FilterEqUuid(filterEqUuid string) ApiGetTestItemsV2Request {
-	r.filterEqUuid = &filterEqUuid
-	return r
-}
-
-// Filters by &#39;attributeValue&#39;
-func (r ApiGetTestItemsV2Request) FilterEqAttributeValue(filterEqAttributeValue []interface{}) ApiGetTestItemsV2Request {
-	r.filterEqAttributeValue = &filterEqAttributeValue
-	return r
-}
-
-// Filters by &#39;levelAttribute&#39;
-func (r ApiGetTestItemsV2Request) FilterEqLevelAttribute(filterEqLevelAttribute []interface{}) ApiGetTestItemsV2Request {
-	r.filterEqLevelAttribute = &filterEqLevelAttribute
-	return r
-}
-
-// Filters by &#39;id&#39;
-func (r ApiGetTestItemsV2Request) FilterEqId(filterEqId int32) ApiGetTestItemsV2Request {
-	r.filterEqId = &filterEqId
-	return r
-}
-
-// Filters by &#39;status&#39;
-func (r ApiGetTestItemsV2Request) FilterEqStatus(filterEqStatus string) ApiGetTestItemsV2Request {
-	r.filterEqStatus = &filterEqStatus
-	return r
-}
-
-// Filters by &#39;startTime&#39;
-func (r ApiGetTestItemsV2Request) FilterEqStartTime(filterEqStartTime string) ApiGetTestItemsV2Request {
-	r.filterEqStartTime = &filterEqStartTime
-	return r
-}
-
-// Filters by &#39;issueType&#39;
-func (r ApiGetTestItemsV2Request) FilterEqIssueType(filterEqIssueType string) ApiGetTestItemsV2Request {
-	r.filterEqIssueType = &filterEqIssueType
-	return r
-}
-
-// Filters by &#39;clusterId&#39;
-func (r ApiGetTestItemsV2Request) FilterEqClusterId(filterEqClusterId int32) ApiGetTestItemsV2Request {
-	r.filterEqClusterId = &filterEqClusterId
-	return r
-}
-
-// Filters by &#39;path&#39;
-func (r ApiGetTestItemsV2Request) FilterEqPath(filterEqPath int32) ApiGetTestItemsV2Request {
-	r.filterEqPath = &filterEqPath
-	return r
-}
-
-// Filters by &#39;issueGroupId&#39;
-func (r ApiGetTestItemsV2Request) FilterEqIssueGroupId(filterEqIssueGroupId string) ApiGetTestItemsV2Request {
-	r.filterEqIssueGroupId = &filterEqIssueGroupId
+// Filters by &#39;locator&#39;
+func (r ApiGetTestItemsV2Request) FilterEqLocator(filterEqLocator string) ApiGetTestItemsV2Request {
+	r.filterEqLocator = &filterEqLocator
 	return r
 }
 
@@ -5079,177 +5193,9 @@ func (r ApiGetTestItemsV2Request) FilterEqHasRetries(filterEqHasRetries bool) Ap
 	return r
 }
 
-// Filters by &#39;issueTypeId&#39;
-func (r ApiGetTestItemsV2Request) FilterEqIssueTypeId(filterEqIssueTypeId int32) ApiGetTestItemsV2Request {
-	r.filterEqIssueTypeId = &filterEqIssueTypeId
-	return r
-}
-
-// Filters by &#39;value&#39;
-func (r ApiGetTestItemsV2Request) FilterEqValue(filterEqValue string) ApiGetTestItemsV2Request {
-	r.filterEqValue = &filterEqValue
-	return r
-}
-
-// Filters by &#39;duration&#39;
-func (r ApiGetTestItemsV2Request) FilterEqDuration(filterEqDuration int32) ApiGetTestItemsV2Request {
-	r.filterEqDuration = &filterEqDuration
-	return r
-}
-
-// Filters by &#39;compositeAttribute&#39;
-func (r ApiGetTestItemsV2Request) FilterHasCompositeAttribute(filterHasCompositeAttribute string) ApiGetTestItemsV2Request {
-	r.filterHasCompositeAttribute = &filterHasCompositeAttribute
-	return r
-}
-
 // Filters by &#39;endTime&#39;
 func (r ApiGetTestItemsV2Request) FilterEqEndTime(filterEqEndTime string) ApiGetTestItemsV2Request {
 	r.filterEqEndTime = &filterEqEndTime
-	return r
-}
-
-// Filters by &#39;statistics$executions$passed&#39;
-func (r ApiGetTestItemsV2Request) FilterEqStatisticsexecutionspassed(filterEqStatisticsexecutionspassed int32) ApiGetTestItemsV2Request {
-	r.filterEqStatisticsexecutionspassed = &filterEqStatisticsexecutionspassed
-	return r
-}
-
-// Filters by &#39;name&#39;
-func (r ApiGetTestItemsV2Request) FilterEqName(filterEqName string) ApiGetTestItemsV2Request {
-	r.filterEqName = &filterEqName
-	return r
-}
-
-// Filters by &#39;autoAnalyzed&#39;
-func (r ApiGetTestItemsV2Request) FilterEqAutoAnalyzed(filterEqAutoAnalyzed bool) ApiGetTestItemsV2Request {
-	r.filterEqAutoAnalyzed = &filterEqAutoAnalyzed
-	return r
-}
-
-// Filters by &#39;locator&#39;
-func (r ApiGetTestItemsV2Request) FilterEqLocator(filterEqLocator string) ApiGetTestItemsV2Request {
-	r.filterEqLocator = &filterEqLocator
-	return r
-}
-
-// Filters by &#39;description&#39;
-func (r ApiGetTestItemsV2Request) FilterEqDescription(filterEqDescription string) ApiGetTestItemsV2Request {
-	r.filterEqDescription = &filterEqDescription
-	return r
-}
-
-// Filters by &#39;statistics$executions$failed&#39;
-func (r ApiGetTestItemsV2Request) FilterEqStatisticsexecutionsfailed(filterEqStatisticsexecutionsfailed int32) ApiGetTestItemsV2Request {
-	r.filterEqStatisticsexecutionsfailed = &filterEqStatisticsexecutionsfailed
-	return r
-}
-
-// Filters by &#39;testCaseHash&#39;
-func (r ApiGetTestItemsV2Request) FilterEqTestCaseHash(filterEqTestCaseHash int32) ApiGetTestItemsV2Request {
-	r.filterEqTestCaseHash = &filterEqTestCaseHash
-	return r
-}
-
-// Filters by &#39;statistics$defects$system_issue$si001&#39;
-func (r ApiGetTestItemsV2Request) FilterEqStatisticsdefectssystemIssuesi001(filterEqStatisticsdefectssystemIssuesi001 int32) ApiGetTestItemsV2Request {
-	r.filterEqStatisticsdefectssystemIssuesi001 = &filterEqStatisticsdefectssystemIssuesi001
-	return r
-}
-
-// Filters by &#39;hasStats&#39;
-func (r ApiGetTestItemsV2Request) FilterEqHasStats(filterEqHasStats bool) ApiGetTestItemsV2Request {
-	r.filterEqHasStats = &filterEqHasStats
-	return r
-}
-
-// Filters by &#39;statistics$executions$total&#39;
-func (r ApiGetTestItemsV2Request) FilterEqStatisticsexecutionstotal(filterEqStatisticsexecutionstotal int32) ApiGetTestItemsV2Request {
-	r.filterEqStatisticsexecutionstotal = &filterEqStatisticsexecutionstotal
-	return r
-}
-
-// Filters by &#39;statistics$executions$skipped&#39;
-func (r ApiGetTestItemsV2Request) FilterEqStatisticsexecutionsskipped(filterEqStatisticsexecutionsskipped int32) ApiGetTestItemsV2Request {
-	r.filterEqStatisticsexecutionsskipped = &filterEqStatisticsexecutionsskipped
-	return r
-}
-
-// Filters by &#39;lastModified&#39;
-func (r ApiGetTestItemsV2Request) FilterEqLastModified(filterEqLastModified string) ApiGetTestItemsV2Request {
-	r.filterEqLastModified = &filterEqLastModified
-	return r
-}
-
-// Filters by &#39;statistics$defects$product_bug$pb001&#39;
-func (r ApiGetTestItemsV2Request) FilterEqStatisticsdefectsproductBugpb001(filterEqStatisticsdefectsproductBugpb001 int32) ApiGetTestItemsV2Request {
-	r.filterEqStatisticsdefectsproductBugpb001 = &filterEqStatisticsdefectsproductBugpb001
-	return r
-}
-
-// Filters by &#39;statistics$defects$automation_bug$ab001&#39;
-func (r ApiGetTestItemsV2Request) FilterEqStatisticsdefectsautomationBugab001(filterEqStatisticsdefectsautomationBugab001 int32) ApiGetTestItemsV2Request {
-	r.filterEqStatisticsdefectsautomationBugab001 = &filterEqStatisticsdefectsautomationBugab001
-	return r
-}
-
-// Filters by &#39;type&#39;
-func (r ApiGetTestItemsV2Request) FilterEqType(filterEqType string) ApiGetTestItemsV2Request {
-	r.filterEqType = &filterEqType
-	return r
-}
-
-// Filters by &#39;issueId&#39;
-func (r ApiGetTestItemsV2Request) FilterEqIssueId(filterEqIssueId int32) ApiGetTestItemsV2Request {
-	r.filterEqIssueId = &filterEqIssueId
-	return r
-}
-
-// Filters by &#39;mode&#39;
-func (r ApiGetTestItemsV2Request) FilterEqMode(filterEqMode string) ApiGetTestItemsV2Request {
-	r.filterEqMode = &filterEqMode
-	return r
-}
-
-// Filters by &#39;testCaseId&#39;
-func (r ApiGetTestItemsV2Request) FilterEqTestCaseId(filterEqTestCaseId string) ApiGetTestItemsV2Request {
-	r.filterEqTestCaseId = &filterEqTestCaseId
-	return r
-}
-
-// Filters by &#39;uniqueId&#39;
-func (r ApiGetTestItemsV2Request) FilterEqUniqueId(filterEqUniqueId string) ApiGetTestItemsV2Request {
-	r.filterEqUniqueId = &filterEqUniqueId
-	return r
-}
-
-// Filters by &#39;compositeSystemAttribute&#39;
-func (r ApiGetTestItemsV2Request) FilterHasCompositeSystemAttribute(filterHasCompositeSystemAttribute string) ApiGetTestItemsV2Request {
-	r.filterHasCompositeSystemAttribute = &filterHasCompositeSystemAttribute
-	return r
-}
-
-// Filters by &#39;projectId&#39;
-func (r ApiGetTestItemsV2Request) FilterEqProjectId(filterEqProjectId int32) ApiGetTestItemsV2Request {
-	r.filterEqProjectId = &filterEqProjectId
-	return r
-}
-
-// Filters by &#39;issueComment&#39;
-func (r ApiGetTestItemsV2Request) FilterEqIssueComment(filterEqIssueComment string) ApiGetTestItemsV2Request {
-	r.filterEqIssueComment = &filterEqIssueComment
-	return r
-}
-
-// Filters by &#39;ignoreAnalyzer&#39;
-func (r ApiGetTestItemsV2Request) FilterEqIgnoreAnalyzer(filterEqIgnoreAnalyzer bool) ApiGetTestItemsV2Request {
-	r.filterEqIgnoreAnalyzer = &filterEqIgnoreAnalyzer
-	return r
-}
-
-// Filters by &#39;launchId&#39;
-func (r ApiGetTestItemsV2Request) FilterEqLaunchId(filterEqLaunchId int32) ApiGetTestItemsV2Request {
-	r.filterEqLaunchId = &filterEqLaunchId
 	return r
 }
 
@@ -5259,21 +5205,9 @@ func (r ApiGetTestItemsV2Request) FilterEqStatisticsdefectsnoDefectnd001(filterE
 	return r
 }
 
-// Filters by &#39;hasChildren&#39;
-func (r ApiGetTestItemsV2Request) FilterEqHasChildren(filterEqHasChildren bool) ApiGetTestItemsV2Request {
-	r.filterEqHasChildren = &filterEqHasChildren
-	return r
-}
-
-// Filters by &#39;patternName&#39;
-func (r ApiGetTestItemsV2Request) FilterEqPatternName(filterEqPatternName []interface{}) ApiGetTestItemsV2Request {
-	r.filterEqPatternName = &filterEqPatternName
-	return r
-}
-
-// Filters by &#39;retryParentId&#39;
-func (r ApiGetTestItemsV2Request) FilterEqRetryParentId(filterEqRetryParentId int32) ApiGetTestItemsV2Request {
-	r.filterEqRetryParentId = &filterEqRetryParentId
+// Filters by &#39;id&#39;
+func (r ApiGetTestItemsV2Request) FilterEqId(filterEqId int32) ApiGetTestItemsV2Request {
+	r.filterEqId = &filterEqId
 	return r
 }
 
@@ -5283,9 +5217,213 @@ func (r ApiGetTestItemsV2Request) FilterEqTicketId(filterEqTicketId string) ApiG
 	return r
 }
 
+// Filters by &#39;parentId&#39;
+func (r ApiGetTestItemsV2Request) FilterEqParentId(filterEqParentId int32) ApiGetTestItemsV2Request {
+	r.filterEqParentId = &filterEqParentId
+	return r
+}
+
+// Filters by &#39;hasStats&#39;
+func (r ApiGetTestItemsV2Request) FilterEqHasStats(filterEqHasStats bool) ApiGetTestItemsV2Request {
+	r.filterEqHasStats = &filterEqHasStats
+	return r
+}
+
+// Filters by &#39;testCaseHash&#39;
+func (r ApiGetTestItemsV2Request) FilterEqTestCaseHash(filterEqTestCaseHash int32) ApiGetTestItemsV2Request {
+	r.filterEqTestCaseHash = &filterEqTestCaseHash
+	return r
+}
+
+// Filters by &#39;statistics$defects$to_investigate$ti001&#39;
+func (r ApiGetTestItemsV2Request) FilterEqStatisticsdefectstoInvestigateti001(filterEqStatisticsdefectstoInvestigateti001 int32) ApiGetTestItemsV2Request {
+	r.filterEqStatisticsdefectstoInvestigateti001 = &filterEqStatisticsdefectstoInvestigateti001
+	return r
+}
+
+// Filters by &#39;uuid&#39;
+func (r ApiGetTestItemsV2Request) FilterEqUuid(filterEqUuid string) ApiGetTestItemsV2Request {
+	r.filterEqUuid = &filterEqUuid
+	return r
+}
+
+// Filters by &#39;statistics$defects$system_issue$si001&#39;
+func (r ApiGetTestItemsV2Request) FilterEqStatisticsdefectssystemIssuesi001(filterEqStatisticsdefectssystemIssuesi001 int32) ApiGetTestItemsV2Request {
+	r.filterEqStatisticsdefectssystemIssuesi001 = &filterEqStatisticsdefectssystemIssuesi001
+	return r
+}
+
+// Filters by &#39;issueType&#39;
+func (r ApiGetTestItemsV2Request) FilterEqIssueType(filterEqIssueType string) ApiGetTestItemsV2Request {
+	r.filterEqIssueType = &filterEqIssueType
+	return r
+}
+
+// Filters by &#39;statistics$executions$skipped&#39;
+func (r ApiGetTestItemsV2Request) FilterEqStatisticsexecutionsskipped(filterEqStatisticsexecutionsskipped int32) ApiGetTestItemsV2Request {
+	r.filterEqStatisticsexecutionsskipped = &filterEqStatisticsexecutionsskipped
+	return r
+}
+
+// Filters by &#39;type&#39;
+func (r ApiGetTestItemsV2Request) FilterEqType(filterEqType string) ApiGetTestItemsV2Request {
+	r.filterEqType = &filterEqType
+	return r
+}
+
+// Filters by &#39;statistics$defects$automation_bug$ab001&#39;
+func (r ApiGetTestItemsV2Request) FilterEqStatisticsdefectsautomationBugab001(filterEqStatisticsdefectsautomationBugab001 int32) ApiGetTestItemsV2Request {
+	r.filterEqStatisticsdefectsautomationBugab001 = &filterEqStatisticsdefectsautomationBugab001
+	return r
+}
+
+// Filters by &#39;attributeValue&#39;
+func (r ApiGetTestItemsV2Request) FilterEqAttributeValue(filterEqAttributeValue []interface{}) ApiGetTestItemsV2Request {
+	r.filterEqAttributeValue = &filterEqAttributeValue
+	return r
+}
+
+// Filters by &#39;path&#39;
+func (r ApiGetTestItemsV2Request) FilterEqPath(filterEqPath int32) ApiGetTestItemsV2Request {
+	r.filterEqPath = &filterEqPath
+	return r
+}
+
+// Filters by &#39;compositeSystemAttribute&#39;
+func (r ApiGetTestItemsV2Request) FilterHasCompositeSystemAttribute(filterHasCompositeSystemAttribute string) ApiGetTestItemsV2Request {
+	r.filterHasCompositeSystemAttribute = &filterHasCompositeSystemAttribute
+	return r
+}
+
+// Filters by &#39;issueGroupId&#39;
+func (r ApiGetTestItemsV2Request) FilterEqIssueGroupId(filterEqIssueGroupId string) ApiGetTestItemsV2Request {
+	r.filterEqIssueGroupId = &filterEqIssueGroupId
+	return r
+}
+
+// Filters by &#39;description&#39;
+func (r ApiGetTestItemsV2Request) FilterEqDescription(filterEqDescription string) ApiGetTestItemsV2Request {
+	r.filterEqDescription = &filterEqDescription
+	return r
+}
+
+// Filters by &#39;uniqueId&#39;
+func (r ApiGetTestItemsV2Request) FilterEqUniqueId(filterEqUniqueId string) ApiGetTestItemsV2Request {
+	r.filterEqUniqueId = &filterEqUniqueId
+	return r
+}
+
+// Filters by &#39;statistics$executions$passed&#39;
+func (r ApiGetTestItemsV2Request) FilterEqStatisticsexecutionspassed(filterEqStatisticsexecutionspassed int32) ApiGetTestItemsV2Request {
+	r.filterEqStatisticsexecutionspassed = &filterEqStatisticsexecutionspassed
+	return r
+}
+
+// Filters by &#39;ignoreAnalyzer&#39;
+func (r ApiGetTestItemsV2Request) FilterEqIgnoreAnalyzer(filterEqIgnoreAnalyzer bool) ApiGetTestItemsV2Request {
+	r.filterEqIgnoreAnalyzer = &filterEqIgnoreAnalyzer
+	return r
+}
+
+// Filters by &#39;issueComment&#39;
+func (r ApiGetTestItemsV2Request) FilterEqIssueComment(filterEqIssueComment string) ApiGetTestItemsV2Request {
+	r.filterEqIssueComment = &filterEqIssueComment
+	return r
+}
+
+// Filters by &#39;startTime&#39;
+func (r ApiGetTestItemsV2Request) FilterEqStartTime(filterEqStartTime string) ApiGetTestItemsV2Request {
+	r.filterEqStartTime = &filterEqStartTime
+	return r
+}
+
+// Filters by &#39;compositeAttribute&#39;
+func (r ApiGetTestItemsV2Request) FilterHasCompositeAttribute(filterHasCompositeAttribute string) ApiGetTestItemsV2Request {
+	r.filterHasCompositeAttribute = &filterHasCompositeAttribute
+	return r
+}
+
+// Filters by &#39;value&#39;
+func (r ApiGetTestItemsV2Request) FilterEqValue(filterEqValue string) ApiGetTestItemsV2Request {
+	r.filterEqValue = &filterEqValue
+	return r
+}
+
+// Filters by &#39;issueTypeId&#39;
+func (r ApiGetTestItemsV2Request) FilterEqIssueTypeId(filterEqIssueTypeId int32) ApiGetTestItemsV2Request {
+	r.filterEqIssueTypeId = &filterEqIssueTypeId
+	return r
+}
+
+// Filters by &#39;name&#39;
+func (r ApiGetTestItemsV2Request) FilterEqName(filterEqName string) ApiGetTestItemsV2Request {
+	r.filterEqName = &filterEqName
+	return r
+}
+
+// Filters by &#39;patternName&#39;
+func (r ApiGetTestItemsV2Request) FilterEqPatternName(filterEqPatternName []interface{}) ApiGetTestItemsV2Request {
+	r.filterEqPatternName = &filterEqPatternName
+	return r
+}
+
+// Filters by &#39;launchId&#39;
+func (r ApiGetTestItemsV2Request) FilterEqLaunchId(filterEqLaunchId int32) ApiGetTestItemsV2Request {
+	r.filterEqLaunchId = &filterEqLaunchId
+	return r
+}
+
 // Filters by &#39;attributeKey&#39;
 func (r ApiGetTestItemsV2Request) FilterEqAttributeKey(filterEqAttributeKey []interface{}) ApiGetTestItemsV2Request {
 	r.filterEqAttributeKey = &filterEqAttributeKey
+	return r
+}
+
+// Filters by &#39;hasChildren&#39;
+func (r ApiGetTestItemsV2Request) FilterEqHasChildren(filterEqHasChildren bool) ApiGetTestItemsV2Request {
+	r.filterEqHasChildren = &filterEqHasChildren
+	return r
+}
+
+// Filters by &#39;retryParentId&#39;
+func (r ApiGetTestItemsV2Request) FilterEqRetryParentId(filterEqRetryParentId int32) ApiGetTestItemsV2Request {
+	r.filterEqRetryParentId = &filterEqRetryParentId
+	return r
+}
+
+// Filters by &#39;statistics$executions$total&#39;
+func (r ApiGetTestItemsV2Request) FilterEqStatisticsexecutionstotal(filterEqStatisticsexecutionstotal int32) ApiGetTestItemsV2Request {
+	r.filterEqStatisticsexecutionstotal = &filterEqStatisticsexecutionstotal
+	return r
+}
+
+// Filters by &#39;statistics$defects$product_bug$pb001&#39;
+func (r ApiGetTestItemsV2Request) FilterEqStatisticsdefectsproductBugpb001(filterEqStatisticsdefectsproductBugpb001 int32) ApiGetTestItemsV2Request {
+	r.filterEqStatisticsdefectsproductBugpb001 = &filterEqStatisticsdefectsproductBugpb001
+	return r
+}
+
+// Filters by &#39;statistics$executions$failed&#39;
+func (r ApiGetTestItemsV2Request) FilterEqStatisticsexecutionsfailed(filterEqStatisticsexecutionsfailed int32) ApiGetTestItemsV2Request {
+	r.filterEqStatisticsexecutionsfailed = &filterEqStatisticsexecutionsfailed
+	return r
+}
+
+// Filters by &#39;lastModified&#39;
+func (r ApiGetTestItemsV2Request) FilterEqLastModified(filterEqLastModified string) ApiGetTestItemsV2Request {
+	r.filterEqLastModified = &filterEqLastModified
+	return r
+}
+
+// Filters by &#39;status&#39;
+func (r ApiGetTestItemsV2Request) FilterEqStatus(filterEqStatus string) ApiGetTestItemsV2Request {
+	r.filterEqStatus = &filterEqStatus
+	return r
+}
+
+// Filters by &#39;testCaseId&#39;
+func (r ApiGetTestItemsV2Request) FilterEqTestCaseId(filterEqTestCaseId string) ApiGetTestItemsV2Request {
+	r.filterEqTestCaseId = &filterEqTestCaseId
 	return r
 }
 
@@ -5295,15 +5433,45 @@ func (r ApiGetTestItemsV2Request) FilterEqKey(filterEqKey string) ApiGetTestItem
 	return r
 }
 
-// Filters by &#39;parentId&#39;
-func (r ApiGetTestItemsV2Request) FilterEqParentId(filterEqParentId int32) ApiGetTestItemsV2Request {
-	r.filterEqParentId = &filterEqParentId
+// Filters by &#39;autoAnalyzed&#39;
+func (r ApiGetTestItemsV2Request) FilterEqAutoAnalyzed(filterEqAutoAnalyzed bool) ApiGetTestItemsV2Request {
+	r.filterEqAutoAnalyzed = &filterEqAutoAnalyzed
 	return r
 }
 
-// Filters by &#39;statistics$defects$to_investigate$ti001&#39;
-func (r ApiGetTestItemsV2Request) FilterEqStatisticsdefectstoInvestigateti001(filterEqStatisticsdefectstoInvestigateti001 int32) ApiGetTestItemsV2Request {
-	r.filterEqStatisticsdefectstoInvestigateti001 = &filterEqStatisticsdefectstoInvestigateti001
+// Filters by &#39;levelAttribute&#39;
+func (r ApiGetTestItemsV2Request) FilterEqLevelAttribute(filterEqLevelAttribute []interface{}) ApiGetTestItemsV2Request {
+	r.filterEqLevelAttribute = &filterEqLevelAttribute
+	return r
+}
+
+// Filters by &#39;mode&#39;
+func (r ApiGetTestItemsV2Request) FilterEqMode(filterEqMode string) ApiGetTestItemsV2Request {
+	r.filterEqMode = &filterEqMode
+	return r
+}
+
+// Filters by &#39;clusterId&#39;
+func (r ApiGetTestItemsV2Request) FilterEqClusterId(filterEqClusterId int32) ApiGetTestItemsV2Request {
+	r.filterEqClusterId = &filterEqClusterId
+	return r
+}
+
+// Filters by &#39;issueId&#39;
+func (r ApiGetTestItemsV2Request) FilterEqIssueId(filterEqIssueId int32) ApiGetTestItemsV2Request {
+	r.filterEqIssueId = &filterEqIssueId
+	return r
+}
+
+// Filters by &#39;duration&#39;
+func (r ApiGetTestItemsV2Request) FilterEqDuration(filterEqDuration int32) ApiGetTestItemsV2Request {
+	r.filterEqDuration = &filterEqDuration
+	return r
+}
+
+// Filters by &#39;projectId&#39;
+func (r ApiGetTestItemsV2Request) FilterEqProjectId(filterEqProjectId int32) ApiGetTestItemsV2Request {
+	r.filterEqProjectId = &filterEqProjectId
 	return r
 }
 
@@ -5371,8 +5539,53 @@ func (a *TestItemAPIService) GetTestItemsV2Execute(r ApiGetTestItemsV2Request) (
 	}
 
 	parameterAddToHeaderOrQuery(localVarQueryParams, "params", r.params, "form", "")
+	if r.filterEqLocator != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.locator", r.filterEqLocator, "form", "")
+	}
+	if r.filterEqHasRetries != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.hasRetries", r.filterEqHasRetries, "form", "")
+	}
+	if r.filterEqEndTime != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.endTime", r.filterEqEndTime, "form", "")
+	}
+	if r.filterEqStatisticsdefectsnoDefectnd001 != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.statistics$defects$no_defect$nd001", r.filterEqStatisticsdefectsnoDefectnd001, "form", "")
+	}
+	if r.filterEqId != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.id", r.filterEqId, "form", "")
+	}
+	if r.filterEqTicketId != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.ticketId", r.filterEqTicketId, "form", "")
+	}
+	if r.filterEqParentId != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.parentId", r.filterEqParentId, "form", "")
+	}
+	if r.filterEqHasStats != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.hasStats", r.filterEqHasStats, "form", "")
+	}
+	if r.filterEqTestCaseHash != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.testCaseHash", r.filterEqTestCaseHash, "form", "")
+	}
+	if r.filterEqStatisticsdefectstoInvestigateti001 != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.statistics$defects$to_investigate$ti001", r.filterEqStatisticsdefectstoInvestigateti001, "form", "")
+	}
 	if r.filterEqUuid != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.uuid", r.filterEqUuid, "form", "")
+	}
+	if r.filterEqStatisticsdefectssystemIssuesi001 != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.statistics$defects$system_issue$si001", r.filterEqStatisticsdefectssystemIssuesi001, "form", "")
+	}
+	if r.filterEqIssueType != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.issueType", r.filterEqIssueType, "form", "")
+	}
+	if r.filterEqStatisticsexecutionsskipped != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.statistics$executions$skipped", r.filterEqStatisticsexecutionsskipped, "form", "")
+	}
+	if r.filterEqType != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.type", r.filterEqType, "form", "")
+	}
+	if r.filterEqStatisticsdefectsautomationBugab001 != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.statistics$defects$automation_bug$ab001", r.filterEqStatisticsdefectsautomationBugab001, "form", "")
 	}
 	if r.filterEqAttributeValue != nil {
 		t := *r.filterEqAttributeValue
@@ -5385,133 +5598,44 @@ func (a *TestItemAPIService) GetTestItemsV2Execute(r ApiGetTestItemsV2Request) (
 			parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.attributeValue", t, "form", "multi")
 		}
 	}
-	if r.filterEqLevelAttribute != nil {
-		t := *r.filterEqLevelAttribute
-		if reflect.TypeOf(t).Kind() == reflect.Slice {
-			s := reflect.ValueOf(t)
-			for i := 0; i < s.Len(); i++ {
-				parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.levelAttribute", s.Index(i).Interface(), "form", "multi")
-			}
-		} else {
-			parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.levelAttribute", t, "form", "multi")
-		}
-	}
-	if r.filterEqId != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.id", r.filterEqId, "form", "")
-	}
-	if r.filterEqStatus != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.status", r.filterEqStatus, "form", "")
-	}
-	if r.filterEqStartTime != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.startTime", r.filterEqStartTime, "form", "")
-	}
-	if r.filterEqIssueType != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.issueType", r.filterEqIssueType, "form", "")
-	}
-	if r.filterEqClusterId != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.clusterId", r.filterEqClusterId, "form", "")
-	}
 	if r.filterEqPath != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.path", r.filterEqPath, "form", "")
-	}
-	if r.filterEqIssueGroupId != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.issueGroupId", r.filterEqIssueGroupId, "form", "")
-	}
-	if r.filterEqHasRetries != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.hasRetries", r.filterEqHasRetries, "form", "")
-	}
-	if r.filterEqIssueTypeId != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.issueTypeId", r.filterEqIssueTypeId, "form", "")
-	}
-	if r.filterEqValue != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.value", r.filterEqValue, "form", "")
-	}
-	if r.filterEqDuration != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.duration", r.filterEqDuration, "form", "")
-	}
-	if r.filterHasCompositeAttribute != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.has.compositeAttribute", r.filterHasCompositeAttribute, "form", "")
-	}
-	if r.filterEqEndTime != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.endTime", r.filterEqEndTime, "form", "")
-	}
-	if r.filterEqStatisticsexecutionspassed != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.statistics$executions$passed", r.filterEqStatisticsexecutionspassed, "form", "")
-	}
-	if r.filterEqName != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.name", r.filterEqName, "form", "")
-	}
-	if r.filterEqAutoAnalyzed != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.autoAnalyzed", r.filterEqAutoAnalyzed, "form", "")
-	}
-	if r.filterEqLocator != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.locator", r.filterEqLocator, "form", "")
-	}
-	if r.filterEqDescription != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.description", r.filterEqDescription, "form", "")
-	}
-	if r.filterEqStatisticsexecutionsfailed != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.statistics$executions$failed", r.filterEqStatisticsexecutionsfailed, "form", "")
-	}
-	if r.filterEqTestCaseHash != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.testCaseHash", r.filterEqTestCaseHash, "form", "")
-	}
-	if r.filterEqStatisticsdefectssystemIssuesi001 != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.statistics$defects$system_issue$si001", r.filterEqStatisticsdefectssystemIssuesi001, "form", "")
-	}
-	if r.filterEqHasStats != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.hasStats", r.filterEqHasStats, "form", "")
-	}
-	if r.filterEqStatisticsexecutionstotal != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.statistics$executions$total", r.filterEqStatisticsexecutionstotal, "form", "")
-	}
-	if r.filterEqStatisticsexecutionsskipped != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.statistics$executions$skipped", r.filterEqStatisticsexecutionsskipped, "form", "")
-	}
-	if r.filterEqLastModified != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.lastModified", r.filterEqLastModified, "form", "")
-	}
-	if r.filterEqStatisticsdefectsproductBugpb001 != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.statistics$defects$product_bug$pb001", r.filterEqStatisticsdefectsproductBugpb001, "form", "")
-	}
-	if r.filterEqStatisticsdefectsautomationBugab001 != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.statistics$defects$automation_bug$ab001", r.filterEqStatisticsdefectsautomationBugab001, "form", "")
-	}
-	if r.filterEqType != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.type", r.filterEqType, "form", "")
-	}
-	if r.filterEqIssueId != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.issueId", r.filterEqIssueId, "form", "")
-	}
-	if r.filterEqMode != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.mode", r.filterEqMode, "form", "")
-	}
-	if r.filterEqTestCaseId != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.testCaseId", r.filterEqTestCaseId, "form", "")
-	}
-	if r.filterEqUniqueId != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.uniqueId", r.filterEqUniqueId, "form", "")
 	}
 	if r.filterHasCompositeSystemAttribute != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.has.compositeSystemAttribute", r.filterHasCompositeSystemAttribute, "form", "")
 	}
-	if r.filterEqProjectId != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.projectId", r.filterEqProjectId, "form", "")
+	if r.filterEqIssueGroupId != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.issueGroupId", r.filterEqIssueGroupId, "form", "")
 	}
-	if r.filterEqIssueComment != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.issueComment", r.filterEqIssueComment, "form", "")
+	if r.filterEqDescription != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.description", r.filterEqDescription, "form", "")
+	}
+	if r.filterEqUniqueId != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.uniqueId", r.filterEqUniqueId, "form", "")
+	}
+	if r.filterEqStatisticsexecutionspassed != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.statistics$executions$passed", r.filterEqStatisticsexecutionspassed, "form", "")
 	}
 	if r.filterEqIgnoreAnalyzer != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.ignoreAnalyzer", r.filterEqIgnoreAnalyzer, "form", "")
 	}
-	if r.filterEqLaunchId != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.launchId", r.filterEqLaunchId, "form", "")
+	if r.filterEqIssueComment != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.issueComment", r.filterEqIssueComment, "form", "")
 	}
-	if r.filterEqStatisticsdefectsnoDefectnd001 != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.statistics$defects$no_defect$nd001", r.filterEqStatisticsdefectsnoDefectnd001, "form", "")
+	if r.filterEqStartTime != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.startTime", r.filterEqStartTime, "form", "")
 	}
-	if r.filterEqHasChildren != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.hasChildren", r.filterEqHasChildren, "form", "")
+	if r.filterHasCompositeAttribute != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.has.compositeAttribute", r.filterHasCompositeAttribute, "form", "")
+	}
+	if r.filterEqValue != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.value", r.filterEqValue, "form", "")
+	}
+	if r.filterEqIssueTypeId != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.issueTypeId", r.filterEqIssueTypeId, "form", "")
+	}
+	if r.filterEqName != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.name", r.filterEqName, "form", "")
 	}
 	if r.filterEqPatternName != nil {
 		t := *r.filterEqPatternName
@@ -5524,11 +5648,8 @@ func (a *TestItemAPIService) GetTestItemsV2Execute(r ApiGetTestItemsV2Request) (
 			parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.patternName", t, "form", "multi")
 		}
 	}
-	if r.filterEqRetryParentId != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.retryParentId", r.filterEqRetryParentId, "form", "")
-	}
-	if r.filterEqTicketId != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.ticketId", r.filterEqTicketId, "form", "")
+	if r.filterEqLaunchId != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.launchId", r.filterEqLaunchId, "form", "")
 	}
 	if r.filterEqAttributeKey != nil {
 		t := *r.filterEqAttributeKey
@@ -5541,14 +5662,61 @@ func (a *TestItemAPIService) GetTestItemsV2Execute(r ApiGetTestItemsV2Request) (
 			parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.attributeKey", t, "form", "multi")
 		}
 	}
+	if r.filterEqHasChildren != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.hasChildren", r.filterEqHasChildren, "form", "")
+	}
+	if r.filterEqRetryParentId != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.retryParentId", r.filterEqRetryParentId, "form", "")
+	}
+	if r.filterEqStatisticsexecutionstotal != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.statistics$executions$total", r.filterEqStatisticsexecutionstotal, "form", "")
+	}
+	if r.filterEqStatisticsdefectsproductBugpb001 != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.statistics$defects$product_bug$pb001", r.filterEqStatisticsdefectsproductBugpb001, "form", "")
+	}
+	if r.filterEqStatisticsexecutionsfailed != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.statistics$executions$failed", r.filterEqStatisticsexecutionsfailed, "form", "")
+	}
+	if r.filterEqLastModified != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.lastModified", r.filterEqLastModified, "form", "")
+	}
+	if r.filterEqStatus != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.status", r.filterEqStatus, "form", "")
+	}
+	if r.filterEqTestCaseId != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.testCaseId", r.filterEqTestCaseId, "form", "")
+	}
 	if r.filterEqKey != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.key", r.filterEqKey, "form", "")
 	}
-	if r.filterEqParentId != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.parentId", r.filterEqParentId, "form", "")
+	if r.filterEqAutoAnalyzed != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.autoAnalyzed", r.filterEqAutoAnalyzed, "form", "")
 	}
-	if r.filterEqStatisticsdefectstoInvestigateti001 != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.statistics$defects$to_investigate$ti001", r.filterEqStatisticsdefectstoInvestigateti001, "form", "")
+	if r.filterEqLevelAttribute != nil {
+		t := *r.filterEqLevelAttribute
+		if reflect.TypeOf(t).Kind() == reflect.Slice {
+			s := reflect.ValueOf(t)
+			for i := 0; i < s.Len(); i++ {
+				parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.levelAttribute", s.Index(i).Interface(), "form", "multi")
+			}
+		} else {
+			parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.levelAttribute", t, "form", "multi")
+		}
+	}
+	if r.filterEqMode != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.mode", r.filterEqMode, "form", "")
+	}
+	if r.filterEqClusterId != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.clusterId", r.filterEqClusterId, "form", "")
+	}
+	if r.filterEqIssueId != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.issueId", r.filterEqIssueId, "form", "")
+	}
+	if r.filterEqDuration != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.duration", r.filterEqDuration, "form", "")
+	}
+	if r.filterEqProjectId != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.projectId", r.filterEqProjectId, "form", "")
 	}
 	if r.pagePage != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "page.page", r.pagePage, "form", "")

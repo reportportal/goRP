@@ -3,7 +3,7 @@ ReportPortal
 
 ReportPortal API documentation
 
-API version: 5.14.4
+API version: 5.15.1
 Contact: support@reportportal.io
 */
 
@@ -41,7 +41,7 @@ var (
 	queryDescape    = strings.NewReplacer("%5B", "[", "%5D", "]")
 )
 
-// APIClient manages communication with the ReportPortal API v5.14.4
+// APIClient manages communication with the ReportPortal API v5.15.1
 // In most cases there should be only one, shared, APIClient.
 type APIClient struct {
 	cfg    *Configuration
@@ -573,10 +573,7 @@ func addFile(w *multipart.Writer, fieldName, path string) error {
 	if err != nil {
 		return err
 	}
-	err = file.Close()
-	if err != nil {
-		return err
-	}
+	defer file.Close()
 
 	part, err := w.CreateFormFile(fieldName, filepath.Base(path))
 	if err != nil {

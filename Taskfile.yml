@@ -66,7 +66,7 @@ tasks:
  # Generate OpenAPI client code from the ReportPortal's OpenAPI schema
  # Note that not all additional properties are properly documented in the OpenAPI generator documentation
  # For instance, the `withCustomMiddlewareFunction` property is not documented, but can be found here:
- # https://github.com/OpenAPITools/openapi-generator/blob/v7.14.0/modules/openapi-generator/src/main/resources/go/configuration.mustache#L106C4-L106C32
+ # https://github.com/OpenAPITools/openapi-generator/blob/v7.21.0/modules/openapi-generator/src/main/resources/go/configuration.mustache#L106C4-L106C32
   
   generate-openapi-client:
     depends: [ clean, create-output-dir ]
@@ -74,7 +74,7 @@ tasks:
     cmds:
       - >-
         docker run --rm -v $(pwd)/{{.OUTPUT_DIR}}:/generated 
-        -v $(pwd)/{{.MODIFIED_SPEC_PATH}}:/local/openapi.json openapitools/openapi-generator-cli:v7.17.0 generate 
+        -v $(pwd)/{{.MODIFIED_SPEC_PATH}}:/local/openapi.json openapitools/openapi-generator-cli:v7.21.0 generate 
         -i /local/openapi.json -g go -o /generated --package-name openapi 
         --additional-properties=withGoCodegenComment=true,enumClassPrefix=true,onlyGenerateClient=true,withGoMod=false,withCustomMiddlewareFunction=true,useOneOfDiscriminatorLookup=true
         --git-repo-id gorp/v5/pkg/openapi --git-user-id reportportal

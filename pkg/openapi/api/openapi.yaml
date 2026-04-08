@@ -19125,6 +19125,7 @@ components:
         endTime: 2000-01-23T04:56:07.000+00:00
         lastModified: 2000-01-23T04:56:07.000+00:00
         retentionPolicy: IMPORTANT
+        locked: true
         status: status
         statistics:
           executions:
@@ -19139,6 +19140,8 @@ components:
           maxLength: 2048
           minLength: 0
           type: string
+        locked:
+          type: boolean
         id:
           format: int64
           type: integer
@@ -21345,6 +21348,7 @@ components:
           endTime: 2000-01-23T04:56:07.000+00:00
           lastModified: 2000-01-23T04:56:07.000+00:00
           retentionPolicy: IMPORTANT
+          locked: true
           status: status
           statistics:
             executions:
@@ -21376,6 +21380,7 @@ components:
           endTime: 2000-01-23T04:56:07.000+00:00
           lastModified: 2000-01-23T04:56:07.000+00:00
           retentionPolicy: IMPORTANT
+          locked: true
           status: status
           statistics:
             executions:

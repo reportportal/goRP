@@ -5,7 +5,7 @@ go 1.25.0
 require (
 	github.com/manifoldco/promptui v0.9.0
 	github.com/stretchr/testify v1.11.1
-	github.com/urfave/cli/v3 v3.7.0
+	github.com/urfave/cli/v3 v3.8.0
 	golang.org/x/oauth2 v0.36.0
 	golang.org/x/sync v0.20.0
 	resty.dev/v3 v3.0.0-beta.6

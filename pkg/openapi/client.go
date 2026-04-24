@@ -3,7 +3,7 @@ ReportPortal
 
 ReportPortal API documentation
 
-API version: 5.15.1
+API version: develop-553
 Contact: support@reportportal.io
 */
 
@@ -41,13 +41,15 @@ var (
 	queryDescape    = strings.NewReplacer("%5B", "[", "%5D", "]")
 )
 
-// APIClient manages communication with the ReportPortal API v5.15.1
+// APIClient manages communication with the ReportPortal API vdevelop-553
 // In most cases there should be only one, shared, APIClient.
 type APIClient struct {
 	cfg    *Configuration
 	common service // Reuse a single struct instead of allocating one for each service on the heap.
 
 	// API Services
+
+	ActivitiesAPI *ActivitiesAPIService
 
 	ActivityAPI *ActivityAPIService
 
@@ -57,13 +59,19 @@ type APIClient struct {
 
 	DashboardAPI *DashboardAPIService
 
+	DatasetAPI *DatasetAPIService
+
 	DemoDataAPI *DemoDataAPIService
 
 	FileStorageAPI *FileStorageAPIService
 
 	GroupsAPI *GroupsAPIService
 
+	ImplementedAPI *ImplementedAPIService
+
 	IntegrationAPI *IntegrationAPIService
+
+	InvitationsAPI *InvitationsAPIService
 
 	LaunchAPI *LaunchAPIService
 
@@ -73,11 +81,25 @@ type APIClient struct {
 
 	LogAsyncAPI *LogAsyncAPIService
 
-	OnboardingAPI *OnboardingAPIService
+	MilestoneAPI *MilestoneAPIService
+
+	OrganizationGroupsAPI *OrganizationGroupsAPIService
+
+	OrganizationIntegrationsAPI *OrganizationIntegrationsAPIService
+
+	OrganizationProjectsAPI *OrganizationProjectsAPIService
+
+	OrganizationUsersAPI *OrganizationUsersAPIService
+
+	OrganizationsAPI *OrganizationsAPIService
 
 	PluginAPI *PluginAPIService
 
 	PluginPublicAPI *PluginPublicAPIService
+
+	PluginsAPI *PluginsAPIService
+
+	ProductVersionAPI *ProductVersionAPIService
 
 	ProjectAPI *ProjectAPIService
 
@@ -87,13 +109,29 @@ type APIClient struct {
 
 	SettingsAPI *SettingsAPIService
 
+	SsoEndpointAPI *SsoEndpointAPIService
+
+	TMSAttachmentControllerAPI *TMSAttachmentControllerAPIService
+
+	TMSAttributeControllerAPI *TMSAttributeControllerAPIService
+
+	TMSManualLaunchControllerAPI *TMSManualLaunchControllerAPIService
+
+	TMSTestCaseAttributeControllerAPI *TMSTestCaseAttributeControllerAPIService
+
+	TestCaseAPI *TestCaseAPIService
+
+	TestFolderAPI *TestFolderAPIService
+
 	TestItemAPI *TestItemAPIService
 
 	TestItemAsyncAPI *TestItemAsyncAPIService
 
-	UserAPI *UserAPIService
+	TestPlanAPI *TestPlanAPIService
 
 	UserFilterAPI *UserFilterAPIService
+
+	UsersAPI *UsersAPIService
 
 	WidgetAPI *WidgetAPIService
 }
@@ -114,29 +152,48 @@ func NewAPIClient(cfg *Configuration) *APIClient {
 	c.common.client = c
 
 	// API Services
+	c.ActivitiesAPI = (*ActivitiesAPIService)(&c.common)
 	c.ActivityAPI = (*ActivityAPIService)(&c.common)
 	c.ActivityEventAPI = (*ActivityEventAPIService)(&c.common)
 	c.BugTrackingSystemAPI = (*BugTrackingSystemAPIService)(&c.common)
 	c.DashboardAPI = (*DashboardAPIService)(&c.common)
+	c.DatasetAPI = (*DatasetAPIService)(&c.common)
 	c.DemoDataAPI = (*DemoDataAPIService)(&c.common)
 	c.FileStorageAPI = (*FileStorageAPIService)(&c.common)
 	c.GroupsAPI = (*GroupsAPIService)(&c.common)
+	c.ImplementedAPI = (*ImplementedAPIService)(&c.common)
 	c.IntegrationAPI = (*IntegrationAPIService)(&c.common)
+	c.InvitationsAPI = (*InvitationsAPIService)(&c.common)
 	c.LaunchAPI = (*LaunchAPIService)(&c.common)
 	c.LaunchAsyncAPI = (*LaunchAsyncAPIService)(&c.common)
 	c.LogAPI = (*LogAPIService)(&c.common)
 	c.LogAsyncAPI = (*LogAsyncAPIService)(&c.common)
-	c.OnboardingAPI = (*OnboardingAPIService)(&c.common)
+	c.MilestoneAPI = (*MilestoneAPIService)(&c.common)
+	c.OrganizationGroupsAPI = (*OrganizationGroupsAPIService)(&c.common)
+	c.OrganizationIntegrationsAPI = (*OrganizationIntegrationsAPIService)(&c.common)
+	c.OrganizationProjectsAPI = (*OrganizationProjectsAPIService)(&c.common)
+	c.OrganizationUsersAPI = (*OrganizationUsersAPIService)(&c.common)
+	c.OrganizationsAPI = (*OrganizationsAPIService)(&c.common)
 	c.PluginAPI = (*PluginAPIService)(&c.common)
 	c.PluginPublicAPI = (*PluginPublicAPIService)(&c.common)
+	c.PluginsAPI = (*PluginsAPIService)(&c.common)
+	c.ProductVersionAPI = (*ProductVersionAPIService)(&c.common)
 	c.ProjectAPI = (*ProjectAPIService)(&c.common)
 	c.ProjectSettingsAPI = (*ProjectSettingsAPIService)(&c.common)
 	c.ProjectsAPI = (*ProjectsAPIService)(&c.common)
 	c.SettingsAPI = (*SettingsAPIService)(&c.common)
+	c.SsoEndpointAPI = (*SsoEndpointAPIService)(&c.common)
+	c.TMSAttachmentControllerAPI = (*TMSAttachmentControllerAPIService)(&c.common)
+	c.TMSAttributeControllerAPI = (*TMSAttributeControllerAPIService)(&c.common)
+	c.TMSManualLaunchControllerAPI = (*TMSManualLaunchControllerAPIService)(&c.common)
+	c.TMSTestCaseAttributeControllerAPI = (*TMSTestCaseAttributeControllerAPIService)(&c.common)
+	c.TestCaseAPI = (*TestCaseAPIService)(&c.common)
+	c.TestFolderAPI = (*TestFolderAPIService)(&c.common)
 	c.TestItemAPI = (*TestItemAPIService)(&c.common)
 	c.TestItemAsyncAPI = (*TestItemAsyncAPIService)(&c.common)
-	c.UserAPI = (*UserAPIService)(&c.common)
+	c.TestPlanAPI = (*TestPlanAPIService)(&c.common)
 	c.UserFilterAPI = (*UserFilterAPIService)(&c.common)
+	c.UsersAPI = (*UsersAPIService)(&c.common)
 	c.WidgetAPI = (*WidgetAPIService)(&c.common)
 
 	return c

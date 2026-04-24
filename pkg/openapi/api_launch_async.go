@@ -3,7 +3,7 @@ ReportPortal
 
 ReportPortal API documentation
 
-API version: 5.15.1
+API version: develop-531
 Contact: support@reportportal.io
 */
 
@@ -24,19 +24,19 @@ import (
 type LaunchAsyncAPIService service
 
 type ApiFinishLaunchRequest struct {
-	ctx               context.Context
-	ApiService        *LaunchAsyncAPIService
-	launchId          string
-	projectName       string
-	finishExecutionRQ *FinishExecutionRQ
+	ctx                                               context.Context
+	ApiService                                        *LaunchAsyncAPIService
+	launchId                                          string
+	projectKey                                        string
+	comEpamReportportalBaseReportingFinishExecutionRQ *ComEpamReportportalBaseReportingFinishExecutionRQ
 }
 
-func (r ApiFinishLaunchRequest) FinishExecutionRQ(finishExecutionRQ FinishExecutionRQ) ApiFinishLaunchRequest {
-	r.finishExecutionRQ = &finishExecutionRQ
+func (r ApiFinishLaunchRequest) ComEpamReportportalBaseReportingFinishExecutionRQ(comEpamReportportalBaseReportingFinishExecutionRQ ComEpamReportportalBaseReportingFinishExecutionRQ) ApiFinishLaunchRequest {
+	r.comEpamReportportalBaseReportingFinishExecutionRQ = &comEpamReportportalBaseReportingFinishExecutionRQ
 	return r
 }
 
-func (r ApiFinishLaunchRequest) Execute() (*FinishLaunchRS, *http.Response, error) {
+func (r ApiFinishLaunchRequest) Execute() (*ComEpamReportportalBaseModelLaunchFinishLaunchRS, *http.Response, error) {
 	return r.ApiService.FinishLaunchExecute(r)
 }
 
@@ -47,27 +47,27 @@ Finish launch for specified project
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param launchId
-	@param projectName
+	@param projectKey
 	@return ApiFinishLaunchRequest
 */
-func (a *LaunchAsyncAPIService) FinishLaunch(ctx context.Context, launchId string, projectName string) ApiFinishLaunchRequest {
+func (a *LaunchAsyncAPIService) FinishLaunch(ctx context.Context, launchId string, projectKey string) ApiFinishLaunchRequest {
 	return ApiFinishLaunchRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		launchId:    launchId,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		launchId:   launchId,
+		projectKey: projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return FinishLaunchRS
-func (a *LaunchAsyncAPIService) FinishLaunchExecute(r ApiFinishLaunchRequest) (*FinishLaunchRS, *http.Response, error) {
+//	@return ComEpamReportportalBaseModelLaunchFinishLaunchRS
+func (a *LaunchAsyncAPIService) FinishLaunchExecute(r ApiFinishLaunchRequest) (*ComEpamReportportalBaseModelLaunchFinishLaunchRS, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPut
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *FinishLaunchRS
+		localVarReturnValue *ComEpamReportportalBaseModelLaunchFinishLaunchRS
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "LaunchAsyncAPIService.FinishLaunch")
@@ -75,15 +75,15 @@ func (a *LaunchAsyncAPIService) FinishLaunchExecute(r ApiFinishLaunchRequest) (*
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v2/{projectName}/launch/{launchId}/finish"
+	localVarPath := localBasePath + "/v2/{projectKey}/launch/{launchId}/finish"
 	localVarPath = strings.Replace(localVarPath, "{"+"launchId"+"}", url.PathEscape(parameterValueToString(r.launchId, "launchId")), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
-	if r.finishExecutionRQ == nil {
-		return localVarReturnValue, nil, reportError("finishExecutionRQ is required and must be specified")
+	if r.comEpamReportportalBaseReportingFinishExecutionRQ == nil {
+		return localVarReturnValue, nil, reportError("comEpamReportportalBaseReportingFinishExecutionRQ is required and must be specified")
 	}
 
 	// to determine the Content-Type header
@@ -104,7 +104,7 @@ func (a *LaunchAsyncAPIService) FinishLaunchExecute(r ApiFinishLaunchRequest) (*
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
 	// body params
-	localVarPostBody = r.finishExecutionRQ
+	localVarPostBody = r.comEpamReportportalBaseReportingFinishExecutionRQ
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -146,7 +146,7 @@ func (a *LaunchAsyncAPIService) FinishLaunchExecute(r ApiFinishLaunchRequest) (*
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -157,7 +157,7 @@ func (a *LaunchAsyncAPIService) FinishLaunchExecute(r ApiFinishLaunchRequest) (*
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -168,7 +168,7 @@ func (a *LaunchAsyncAPIService) FinishLaunchExecute(r ApiFinishLaunchRequest) (*
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -194,18 +194,18 @@ func (a *LaunchAsyncAPIService) FinishLaunchExecute(r ApiFinishLaunchRequest) (*
 }
 
 type ApiMergeLaunchesOldUuidRequest struct {
-	ctx             context.Context
-	ApiService      *LaunchAsyncAPIService
-	projectName     string
-	mergeLaunchesRQ *MergeLaunchesRQ
+	ctx                                             context.Context
+	ApiService                                      *LaunchAsyncAPIService
+	projectKey                                      string
+	comEpamReportportalBaseReportingMergeLaunchesRQ *ComEpamReportportalBaseReportingMergeLaunchesRQ
 }
 
-func (r ApiMergeLaunchesOldUuidRequest) MergeLaunchesRQ(mergeLaunchesRQ MergeLaunchesRQ) ApiMergeLaunchesOldUuidRequest {
-	r.mergeLaunchesRQ = &mergeLaunchesRQ
+func (r ApiMergeLaunchesOldUuidRequest) ComEpamReportportalBaseReportingMergeLaunchesRQ(comEpamReportportalBaseReportingMergeLaunchesRQ ComEpamReportportalBaseReportingMergeLaunchesRQ) ApiMergeLaunchesOldUuidRequest {
+	r.comEpamReportportalBaseReportingMergeLaunchesRQ = &comEpamReportportalBaseReportingMergeLaunchesRQ
 	return r
 }
 
-func (r ApiMergeLaunchesOldUuidRequest) Execute() (*LaunchResourceOld, *http.Response, error) {
+func (r ApiMergeLaunchesOldUuidRequest) Execute() (*ComEpamReportportalBaseReportingLaunchResourceOld, *http.Response, error) {
 	return r.ApiService.MergeLaunchesOldUuidExecute(r)
 }
 
@@ -215,26 +215,26 @@ MergeLaunchesOldUuid Merge set of specified launches in common one
 This operation merges a set of launches into a common one. The IDs of the launches to be merged should be provided in the 'launches' field of the request body.
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param projectName
+	@param projectKey
 	@return ApiMergeLaunchesOldUuidRequest
 */
-func (a *LaunchAsyncAPIService) MergeLaunchesOldUuid(ctx context.Context, projectName string) ApiMergeLaunchesOldUuidRequest {
+func (a *LaunchAsyncAPIService) MergeLaunchesOldUuid(ctx context.Context, projectKey string) ApiMergeLaunchesOldUuidRequest {
 	return ApiMergeLaunchesOldUuidRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		projectKey: projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return LaunchResourceOld
-func (a *LaunchAsyncAPIService) MergeLaunchesOldUuidExecute(r ApiMergeLaunchesOldUuidRequest) (*LaunchResourceOld, *http.Response, error) {
+//	@return ComEpamReportportalBaseReportingLaunchResourceOld
+func (a *LaunchAsyncAPIService) MergeLaunchesOldUuidExecute(r ApiMergeLaunchesOldUuidRequest) (*ComEpamReportportalBaseReportingLaunchResourceOld, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPost
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *LaunchResourceOld
+		localVarReturnValue *ComEpamReportportalBaseReportingLaunchResourceOld
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "LaunchAsyncAPIService.MergeLaunchesOldUuid")
@@ -242,14 +242,14 @@ func (a *LaunchAsyncAPIService) MergeLaunchesOldUuidExecute(r ApiMergeLaunchesOl
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v2/{projectName}/launch/merge"
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath := localBasePath + "/v2/{projectKey}/launch/merge"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
-	if r.mergeLaunchesRQ == nil {
-		return localVarReturnValue, nil, reportError("mergeLaunchesRQ is required and must be specified")
+	if r.comEpamReportportalBaseReportingMergeLaunchesRQ == nil {
+		return localVarReturnValue, nil, reportError("comEpamReportportalBaseReportingMergeLaunchesRQ is required and must be specified")
 	}
 
 	// to determine the Content-Type header
@@ -270,7 +270,7 @@ func (a *LaunchAsyncAPIService) MergeLaunchesOldUuidExecute(r ApiMergeLaunchesOl
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
 	// body params
-	localVarPostBody = r.mergeLaunchesRQ
+	localVarPostBody = r.comEpamReportportalBaseReportingMergeLaunchesRQ
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -312,7 +312,7 @@ func (a *LaunchAsyncAPIService) MergeLaunchesOldUuidExecute(r ApiMergeLaunchesOl
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -323,7 +323,7 @@ func (a *LaunchAsyncAPIService) MergeLaunchesOldUuidExecute(r ApiMergeLaunchesOl
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -334,7 +334,7 @@ func (a *LaunchAsyncAPIService) MergeLaunchesOldUuidExecute(r ApiMergeLaunchesOl
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -360,18 +360,18 @@ func (a *LaunchAsyncAPIService) MergeLaunchesOldUuidExecute(r ApiMergeLaunchesOl
 }
 
 type ApiStartLaunchRequest struct {
-	ctx           context.Context
-	ApiService    *LaunchAsyncAPIService
-	projectName   string
-	startLaunchRQ *StartLaunchRQ
+	ctx                                           context.Context
+	ApiService                                    *LaunchAsyncAPIService
+	projectKey                                    string
+	comEpamReportportalBaseReportingStartLaunchRQ *ComEpamReportportalBaseReportingStartLaunchRQ
 }
 
-func (r ApiStartLaunchRequest) StartLaunchRQ(startLaunchRQ StartLaunchRQ) ApiStartLaunchRequest {
-	r.startLaunchRQ = &startLaunchRQ
+func (r ApiStartLaunchRequest) ComEpamReportportalBaseReportingStartLaunchRQ(comEpamReportportalBaseReportingStartLaunchRQ ComEpamReportportalBaseReportingStartLaunchRQ) ApiStartLaunchRequest {
+	r.comEpamReportportalBaseReportingStartLaunchRQ = &comEpamReportportalBaseReportingStartLaunchRQ
 	return r
 }
 
-func (r ApiStartLaunchRequest) Execute() (*StartLaunchRS, *http.Response, error) {
+func (r ApiStartLaunchRequest) Execute() (*ComEpamReportportalBaseReportingStartLaunchRS, *http.Response, error) {
 	return r.ApiService.StartLaunchExecute(r)
 }
 
@@ -379,26 +379,26 @@ func (r ApiStartLaunchRequest) Execute() (*StartLaunchRS, *http.Response, error)
 StartLaunch Starts launch for specified project
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param projectName
+	@param projectKey
 	@return ApiStartLaunchRequest
 */
-func (a *LaunchAsyncAPIService) StartLaunch(ctx context.Context, projectName string) ApiStartLaunchRequest {
+func (a *LaunchAsyncAPIService) StartLaunch(ctx context.Context, projectKey string) ApiStartLaunchRequest {
 	return ApiStartLaunchRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		projectKey: projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return StartLaunchRS
-func (a *LaunchAsyncAPIService) StartLaunchExecute(r ApiStartLaunchRequest) (*StartLaunchRS, *http.Response, error) {
+//	@return ComEpamReportportalBaseReportingStartLaunchRS
+func (a *LaunchAsyncAPIService) StartLaunchExecute(r ApiStartLaunchRequest) (*ComEpamReportportalBaseReportingStartLaunchRS, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPost
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *StartLaunchRS
+		localVarReturnValue *ComEpamReportportalBaseReportingStartLaunchRS
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "LaunchAsyncAPIService.StartLaunch")
@@ -406,14 +406,14 @@ func (a *LaunchAsyncAPIService) StartLaunchExecute(r ApiStartLaunchRequest) (*St
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v2/{projectName}/launch"
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath := localBasePath + "/v2/{projectKey}/launch"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
-	if r.startLaunchRQ == nil {
-		return localVarReturnValue, nil, reportError("startLaunchRQ is required and must be specified")
+	if r.comEpamReportportalBaseReportingStartLaunchRQ == nil {
+		return localVarReturnValue, nil, reportError("comEpamReportportalBaseReportingStartLaunchRQ is required and must be specified")
 	}
 
 	// to determine the Content-Type header
@@ -434,7 +434,7 @@ func (a *LaunchAsyncAPIService) StartLaunchExecute(r ApiStartLaunchRequest) (*St
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
 	// body params
-	localVarPostBody = r.startLaunchRQ
+	localVarPostBody = r.comEpamReportportalBaseReportingStartLaunchRQ
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -476,7 +476,7 @@ func (a *LaunchAsyncAPIService) StartLaunchExecute(r ApiStartLaunchRequest) (*St
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -487,7 +487,7 @@ func (a *LaunchAsyncAPIService) StartLaunchExecute(r ApiStartLaunchRequest) (*St
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -498,7 +498,7 @@ func (a *LaunchAsyncAPIService) StartLaunchExecute(r ApiStartLaunchRequest) (*St
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()

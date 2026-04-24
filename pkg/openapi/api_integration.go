@@ -3,7 +3,7 @@ ReportPortal
 
 ReportPortal API documentation
 
-API version: 5.15.1
+API version: develop-531
 Contact: support@reportportal.io
 */
 
@@ -24,18 +24,18 @@ import (
 type IntegrationAPIService service
 
 type ApiCreateGlobalIntegrationRequest struct {
-	ctx           context.Context
-	ApiService    *IntegrationAPIService
-	pluginName    string
-	integrationRQ *IntegrationRQ
+	ctx                                                  context.Context
+	ApiService                                           *IntegrationAPIService
+	pluginName                                           string
+	comEpamReportportalBaseModelIntegrationIntegrationRQ *ComEpamReportportalBaseModelIntegrationIntegrationRQ
 }
 
-func (r ApiCreateGlobalIntegrationRequest) IntegrationRQ(integrationRQ IntegrationRQ) ApiCreateGlobalIntegrationRequest {
-	r.integrationRQ = &integrationRQ
+func (r ApiCreateGlobalIntegrationRequest) ComEpamReportportalBaseModelIntegrationIntegrationRQ(comEpamReportportalBaseModelIntegrationIntegrationRQ ComEpamReportportalBaseModelIntegrationIntegrationRQ) ApiCreateGlobalIntegrationRequest {
+	r.comEpamReportportalBaseModelIntegrationIntegrationRQ = &comEpamReportportalBaseModelIntegrationIntegrationRQ
 	return r
 }
 
-func (r ApiCreateGlobalIntegrationRequest) Execute() (*EntryCreatedRS, *http.Response, error) {
+func (r ApiCreateGlobalIntegrationRequest) Execute() (*ComEpamReportportalBaseModelEntryCreatedRS, *http.Response, error) {
 	return r.ApiService.CreateGlobalIntegrationExecute(r)
 }
 
@@ -56,13 +56,13 @@ func (a *IntegrationAPIService) CreateGlobalIntegration(ctx context.Context, plu
 
 // Execute executes the request
 //
-//	@return EntryCreatedRS
-func (a *IntegrationAPIService) CreateGlobalIntegrationExecute(r ApiCreateGlobalIntegrationRequest) (*EntryCreatedRS, *http.Response, error) {
+//	@return ComEpamReportportalBaseModelEntryCreatedRS
+func (a *IntegrationAPIService) CreateGlobalIntegrationExecute(r ApiCreateGlobalIntegrationRequest) (*ComEpamReportportalBaseModelEntryCreatedRS, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPost
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *EntryCreatedRS
+		localVarReturnValue *ComEpamReportportalBaseModelEntryCreatedRS
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "IntegrationAPIService.CreateGlobalIntegration")
@@ -76,8 +76,8 @@ func (a *IntegrationAPIService) CreateGlobalIntegrationExecute(r ApiCreateGlobal
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
-	if r.integrationRQ == nil {
-		return localVarReturnValue, nil, reportError("integrationRQ is required and must be specified")
+	if r.comEpamReportportalBaseModelIntegrationIntegrationRQ == nil {
+		return localVarReturnValue, nil, reportError("comEpamReportportalBaseModelIntegrationIntegrationRQ is required and must be specified")
 	}
 
 	// to determine the Content-Type header
@@ -98,7 +98,7 @@ func (a *IntegrationAPIService) CreateGlobalIntegrationExecute(r ApiCreateGlobal
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
 	// body params
-	localVarPostBody = r.integrationRQ
+	localVarPostBody = r.comEpamReportportalBaseModelIntegrationIntegrationRQ
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -140,7 +140,7 @@ func (a *IntegrationAPIService) CreateGlobalIntegrationExecute(r ApiCreateGlobal
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -151,7 +151,7 @@ func (a *IntegrationAPIService) CreateGlobalIntegrationExecute(r ApiCreateGlobal
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -162,7 +162,7 @@ func (a *IntegrationAPIService) CreateGlobalIntegrationExecute(r ApiCreateGlobal
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -188,19 +188,19 @@ func (a *IntegrationAPIService) CreateGlobalIntegrationExecute(r ApiCreateGlobal
 }
 
 type ApiCreateProjectIntegrationRequest struct {
-	ctx           context.Context
-	ApiService    *IntegrationAPIService
-	pluginName    string
-	projectName   string
-	integrationRQ *IntegrationRQ
+	ctx                                                  context.Context
+	ApiService                                           *IntegrationAPIService
+	pluginName                                           string
+	projectKey                                           string
+	comEpamReportportalBaseModelIntegrationIntegrationRQ *ComEpamReportportalBaseModelIntegrationIntegrationRQ
 }
 
-func (r ApiCreateProjectIntegrationRequest) IntegrationRQ(integrationRQ IntegrationRQ) ApiCreateProjectIntegrationRequest {
-	r.integrationRQ = &integrationRQ
+func (r ApiCreateProjectIntegrationRequest) ComEpamReportportalBaseModelIntegrationIntegrationRQ(comEpamReportportalBaseModelIntegrationIntegrationRQ ComEpamReportportalBaseModelIntegrationIntegrationRQ) ApiCreateProjectIntegrationRequest {
+	r.comEpamReportportalBaseModelIntegrationIntegrationRQ = &comEpamReportportalBaseModelIntegrationIntegrationRQ
 	return r
 }
 
-func (r ApiCreateProjectIntegrationRequest) Execute() (*EntryCreatedRS, *http.Response, error) {
+func (r ApiCreateProjectIntegrationRequest) Execute() (*ComEpamReportportalBaseModelEntryCreatedRS, *http.Response, error) {
 	return r.ApiService.CreateProjectIntegrationExecute(r)
 }
 
@@ -209,27 +209,27 @@ CreateProjectIntegration Create project ReportPortal integration instance
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param pluginName
-	@param projectName
+	@param projectKey
 	@return ApiCreateProjectIntegrationRequest
 */
-func (a *IntegrationAPIService) CreateProjectIntegration(ctx context.Context, pluginName string, projectName string) ApiCreateProjectIntegrationRequest {
+func (a *IntegrationAPIService) CreateProjectIntegration(ctx context.Context, pluginName string, projectKey string) ApiCreateProjectIntegrationRequest {
 	return ApiCreateProjectIntegrationRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		pluginName:  pluginName,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		pluginName: pluginName,
+		projectKey: projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return EntryCreatedRS
-func (a *IntegrationAPIService) CreateProjectIntegrationExecute(r ApiCreateProjectIntegrationRequest) (*EntryCreatedRS, *http.Response, error) {
+//	@return ComEpamReportportalBaseModelEntryCreatedRS
+func (a *IntegrationAPIService) CreateProjectIntegrationExecute(r ApiCreateProjectIntegrationRequest) (*ComEpamReportportalBaseModelEntryCreatedRS, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPost
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *EntryCreatedRS
+		localVarReturnValue *ComEpamReportportalBaseModelEntryCreatedRS
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "IntegrationAPIService.CreateProjectIntegration")
@@ -237,15 +237,15 @@ func (a *IntegrationAPIService) CreateProjectIntegrationExecute(r ApiCreateProje
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/integration/{projectName}/{pluginName}"
+	localVarPath := localBasePath + "/v1/integration/{projectKey}/{pluginName}"
 	localVarPath = strings.Replace(localVarPath, "{"+"pluginName"+"}", url.PathEscape(parameterValueToString(r.pluginName, "pluginName")), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
-	if r.integrationRQ == nil {
-		return localVarReturnValue, nil, reportError("integrationRQ is required and must be specified")
+	if r.comEpamReportportalBaseModelIntegrationIntegrationRQ == nil {
+		return localVarReturnValue, nil, reportError("comEpamReportportalBaseModelIntegrationIntegrationRQ is required and must be specified")
 	}
 
 	// to determine the Content-Type header
@@ -266,7 +266,7 @@ func (a *IntegrationAPIService) CreateProjectIntegrationExecute(r ApiCreateProje
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
 	// body params
-	localVarPostBody = r.integrationRQ
+	localVarPostBody = r.comEpamReportportalBaseModelIntegrationIntegrationRQ
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -308,7 +308,7 @@ func (a *IntegrationAPIService) CreateProjectIntegrationExecute(r ApiCreateProje
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -319,7 +319,7 @@ func (a *IntegrationAPIService) CreateProjectIntegrationExecute(r ApiCreateProje
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -330,7 +330,7 @@ func (a *IntegrationAPIService) CreateProjectIntegrationExecute(r ApiCreateProje
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -361,7 +361,7 @@ type ApiDeleteAllIntegrationsRequest struct {
 	type_      string
 }
 
-func (r ApiDeleteAllIntegrationsRequest) Execute() (*OperationCompletionRS, *http.Response, error) {
+func (r ApiDeleteAllIntegrationsRequest) Execute() (*ComEpamReportportalBaseReportingOperationCompletionRS, *http.Response, error) {
 	return r.ApiService.DeleteAllIntegrationsExecute(r)
 }
 
@@ -382,13 +382,13 @@ func (a *IntegrationAPIService) DeleteAllIntegrations(ctx context.Context, type_
 
 // Execute executes the request
 //
-//	@return OperationCompletionRS
-func (a *IntegrationAPIService) DeleteAllIntegrationsExecute(r ApiDeleteAllIntegrationsRequest) (*OperationCompletionRS, *http.Response, error) {
+//	@return ComEpamReportportalBaseReportingOperationCompletionRS
+func (a *IntegrationAPIService) DeleteAllIntegrationsExecute(r ApiDeleteAllIntegrationsRequest) (*ComEpamReportportalBaseReportingOperationCompletionRS, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodDelete
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *OperationCompletionRS
+		localVarReturnValue *ComEpamReportportalBaseReportingOperationCompletionRS
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "IntegrationAPIService.DeleteAllIntegrations")
@@ -461,7 +461,7 @@ func (a *IntegrationAPIService) DeleteAllIntegrationsExecute(r ApiDeleteAllInteg
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -472,7 +472,7 @@ func (a *IntegrationAPIService) DeleteAllIntegrationsExecute(r ApiDeleteAllInteg
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -483,7 +483,7 @@ func (a *IntegrationAPIService) DeleteAllIntegrationsExecute(r ApiDeleteAllInteg
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -509,13 +509,13 @@ func (a *IntegrationAPIService) DeleteAllIntegrationsExecute(r ApiDeleteAllInteg
 }
 
 type ApiDeleteAllProjectIntegrationsRequest struct {
-	ctx         context.Context
-	ApiService  *IntegrationAPIService
-	projectName string
-	type_       string
+	ctx        context.Context
+	ApiService *IntegrationAPIService
+	projectKey string
+	type_      string
 }
 
-func (r ApiDeleteAllProjectIntegrationsRequest) Execute() (*OperationCompletionRS, *http.Response, error) {
+func (r ApiDeleteAllProjectIntegrationsRequest) Execute() (*ComEpamReportportalBaseReportingOperationCompletionRS, *http.Response, error) {
 	return r.ApiService.DeleteAllProjectIntegrationsExecute(r)
 }
 
@@ -523,28 +523,28 @@ func (r ApiDeleteAllProjectIntegrationsRequest) Execute() (*OperationCompletionR
 DeleteAllProjectIntegrations Delete all integrations assigned to specified project
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param projectName
+	@param projectKey
 	@param type_
 	@return ApiDeleteAllProjectIntegrationsRequest
 */
-func (a *IntegrationAPIService) DeleteAllProjectIntegrations(ctx context.Context, projectName string, type_ string) ApiDeleteAllProjectIntegrationsRequest {
+func (a *IntegrationAPIService) DeleteAllProjectIntegrations(ctx context.Context, projectKey string, type_ string) ApiDeleteAllProjectIntegrationsRequest {
 	return ApiDeleteAllProjectIntegrationsRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		projectName: projectName,
-		type_:       type_,
+		ApiService: a,
+		ctx:        ctx,
+		projectKey: projectKey,
+		type_:      type_,
 	}
 }
 
 // Execute executes the request
 //
-//	@return OperationCompletionRS
-func (a *IntegrationAPIService) DeleteAllProjectIntegrationsExecute(r ApiDeleteAllProjectIntegrationsRequest) (*OperationCompletionRS, *http.Response, error) {
+//	@return ComEpamReportportalBaseReportingOperationCompletionRS
+func (a *IntegrationAPIService) DeleteAllProjectIntegrationsExecute(r ApiDeleteAllProjectIntegrationsRequest) (*ComEpamReportportalBaseReportingOperationCompletionRS, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodDelete
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *OperationCompletionRS
+		localVarReturnValue *ComEpamReportportalBaseReportingOperationCompletionRS
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "IntegrationAPIService.DeleteAllProjectIntegrations")
@@ -552,8 +552,8 @@ func (a *IntegrationAPIService) DeleteAllProjectIntegrationsExecute(r ApiDeleteA
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/integration/{projectName}/all/{type}"
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath := localBasePath + "/v1/integration/{projectKey}/all/{type}"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"type"+"}", url.PathEscape(parameterValueToString(r.type_, "type_")), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -618,7 +618,7 @@ func (a *IntegrationAPIService) DeleteAllProjectIntegrationsExecute(r ApiDeleteA
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -629,7 +629,7 @@ func (a *IntegrationAPIService) DeleteAllProjectIntegrationsExecute(r ApiDeleteA
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -640,7 +640,7 @@ func (a *IntegrationAPIService) DeleteAllProjectIntegrationsExecute(r ApiDeleteA
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -671,7 +671,7 @@ type ApiDeleteGlobalIntegrationRequest struct {
 	integrationId int64
 }
 
-func (r ApiDeleteGlobalIntegrationRequest) Execute() (*OperationCompletionRS, *http.Response, error) {
+func (r ApiDeleteGlobalIntegrationRequest) Execute() (*ComEpamReportportalBaseReportingOperationCompletionRS, *http.Response, error) {
 	return r.ApiService.DeleteGlobalIntegrationExecute(r)
 }
 
@@ -692,13 +692,13 @@ func (a *IntegrationAPIService) DeleteGlobalIntegration(ctx context.Context, int
 
 // Execute executes the request
 //
-//	@return OperationCompletionRS
-func (a *IntegrationAPIService) DeleteGlobalIntegrationExecute(r ApiDeleteGlobalIntegrationRequest) (*OperationCompletionRS, *http.Response, error) {
+//	@return ComEpamReportportalBaseReportingOperationCompletionRS
+func (a *IntegrationAPIService) DeleteGlobalIntegrationExecute(r ApiDeleteGlobalIntegrationRequest) (*ComEpamReportportalBaseReportingOperationCompletionRS, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodDelete
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *OperationCompletionRS
+		localVarReturnValue *ComEpamReportportalBaseReportingOperationCompletionRS
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "IntegrationAPIService.DeleteGlobalIntegration")
@@ -771,7 +771,7 @@ func (a *IntegrationAPIService) DeleteGlobalIntegrationExecute(r ApiDeleteGlobal
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -782,7 +782,7 @@ func (a *IntegrationAPIService) DeleteGlobalIntegrationExecute(r ApiDeleteGlobal
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -793,7 +793,7 @@ func (a *IntegrationAPIService) DeleteGlobalIntegrationExecute(r ApiDeleteGlobal
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -822,10 +822,10 @@ type ApiDeleteProjectIntegrationRequest struct {
 	ctx           context.Context
 	ApiService    *IntegrationAPIService
 	integrationId int64
-	projectName   string
+	projectKey    string
 }
 
-func (r ApiDeleteProjectIntegrationRequest) Execute() (*OperationCompletionRS, *http.Response, error) {
+func (r ApiDeleteProjectIntegrationRequest) Execute() (*ComEpamReportportalBaseReportingOperationCompletionRS, *http.Response, error) {
 	return r.ApiService.DeleteProjectIntegrationExecute(r)
 }
 
@@ -834,27 +834,27 @@ DeleteProjectIntegration Delete project integration instance
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param integrationId
-	@param projectName
+	@param projectKey
 	@return ApiDeleteProjectIntegrationRequest
 */
-func (a *IntegrationAPIService) DeleteProjectIntegration(ctx context.Context, integrationId int64, projectName string) ApiDeleteProjectIntegrationRequest {
+func (a *IntegrationAPIService) DeleteProjectIntegration(ctx context.Context, integrationId int64, projectKey string) ApiDeleteProjectIntegrationRequest {
 	return ApiDeleteProjectIntegrationRequest{
 		ApiService:    a,
 		ctx:           ctx,
 		integrationId: integrationId,
-		projectName:   projectName,
+		projectKey:    projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return OperationCompletionRS
-func (a *IntegrationAPIService) DeleteProjectIntegrationExecute(r ApiDeleteProjectIntegrationRequest) (*OperationCompletionRS, *http.Response, error) {
+//	@return ComEpamReportportalBaseReportingOperationCompletionRS
+func (a *IntegrationAPIService) DeleteProjectIntegrationExecute(r ApiDeleteProjectIntegrationRequest) (*ComEpamReportportalBaseReportingOperationCompletionRS, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodDelete
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *OperationCompletionRS
+		localVarReturnValue *ComEpamReportportalBaseReportingOperationCompletionRS
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "IntegrationAPIService.DeleteProjectIntegration")
@@ -862,9 +862,9 @@ func (a *IntegrationAPIService) DeleteProjectIntegrationExecute(r ApiDeleteProje
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/integration/{projectName}/{integrationId}"
+	localVarPath := localBasePath + "/v1/integration/{projectKey}/{integrationId}"
 	localVarPath = strings.Replace(localVarPath, "{"+"integrationId"+"}", url.PathEscape(parameterValueToString(r.integrationId, "integrationId")), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -928,7 +928,7 @@ func (a *IntegrationAPIService) DeleteProjectIntegrationExecute(r ApiDeleteProje
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -939,7 +939,7 @@ func (a *IntegrationAPIService) DeleteProjectIntegrationExecute(r ApiDeleteProje
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -950,7 +950,7 @@ func (a *IntegrationAPIService) DeleteProjectIntegrationExecute(r ApiDeleteProje
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -980,7 +980,7 @@ type ApiExecuteIntegrationCommandRequest struct {
 	ApiService    *IntegrationAPIService
 	command       string
 	integrationId int64
-	projectName   string
+	projectKey    string
 	requestBody   *map[string]interface{}
 }
 
@@ -999,16 +999,16 @@ ExecuteIntegrationCommand Execute command to the integration instance
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param command
 	@param integrationId
-	@param projectName
+	@param projectKey
 	@return ApiExecuteIntegrationCommandRequest
 */
-func (a *IntegrationAPIService) ExecuteIntegrationCommand(ctx context.Context, command string, integrationId int64, projectName string) ApiExecuteIntegrationCommandRequest {
+func (a *IntegrationAPIService) ExecuteIntegrationCommand(ctx context.Context, command string, integrationId int64, projectKey string) ApiExecuteIntegrationCommandRequest {
 	return ApiExecuteIntegrationCommandRequest{
 		ApiService:    a,
 		ctx:           ctx,
 		command:       command,
 		integrationId: integrationId,
-		projectName:   projectName,
+		projectKey:    projectKey,
 	}
 }
 
@@ -1028,10 +1028,10 @@ func (a *IntegrationAPIService) ExecuteIntegrationCommandExecute(r ApiExecuteInt
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/integration/{projectName}/{integrationId}/{command}"
+	localVarPath := localBasePath + "/v1/integration/{projectKey}/{integrationId}/{command}"
 	localVarPath = strings.Replace(localVarPath, "{"+"command"+"}", url.PathEscape(parameterValueToString(r.command, "command")), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"integrationId"+"}", url.PathEscape(parameterValueToString(r.integrationId, "integrationId")), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -1100,7 +1100,7 @@ func (a *IntegrationAPIService) ExecuteIntegrationCommandExecute(r ApiExecuteInt
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1111,7 +1111,7 @@ func (a *IntegrationAPIService) ExecuteIntegrationCommandExecute(r ApiExecuteInt
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1122,7 +1122,7 @@ func (a *IntegrationAPIService) ExecuteIntegrationCommandExecute(r ApiExecuteInt
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1153,7 +1153,7 @@ type ApiGetGlobalIntegrationRequest struct {
 	integrationId int64
 }
 
-func (r ApiGetGlobalIntegrationRequest) Execute() (*IntegrationResource, *http.Response, error) {
+func (r ApiGetGlobalIntegrationRequest) Execute() (*ComEpamReportportalBaseModelIntegrationIntegrationResource, *http.Response, error) {
 	return r.ApiService.GetGlobalIntegrationExecute(r)
 }
 
@@ -1174,13 +1174,13 @@ func (a *IntegrationAPIService) GetGlobalIntegration(ctx context.Context, integr
 
 // Execute executes the request
 //
-//	@return IntegrationResource
-func (a *IntegrationAPIService) GetGlobalIntegrationExecute(r ApiGetGlobalIntegrationRequest) (*IntegrationResource, *http.Response, error) {
+//	@return ComEpamReportportalBaseModelIntegrationIntegrationResource
+func (a *IntegrationAPIService) GetGlobalIntegrationExecute(r ApiGetGlobalIntegrationRequest) (*ComEpamReportportalBaseModelIntegrationIntegrationResource, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodGet
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *IntegrationResource
+		localVarReturnValue *ComEpamReportportalBaseModelIntegrationIntegrationResource
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "IntegrationAPIService.GetGlobalIntegration")
@@ -1253,7 +1253,7 @@ func (a *IntegrationAPIService) GetGlobalIntegrationExecute(r ApiGetGlobalIntegr
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1264,7 +1264,7 @@ func (a *IntegrationAPIService) GetGlobalIntegrationExecute(r ApiGetGlobalIntegr
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1275,7 +1275,7 @@ func (a *IntegrationAPIService) GetGlobalIntegrationExecute(r ApiGetGlobalIntegr
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1306,7 +1306,7 @@ type ApiGetGlobalIntegrationsRequest struct {
 	pluginName string
 }
 
-func (r ApiGetGlobalIntegrationsRequest) Execute() ([]IntegrationResource, *http.Response, error) {
+func (r ApiGetGlobalIntegrationsRequest) Execute() ([]ComEpamReportportalBaseModelIntegrationIntegrationResource, *http.Response, error) {
 	return r.ApiService.GetGlobalIntegrationsExecute(r)
 }
 
@@ -1327,13 +1327,13 @@ func (a *IntegrationAPIService) GetGlobalIntegrations(ctx context.Context, plugi
 
 // Execute executes the request
 //
-//	@return []IntegrationResource
-func (a *IntegrationAPIService) GetGlobalIntegrationsExecute(r ApiGetGlobalIntegrationsRequest) ([]IntegrationResource, *http.Response, error) {
+//	@return []ComEpamReportportalBaseModelIntegrationIntegrationResource
+func (a *IntegrationAPIService) GetGlobalIntegrationsExecute(r ApiGetGlobalIntegrationsRequest) ([]ComEpamReportportalBaseModelIntegrationIntegrationResource, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodGet
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue []IntegrationResource
+		localVarReturnValue []ComEpamReportportalBaseModelIntegrationIntegrationResource
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "IntegrationAPIService.GetGlobalIntegrations")
@@ -1406,7 +1406,7 @@ func (a *IntegrationAPIService) GetGlobalIntegrationsExecute(r ApiGetGlobalInteg
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1417,7 +1417,7 @@ func (a *IntegrationAPIService) GetGlobalIntegrationsExecute(r ApiGetGlobalInteg
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1428,7 +1428,7 @@ func (a *IntegrationAPIService) GetGlobalIntegrationsExecute(r ApiGetGlobalInteg
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1458,7 +1458,7 @@ type ApiGetGlobalIntegrations1Request struct {
 	ApiService *IntegrationAPIService
 }
 
-func (r ApiGetGlobalIntegrations1Request) Execute() ([]IntegrationResource, *http.Response, error) {
+func (r ApiGetGlobalIntegrations1Request) Execute() ([]ComEpamReportportalBaseModelIntegrationIntegrationResource, *http.Response, error) {
 	return r.ApiService.GetGlobalIntegrations1Execute(r)
 }
 
@@ -1477,13 +1477,13 @@ func (a *IntegrationAPIService) GetGlobalIntegrations1(ctx context.Context) ApiG
 
 // Execute executes the request
 //
-//	@return []IntegrationResource
-func (a *IntegrationAPIService) GetGlobalIntegrations1Execute(r ApiGetGlobalIntegrations1Request) ([]IntegrationResource, *http.Response, error) {
+//	@return []ComEpamReportportalBaseModelIntegrationIntegrationResource
+func (a *IntegrationAPIService) GetGlobalIntegrations1Execute(r ApiGetGlobalIntegrations1Request) ([]ComEpamReportportalBaseModelIntegrationIntegrationResource, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodGet
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue []IntegrationResource
+		localVarReturnValue []ComEpamReportportalBaseModelIntegrationIntegrationResource
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "IntegrationAPIService.GetGlobalIntegrations1")
@@ -1555,7 +1555,7 @@ func (a *IntegrationAPIService) GetGlobalIntegrations1Execute(r ApiGetGlobalInte
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1566,7 +1566,7 @@ func (a *IntegrationAPIService) GetGlobalIntegrations1Execute(r ApiGetGlobalInte
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1577,7 +1577,7 @@ func (a *IntegrationAPIService) GetGlobalIntegrations1Execute(r ApiGetGlobalInte
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1607,7 +1607,7 @@ type ApiGetGlobalIntegrations2Request struct {
 	ApiService *IntegrationAPIService
 }
 
-func (r ApiGetGlobalIntegrations2Request) Execute() ([]IntegrationResource, *http.Response, error) {
+func (r ApiGetGlobalIntegrations2Request) Execute() ([]ComEpamReportportalBaseModelIntegrationIntegrationResource, *http.Response, error) {
 	return r.ApiService.GetGlobalIntegrations2Execute(r)
 }
 
@@ -1626,13 +1626,13 @@ func (a *IntegrationAPIService) GetGlobalIntegrations2(ctx context.Context) ApiG
 
 // Execute executes the request
 //
-//	@return []IntegrationResource
-func (a *IntegrationAPIService) GetGlobalIntegrations2Execute(r ApiGetGlobalIntegrations2Request) ([]IntegrationResource, *http.Response, error) {
+//	@return []ComEpamReportportalBaseModelIntegrationIntegrationResource
+func (a *IntegrationAPIService) GetGlobalIntegrations2Execute(r ApiGetGlobalIntegrations2Request) ([]ComEpamReportportalBaseModelIntegrationIntegrationResource, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodGet
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue []IntegrationResource
+		localVarReturnValue []ComEpamReportportalBaseModelIntegrationIntegrationResource
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "IntegrationAPIService.GetGlobalIntegrations2")
@@ -1704,7 +1704,7 @@ func (a *IntegrationAPIService) GetGlobalIntegrations2Execute(r ApiGetGlobalInte
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1715,7 +1715,7 @@ func (a *IntegrationAPIService) GetGlobalIntegrations2Execute(r ApiGetGlobalInte
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1726,7 +1726,7 @@ func (a *IntegrationAPIService) GetGlobalIntegrations2Execute(r ApiGetGlobalInte
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1755,10 +1755,10 @@ type ApiGetProjectIntegrationRequest struct {
 	ctx           context.Context
 	ApiService    *IntegrationAPIService
 	integrationId int64
-	projectName   string
+	projectKey    string
 }
 
-func (r ApiGetProjectIntegrationRequest) Execute() (*IntegrationResource, *http.Response, error) {
+func (r ApiGetProjectIntegrationRequest) Execute() (*ComEpamReportportalBaseModelIntegrationIntegrationResource, *http.Response, error) {
 	return r.ApiService.GetProjectIntegrationExecute(r)
 }
 
@@ -1767,27 +1767,27 @@ GetProjectIntegration Get integration instance
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param integrationId
-	@param projectName
+	@param projectKey
 	@return ApiGetProjectIntegrationRequest
 */
-func (a *IntegrationAPIService) GetProjectIntegration(ctx context.Context, integrationId int64, projectName string) ApiGetProjectIntegrationRequest {
+func (a *IntegrationAPIService) GetProjectIntegration(ctx context.Context, integrationId int64, projectKey string) ApiGetProjectIntegrationRequest {
 	return ApiGetProjectIntegrationRequest{
 		ApiService:    a,
 		ctx:           ctx,
 		integrationId: integrationId,
-		projectName:   projectName,
+		projectKey:    projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return IntegrationResource
-func (a *IntegrationAPIService) GetProjectIntegrationExecute(r ApiGetProjectIntegrationRequest) (*IntegrationResource, *http.Response, error) {
+//	@return ComEpamReportportalBaseModelIntegrationIntegrationResource
+func (a *IntegrationAPIService) GetProjectIntegrationExecute(r ApiGetProjectIntegrationRequest) (*ComEpamReportportalBaseModelIntegrationIntegrationResource, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodGet
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *IntegrationResource
+		localVarReturnValue *ComEpamReportportalBaseModelIntegrationIntegrationResource
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "IntegrationAPIService.GetProjectIntegration")
@@ -1795,9 +1795,9 @@ func (a *IntegrationAPIService) GetProjectIntegrationExecute(r ApiGetProjectInte
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/integration/{projectName}/{integrationId}"
+	localVarPath := localBasePath + "/v1/integration/{projectKey}/{integrationId}"
 	localVarPath = strings.Replace(localVarPath, "{"+"integrationId"+"}", url.PathEscape(parameterValueToString(r.integrationId, "integrationId")), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -1861,7 +1861,7 @@ func (a *IntegrationAPIService) GetProjectIntegrationExecute(r ApiGetProjectInte
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1872,7 +1872,7 @@ func (a *IntegrationAPIService) GetProjectIntegrationExecute(r ApiGetProjectInte
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1883,7 +1883,7 @@ func (a *IntegrationAPIService) GetProjectIntegrationExecute(r ApiGetProjectInte
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1909,12 +1909,12 @@ func (a *IntegrationAPIService) GetProjectIntegrationExecute(r ApiGetProjectInte
 }
 
 type ApiGetProjectIntegrationsRequest struct {
-	ctx         context.Context
-	ApiService  *IntegrationAPIService
-	projectName string
+	ctx        context.Context
+	ApiService *IntegrationAPIService
+	projectKey string
 }
 
-func (r ApiGetProjectIntegrationsRequest) Execute() ([]IntegrationResource, *http.Response, error) {
+func (r ApiGetProjectIntegrationsRequest) Execute() ([]ComEpamReportportalBaseModelIntegrationIntegrationResource, *http.Response, error) {
 	return r.ApiService.GetProjectIntegrationsExecute(r)
 }
 
@@ -1922,26 +1922,26 @@ func (r ApiGetProjectIntegrationsRequest) Execute() ([]IntegrationResource, *htt
 GetProjectIntegrations Get available project integrations
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param projectName
+	@param projectKey
 	@return ApiGetProjectIntegrationsRequest
 */
-func (a *IntegrationAPIService) GetProjectIntegrations(ctx context.Context, projectName string) ApiGetProjectIntegrationsRequest {
+func (a *IntegrationAPIService) GetProjectIntegrations(ctx context.Context, projectKey string) ApiGetProjectIntegrationsRequest {
 	return ApiGetProjectIntegrationsRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		projectKey: projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return []IntegrationResource
-func (a *IntegrationAPIService) GetProjectIntegrationsExecute(r ApiGetProjectIntegrationsRequest) ([]IntegrationResource, *http.Response, error) {
+//	@return []ComEpamReportportalBaseModelIntegrationIntegrationResource
+func (a *IntegrationAPIService) GetProjectIntegrationsExecute(r ApiGetProjectIntegrationsRequest) ([]ComEpamReportportalBaseModelIntegrationIntegrationResource, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodGet
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue []IntegrationResource
+		localVarReturnValue []ComEpamReportportalBaseModelIntegrationIntegrationResource
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "IntegrationAPIService.GetProjectIntegrations")
@@ -1949,8 +1949,8 @@ func (a *IntegrationAPIService) GetProjectIntegrationsExecute(r ApiGetProjectInt
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/integration/project/{projectName}/all"
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath := localBasePath + "/v1/integration/project/{projectKey}/all"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -2014,7 +2014,7 @@ func (a *IntegrationAPIService) GetProjectIntegrationsExecute(r ApiGetProjectInt
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -2025,7 +2025,7 @@ func (a *IntegrationAPIService) GetProjectIntegrationsExecute(r ApiGetProjectInt
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -2036,7 +2036,7 @@ func (a *IntegrationAPIService) GetProjectIntegrationsExecute(r ApiGetProjectInt
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -2062,13 +2062,13 @@ func (a *IntegrationAPIService) GetProjectIntegrationsExecute(r ApiGetProjectInt
 }
 
 type ApiGetProjectIntegrations1Request struct {
-	ctx         context.Context
-	ApiService  *IntegrationAPIService
-	pluginName  string
-	projectName string
+	ctx        context.Context
+	ApiService *IntegrationAPIService
+	pluginName string
+	projectKey string
 }
 
-func (r ApiGetProjectIntegrations1Request) Execute() ([]IntegrationResource, *http.Response, error) {
+func (r ApiGetProjectIntegrations1Request) Execute() ([]ComEpamReportportalBaseModelIntegrationIntegrationResource, *http.Response, error) {
 	return r.ApiService.GetProjectIntegrations1Execute(r)
 }
 
@@ -2077,27 +2077,27 @@ GetProjectIntegrations1 Get available project integrations for plugin
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param pluginName
-	@param projectName
+	@param projectKey
 	@return ApiGetProjectIntegrations1Request
 */
-func (a *IntegrationAPIService) GetProjectIntegrations1(ctx context.Context, pluginName string, projectName string) ApiGetProjectIntegrations1Request {
+func (a *IntegrationAPIService) GetProjectIntegrations1(ctx context.Context, pluginName string, projectKey string) ApiGetProjectIntegrations1Request {
 	return ApiGetProjectIntegrations1Request{
-		ApiService:  a,
-		ctx:         ctx,
-		pluginName:  pluginName,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		pluginName: pluginName,
+		projectKey: projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return []IntegrationResource
-func (a *IntegrationAPIService) GetProjectIntegrations1Execute(r ApiGetProjectIntegrations1Request) ([]IntegrationResource, *http.Response, error) {
+//	@return []ComEpamReportportalBaseModelIntegrationIntegrationResource
+func (a *IntegrationAPIService) GetProjectIntegrations1Execute(r ApiGetProjectIntegrations1Request) ([]ComEpamReportportalBaseModelIntegrationIntegrationResource, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodGet
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue []IntegrationResource
+		localVarReturnValue []ComEpamReportportalBaseModelIntegrationIntegrationResource
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "IntegrationAPIService.GetProjectIntegrations1")
@@ -2105,9 +2105,9 @@ func (a *IntegrationAPIService) GetProjectIntegrations1Execute(r ApiGetProjectIn
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/integration/project/{projectName}/all/{pluginName}"
+	localVarPath := localBasePath + "/v1/integration/project/{projectKey}/all/{pluginName}"
 	localVarPath = strings.Replace(localVarPath, "{"+"pluginName"+"}", url.PathEscape(parameterValueToString(r.pluginName, "pluginName")), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -2171,7 +2171,7 @@ func (a *IntegrationAPIService) GetProjectIntegrations1Execute(r ApiGetProjectIn
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -2182,7 +2182,7 @@ func (a *IntegrationAPIService) GetProjectIntegrations1Execute(r ApiGetProjectIn
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -2193,7 +2193,7 @@ func (a *IntegrationAPIService) GetProjectIntegrations1Execute(r ApiGetProjectIn
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -2222,7 +2222,7 @@ type ApiTestIntegrationConnectionRequest struct {
 	ctx           context.Context
 	ApiService    *IntegrationAPIService
 	integrationId int64
-	projectName   string
+	projectKey    string
 }
 
 func (r ApiTestIntegrationConnectionRequest) Execute() (bool, *http.Response, error) {
@@ -2234,15 +2234,15 @@ TestIntegrationConnection Test connection to the integration through the project
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param integrationId
-	@param projectName
+	@param projectKey
 	@return ApiTestIntegrationConnectionRequest
 */
-func (a *IntegrationAPIService) TestIntegrationConnection(ctx context.Context, integrationId int64, projectName string) ApiTestIntegrationConnectionRequest {
+func (a *IntegrationAPIService) TestIntegrationConnection(ctx context.Context, integrationId int64, projectKey string) ApiTestIntegrationConnectionRequest {
 	return ApiTestIntegrationConnectionRequest{
 		ApiService:    a,
 		ctx:           ctx,
 		integrationId: integrationId,
-		projectName:   projectName,
+		projectKey:    projectKey,
 	}
 }
 
@@ -2262,9 +2262,9 @@ func (a *IntegrationAPIService) TestIntegrationConnectionExecute(r ApiTestIntegr
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/integration/{projectName}/{integrationId}/connection/test"
+	localVarPath := localBasePath + "/v1/integration/{projectKey}/{integrationId}/connection/test"
 	localVarPath = strings.Replace(localVarPath, "{"+"integrationId"+"}", url.PathEscape(parameterValueToString(r.integrationId, "integrationId")), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -2328,7 +2328,7 @@ func (a *IntegrationAPIService) TestIntegrationConnectionExecute(r ApiTestIntegr
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -2339,7 +2339,7 @@ func (a *IntegrationAPIService) TestIntegrationConnectionExecute(r ApiTestIntegr
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -2350,7 +2350,7 @@ func (a *IntegrationAPIService) TestIntegrationConnectionExecute(r ApiTestIntegr
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -2481,7 +2481,7 @@ func (a *IntegrationAPIService) TestIntegrationConnection1Execute(r ApiTestInteg
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -2492,7 +2492,7 @@ func (a *IntegrationAPIService) TestIntegrationConnection1Execute(r ApiTestInteg
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -2503,7 +2503,7 @@ func (a *IntegrationAPIService) TestIntegrationConnection1Execute(r ApiTestInteg
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -2529,18 +2529,18 @@ func (a *IntegrationAPIService) TestIntegrationConnection1Execute(r ApiTestInteg
 }
 
 type ApiUpdateGlobalIntegrationRequest struct {
-	ctx           context.Context
-	ApiService    *IntegrationAPIService
-	integrationId int64
-	integrationRQ *IntegrationRQ
+	ctx                                                  context.Context
+	ApiService                                           *IntegrationAPIService
+	integrationId                                        int64
+	comEpamReportportalBaseModelIntegrationIntegrationRQ *ComEpamReportportalBaseModelIntegrationIntegrationRQ
 }
 
-func (r ApiUpdateGlobalIntegrationRequest) IntegrationRQ(integrationRQ IntegrationRQ) ApiUpdateGlobalIntegrationRequest {
-	r.integrationRQ = &integrationRQ
+func (r ApiUpdateGlobalIntegrationRequest) ComEpamReportportalBaseModelIntegrationIntegrationRQ(comEpamReportportalBaseModelIntegrationIntegrationRQ ComEpamReportportalBaseModelIntegrationIntegrationRQ) ApiUpdateGlobalIntegrationRequest {
+	r.comEpamReportportalBaseModelIntegrationIntegrationRQ = &comEpamReportportalBaseModelIntegrationIntegrationRQ
 	return r
 }
 
-func (r ApiUpdateGlobalIntegrationRequest) Execute() (*OperationCompletionRS, *http.Response, error) {
+func (r ApiUpdateGlobalIntegrationRequest) Execute() (*ComEpamReportportalBaseReportingOperationCompletionRS, *http.Response, error) {
 	return r.ApiService.UpdateGlobalIntegrationExecute(r)
 }
 
@@ -2561,13 +2561,13 @@ func (a *IntegrationAPIService) UpdateGlobalIntegration(ctx context.Context, int
 
 // Execute executes the request
 //
-//	@return OperationCompletionRS
-func (a *IntegrationAPIService) UpdateGlobalIntegrationExecute(r ApiUpdateGlobalIntegrationRequest) (*OperationCompletionRS, *http.Response, error) {
+//	@return ComEpamReportportalBaseReportingOperationCompletionRS
+func (a *IntegrationAPIService) UpdateGlobalIntegrationExecute(r ApiUpdateGlobalIntegrationRequest) (*ComEpamReportportalBaseReportingOperationCompletionRS, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPut
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *OperationCompletionRS
+		localVarReturnValue *ComEpamReportportalBaseReportingOperationCompletionRS
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "IntegrationAPIService.UpdateGlobalIntegration")
@@ -2581,8 +2581,8 @@ func (a *IntegrationAPIService) UpdateGlobalIntegrationExecute(r ApiUpdateGlobal
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
-	if r.integrationRQ == nil {
-		return localVarReturnValue, nil, reportError("integrationRQ is required and must be specified")
+	if r.comEpamReportportalBaseModelIntegrationIntegrationRQ == nil {
+		return localVarReturnValue, nil, reportError("comEpamReportportalBaseModelIntegrationIntegrationRQ is required and must be specified")
 	}
 
 	// to determine the Content-Type header
@@ -2603,7 +2603,7 @@ func (a *IntegrationAPIService) UpdateGlobalIntegrationExecute(r ApiUpdateGlobal
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
 	// body params
-	localVarPostBody = r.integrationRQ
+	localVarPostBody = r.comEpamReportportalBaseModelIntegrationIntegrationRQ
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -2645,7 +2645,7 @@ func (a *IntegrationAPIService) UpdateGlobalIntegrationExecute(r ApiUpdateGlobal
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -2656,7 +2656,7 @@ func (a *IntegrationAPIService) UpdateGlobalIntegrationExecute(r ApiUpdateGlobal
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -2667,7 +2667,7 @@ func (a *IntegrationAPIService) UpdateGlobalIntegrationExecute(r ApiUpdateGlobal
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -2693,19 +2693,19 @@ func (a *IntegrationAPIService) UpdateGlobalIntegrationExecute(r ApiUpdateGlobal
 }
 
 type ApiUpdateProjectIntegrationRequest struct {
-	ctx           context.Context
-	ApiService    *IntegrationAPIService
-	integrationId int64
-	projectName   string
-	integrationRQ *IntegrationRQ
+	ctx                                                  context.Context
+	ApiService                                           *IntegrationAPIService
+	integrationId                                        int64
+	projectKey                                           string
+	comEpamReportportalBaseModelIntegrationIntegrationRQ *ComEpamReportportalBaseModelIntegrationIntegrationRQ
 }
 
-func (r ApiUpdateProjectIntegrationRequest) IntegrationRQ(integrationRQ IntegrationRQ) ApiUpdateProjectIntegrationRequest {
-	r.integrationRQ = &integrationRQ
+func (r ApiUpdateProjectIntegrationRequest) ComEpamReportportalBaseModelIntegrationIntegrationRQ(comEpamReportportalBaseModelIntegrationIntegrationRQ ComEpamReportportalBaseModelIntegrationIntegrationRQ) ApiUpdateProjectIntegrationRequest {
+	r.comEpamReportportalBaseModelIntegrationIntegrationRQ = &comEpamReportportalBaseModelIntegrationIntegrationRQ
 	return r
 }
 
-func (r ApiUpdateProjectIntegrationRequest) Execute() (*OperationCompletionRS, *http.Response, error) {
+func (r ApiUpdateProjectIntegrationRequest) Execute() (*ComEpamReportportalBaseReportingOperationCompletionRS, *http.Response, error) {
 	return r.ApiService.UpdateProjectIntegrationExecute(r)
 }
 
@@ -2714,27 +2714,27 @@ UpdateProjectIntegration Update project integration instance
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param integrationId
-	@param projectName
+	@param projectKey
 	@return ApiUpdateProjectIntegrationRequest
 */
-func (a *IntegrationAPIService) UpdateProjectIntegration(ctx context.Context, integrationId int64, projectName string) ApiUpdateProjectIntegrationRequest {
+func (a *IntegrationAPIService) UpdateProjectIntegration(ctx context.Context, integrationId int64, projectKey string) ApiUpdateProjectIntegrationRequest {
 	return ApiUpdateProjectIntegrationRequest{
 		ApiService:    a,
 		ctx:           ctx,
 		integrationId: integrationId,
-		projectName:   projectName,
+		projectKey:    projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return OperationCompletionRS
-func (a *IntegrationAPIService) UpdateProjectIntegrationExecute(r ApiUpdateProjectIntegrationRequest) (*OperationCompletionRS, *http.Response, error) {
+//	@return ComEpamReportportalBaseReportingOperationCompletionRS
+func (a *IntegrationAPIService) UpdateProjectIntegrationExecute(r ApiUpdateProjectIntegrationRequest) (*ComEpamReportportalBaseReportingOperationCompletionRS, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPut
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *OperationCompletionRS
+		localVarReturnValue *ComEpamReportportalBaseReportingOperationCompletionRS
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "IntegrationAPIService.UpdateProjectIntegration")
@@ -2742,15 +2742,15 @@ func (a *IntegrationAPIService) UpdateProjectIntegrationExecute(r ApiUpdateProje
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/integration/{projectName}/{integrationId}"
+	localVarPath := localBasePath + "/v1/integration/{projectKey}/{integrationId}"
 	localVarPath = strings.Replace(localVarPath, "{"+"integrationId"+"}", url.PathEscape(parameterValueToString(r.integrationId, "integrationId")), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
-	if r.integrationRQ == nil {
-		return localVarReturnValue, nil, reportError("integrationRQ is required and must be specified")
+	if r.comEpamReportportalBaseModelIntegrationIntegrationRQ == nil {
+		return localVarReturnValue, nil, reportError("comEpamReportportalBaseModelIntegrationIntegrationRQ is required and must be specified")
 	}
 
 	// to determine the Content-Type header
@@ -2771,7 +2771,7 @@ func (a *IntegrationAPIService) UpdateProjectIntegrationExecute(r ApiUpdateProje
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
 	// body params
-	localVarPostBody = r.integrationRQ
+	localVarPostBody = r.comEpamReportportalBaseModelIntegrationIntegrationRQ
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -2813,7 +2813,7 @@ func (a *IntegrationAPIService) UpdateProjectIntegrationExecute(r ApiUpdateProje
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -2824,7 +2824,7 @@ func (a *IntegrationAPIService) UpdateProjectIntegrationExecute(r ApiUpdateProje
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -2835,7 +2835,7 @@ func (a *IntegrationAPIService) UpdateProjectIntegrationExecute(r ApiUpdateProje
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()

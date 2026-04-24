@@ -3,7 +3,7 @@ ReportPortal
 
 ReportPortal API documentation
 
-API version: 5.15.1
+API version: develop-531
 Contact: support@reportportal.io
 */
 
@@ -25,18 +25,18 @@ import (
 type TestItemAPIService service
 
 type ApiBulkUpdate1Request struct {
-	ctx              context.Context
-	ApiService       *TestItemAPIService
-	projectName      string
-	bulkInfoUpdateRQ *BulkInfoUpdateRQ
+	ctx                                              context.Context
+	ApiService                                       *TestItemAPIService
+	projectKey                                       string
+	comEpamReportportalBaseReportingBulkInfoUpdateRQ *ComEpamReportportalBaseReportingBulkInfoUpdateRQ
 }
 
-func (r ApiBulkUpdate1Request) BulkInfoUpdateRQ(bulkInfoUpdateRQ BulkInfoUpdateRQ) ApiBulkUpdate1Request {
-	r.bulkInfoUpdateRQ = &bulkInfoUpdateRQ
+func (r ApiBulkUpdate1Request) ComEpamReportportalBaseReportingBulkInfoUpdateRQ(comEpamReportportalBaseReportingBulkInfoUpdateRQ ComEpamReportportalBaseReportingBulkInfoUpdateRQ) ApiBulkUpdate1Request {
+	r.comEpamReportportalBaseReportingBulkInfoUpdateRQ = &comEpamReportportalBaseReportingBulkInfoUpdateRQ
 	return r
 }
 
-func (r ApiBulkUpdate1Request) Execute() (*OperationCompletionRS, *http.Response, error) {
+func (r ApiBulkUpdate1Request) Execute() (*ComEpamReportportalBaseReportingOperationCompletionRS, *http.Response, error) {
 	return r.ApiService.BulkUpdate1Execute(r)
 }
 
@@ -44,26 +44,26 @@ func (r ApiBulkUpdate1Request) Execute() (*OperationCompletionRS, *http.Response
 BulkUpdate1 Bulk update attributes and description
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param projectName
+	@param projectKey
 	@return ApiBulkUpdate1Request
 */
-func (a *TestItemAPIService) BulkUpdate1(ctx context.Context, projectName string) ApiBulkUpdate1Request {
+func (a *TestItemAPIService) BulkUpdate1(ctx context.Context, projectKey string) ApiBulkUpdate1Request {
 	return ApiBulkUpdate1Request{
-		ApiService:  a,
-		ctx:         ctx,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		projectKey: projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return OperationCompletionRS
-func (a *TestItemAPIService) BulkUpdate1Execute(r ApiBulkUpdate1Request) (*OperationCompletionRS, *http.Response, error) {
+//	@return ComEpamReportportalBaseReportingOperationCompletionRS
+func (a *TestItemAPIService) BulkUpdate1Execute(r ApiBulkUpdate1Request) (*ComEpamReportportalBaseReportingOperationCompletionRS, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPut
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *OperationCompletionRS
+		localVarReturnValue *ComEpamReportportalBaseReportingOperationCompletionRS
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "TestItemAPIService.BulkUpdate1")
@@ -71,14 +71,14 @@ func (a *TestItemAPIService) BulkUpdate1Execute(r ApiBulkUpdate1Request) (*Opera
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/item/info"
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath := localBasePath + "/v1/{projectKey}/item/info"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
-	if r.bulkInfoUpdateRQ == nil {
-		return localVarReturnValue, nil, reportError("bulkInfoUpdateRQ is required and must be specified")
+	if r.comEpamReportportalBaseReportingBulkInfoUpdateRQ == nil {
+		return localVarReturnValue, nil, reportError("comEpamReportportalBaseReportingBulkInfoUpdateRQ is required and must be specified")
 	}
 
 	// to determine the Content-Type header
@@ -99,7 +99,7 @@ func (a *TestItemAPIService) BulkUpdate1Execute(r ApiBulkUpdate1Request) (*Opera
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
 	// body params
-	localVarPostBody = r.bulkInfoUpdateRQ
+	localVarPostBody = r.comEpamReportportalBaseReportingBulkInfoUpdateRQ
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -141,7 +141,7 @@ func (a *TestItemAPIService) BulkUpdate1Execute(r ApiBulkUpdate1Request) (*Opera
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -152,7 +152,7 @@ func (a *TestItemAPIService) BulkUpdate1Execute(r ApiBulkUpdate1Request) (*Opera
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -163,7 +163,7 @@ func (a *TestItemAPIService) BulkUpdate1Execute(r ApiBulkUpdate1Request) (*Opera
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -189,18 +189,18 @@ func (a *TestItemAPIService) BulkUpdate1Execute(r ApiBulkUpdate1Request) (*Opera
 }
 
 type ApiDefineTestItemIssueTypeRequest struct {
-	ctx           context.Context
-	ApiService    *TestItemAPIService
-	projectName   string
-	defineIssueRQ *DefineIssueRQ
+	ctx                                            context.Context
+	ApiService                                     *TestItemAPIService
+	projectKey                                     string
+	comEpamReportportalBaseModelIssueDefineIssueRQ *ComEpamReportportalBaseModelIssueDefineIssueRQ
 }
 
-func (r ApiDefineTestItemIssueTypeRequest) DefineIssueRQ(defineIssueRQ DefineIssueRQ) ApiDefineTestItemIssueTypeRequest {
-	r.defineIssueRQ = &defineIssueRQ
+func (r ApiDefineTestItemIssueTypeRequest) ComEpamReportportalBaseModelIssueDefineIssueRQ(comEpamReportportalBaseModelIssueDefineIssueRQ ComEpamReportportalBaseModelIssueDefineIssueRQ) ApiDefineTestItemIssueTypeRequest {
+	r.comEpamReportportalBaseModelIssueDefineIssueRQ = &comEpamReportportalBaseModelIssueDefineIssueRQ
 	return r
 }
 
-func (r ApiDefineTestItemIssueTypeRequest) Execute() ([]Issue, *http.Response, error) {
+func (r ApiDefineTestItemIssueTypeRequest) Execute() ([]ComEpamReportportalBaseReportingIssue, *http.Response, error) {
 	return r.ApiService.DefineTestItemIssueTypeExecute(r)
 }
 
@@ -208,26 +208,26 @@ func (r ApiDefineTestItemIssueTypeRequest) Execute() ([]Issue, *http.Response, e
 DefineTestItemIssueType Update issues of specified test items
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param projectName
+	@param projectKey
 	@return ApiDefineTestItemIssueTypeRequest
 */
-func (a *TestItemAPIService) DefineTestItemIssueType(ctx context.Context, projectName string) ApiDefineTestItemIssueTypeRequest {
+func (a *TestItemAPIService) DefineTestItemIssueType(ctx context.Context, projectKey string) ApiDefineTestItemIssueTypeRequest {
 	return ApiDefineTestItemIssueTypeRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		projectKey: projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return []Issue
-func (a *TestItemAPIService) DefineTestItemIssueTypeExecute(r ApiDefineTestItemIssueTypeRequest) ([]Issue, *http.Response, error) {
+//	@return []ComEpamReportportalBaseReportingIssue
+func (a *TestItemAPIService) DefineTestItemIssueTypeExecute(r ApiDefineTestItemIssueTypeRequest) ([]ComEpamReportportalBaseReportingIssue, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPut
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue []Issue
+		localVarReturnValue []ComEpamReportportalBaseReportingIssue
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "TestItemAPIService.DefineTestItemIssueType")
@@ -235,14 +235,14 @@ func (a *TestItemAPIService) DefineTestItemIssueTypeExecute(r ApiDefineTestItemI
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/item"
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath := localBasePath + "/v1/{projectKey}/item"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
-	if r.defineIssueRQ == nil {
-		return localVarReturnValue, nil, reportError("defineIssueRQ is required and must be specified")
+	if r.comEpamReportportalBaseModelIssueDefineIssueRQ == nil {
+		return localVarReturnValue, nil, reportError("comEpamReportportalBaseModelIssueDefineIssueRQ is required and must be specified")
 	}
 
 	// to determine the Content-Type header
@@ -263,7 +263,7 @@ func (a *TestItemAPIService) DefineTestItemIssueTypeExecute(r ApiDefineTestItemI
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
 	// body params
-	localVarPostBody = r.defineIssueRQ
+	localVarPostBody = r.comEpamReportportalBaseModelIssueDefineIssueRQ
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -305,7 +305,7 @@ func (a *TestItemAPIService) DefineTestItemIssueTypeExecute(r ApiDefineTestItemI
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -316,7 +316,7 @@ func (a *TestItemAPIService) DefineTestItemIssueTypeExecute(r ApiDefineTestItemI
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -327,7 +327,7 @@ func (a *TestItemAPIService) DefineTestItemIssueTypeExecute(r ApiDefineTestItemI
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -353,13 +353,13 @@ func (a *TestItemAPIService) DefineTestItemIssueTypeExecute(r ApiDefineTestItemI
 }
 
 type ApiDeleteTestItemRequest struct {
-	ctx         context.Context
-	ApiService  *TestItemAPIService
-	itemId      int64
-	projectName string
+	ctx        context.Context
+	ApiService *TestItemAPIService
+	itemId     int64
+	projectKey string
 }
 
-func (r ApiDeleteTestItemRequest) Execute() (*OperationCompletionRS, *http.Response, error) {
+func (r ApiDeleteTestItemRequest) Execute() (*ComEpamReportportalBaseReportingOperationCompletionRS, *http.Response, error) {
 	return r.ApiService.DeleteTestItemExecute(r)
 }
 
@@ -368,27 +368,27 @@ DeleteTestItem Delete test item
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param itemId
-	@param projectName
+	@param projectKey
 	@return ApiDeleteTestItemRequest
 */
-func (a *TestItemAPIService) DeleteTestItem(ctx context.Context, itemId int64, projectName string) ApiDeleteTestItemRequest {
+func (a *TestItemAPIService) DeleteTestItem(ctx context.Context, itemId int64, projectKey string) ApiDeleteTestItemRequest {
 	return ApiDeleteTestItemRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		itemId:      itemId,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		itemId:     itemId,
+		projectKey: projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return OperationCompletionRS
-func (a *TestItemAPIService) DeleteTestItemExecute(r ApiDeleteTestItemRequest) (*OperationCompletionRS, *http.Response, error) {
+//	@return ComEpamReportportalBaseReportingOperationCompletionRS
+func (a *TestItemAPIService) DeleteTestItemExecute(r ApiDeleteTestItemRequest) (*ComEpamReportportalBaseReportingOperationCompletionRS, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodDelete
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *OperationCompletionRS
+		localVarReturnValue *ComEpamReportportalBaseReportingOperationCompletionRS
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "TestItemAPIService.DeleteTestItem")
@@ -396,9 +396,9 @@ func (a *TestItemAPIService) DeleteTestItemExecute(r ApiDeleteTestItemRequest) (
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/item/{itemId}"
+	localVarPath := localBasePath + "/v1/{projectKey}/item/{itemId}"
 	localVarPath = strings.Replace(localVarPath, "{"+"itemId"+"}", url.PathEscape(parameterValueToString(r.itemId, "itemId")), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -462,7 +462,7 @@ func (a *TestItemAPIService) DeleteTestItemExecute(r ApiDeleteTestItemRequest) (
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -473,7 +473,7 @@ func (a *TestItemAPIService) DeleteTestItemExecute(r ApiDeleteTestItemRequest) (
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -484,7 +484,7 @@ func (a *TestItemAPIService) DeleteTestItemExecute(r ApiDeleteTestItemRequest) (
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -510,10 +510,10 @@ func (a *TestItemAPIService) DeleteTestItemExecute(r ApiDeleteTestItemRequest) (
 }
 
 type ApiDeleteTestItemsRequest struct {
-	ctx         context.Context
-	ApiService  *TestItemAPIService
-	ids         *[]int64
-	projectName string
+	ctx        context.Context
+	ApiService *TestItemAPIService
+	ids        *[]int64
+	projectKey string
 }
 
 func (r ApiDeleteTestItemsRequest) Ids(ids []int64) ApiDeleteTestItemsRequest {
@@ -521,7 +521,7 @@ func (r ApiDeleteTestItemsRequest) Ids(ids []int64) ApiDeleteTestItemsRequest {
 	return r
 }
 
-func (r ApiDeleteTestItemsRequest) Execute() ([]OperationCompletionRS, *http.Response, error) {
+func (r ApiDeleteTestItemsRequest) Execute() ([]ComEpamReportportalBaseReportingOperationCompletionRS, *http.Response, error) {
 	return r.ApiService.DeleteTestItemsExecute(r)
 }
 
@@ -529,26 +529,26 @@ func (r ApiDeleteTestItemsRequest) Execute() ([]OperationCompletionRS, *http.Res
 DeleteTestItems Delete test items by specified ids
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param projectName
+	@param projectKey
 	@return ApiDeleteTestItemsRequest
 */
-func (a *TestItemAPIService) DeleteTestItems(ctx context.Context, projectName string) ApiDeleteTestItemsRequest {
+func (a *TestItemAPIService) DeleteTestItems(ctx context.Context, projectKey string) ApiDeleteTestItemsRequest {
 	return ApiDeleteTestItemsRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		projectKey: projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return []OperationCompletionRS
-func (a *TestItemAPIService) DeleteTestItemsExecute(r ApiDeleteTestItemsRequest) ([]OperationCompletionRS, *http.Response, error) {
+//	@return []ComEpamReportportalBaseReportingOperationCompletionRS
+func (a *TestItemAPIService) DeleteTestItemsExecute(r ApiDeleteTestItemsRequest) ([]ComEpamReportportalBaseReportingOperationCompletionRS, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodDelete
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue []OperationCompletionRS
+		localVarReturnValue []ComEpamReportportalBaseReportingOperationCompletionRS
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "TestItemAPIService.DeleteTestItems")
@@ -556,8 +556,8 @@ func (a *TestItemAPIService) DeleteTestItemsExecute(r ApiDeleteTestItemsRequest)
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/item"
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath := localBasePath + "/v1/{projectKey}/item"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -635,7 +635,7 @@ func (a *TestItemAPIService) DeleteTestItemsExecute(r ApiDeleteTestItemsRequest)
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -646,7 +646,7 @@ func (a *TestItemAPIService) DeleteTestItemsExecute(r ApiDeleteTestItemsRequest)
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -657,7 +657,7 @@ func (a *TestItemAPIService) DeleteTestItemsExecute(r ApiDeleteTestItemsRequest)
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -683,19 +683,19 @@ func (a *TestItemAPIService) DeleteTestItemsExecute(r ApiDeleteTestItemsRequest)
 }
 
 type ApiFinishTestItem2Request struct {
-	ctx              context.Context
-	ApiService       *TestItemAPIService
-	projectName      string
-	testItemId       string
-	finishTestItemRQ *FinishTestItemRQ
+	ctx                                              context.Context
+	ApiService                                       *TestItemAPIService
+	projectKey                                       string
+	testItemId                                       string
+	comEpamReportportalBaseReportingFinishTestItemRQ *ComEpamReportportalBaseReportingFinishTestItemRQ
 }
 
-func (r ApiFinishTestItem2Request) FinishTestItemRQ(finishTestItemRQ FinishTestItemRQ) ApiFinishTestItem2Request {
-	r.finishTestItemRQ = &finishTestItemRQ
+func (r ApiFinishTestItem2Request) ComEpamReportportalBaseReportingFinishTestItemRQ(comEpamReportportalBaseReportingFinishTestItemRQ ComEpamReportportalBaseReportingFinishTestItemRQ) ApiFinishTestItem2Request {
+	r.comEpamReportportalBaseReportingFinishTestItemRQ = &comEpamReportportalBaseReportingFinishTestItemRQ
 	return r
 }
 
-func (r ApiFinishTestItem2Request) Execute() (*OperationCompletionRS, *http.Response, error) {
+func (r ApiFinishTestItem2Request) Execute() (*ComEpamReportportalBaseReportingOperationCompletionRS, *http.Response, error) {
 	return r.ApiService.FinishTestItem2Execute(r)
 }
 
@@ -703,28 +703,28 @@ func (r ApiFinishTestItem2Request) Execute() (*OperationCompletionRS, *http.Resp
 FinishTestItem2 Finish test item
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param projectName
+	@param projectKey
 	@param testItemId
 	@return ApiFinishTestItem2Request
 */
-func (a *TestItemAPIService) FinishTestItem2(ctx context.Context, projectName string, testItemId string) ApiFinishTestItem2Request {
+func (a *TestItemAPIService) FinishTestItem2(ctx context.Context, projectKey string, testItemId string) ApiFinishTestItem2Request {
 	return ApiFinishTestItem2Request{
-		ApiService:  a,
-		ctx:         ctx,
-		projectName: projectName,
-		testItemId:  testItemId,
+		ApiService: a,
+		ctx:        ctx,
+		projectKey: projectKey,
+		testItemId: testItemId,
 	}
 }
 
 // Execute executes the request
 //
-//	@return OperationCompletionRS
-func (a *TestItemAPIService) FinishTestItem2Execute(r ApiFinishTestItem2Request) (*OperationCompletionRS, *http.Response, error) {
+//	@return ComEpamReportportalBaseReportingOperationCompletionRS
+func (a *TestItemAPIService) FinishTestItem2Execute(r ApiFinishTestItem2Request) (*ComEpamReportportalBaseReportingOperationCompletionRS, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPut
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *OperationCompletionRS
+		localVarReturnValue *ComEpamReportportalBaseReportingOperationCompletionRS
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "TestItemAPIService.FinishTestItem2")
@@ -732,15 +732,15 @@ func (a *TestItemAPIService) FinishTestItem2Execute(r ApiFinishTestItem2Request)
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/item/{testItemId}"
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath := localBasePath + "/v1/{projectKey}/item/{testItemId}"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"testItemId"+"}", url.PathEscape(parameterValueToString(r.testItemId, "testItemId")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
-	if r.finishTestItemRQ == nil {
-		return localVarReturnValue, nil, reportError("finishTestItemRQ is required and must be specified")
+	if r.comEpamReportportalBaseReportingFinishTestItemRQ == nil {
+		return localVarReturnValue, nil, reportError("comEpamReportportalBaseReportingFinishTestItemRQ is required and must be specified")
 	}
 
 	// to determine the Content-Type header
@@ -761,7 +761,7 @@ func (a *TestItemAPIService) FinishTestItem2Execute(r ApiFinishTestItem2Request)
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
 	// body params
-	localVarPostBody = r.finishTestItemRQ
+	localVarPostBody = r.comEpamReportportalBaseReportingFinishTestItemRQ
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -803,7 +803,7 @@ func (a *TestItemAPIService) FinishTestItem2Execute(r ApiFinishTestItem2Request)
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -814,7 +814,7 @@ func (a *TestItemAPIService) FinishTestItem2Execute(r ApiFinishTestItem2Request)
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -825,7 +825,7 @@ func (a *TestItemAPIService) FinishTestItem2Execute(r ApiFinishTestItem2Request)
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -851,19 +851,19 @@ func (a *TestItemAPIService) FinishTestItem2Execute(r ApiFinishTestItem2Request)
 }
 
 type ApiFinishTestItem3Request struct {
-	ctx              context.Context
-	ApiService       *TestItemAPIService
-	projectName      string
-	testItemId       string
-	finishTestItemRQ *FinishTestItemRQ
+	ctx                                              context.Context
+	ApiService                                       *TestItemAPIService
+	projectKey                                       string
+	testItemId                                       string
+	comEpamReportportalBaseReportingFinishTestItemRQ *ComEpamReportportalBaseReportingFinishTestItemRQ
 }
 
-func (r ApiFinishTestItem3Request) FinishTestItemRQ(finishTestItemRQ FinishTestItemRQ) ApiFinishTestItem3Request {
-	r.finishTestItemRQ = &finishTestItemRQ
+func (r ApiFinishTestItem3Request) ComEpamReportportalBaseReportingFinishTestItemRQ(comEpamReportportalBaseReportingFinishTestItemRQ ComEpamReportportalBaseReportingFinishTestItemRQ) ApiFinishTestItem3Request {
+	r.comEpamReportportalBaseReportingFinishTestItemRQ = &comEpamReportportalBaseReportingFinishTestItemRQ
 	return r
 }
 
-func (r ApiFinishTestItem3Request) Execute() (*OperationCompletionRS, *http.Response, error) {
+func (r ApiFinishTestItem3Request) Execute() (*ComEpamReportportalBaseReportingOperationCompletionRS, *http.Response, error) {
 	return r.ApiService.FinishTestItem3Execute(r)
 }
 
@@ -871,28 +871,28 @@ func (r ApiFinishTestItem3Request) Execute() (*OperationCompletionRS, *http.Resp
 FinishTestItem3 Finish test item
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param projectName
+	@param projectKey
 	@param testItemId
 	@return ApiFinishTestItem3Request
 */
-func (a *TestItemAPIService) FinishTestItem3(ctx context.Context, projectName string, testItemId string) ApiFinishTestItem3Request {
+func (a *TestItemAPIService) FinishTestItem3(ctx context.Context, projectKey string, testItemId string) ApiFinishTestItem3Request {
 	return ApiFinishTestItem3Request{
-		ApiService:  a,
-		ctx:         ctx,
-		projectName: projectName,
-		testItemId:  testItemId,
+		ApiService: a,
+		ctx:        ctx,
+		projectKey: projectKey,
+		testItemId: testItemId,
 	}
 }
 
 // Execute executes the request
 //
-//	@return OperationCompletionRS
-func (a *TestItemAPIService) FinishTestItem3Execute(r ApiFinishTestItem3Request) (*OperationCompletionRS, *http.Response, error) {
+//	@return ComEpamReportportalBaseReportingOperationCompletionRS
+func (a *TestItemAPIService) FinishTestItem3Execute(r ApiFinishTestItem3Request) (*ComEpamReportportalBaseReportingOperationCompletionRS, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPut
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *OperationCompletionRS
+		localVarReturnValue *ComEpamReportportalBaseReportingOperationCompletionRS
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "TestItemAPIService.FinishTestItem3")
@@ -900,15 +900,15 @@ func (a *TestItemAPIService) FinishTestItem3Execute(r ApiFinishTestItem3Request)
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/item/{testItemId}/"
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath := localBasePath + "/v1/{projectKey}/item/{testItemId}/"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"testItemId"+"}", url.PathEscape(parameterValueToString(r.testItemId, "testItemId")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
-	if r.finishTestItemRQ == nil {
-		return localVarReturnValue, nil, reportError("finishTestItemRQ is required and must be specified")
+	if r.comEpamReportportalBaseReportingFinishTestItemRQ == nil {
+		return localVarReturnValue, nil, reportError("comEpamReportportalBaseReportingFinishTestItemRQ is required and must be specified")
 	}
 
 	// to determine the Content-Type header
@@ -929,7 +929,7 @@ func (a *TestItemAPIService) FinishTestItem3Execute(r ApiFinishTestItem3Request)
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
 	// body params
-	localVarPostBody = r.finishTestItemRQ
+	localVarPostBody = r.comEpamReportportalBaseReportingFinishTestItemRQ
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -971,7 +971,7 @@ func (a *TestItemAPIService) FinishTestItem3Execute(r ApiFinishTestItem3Request)
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -982,7 +982,7 @@ func (a *TestItemAPIService) FinishTestItem3Execute(r ApiFinishTestItem3Request)
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -993,7 +993,7 @@ func (a *TestItemAPIService) FinishTestItem3Execute(r ApiFinishTestItem3Request)
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1022,7 +1022,7 @@ type ApiGetAttributeKeys1Request struct {
 	ctx                   context.Context
 	ApiService            *TestItemAPIService
 	filterCntAttributeKey *string
-	projectName           string
+	projectKey            string
 	filterEqName          *string
 }
 
@@ -1044,14 +1044,14 @@ func (r ApiGetAttributeKeys1Request) Execute() ([]string, *http.Response, error)
 GetAttributeKeys1 Get all unique attribute keys of step items under specified project
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param projectName
+	@param projectKey
 	@return ApiGetAttributeKeys1Request
 */
-func (a *TestItemAPIService) GetAttributeKeys1(ctx context.Context, projectName string) ApiGetAttributeKeys1Request {
+func (a *TestItemAPIService) GetAttributeKeys1(ctx context.Context, projectKey string) ApiGetAttributeKeys1Request {
 	return ApiGetAttributeKeys1Request{
-		ApiService:  a,
-		ctx:         ctx,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		projectKey: projectKey,
 	}
 }
 
@@ -1071,8 +1071,8 @@ func (a *TestItemAPIService) GetAttributeKeys1Execute(r ApiGetAttributeKeys1Requ
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/item/step/attribute/keys"
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath := localBasePath + "/v1/{projectKey}/item/step/attribute/keys"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -1143,7 +1143,7 @@ func (a *TestItemAPIService) GetAttributeKeys1Execute(r ApiGetAttributeKeys1Requ
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1154,7 +1154,7 @@ func (a *TestItemAPIService) GetAttributeKeys1Execute(r ApiGetAttributeKeys1Requ
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1165,7 +1165,7 @@ func (a *TestItemAPIService) GetAttributeKeys1Execute(r ApiGetAttributeKeys1Requ
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1195,7 +1195,7 @@ type ApiGetAttributeKeysForProjectRequest struct {
 	ApiService            *TestItemAPIService
 	filterCntAttributeKey *string
 	filterId              *int64
-	projectName           string
+	projectKey            string
 	isLatest              *bool
 	launchesLimit         *int32
 }
@@ -1228,14 +1228,14 @@ func (r ApiGetAttributeKeysForProjectRequest) Execute() ([]string, *http.Respons
 GetAttributeKeysForProject Get all unique attribute keys of specified launch
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param projectName
+	@param projectKey
 	@return ApiGetAttributeKeysForProjectRequest
 */
-func (a *TestItemAPIService) GetAttributeKeysForProject(ctx context.Context, projectName string) ApiGetAttributeKeysForProjectRequest {
+func (a *TestItemAPIService) GetAttributeKeysForProject(ctx context.Context, projectKey string) ApiGetAttributeKeysForProjectRequest {
 	return ApiGetAttributeKeysForProjectRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		projectKey: projectKey,
 	}
 }
 
@@ -1255,8 +1255,8 @@ func (a *TestItemAPIService) GetAttributeKeysForProjectExecute(r ApiGetAttribute
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/item/attribute/keys/all"
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath := localBasePath + "/v1/{projectKey}/item/attribute/keys/all"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -1342,7 +1342,7 @@ func (a *TestItemAPIService) GetAttributeKeysForProjectExecute(r ApiGetAttribute
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1353,7 +1353,7 @@ func (a *TestItemAPIService) GetAttributeKeysForProjectExecute(r ApiGetAttribute
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1364,7 +1364,7 @@ func (a *TestItemAPIService) GetAttributeKeysForProjectExecute(r ApiGetAttribute
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1393,7 +1393,7 @@ type ApiGetAttributeValues1Request struct {
 	ctx                     context.Context
 	ApiService              *TestItemAPIService
 	filterCntAttributeValue *string
-	projectName             string
+	projectKey              string
 	filterEqAttributeKey    *string
 	filterEqName            *string
 }
@@ -1421,14 +1421,14 @@ func (r ApiGetAttributeValues1Request) Execute() ([]string, *http.Response, erro
 GetAttributeValues1 Get all unique attribute values of step items under specified project
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param projectName
+	@param projectKey
 	@return ApiGetAttributeValues1Request
 */
-func (a *TestItemAPIService) GetAttributeValues1(ctx context.Context, projectName string) ApiGetAttributeValues1Request {
+func (a *TestItemAPIService) GetAttributeValues1(ctx context.Context, projectKey string) ApiGetAttributeValues1Request {
 	return ApiGetAttributeValues1Request{
-		ApiService:  a,
-		ctx:         ctx,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		projectKey: projectKey,
 	}
 }
 
@@ -1448,8 +1448,8 @@ func (a *TestItemAPIService) GetAttributeValues1Execute(r ApiGetAttributeValues1
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/item/step/attribute/values"
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath := localBasePath + "/v1/{projectKey}/item/step/attribute/values"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -1523,7 +1523,7 @@ func (a *TestItemAPIService) GetAttributeValues1Execute(r ApiGetAttributeValues1
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1534,7 +1534,7 @@ func (a *TestItemAPIService) GetAttributeValues1Execute(r ApiGetAttributeValues1
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1545,7 +1545,7 @@ func (a *TestItemAPIService) GetAttributeValues1Execute(r ApiGetAttributeValues1
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1574,7 +1574,7 @@ type ApiGetAttributeValues2Request struct {
 	ctx                     context.Context
 	ApiService              *TestItemAPIService
 	filterCntAttributeValue *string
-	projectName             string
+	projectKey              string
 	filterEqAttributeKey    *string
 	launch                  *int64
 }
@@ -1602,14 +1602,14 @@ func (r ApiGetAttributeValues2Request) Execute() ([]string, *http.Response, erro
 GetAttributeValues2 Get all unique attribute values on the project
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param projectName
+	@param projectKey
 	@return ApiGetAttributeValues2Request
 */
-func (a *TestItemAPIService) GetAttributeValues2(ctx context.Context, projectName string) ApiGetAttributeValues2Request {
+func (a *TestItemAPIService) GetAttributeValues2(ctx context.Context, projectKey string) ApiGetAttributeValues2Request {
 	return ApiGetAttributeValues2Request{
-		ApiService:  a,
-		ctx:         ctx,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		projectKey: projectKey,
 	}
 }
 
@@ -1629,8 +1629,8 @@ func (a *TestItemAPIService) GetAttributeValues2Execute(r ApiGetAttributeValues2
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/item/attribute/values"
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath := localBasePath + "/v1/{projectKey}/item/attribute/values"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -1704,7 +1704,7 @@ func (a *TestItemAPIService) GetAttributeValues2Execute(r ApiGetAttributeValues2
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1715,7 +1715,7 @@ func (a *TestItemAPIService) GetAttributeValues2Execute(r ApiGetAttributeValues2
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1726,7 +1726,7 @@ func (a *TestItemAPIService) GetAttributeValues2Execute(r ApiGetAttributeValues2
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1754,7 +1754,7 @@ func (a *TestItemAPIService) GetAttributeValues2Execute(r ApiGetAttributeValues2
 type ApiGetItemsHistoryRequest struct {
 	ctx                                         context.Context
 	ApiService                                  *TestItemAPIService
-	projectName                                 string
+	projectKey                                  string
 	filterId                                    *int64
 	historyDepth                                *int32
 	isLatest                                    *bool
@@ -1776,7 +1776,7 @@ type ApiGetItemsHistoryRequest struct {
 	filterEqStatisticsexecutionsskipped         *int32
 	filterEqType                                *string
 	filterEqStatisticsdefectsautomationBugab001 *int32
-	filterEqAttributeValue                      *[]interface{}
+	filterEqAttributeValue                      *[]string
 	filterEqPath                                *int32
 	filterHasCompositeSystemAttribute           *string
 	filterEqIssueGroupId                        *string
@@ -1790,9 +1790,9 @@ type ApiGetItemsHistoryRequest struct {
 	filterEqValue                               *string
 	filterEqIssueTypeId                         *int32
 	filterEqName                                *string
-	filterEqPatternName                         *[]interface{}
+	filterEqPatternName                         *[]string
 	filterEqLaunchId                            *int32
-	filterEqAttributeKey                        *[]interface{}
+	filterEqAttributeKey                        *[]string
 	filterEqHasChildren                         *bool
 	filterEqRetryParentId                       *int32
 	filterEqStatisticsexecutionstotal           *int32
@@ -1803,7 +1803,7 @@ type ApiGetItemsHistoryRequest struct {
 	filterEqTestCaseId                          *string
 	filterEqKey                                 *string
 	filterEqAutoAnalyzed                        *bool
-	filterEqLevelAttribute                      *[]interface{}
+	filterEqLevelAttribute                      *[]string
 	filterEqMode                                *string
 	filterEqClusterId                           *int32
 	filterEqIssueId                             *int32
@@ -1936,7 +1936,7 @@ func (r ApiGetItemsHistoryRequest) FilterEqStatisticsdefectsautomationBugab001(f
 }
 
 // Filters by &#39;attributeValue&#39;
-func (r ApiGetItemsHistoryRequest) FilterEqAttributeValue(filterEqAttributeValue []interface{}) ApiGetItemsHistoryRequest {
+func (r ApiGetItemsHistoryRequest) FilterEqAttributeValue(filterEqAttributeValue []string) ApiGetItemsHistoryRequest {
 	r.filterEqAttributeValue = &filterEqAttributeValue
 	return r
 }
@@ -2020,7 +2020,7 @@ func (r ApiGetItemsHistoryRequest) FilterEqName(filterEqName string) ApiGetItems
 }
 
 // Filters by &#39;patternName&#39;
-func (r ApiGetItemsHistoryRequest) FilterEqPatternName(filterEqPatternName []interface{}) ApiGetItemsHistoryRequest {
+func (r ApiGetItemsHistoryRequest) FilterEqPatternName(filterEqPatternName []string) ApiGetItemsHistoryRequest {
 	r.filterEqPatternName = &filterEqPatternName
 	return r
 }
@@ -2032,7 +2032,7 @@ func (r ApiGetItemsHistoryRequest) FilterEqLaunchId(filterEqLaunchId int32) ApiG
 }
 
 // Filters by &#39;attributeKey&#39;
-func (r ApiGetItemsHistoryRequest) FilterEqAttributeKey(filterEqAttributeKey []interface{}) ApiGetItemsHistoryRequest {
+func (r ApiGetItemsHistoryRequest) FilterEqAttributeKey(filterEqAttributeKey []string) ApiGetItemsHistoryRequest {
 	r.filterEqAttributeKey = &filterEqAttributeKey
 	return r
 }
@@ -2098,7 +2098,7 @@ func (r ApiGetItemsHistoryRequest) FilterEqAutoAnalyzed(filterEqAutoAnalyzed boo
 }
 
 // Filters by &#39;levelAttribute&#39;
-func (r ApiGetItemsHistoryRequest) FilterEqLevelAttribute(filterEqLevelAttribute []interface{}) ApiGetItemsHistoryRequest {
+func (r ApiGetItemsHistoryRequest) FilterEqLevelAttribute(filterEqLevelAttribute []string) ApiGetItemsHistoryRequest {
 	r.filterEqLevelAttribute = &filterEqLevelAttribute
 	return r
 }
@@ -2151,7 +2151,7 @@ func (r ApiGetItemsHistoryRequest) PageSort(pageSort string) ApiGetItemsHistoryR
 	return r
 }
 
-func (r ApiGetItemsHistoryRequest) Execute() (*PageTestItemHistoryElement, *http.Response, error) {
+func (r ApiGetItemsHistoryRequest) Execute() (*ComEpamReportportalBaseModelPageComEpamReportportalBaseModelTestItemHistoryElement, *http.Response, error) {
 	return r.ApiService.GetItemsHistoryExecute(r)
 }
 
@@ -2159,26 +2159,26 @@ func (r ApiGetItemsHistoryRequest) Execute() (*PageTestItemHistoryElement, *http
 GetItemsHistory Load history of test items
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param projectName
+	@param projectKey
 	@return ApiGetItemsHistoryRequest
 */
-func (a *TestItemAPIService) GetItemsHistory(ctx context.Context, projectName string) ApiGetItemsHistoryRequest {
+func (a *TestItemAPIService) GetItemsHistory(ctx context.Context, projectKey string) ApiGetItemsHistoryRequest {
 	return ApiGetItemsHistoryRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		projectKey: projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return PageTestItemHistoryElement
-func (a *TestItemAPIService) GetItemsHistoryExecute(r ApiGetItemsHistoryRequest) (*PageTestItemHistoryElement, *http.Response, error) {
+//	@return ComEpamReportportalBaseModelPageComEpamReportportalBaseModelTestItemHistoryElement
+func (a *TestItemAPIService) GetItemsHistoryExecute(r ApiGetItemsHistoryRequest) (*ComEpamReportportalBaseModelPageComEpamReportportalBaseModelTestItemHistoryElement, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodGet
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *PageTestItemHistoryElement
+		localVarReturnValue *ComEpamReportportalBaseModelPageComEpamReportportalBaseModelTestItemHistoryElement
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "TestItemAPIService.GetItemsHistory")
@@ -2186,8 +2186,8 @@ func (a *TestItemAPIService) GetItemsHistoryExecute(r ApiGetItemsHistoryRequest)
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/item/history"
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath := localBasePath + "/v1/{projectKey}/item/history"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -2466,7 +2466,7 @@ func (a *TestItemAPIService) GetItemsHistoryExecute(r ApiGetItemsHistoryRequest)
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -2477,7 +2477,7 @@ func (a *TestItemAPIService) GetItemsHistoryExecute(r ApiGetItemsHistoryRequest)
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -2488,7 +2488,7 @@ func (a *TestItemAPIService) GetItemsHistoryExecute(r ApiGetItemsHistoryRequest)
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -2514,13 +2514,13 @@ func (a *TestItemAPIService) GetItemsHistoryExecute(r ApiGetItemsHistoryRequest)
 }
 
 type ApiGetSuggestedClusterItemsRequest struct {
-	ctx         context.Context
-	ApiService  *TestItemAPIService
-	clusterId   int64
-	projectName string
+	ctx        context.Context
+	ApiService *TestItemAPIService
+	clusterId  int64
+	projectKey string
 }
 
-func (r ApiGetSuggestedClusterItemsRequest) Execute() ([]SuggestedItem, *http.Response, error) {
+func (r ApiGetSuggestedClusterItemsRequest) Execute() ([]ComEpamReportportalBaseCoreAnalyzerAutoImplSuggestedItem, *http.Response, error) {
 	return r.ApiService.GetSuggestedClusterItemsExecute(r)
 }
 
@@ -2529,27 +2529,27 @@ GetSuggestedClusterItems Search suggested items in analyzer for provided one
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param clusterId
-	@param projectName
+	@param projectKey
 	@return ApiGetSuggestedClusterItemsRequest
 */
-func (a *TestItemAPIService) GetSuggestedClusterItems(ctx context.Context, clusterId int64, projectName string) ApiGetSuggestedClusterItemsRequest {
+func (a *TestItemAPIService) GetSuggestedClusterItems(ctx context.Context, clusterId int64, projectKey string) ApiGetSuggestedClusterItemsRequest {
 	return ApiGetSuggestedClusterItemsRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		clusterId:   clusterId,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		clusterId:  clusterId,
+		projectKey: projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return []SuggestedItem
-func (a *TestItemAPIService) GetSuggestedClusterItemsExecute(r ApiGetSuggestedClusterItemsRequest) ([]SuggestedItem, *http.Response, error) {
+//	@return []ComEpamReportportalBaseCoreAnalyzerAutoImplSuggestedItem
+func (a *TestItemAPIService) GetSuggestedClusterItemsExecute(r ApiGetSuggestedClusterItemsRequest) ([]ComEpamReportportalBaseCoreAnalyzerAutoImplSuggestedItem, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodGet
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue []SuggestedItem
+		localVarReturnValue []ComEpamReportportalBaseCoreAnalyzerAutoImplSuggestedItem
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "TestItemAPIService.GetSuggestedClusterItems")
@@ -2557,9 +2557,9 @@ func (a *TestItemAPIService) GetSuggestedClusterItemsExecute(r ApiGetSuggestedCl
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/item/suggest/cluster/{clusterId}"
+	localVarPath := localBasePath + "/v1/{projectKey}/item/suggest/cluster/{clusterId}"
 	localVarPath = strings.Replace(localVarPath, "{"+"clusterId"+"}", url.PathEscape(parameterValueToString(r.clusterId, "clusterId")), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -2623,7 +2623,7 @@ func (a *TestItemAPIService) GetSuggestedClusterItemsExecute(r ApiGetSuggestedCl
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -2634,7 +2634,7 @@ func (a *TestItemAPIService) GetSuggestedClusterItemsExecute(r ApiGetSuggestedCl
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -2645,7 +2645,7 @@ func (a *TestItemAPIService) GetSuggestedClusterItemsExecute(r ApiGetSuggestedCl
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -2671,13 +2671,13 @@ func (a *TestItemAPIService) GetSuggestedClusterItemsExecute(r ApiGetSuggestedCl
 }
 
 type ApiGetSuggestedItemsRequest struct {
-	ctx         context.Context
-	ApiService  *TestItemAPIService
-	itemId      int64
-	projectName string
+	ctx        context.Context
+	ApiService *TestItemAPIService
+	itemId     int64
+	projectKey string
 }
 
-func (r ApiGetSuggestedItemsRequest) Execute() ([]SuggestedItem, *http.Response, error) {
+func (r ApiGetSuggestedItemsRequest) Execute() ([]ComEpamReportportalBaseCoreAnalyzerAutoImplSuggestedItem, *http.Response, error) {
 	return r.ApiService.GetSuggestedItemsExecute(r)
 }
 
@@ -2686,27 +2686,27 @@ GetSuggestedItems Search suggested items in analyzer for provided one
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param itemId
-	@param projectName
+	@param projectKey
 	@return ApiGetSuggestedItemsRequest
 */
-func (a *TestItemAPIService) GetSuggestedItems(ctx context.Context, itemId int64, projectName string) ApiGetSuggestedItemsRequest {
+func (a *TestItemAPIService) GetSuggestedItems(ctx context.Context, itemId int64, projectKey string) ApiGetSuggestedItemsRequest {
 	return ApiGetSuggestedItemsRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		itemId:      itemId,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		itemId:     itemId,
+		projectKey: projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return []SuggestedItem
-func (a *TestItemAPIService) GetSuggestedItemsExecute(r ApiGetSuggestedItemsRequest) ([]SuggestedItem, *http.Response, error) {
+//	@return []ComEpamReportportalBaseCoreAnalyzerAutoImplSuggestedItem
+func (a *TestItemAPIService) GetSuggestedItemsExecute(r ApiGetSuggestedItemsRequest) ([]ComEpamReportportalBaseCoreAnalyzerAutoImplSuggestedItem, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodGet
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue []SuggestedItem
+		localVarReturnValue []ComEpamReportportalBaseCoreAnalyzerAutoImplSuggestedItem
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "TestItemAPIService.GetSuggestedItems")
@@ -2714,9 +2714,9 @@ func (a *TestItemAPIService) GetSuggestedItemsExecute(r ApiGetSuggestedItemsRequ
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/item/suggest/{itemId}"
+	localVarPath := localBasePath + "/v1/{projectKey}/item/suggest/{itemId}"
 	localVarPath = strings.Replace(localVarPath, "{"+"itemId"+"}", url.PathEscape(parameterValueToString(r.itemId, "itemId")), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -2780,7 +2780,7 @@ func (a *TestItemAPIService) GetSuggestedItemsExecute(r ApiGetSuggestedItemsRequ
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -2791,7 +2791,7 @@ func (a *TestItemAPIService) GetSuggestedItemsExecute(r ApiGetSuggestedItemsRequ
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -2802,7 +2802,7 @@ func (a *TestItemAPIService) GetSuggestedItemsExecute(r ApiGetSuggestedItemsRequ
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -2828,13 +2828,13 @@ func (a *TestItemAPIService) GetSuggestedItemsExecute(r ApiGetSuggestedItemsRequ
 }
 
 type ApiGetTestItemRequest struct {
-	ctx         context.Context
-	ApiService  *TestItemAPIService
-	itemId      string
-	projectName string
+	ctx        context.Context
+	ApiService *TestItemAPIService
+	itemId     string
+	projectKey string
 }
 
-func (r ApiGetTestItemRequest) Execute() (*TestItemResource, *http.Response, error) {
+func (r ApiGetTestItemRequest) Execute() (*ComEpamReportportalBaseReportingTestItemResource, *http.Response, error) {
 	return r.ApiService.GetTestItemExecute(r)
 }
 
@@ -2843,27 +2843,27 @@ GetTestItem Find test item by ID
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param itemId
-	@param projectName
+	@param projectKey
 	@return ApiGetTestItemRequest
 */
-func (a *TestItemAPIService) GetTestItem(ctx context.Context, itemId string, projectName string) ApiGetTestItemRequest {
+func (a *TestItemAPIService) GetTestItem(ctx context.Context, itemId string, projectKey string) ApiGetTestItemRequest {
 	return ApiGetTestItemRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		itemId:      itemId,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		itemId:     itemId,
+		projectKey: projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return TestItemResource
-func (a *TestItemAPIService) GetTestItemExecute(r ApiGetTestItemRequest) (*TestItemResource, *http.Response, error) {
+//	@return ComEpamReportportalBaseReportingTestItemResource
+func (a *TestItemAPIService) GetTestItemExecute(r ApiGetTestItemRequest) (*ComEpamReportportalBaseReportingTestItemResource, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodGet
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *TestItemResource
+		localVarReturnValue *ComEpamReportportalBaseReportingTestItemResource
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "TestItemAPIService.GetTestItem")
@@ -2871,9 +2871,9 @@ func (a *TestItemAPIService) GetTestItemExecute(r ApiGetTestItemRequest) (*TestI
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/item/{itemId}"
+	localVarPath := localBasePath + "/v1/{projectKey}/item/{itemId}"
 	localVarPath = strings.Replace(localVarPath, "{"+"itemId"+"}", url.PathEscape(parameterValueToString(r.itemId, "itemId")), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -2937,7 +2937,7 @@ func (a *TestItemAPIService) GetTestItemExecute(r ApiGetTestItemRequest) (*TestI
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -2948,7 +2948,7 @@ func (a *TestItemAPIService) GetTestItemExecute(r ApiGetTestItemRequest) (*TestI
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -2959,7 +2959,7 @@ func (a *TestItemAPIService) GetTestItemExecute(r ApiGetTestItemRequest) (*TestI
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -2985,13 +2985,13 @@ func (a *TestItemAPIService) GetTestItemExecute(r ApiGetTestItemRequest) (*TestI
 }
 
 type ApiGetTestItemByUuidTimestampRequest struct {
-	ctx         context.Context
-	ApiService  *TestItemAPIService
-	itemId      string
-	projectName string
+	ctx        context.Context
+	ApiService *TestItemAPIService
+	itemId     string
+	projectKey string
 }
 
-func (r ApiGetTestItemByUuidTimestampRequest) Execute() (*TestItemResourceOld, *http.Response, error) {
+func (r ApiGetTestItemByUuidTimestampRequest) Execute() (*ComEpamReportportalBaseReportingTestItemResourceOld, *http.Response, error) {
 	return r.ApiService.GetTestItemByUuidTimestampExecute(r)
 }
 
@@ -3000,27 +3000,27 @@ GetTestItemByUuidTimestamp Find test item by UUID
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param itemId
-	@param projectName
+	@param projectKey
 	@return ApiGetTestItemByUuidTimestampRequest
 */
-func (a *TestItemAPIService) GetTestItemByUuidTimestamp(ctx context.Context, itemId string, projectName string) ApiGetTestItemByUuidTimestampRequest {
+func (a *TestItemAPIService) GetTestItemByUuidTimestamp(ctx context.Context, itemId string, projectKey string) ApiGetTestItemByUuidTimestampRequest {
 	return ApiGetTestItemByUuidTimestampRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		itemId:      itemId,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		itemId:     itemId,
+		projectKey: projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return TestItemResourceOld
-func (a *TestItemAPIService) GetTestItemByUuidTimestampExecute(r ApiGetTestItemByUuidTimestampRequest) (*TestItemResourceOld, *http.Response, error) {
+//	@return ComEpamReportportalBaseReportingTestItemResourceOld
+func (a *TestItemAPIService) GetTestItemByUuidTimestampExecute(r ApiGetTestItemByUuidTimestampRequest) (*ComEpamReportportalBaseReportingTestItemResourceOld, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodGet
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *TestItemResourceOld
+		localVarReturnValue *ComEpamReportportalBaseReportingTestItemResourceOld
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "TestItemAPIService.GetTestItemByUuidTimestamp")
@@ -3028,9 +3028,9 @@ func (a *TestItemAPIService) GetTestItemByUuidTimestampExecute(r ApiGetTestItemB
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/item/uuid/{itemId}"
+	localVarPath := localBasePath + "/v1/{projectKey}/item/uuid/{itemId}"
 	localVarPath = strings.Replace(localVarPath, "{"+"itemId"+"}", url.PathEscape(parameterValueToString(r.itemId, "itemId")), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -3094,7 +3094,7 @@ func (a *TestItemAPIService) GetTestItemByUuidTimestampExecute(r ApiGetTestItemB
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -3105,7 +3105,7 @@ func (a *TestItemAPIService) GetTestItemByUuidTimestampExecute(r ApiGetTestItemB
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -3116,7 +3116,7 @@ func (a *TestItemAPIService) GetTestItemByUuidTimestampExecute(r ApiGetTestItemB
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -3144,7 +3144,7 @@ func (a *TestItemAPIService) GetTestItemByUuidTimestampExecute(r ApiGetTestItemB
 type ApiGetTestItemsRequest struct {
 	ctx                                         context.Context
 	ApiService                                  *TestItemAPIService
-	projectName                                 string
+	projectKey                                  string
 	filterId                                    *int64
 	isLatest                                    *bool
 	launchesLimit                               *int32
@@ -3164,7 +3164,7 @@ type ApiGetTestItemsRequest struct {
 	filterEqStatisticsexecutionsskipped         *int32
 	filterEqType                                *string
 	filterEqStatisticsdefectsautomationBugab001 *int32
-	filterEqAttributeValue                      *[]interface{}
+	filterEqAttributeValue                      *[]string
 	filterEqPath                                *int32
 	filterHasCompositeSystemAttribute           *string
 	filterEqIssueGroupId                        *string
@@ -3178,9 +3178,9 @@ type ApiGetTestItemsRequest struct {
 	filterEqValue                               *string
 	filterEqIssueTypeId                         *int32
 	filterEqName                                *string
-	filterEqPatternName                         *[]interface{}
+	filterEqPatternName                         *[]string
 	filterEqLaunchId                            *int32
-	filterEqAttributeKey                        *[]interface{}
+	filterEqAttributeKey                        *[]string
 	filterEqHasChildren                         *bool
 	filterEqRetryParentId                       *int32
 	filterEqStatisticsexecutionstotal           *int32
@@ -3191,7 +3191,7 @@ type ApiGetTestItemsRequest struct {
 	filterEqTestCaseId                          *string
 	filterEqKey                                 *string
 	filterEqAutoAnalyzed                        *bool
-	filterEqLevelAttribute                      *[]interface{}
+	filterEqLevelAttribute                      *[]string
 	filterEqMode                                *string
 	filterEqClusterId                           *int32
 	filterEqIssueId                             *int32
@@ -3314,7 +3314,7 @@ func (r ApiGetTestItemsRequest) FilterEqStatisticsdefectsautomationBugab001(filt
 }
 
 // Filters by &#39;attributeValue&#39;
-func (r ApiGetTestItemsRequest) FilterEqAttributeValue(filterEqAttributeValue []interface{}) ApiGetTestItemsRequest {
+func (r ApiGetTestItemsRequest) FilterEqAttributeValue(filterEqAttributeValue []string) ApiGetTestItemsRequest {
 	r.filterEqAttributeValue = &filterEqAttributeValue
 	return r
 }
@@ -3398,7 +3398,7 @@ func (r ApiGetTestItemsRequest) FilterEqName(filterEqName string) ApiGetTestItem
 }
 
 // Filters by &#39;patternName&#39;
-func (r ApiGetTestItemsRequest) FilterEqPatternName(filterEqPatternName []interface{}) ApiGetTestItemsRequest {
+func (r ApiGetTestItemsRequest) FilterEqPatternName(filterEqPatternName []string) ApiGetTestItemsRequest {
 	r.filterEqPatternName = &filterEqPatternName
 	return r
 }
@@ -3410,7 +3410,7 @@ func (r ApiGetTestItemsRequest) FilterEqLaunchId(filterEqLaunchId int32) ApiGetT
 }
 
 // Filters by &#39;attributeKey&#39;
-func (r ApiGetTestItemsRequest) FilterEqAttributeKey(filterEqAttributeKey []interface{}) ApiGetTestItemsRequest {
+func (r ApiGetTestItemsRequest) FilterEqAttributeKey(filterEqAttributeKey []string) ApiGetTestItemsRequest {
 	r.filterEqAttributeKey = &filterEqAttributeKey
 	return r
 }
@@ -3476,7 +3476,7 @@ func (r ApiGetTestItemsRequest) FilterEqAutoAnalyzed(filterEqAutoAnalyzed bool) 
 }
 
 // Filters by &#39;levelAttribute&#39;
-func (r ApiGetTestItemsRequest) FilterEqLevelAttribute(filterEqLevelAttribute []interface{}) ApiGetTestItemsRequest {
+func (r ApiGetTestItemsRequest) FilterEqLevelAttribute(filterEqLevelAttribute []string) ApiGetTestItemsRequest {
 	r.filterEqLevelAttribute = &filterEqLevelAttribute
 	return r
 }
@@ -3529,7 +3529,7 @@ func (r ApiGetTestItemsRequest) PageSort(pageSort string) ApiGetTestItemsRequest
 	return r
 }
 
-func (r ApiGetTestItemsRequest) Execute() (*PageTestItemResource, *http.Response, error) {
+func (r ApiGetTestItemsRequest) Execute() (*ComEpamReportportalBaseModelPageComEpamReportportalBaseReportingTestItemResource, *http.Response, error) {
 	return r.ApiService.GetTestItemsExecute(r)
 }
 
@@ -3537,26 +3537,26 @@ func (r ApiGetTestItemsRequest) Execute() (*PageTestItemResource, *http.Response
 GetTestItems Find test items by specified filter
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param projectName
+	@param projectKey
 	@return ApiGetTestItemsRequest
 */
-func (a *TestItemAPIService) GetTestItems(ctx context.Context, projectName string) ApiGetTestItemsRequest {
+func (a *TestItemAPIService) GetTestItems(ctx context.Context, projectKey string) ApiGetTestItemsRequest {
 	return ApiGetTestItemsRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		projectKey: projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return PageTestItemResource
-func (a *TestItemAPIService) GetTestItemsExecute(r ApiGetTestItemsRequest) (*PageTestItemResource, *http.Response, error) {
+//	@return ComEpamReportportalBaseModelPageComEpamReportportalBaseReportingTestItemResource
+func (a *TestItemAPIService) GetTestItemsExecute(r ApiGetTestItemsRequest) (*ComEpamReportportalBaseModelPageComEpamReportportalBaseReportingTestItemResource, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodGet
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *PageTestItemResource
+		localVarReturnValue *ComEpamReportportalBaseModelPageComEpamReportportalBaseReportingTestItemResource
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "TestItemAPIService.GetTestItems")
@@ -3564,8 +3564,8 @@ func (a *TestItemAPIService) GetTestItemsExecute(r ApiGetTestItemsRequest) (*Pag
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/item"
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath := localBasePath + "/v1/{projectKey}/item"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -3834,7 +3834,7 @@ func (a *TestItemAPIService) GetTestItemsExecute(r ApiGetTestItemsRequest) (*Pag
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -3845,7 +3845,7 @@ func (a *TestItemAPIService) GetTestItemsExecute(r ApiGetTestItemsRequest) (*Pag
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -3856,7 +3856,7 @@ func (a *TestItemAPIService) GetTestItemsExecute(r ApiGetTestItemsRequest) (*Pag
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -3885,7 +3885,7 @@ type ApiGetTestItems1Request struct {
 	ctx                                         context.Context
 	ApiService                                  *TestItemAPIService
 	params                                      *map[string]string
-	projectName                                 string
+	projectKey                                  string
 	filterEqLocator                             *string
 	filterEqHasRetries                          *bool
 	filterEqEndTime                             *string
@@ -3902,7 +3902,7 @@ type ApiGetTestItems1Request struct {
 	filterEqStatisticsexecutionsskipped         *int32
 	filterEqType                                *string
 	filterEqStatisticsdefectsautomationBugab001 *int32
-	filterEqAttributeValue                      *[]interface{}
+	filterEqAttributeValue                      *[]string
 	filterEqPath                                *int32
 	filterHasCompositeSystemAttribute           *string
 	filterEqIssueGroupId                        *string
@@ -3916,9 +3916,9 @@ type ApiGetTestItems1Request struct {
 	filterEqValue                               *string
 	filterEqIssueTypeId                         *int32
 	filterEqName                                *string
-	filterEqPatternName                         *[]interface{}
+	filterEqPatternName                         *[]string
 	filterEqLaunchId                            *int32
-	filterEqAttributeKey                        *[]interface{}
+	filterEqAttributeKey                        *[]string
 	filterEqHasChildren                         *bool
 	filterEqRetryParentId                       *int32
 	filterEqStatisticsexecutionstotal           *int32
@@ -3929,7 +3929,7 @@ type ApiGetTestItems1Request struct {
 	filterEqTestCaseId                          *string
 	filterEqKey                                 *string
 	filterEqAutoAnalyzed                        *bool
-	filterEqLevelAttribute                      *[]interface{}
+	filterEqLevelAttribute                      *[]string
 	filterEqMode                                *string
 	filterEqClusterId                           *int32
 	filterEqIssueId                             *int32
@@ -4039,7 +4039,7 @@ func (r ApiGetTestItems1Request) FilterEqStatisticsdefectsautomationBugab001(fil
 }
 
 // Filters by &#39;attributeValue&#39;
-func (r ApiGetTestItems1Request) FilterEqAttributeValue(filterEqAttributeValue []interface{}) ApiGetTestItems1Request {
+func (r ApiGetTestItems1Request) FilterEqAttributeValue(filterEqAttributeValue []string) ApiGetTestItems1Request {
 	r.filterEqAttributeValue = &filterEqAttributeValue
 	return r
 }
@@ -4123,7 +4123,7 @@ func (r ApiGetTestItems1Request) FilterEqName(filterEqName string) ApiGetTestIte
 }
 
 // Filters by &#39;patternName&#39;
-func (r ApiGetTestItems1Request) FilterEqPatternName(filterEqPatternName []interface{}) ApiGetTestItems1Request {
+func (r ApiGetTestItems1Request) FilterEqPatternName(filterEqPatternName []string) ApiGetTestItems1Request {
 	r.filterEqPatternName = &filterEqPatternName
 	return r
 }
@@ -4135,7 +4135,7 @@ func (r ApiGetTestItems1Request) FilterEqLaunchId(filterEqLaunchId int32) ApiGet
 }
 
 // Filters by &#39;attributeKey&#39;
-func (r ApiGetTestItems1Request) FilterEqAttributeKey(filterEqAttributeKey []interface{}) ApiGetTestItems1Request {
+func (r ApiGetTestItems1Request) FilterEqAttributeKey(filterEqAttributeKey []string) ApiGetTestItems1Request {
 	r.filterEqAttributeKey = &filterEqAttributeKey
 	return r
 }
@@ -4201,7 +4201,7 @@ func (r ApiGetTestItems1Request) FilterEqAutoAnalyzed(filterEqAutoAnalyzed bool)
 }
 
 // Filters by &#39;levelAttribute&#39;
-func (r ApiGetTestItems1Request) FilterEqLevelAttribute(filterEqLevelAttribute []interface{}) ApiGetTestItems1Request {
+func (r ApiGetTestItems1Request) FilterEqLevelAttribute(filterEqLevelAttribute []string) ApiGetTestItems1Request {
 	r.filterEqLevelAttribute = &filterEqLevelAttribute
 	return r
 }
@@ -4236,7 +4236,7 @@ func (r ApiGetTestItems1Request) FilterEqProjectId(filterEqProjectId int32) ApiG
 	return r
 }
 
-func (r ApiGetTestItems1Request) Execute() (*StatisticsResource, *http.Response, error) {
+func (r ApiGetTestItems1Request) Execute() (*ComEpamReportportalBaseReportingStatisticsResource, *http.Response, error) {
 	return r.ApiService.GetTestItems1Execute(r)
 }
 
@@ -4244,26 +4244,26 @@ func (r ApiGetTestItems1Request) Execute() (*StatisticsResource, *http.Response,
 GetTestItems1 Find accumulated statistics of items by specified filter
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param projectName
+	@param projectKey
 	@return ApiGetTestItems1Request
 */
-func (a *TestItemAPIService) GetTestItems1(ctx context.Context, projectName string) ApiGetTestItems1Request {
+func (a *TestItemAPIService) GetTestItems1(ctx context.Context, projectKey string) ApiGetTestItems1Request {
 	return ApiGetTestItems1Request{
-		ApiService:  a,
-		ctx:         ctx,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		projectKey: projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return StatisticsResource
-func (a *TestItemAPIService) GetTestItems1Execute(r ApiGetTestItems1Request) (*StatisticsResource, *http.Response, error) {
+//	@return ComEpamReportportalBaseReportingStatisticsResource
+func (a *TestItemAPIService) GetTestItems1Execute(r ApiGetTestItems1Request) (*ComEpamReportportalBaseReportingStatisticsResource, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodGet
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *StatisticsResource
+		localVarReturnValue *ComEpamReportportalBaseReportingStatisticsResource
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "TestItemAPIService.GetTestItems1")
@@ -4271,8 +4271,8 @@ func (a *TestItemAPIService) GetTestItems1Execute(r ApiGetTestItems1Request) (*S
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/item/statistics"
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath := localBasePath + "/v1/{projectKey}/item/statistics"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -4519,7 +4519,7 @@ func (a *TestItemAPIService) GetTestItems1Execute(r ApiGetTestItems1Request) (*S
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -4530,7 +4530,7 @@ func (a *TestItemAPIService) GetTestItems1Execute(r ApiGetTestItems1Request) (*S
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -4541,7 +4541,7 @@ func (a *TestItemAPIService) GetTestItems1Execute(r ApiGetTestItems1Request) (*S
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -4569,7 +4569,7 @@ func (a *TestItemAPIService) GetTestItems1Execute(r ApiGetTestItems1Request) (*S
 type ApiGetTestItems2Request struct {
 	ctx                         context.Context
 	ApiService                  *TestItemAPIService
-	projectName                 string
+	projectKey                  string
 	filterCntName               *string
 	filterHasCompositeAttribute *string
 	filterInStatus              *string
@@ -4611,7 +4611,7 @@ func (r ApiGetTestItems2Request) PageSort(pageSort string) ApiGetTestItems2Reque
 	return r
 }
 
-func (r ApiGetTestItems2Request) Execute() (*PageTestItemResource, *http.Response, error) {
+func (r ApiGetTestItems2Request) Execute() (*ComEpamReportportalBaseModelPageComEpamReportportalBaseReportingTestItemResource, *http.Response, error) {
 	return r.ApiService.GetTestItems2Execute(r)
 }
 
@@ -4619,26 +4619,26 @@ func (r ApiGetTestItems2Request) Execute() (*PageTestItemResource, *http.Respons
 GetTestItems2 Search test items by either name or attribute
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param projectName
+	@param projectKey
 	@return ApiGetTestItems2Request
 */
-func (a *TestItemAPIService) GetTestItems2(ctx context.Context, projectName string) ApiGetTestItems2Request {
+func (a *TestItemAPIService) GetTestItems2(ctx context.Context, projectKey string) ApiGetTestItems2Request {
 	return ApiGetTestItems2Request{
-		ApiService:  a,
-		ctx:         ctx,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		projectKey: projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return PageTestItemResource
-func (a *TestItemAPIService) GetTestItems2Execute(r ApiGetTestItems2Request) (*PageTestItemResource, *http.Response, error) {
+//	@return ComEpamReportportalBaseModelPageComEpamReportportalBaseReportingTestItemResource
+func (a *TestItemAPIService) GetTestItems2Execute(r ApiGetTestItems2Request) (*ComEpamReportportalBaseModelPageComEpamReportportalBaseReportingTestItemResource, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodGet
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *PageTestItemResource
+		localVarReturnValue *ComEpamReportportalBaseModelPageComEpamReportportalBaseReportingTestItemResource
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "TestItemAPIService.GetTestItems2")
@@ -4646,8 +4646,8 @@ func (a *TestItemAPIService) GetTestItems2Execute(r ApiGetTestItems2Request) (*P
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/item/search"
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath := localBasePath + "/v1/{projectKey}/item/search"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -4729,7 +4729,7 @@ func (a *TestItemAPIService) GetTestItems2Execute(r ApiGetTestItems2Request) (*P
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -4740,7 +4740,7 @@ func (a *TestItemAPIService) GetTestItems2Execute(r ApiGetTestItems2Request) (*P
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -4751,7 +4751,7 @@ func (a *TestItemAPIService) GetTestItems2Execute(r ApiGetTestItems2Request) (*P
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -4777,10 +4777,10 @@ func (a *TestItemAPIService) GetTestItems2Execute(r ApiGetTestItems2Request) (*P
 }
 
 type ApiGetTestItems3Request struct {
-	ctx         context.Context
-	ApiService  *TestItemAPIService
-	ids         *[]int64
-	projectName string
+	ctx        context.Context
+	ApiService *TestItemAPIService
+	ids        *[]int64
+	projectKey string
 }
 
 func (r ApiGetTestItems3Request) Ids(ids []int64) ApiGetTestItems3Request {
@@ -4788,7 +4788,7 @@ func (r ApiGetTestItems3Request) Ids(ids []int64) ApiGetTestItems3Request {
 	return r
 }
 
-func (r ApiGetTestItems3Request) Execute() ([]TestItemResource, *http.Response, error) {
+func (r ApiGetTestItems3Request) Execute() ([]ComEpamReportportalBaseReportingTestItemResource, *http.Response, error) {
 	return r.ApiService.GetTestItems3Execute(r)
 }
 
@@ -4796,30 +4796,30 @@ func (r ApiGetTestItems3Request) Execute() ([]TestItemResource, *http.Response, 
 GetTestItems3 Get test items by specified ids
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param projectName
+	@param projectKey
 	@return ApiGetTestItems3Request
 
 Deprecated
 */
-func (a *TestItemAPIService) GetTestItems3(ctx context.Context, projectName string) ApiGetTestItems3Request {
+func (a *TestItemAPIService) GetTestItems3(ctx context.Context, projectKey string) ApiGetTestItems3Request {
 	return ApiGetTestItems3Request{
-		ApiService:  a,
-		ctx:         ctx,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		projectKey: projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return []TestItemResource
+//	@return []ComEpamReportportalBaseReportingTestItemResource
 //
 // Deprecated
-func (a *TestItemAPIService) GetTestItems3Execute(r ApiGetTestItems3Request) ([]TestItemResource, *http.Response, error) {
+func (a *TestItemAPIService) GetTestItems3Execute(r ApiGetTestItems3Request) ([]ComEpamReportportalBaseReportingTestItemResource, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodGet
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue []TestItemResource
+		localVarReturnValue []ComEpamReportportalBaseReportingTestItemResource
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "TestItemAPIService.GetTestItems3")
@@ -4827,8 +4827,8 @@ func (a *TestItemAPIService) GetTestItems3Execute(r ApiGetTestItems3Request) ([]
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/item/items"
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath := localBasePath + "/v1/{projectKey}/item/items"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -4906,7 +4906,7 @@ func (a *TestItemAPIService) GetTestItems3Execute(r ApiGetTestItems3Request) ([]
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -4917,7 +4917,7 @@ func (a *TestItemAPIService) GetTestItems3Execute(r ApiGetTestItems3Request) ([]
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -4928,7 +4928,7 @@ func (a *TestItemAPIService) GetTestItems3Execute(r ApiGetTestItems3Request) ([]
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -4954,18 +4954,18 @@ func (a *TestItemAPIService) GetTestItems3Execute(r ApiGetTestItems3Request) ([]
 }
 
 type ApiGetTestItemsByIdsRequest struct {
-	ctx         context.Context
-	ApiService  *TestItemAPIService
-	projectName string
-	bulkItemsRQ *BulkItemsRQ
+	ctx                                     context.Context
+	ApiService                              *TestItemAPIService
+	projectKey                              string
+	comEpamReportportalBaseModelBulkItemsRQ *ComEpamReportportalBaseModelBulkItemsRQ
 }
 
-func (r ApiGetTestItemsByIdsRequest) BulkItemsRQ(bulkItemsRQ BulkItemsRQ) ApiGetTestItemsByIdsRequest {
-	r.bulkItemsRQ = &bulkItemsRQ
+func (r ApiGetTestItemsByIdsRequest) ComEpamReportportalBaseModelBulkItemsRQ(comEpamReportportalBaseModelBulkItemsRQ ComEpamReportportalBaseModelBulkItemsRQ) ApiGetTestItemsByIdsRequest {
+	r.comEpamReportportalBaseModelBulkItemsRQ = &comEpamReportportalBaseModelBulkItemsRQ
 	return r
 }
 
-func (r ApiGetTestItemsByIdsRequest) Execute() ([]TestItemResource, *http.Response, error) {
+func (r ApiGetTestItemsByIdsRequest) Execute() ([]ComEpamReportportalBaseReportingTestItemResource, *http.Response, error) {
 	return r.ApiService.GetTestItemsByIdsExecute(r)
 }
 
@@ -4973,26 +4973,26 @@ func (r ApiGetTestItemsByIdsRequest) Execute() ([]TestItemResource, *http.Respon
 GetTestItemsByIds Get test items by list of IDs (max 300)
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param projectName
+	@param projectKey
 	@return ApiGetTestItemsByIdsRequest
 */
-func (a *TestItemAPIService) GetTestItemsByIds(ctx context.Context, projectName string) ApiGetTestItemsByIdsRequest {
+func (a *TestItemAPIService) GetTestItemsByIds(ctx context.Context, projectKey string) ApiGetTestItemsByIdsRequest {
 	return ApiGetTestItemsByIdsRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		projectKey: projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return []TestItemResource
-func (a *TestItemAPIService) GetTestItemsByIdsExecute(r ApiGetTestItemsByIdsRequest) ([]TestItemResource, *http.Response, error) {
+//	@return []ComEpamReportportalBaseReportingTestItemResource
+func (a *TestItemAPIService) GetTestItemsByIdsExecute(r ApiGetTestItemsByIdsRequest) ([]ComEpamReportportalBaseReportingTestItemResource, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPost
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue []TestItemResource
+		localVarReturnValue []ComEpamReportportalBaseReportingTestItemResource
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "TestItemAPIService.GetTestItemsByIds")
@@ -5000,14 +5000,14 @@ func (a *TestItemAPIService) GetTestItemsByIdsExecute(r ApiGetTestItemsByIdsRequ
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/item/bulk"
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath := localBasePath + "/v1/{projectKey}/item/bulk"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
-	if r.bulkItemsRQ == nil {
-		return localVarReturnValue, nil, reportError("bulkItemsRQ is required and must be specified")
+	if r.comEpamReportportalBaseModelBulkItemsRQ == nil {
+		return localVarReturnValue, nil, reportError("comEpamReportportalBaseModelBulkItemsRQ is required and must be specified")
 	}
 
 	// to determine the Content-Type header
@@ -5028,7 +5028,7 @@ func (a *TestItemAPIService) GetTestItemsByIdsExecute(r ApiGetTestItemsByIdsRequ
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
 	// body params
-	localVarPostBody = r.bulkItemsRQ
+	localVarPostBody = r.comEpamReportportalBaseModelBulkItemsRQ
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -5070,7 +5070,7 @@ func (a *TestItemAPIService) GetTestItemsByIdsExecute(r ApiGetTestItemsByIdsRequ
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -5081,7 +5081,7 @@ func (a *TestItemAPIService) GetTestItemsByIdsExecute(r ApiGetTestItemsByIdsRequ
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -5092,7 +5092,7 @@ func (a *TestItemAPIService) GetTestItemsByIdsExecute(r ApiGetTestItemsByIdsRequ
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -5121,7 +5121,7 @@ type ApiGetTestItemsV2Request struct {
 	ctx                                         context.Context
 	ApiService                                  *TestItemAPIService
 	params                                      *map[string]string
-	projectName                                 string
+	projectKey                                  string
 	filterEqLocator                             *string
 	filterEqHasRetries                          *bool
 	filterEqEndTime                             *string
@@ -5138,7 +5138,7 @@ type ApiGetTestItemsV2Request struct {
 	filterEqStatisticsexecutionsskipped         *int32
 	filterEqType                                *string
 	filterEqStatisticsdefectsautomationBugab001 *int32
-	filterEqAttributeValue                      *[]interface{}
+	filterEqAttributeValue                      *[]string
 	filterEqPath                                *int32
 	filterHasCompositeSystemAttribute           *string
 	filterEqIssueGroupId                        *string
@@ -5152,9 +5152,9 @@ type ApiGetTestItemsV2Request struct {
 	filterEqValue                               *string
 	filterEqIssueTypeId                         *int32
 	filterEqName                                *string
-	filterEqPatternName                         *[]interface{}
+	filterEqPatternName                         *[]string
 	filterEqLaunchId                            *int32
-	filterEqAttributeKey                        *[]interface{}
+	filterEqAttributeKey                        *[]string
 	filterEqHasChildren                         *bool
 	filterEqRetryParentId                       *int32
 	filterEqStatisticsexecutionstotal           *int32
@@ -5165,7 +5165,7 @@ type ApiGetTestItemsV2Request struct {
 	filterEqTestCaseId                          *string
 	filterEqKey                                 *string
 	filterEqAutoAnalyzed                        *bool
-	filterEqLevelAttribute                      *[]interface{}
+	filterEqLevelAttribute                      *[]string
 	filterEqMode                                *string
 	filterEqClusterId                           *int32
 	filterEqIssueId                             *int32
@@ -5278,7 +5278,7 @@ func (r ApiGetTestItemsV2Request) FilterEqStatisticsdefectsautomationBugab001(fi
 }
 
 // Filters by &#39;attributeValue&#39;
-func (r ApiGetTestItemsV2Request) FilterEqAttributeValue(filterEqAttributeValue []interface{}) ApiGetTestItemsV2Request {
+func (r ApiGetTestItemsV2Request) FilterEqAttributeValue(filterEqAttributeValue []string) ApiGetTestItemsV2Request {
 	r.filterEqAttributeValue = &filterEqAttributeValue
 	return r
 }
@@ -5362,7 +5362,7 @@ func (r ApiGetTestItemsV2Request) FilterEqName(filterEqName string) ApiGetTestIt
 }
 
 // Filters by &#39;patternName&#39;
-func (r ApiGetTestItemsV2Request) FilterEqPatternName(filterEqPatternName []interface{}) ApiGetTestItemsV2Request {
+func (r ApiGetTestItemsV2Request) FilterEqPatternName(filterEqPatternName []string) ApiGetTestItemsV2Request {
 	r.filterEqPatternName = &filterEqPatternName
 	return r
 }
@@ -5374,7 +5374,7 @@ func (r ApiGetTestItemsV2Request) FilterEqLaunchId(filterEqLaunchId int32) ApiGe
 }
 
 // Filters by &#39;attributeKey&#39;
-func (r ApiGetTestItemsV2Request) FilterEqAttributeKey(filterEqAttributeKey []interface{}) ApiGetTestItemsV2Request {
+func (r ApiGetTestItemsV2Request) FilterEqAttributeKey(filterEqAttributeKey []string) ApiGetTestItemsV2Request {
 	r.filterEqAttributeKey = &filterEqAttributeKey
 	return r
 }
@@ -5440,7 +5440,7 @@ func (r ApiGetTestItemsV2Request) FilterEqAutoAnalyzed(filterEqAutoAnalyzed bool
 }
 
 // Filters by &#39;levelAttribute&#39;
-func (r ApiGetTestItemsV2Request) FilterEqLevelAttribute(filterEqLevelAttribute []interface{}) ApiGetTestItemsV2Request {
+func (r ApiGetTestItemsV2Request) FilterEqLevelAttribute(filterEqLevelAttribute []string) ApiGetTestItemsV2Request {
 	r.filterEqLevelAttribute = &filterEqLevelAttribute
 	return r
 }
@@ -5493,7 +5493,7 @@ func (r ApiGetTestItemsV2Request) PageSort(pageSort string) ApiGetTestItemsV2Req
 	return r
 }
 
-func (r ApiGetTestItemsV2Request) Execute() (*PageTestItemResource, *http.Response, error) {
+func (r ApiGetTestItemsV2Request) Execute() (*ComEpamReportportalBaseModelPageComEpamReportportalBaseReportingTestItemResource, *http.Response, error) {
 	return r.ApiService.GetTestItemsV2Execute(r)
 }
 
@@ -5501,26 +5501,26 @@ func (r ApiGetTestItemsV2Request) Execute() (*PageTestItemResource, *http.Respon
 GetTestItemsV2 Find test items by specified filter
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param projectName
+	@param projectKey
 	@return ApiGetTestItemsV2Request
 */
-func (a *TestItemAPIService) GetTestItemsV2(ctx context.Context, projectName string) ApiGetTestItemsV2Request {
+func (a *TestItemAPIService) GetTestItemsV2(ctx context.Context, projectKey string) ApiGetTestItemsV2Request {
 	return ApiGetTestItemsV2Request{
-		ApiService:  a,
-		ctx:         ctx,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		projectKey: projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return PageTestItemResource
-func (a *TestItemAPIService) GetTestItemsV2Execute(r ApiGetTestItemsV2Request) (*PageTestItemResource, *http.Response, error) {
+//	@return ComEpamReportportalBaseModelPageComEpamReportportalBaseReportingTestItemResource
+func (a *TestItemAPIService) GetTestItemsV2Execute(r ApiGetTestItemsV2Request) (*ComEpamReportportalBaseModelPageComEpamReportportalBaseReportingTestItemResource, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodGet
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *PageTestItemResource
+		localVarReturnValue *ComEpamReportportalBaseModelPageComEpamReportportalBaseReportingTestItemResource
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "TestItemAPIService.GetTestItemsV2")
@@ -5528,8 +5528,8 @@ func (a *TestItemAPIService) GetTestItemsV2Execute(r ApiGetTestItemsV2Request) (
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/item/v2"
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath := localBasePath + "/v1/{projectKey}/item/v2"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -5785,7 +5785,7 @@ func (a *TestItemAPIService) GetTestItemsV2Execute(r ApiGetTestItemsV2Request) (
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -5796,7 +5796,7 @@ func (a *TestItemAPIService) GetTestItemsV2Execute(r ApiGetTestItemsV2Request) (
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -5807,7 +5807,7 @@ func (a *TestItemAPIService) GetTestItemsV2Execute(r ApiGetTestItemsV2Request) (
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -5833,11 +5833,11 @@ func (a *TestItemAPIService) GetTestItemsV2Execute(r ApiGetTestItemsV2Request) (
 }
 
 type ApiGetTicketIdsRequest struct {
-	ctx         context.Context
-	ApiService  *TestItemAPIService
-	launch      *int64
-	projectName string
-	term        *string
+	ctx        context.Context
+	ApiService *TestItemAPIService
+	launch     *int64
+	projectKey string
+	term       *string
 }
 
 func (r ApiGetTicketIdsRequest) Launch(launch int64) ApiGetTicketIdsRequest {
@@ -5858,14 +5858,14 @@ func (r ApiGetTicketIdsRequest) Execute() ([]string, *http.Response, error) {
 GetTicketIds Get tickets that contains a term as a part inside for specified launch
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param projectName
+	@param projectKey
 	@return ApiGetTicketIdsRequest
 */
-func (a *TestItemAPIService) GetTicketIds(ctx context.Context, projectName string) ApiGetTicketIdsRequest {
+func (a *TestItemAPIService) GetTicketIds(ctx context.Context, projectKey string) ApiGetTicketIdsRequest {
 	return ApiGetTicketIdsRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		projectKey: projectKey,
 	}
 }
 
@@ -5885,8 +5885,8 @@ func (a *TestItemAPIService) GetTicketIdsExecute(r ApiGetTicketIdsRequest) ([]st
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/item/ticket/ids"
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath := localBasePath + "/v1/{projectKey}/item/ticket/ids"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -5958,7 +5958,7 @@ func (a *TestItemAPIService) GetTicketIdsExecute(r ApiGetTicketIdsRequest) ([]st
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -5969,7 +5969,7 @@ func (a *TestItemAPIService) GetTicketIdsExecute(r ApiGetTicketIdsRequest) ([]st
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -5980,7 +5980,7 @@ func (a *TestItemAPIService) GetTicketIdsExecute(r ApiGetTicketIdsRequest) ([]st
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -6006,10 +6006,10 @@ func (a *TestItemAPIService) GetTicketIdsExecute(r ApiGetTicketIdsRequest) ([]st
 }
 
 type ApiGetTicketIdsForProjectRequest struct {
-	ctx         context.Context
-	ApiService  *TestItemAPIService
-	projectName string
-	term        *string
+	ctx        context.Context
+	ApiService *TestItemAPIService
+	projectKey string
+	term       *string
 }
 
 func (r ApiGetTicketIdsForProjectRequest) Term(term string) ApiGetTicketIdsForProjectRequest {
@@ -6025,14 +6025,14 @@ func (r ApiGetTicketIdsForProjectRequest) Execute() ([]string, *http.Response, e
 GetTicketIdsForProject Get tickets that contains a term as a part inside for specified launch
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param projectName
+	@param projectKey
 	@return ApiGetTicketIdsForProjectRequest
 */
-func (a *TestItemAPIService) GetTicketIdsForProject(ctx context.Context, projectName string) ApiGetTicketIdsForProjectRequest {
+func (a *TestItemAPIService) GetTicketIdsForProject(ctx context.Context, projectKey string) ApiGetTicketIdsForProjectRequest {
 	return ApiGetTicketIdsForProjectRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		projectKey: projectKey,
 	}
 }
 
@@ -6052,8 +6052,8 @@ func (a *TestItemAPIService) GetTicketIdsForProjectExecute(r ApiGetTicketIdsForP
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/item/ticket/ids/all"
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath := localBasePath + "/v1/{projectKey}/item/ticket/ids/all"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -6121,7 +6121,7 @@ func (a *TestItemAPIService) GetTicketIdsForProjectExecute(r ApiGetTicketIdsForP
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -6132,7 +6132,7 @@ func (a *TestItemAPIService) GetTicketIdsForProjectExecute(r ApiGetTicketIdsForP
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -6143,7 +6143,7 @@ func (a *TestItemAPIService) GetTicketIdsForProjectExecute(r ApiGetTicketIdsForP
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -6172,7 +6172,7 @@ type ApiGetUniqueAttributeKeysRequest struct {
 	ctx                   context.Context
 	ApiService            *TestItemAPIService
 	filterCntAttributeKey *string
-	projectName           string
+	projectKey            string
 	launch                *int64
 }
 
@@ -6194,14 +6194,14 @@ func (r ApiGetUniqueAttributeKeysRequest) Execute() ([]string, *http.Response, e
 GetUniqueAttributeKeys Get all unique attribute keys on the project
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param projectName
+	@param projectKey
 	@return ApiGetUniqueAttributeKeysRequest
 */
-func (a *TestItemAPIService) GetUniqueAttributeKeys(ctx context.Context, projectName string) ApiGetUniqueAttributeKeysRequest {
+func (a *TestItemAPIService) GetUniqueAttributeKeys(ctx context.Context, projectKey string) ApiGetUniqueAttributeKeysRequest {
 	return ApiGetUniqueAttributeKeysRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		projectKey: projectKey,
 	}
 }
 
@@ -6221,8 +6221,8 @@ func (a *TestItemAPIService) GetUniqueAttributeKeysExecute(r ApiGetUniqueAttribu
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/item/attribute/keys"
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath := localBasePath + "/v1/{projectKey}/item/attribute/keys"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -6293,7 +6293,7 @@ func (a *TestItemAPIService) GetUniqueAttributeKeysExecute(r ApiGetUniqueAttribu
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -6304,7 +6304,7 @@ func (a *TestItemAPIService) GetUniqueAttributeKeysExecute(r ApiGetUniqueAttribu
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -6315,7 +6315,7 @@ func (a *TestItemAPIService) GetUniqueAttributeKeysExecute(r ApiGetUniqueAttribu
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -6341,18 +6341,18 @@ func (a *TestItemAPIService) GetUniqueAttributeKeysExecute(r ApiGetUniqueAttribu
 }
 
 type ApiHandleSuggestChooseRequest struct {
-	ctx         context.Context
-	ApiService  *TestItemAPIService
-	projectName string
-	suggestInfo *[]SuggestInfo
+	ctx                                                           context.Context
+	ApiService                                                    *TestItemAPIService
+	projectKey                                                    string
+	comEpamReportportalBaseCoreAnalyzerAutoClientModelSuggestInfo *[]ComEpamReportportalBaseCoreAnalyzerAutoClientModelSuggestInfo
 }
 
-func (r ApiHandleSuggestChooseRequest) SuggestInfo(suggestInfo []SuggestInfo) ApiHandleSuggestChooseRequest {
-	r.suggestInfo = &suggestInfo
+func (r ApiHandleSuggestChooseRequest) ComEpamReportportalBaseCoreAnalyzerAutoClientModelSuggestInfo(comEpamReportportalBaseCoreAnalyzerAutoClientModelSuggestInfo []ComEpamReportportalBaseCoreAnalyzerAutoClientModelSuggestInfo) ApiHandleSuggestChooseRequest {
+	r.comEpamReportportalBaseCoreAnalyzerAutoClientModelSuggestInfo = &comEpamReportportalBaseCoreAnalyzerAutoClientModelSuggestInfo
 	return r
 }
 
-func (r ApiHandleSuggestChooseRequest) Execute() (*OperationCompletionRS, *http.Response, error) {
+func (r ApiHandleSuggestChooseRequest) Execute() (*ComEpamReportportalBaseReportingOperationCompletionRS, *http.Response, error) {
 	return r.ApiService.HandleSuggestChooseExecute(r)
 }
 
@@ -6360,26 +6360,26 @@ func (r ApiHandleSuggestChooseRequest) Execute() (*OperationCompletionRS, *http.
 HandleSuggestChoose Handle user choice from suggested items
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param projectName
+	@param projectKey
 	@return ApiHandleSuggestChooseRequest
 */
-func (a *TestItemAPIService) HandleSuggestChoose(ctx context.Context, projectName string) ApiHandleSuggestChooseRequest {
+func (a *TestItemAPIService) HandleSuggestChoose(ctx context.Context, projectKey string) ApiHandleSuggestChooseRequest {
 	return ApiHandleSuggestChooseRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		projectKey: projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return OperationCompletionRS
-func (a *TestItemAPIService) HandleSuggestChooseExecute(r ApiHandleSuggestChooseRequest) (*OperationCompletionRS, *http.Response, error) {
+//	@return ComEpamReportportalBaseReportingOperationCompletionRS
+func (a *TestItemAPIService) HandleSuggestChooseExecute(r ApiHandleSuggestChooseRequest) (*ComEpamReportportalBaseReportingOperationCompletionRS, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPut
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *OperationCompletionRS
+		localVarReturnValue *ComEpamReportportalBaseReportingOperationCompletionRS
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "TestItemAPIService.HandleSuggestChoose")
@@ -6387,14 +6387,14 @@ func (a *TestItemAPIService) HandleSuggestChooseExecute(r ApiHandleSuggestChoose
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/item/suggest/choice"
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath := localBasePath + "/v1/{projectKey}/item/suggest/choice"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
-	if r.suggestInfo == nil {
-		return localVarReturnValue, nil, reportError("suggestInfo is required and must be specified")
+	if r.comEpamReportportalBaseCoreAnalyzerAutoClientModelSuggestInfo == nil {
+		return localVarReturnValue, nil, reportError("comEpamReportportalBaseCoreAnalyzerAutoClientModelSuggestInfo is required and must be specified")
 	}
 
 	// to determine the Content-Type header
@@ -6415,7 +6415,7 @@ func (a *TestItemAPIService) HandleSuggestChooseExecute(r ApiHandleSuggestChoose
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
 	// body params
-	localVarPostBody = r.suggestInfo
+	localVarPostBody = r.comEpamReportportalBaseCoreAnalyzerAutoClientModelSuggestInfo
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -6457,7 +6457,7 @@ func (a *TestItemAPIService) HandleSuggestChooseExecute(r ApiHandleSuggestChoose
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -6468,7 +6468,7 @@ func (a *TestItemAPIService) HandleSuggestChooseExecute(r ApiHandleSuggestChoose
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -6479,7 +6479,7 @@ func (a *TestItemAPIService) HandleSuggestChooseExecute(r ApiHandleSuggestChoose
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -6505,18 +6505,18 @@ func (a *TestItemAPIService) HandleSuggestChooseExecute(r ApiHandleSuggestChoose
 }
 
 type ApiLinkExternalIssuesRequest struct {
-	ctx                 context.Context
-	ApiService          *TestItemAPIService
-	projectName         string
-	linkExternalIssueRQ *LinkExternalIssueRQ
+	ctx                                                 context.Context
+	ApiService                                          *TestItemAPIService
+	projectKey                                          string
+	comEpamReportportalBaseModelItemLinkExternalIssueRQ *ComEpamReportportalBaseModelItemLinkExternalIssueRQ
 }
 
-func (r ApiLinkExternalIssuesRequest) LinkExternalIssueRQ(linkExternalIssueRQ LinkExternalIssueRQ) ApiLinkExternalIssuesRequest {
-	r.linkExternalIssueRQ = &linkExternalIssueRQ
+func (r ApiLinkExternalIssuesRequest) ComEpamReportportalBaseModelItemLinkExternalIssueRQ(comEpamReportportalBaseModelItemLinkExternalIssueRQ ComEpamReportportalBaseModelItemLinkExternalIssueRQ) ApiLinkExternalIssuesRequest {
+	r.comEpamReportportalBaseModelItemLinkExternalIssueRQ = &comEpamReportportalBaseModelItemLinkExternalIssueRQ
 	return r
 }
 
-func (r ApiLinkExternalIssuesRequest) Execute() ([]OperationCompletionRS, *http.Response, error) {
+func (r ApiLinkExternalIssuesRequest) Execute() ([]ComEpamReportportalBaseReportingOperationCompletionRS, *http.Response, error) {
 	return r.ApiService.LinkExternalIssuesExecute(r)
 }
 
@@ -6524,26 +6524,26 @@ func (r ApiLinkExternalIssuesRequest) Execute() ([]OperationCompletionRS, *http.
 LinkExternalIssues Attach external issue for specified test items
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param projectName
+	@param projectKey
 	@return ApiLinkExternalIssuesRequest
 */
-func (a *TestItemAPIService) LinkExternalIssues(ctx context.Context, projectName string) ApiLinkExternalIssuesRequest {
+func (a *TestItemAPIService) LinkExternalIssues(ctx context.Context, projectKey string) ApiLinkExternalIssuesRequest {
 	return ApiLinkExternalIssuesRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		projectKey: projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return []OperationCompletionRS
-func (a *TestItemAPIService) LinkExternalIssuesExecute(r ApiLinkExternalIssuesRequest) ([]OperationCompletionRS, *http.Response, error) {
+//	@return []ComEpamReportportalBaseReportingOperationCompletionRS
+func (a *TestItemAPIService) LinkExternalIssuesExecute(r ApiLinkExternalIssuesRequest) ([]ComEpamReportportalBaseReportingOperationCompletionRS, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPut
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue []OperationCompletionRS
+		localVarReturnValue []ComEpamReportportalBaseReportingOperationCompletionRS
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "TestItemAPIService.LinkExternalIssues")
@@ -6551,14 +6551,14 @@ func (a *TestItemAPIService) LinkExternalIssuesExecute(r ApiLinkExternalIssuesRe
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/item/issue/link"
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath := localBasePath + "/v1/{projectKey}/item/issue/link"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
-	if r.linkExternalIssueRQ == nil {
-		return localVarReturnValue, nil, reportError("linkExternalIssueRQ is required and must be specified")
+	if r.comEpamReportportalBaseModelItemLinkExternalIssueRQ == nil {
+		return localVarReturnValue, nil, reportError("comEpamReportportalBaseModelItemLinkExternalIssueRQ is required and must be specified")
 	}
 
 	// to determine the Content-Type header
@@ -6579,7 +6579,7 @@ func (a *TestItemAPIService) LinkExternalIssuesExecute(r ApiLinkExternalIssuesRe
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
 	// body params
-	localVarPostBody = r.linkExternalIssueRQ
+	localVarPostBody = r.comEpamReportportalBaseModelItemLinkExternalIssueRQ
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -6621,7 +6621,7 @@ func (a *TestItemAPIService) LinkExternalIssuesExecute(r ApiLinkExternalIssuesRe
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -6632,7 +6632,7 @@ func (a *TestItemAPIService) LinkExternalIssuesExecute(r ApiLinkExternalIssuesRe
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -6643,7 +6643,7 @@ func (a *TestItemAPIService) LinkExternalIssuesExecute(r ApiLinkExternalIssuesRe
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -6669,19 +6669,19 @@ func (a *TestItemAPIService) LinkExternalIssuesExecute(r ApiLinkExternalIssuesRe
 }
 
 type ApiStartChildItem2Request struct {
-	ctx             context.Context
-	ApiService      *TestItemAPIService
-	parentItem      string
-	projectName     string
-	startTestItemRQ *StartTestItemRQ
+	ctx                                             context.Context
+	ApiService                                      *TestItemAPIService
+	parentItem                                      string
+	projectKey                                      string
+	comEpamReportportalBaseReportingStartTestItemRQ *ComEpamReportportalBaseReportingStartTestItemRQ
 }
 
-func (r ApiStartChildItem2Request) StartTestItemRQ(startTestItemRQ StartTestItemRQ) ApiStartChildItem2Request {
-	r.startTestItemRQ = &startTestItemRQ
+func (r ApiStartChildItem2Request) ComEpamReportportalBaseReportingStartTestItemRQ(comEpamReportportalBaseReportingStartTestItemRQ ComEpamReportportalBaseReportingStartTestItemRQ) ApiStartChildItem2Request {
+	r.comEpamReportportalBaseReportingStartTestItemRQ = &comEpamReportportalBaseReportingStartTestItemRQ
 	return r
 }
 
-func (r ApiStartChildItem2Request) Execute() (*EntryCreatedAsyncRS, *http.Response, error) {
+func (r ApiStartChildItem2Request) Execute() (*ComEpamReportportalBaseReportingEntryCreatedAsyncRS, *http.Response, error) {
 	return r.ApiService.StartChildItem2Execute(r)
 }
 
@@ -6690,27 +6690,27 @@ StartChildItem2 Start a child test item
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param parentItem
-	@param projectName
+	@param projectKey
 	@return ApiStartChildItem2Request
 */
-func (a *TestItemAPIService) StartChildItem2(ctx context.Context, parentItem string, projectName string) ApiStartChildItem2Request {
+func (a *TestItemAPIService) StartChildItem2(ctx context.Context, parentItem string, projectKey string) ApiStartChildItem2Request {
 	return ApiStartChildItem2Request{
-		ApiService:  a,
-		ctx:         ctx,
-		parentItem:  parentItem,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		parentItem: parentItem,
+		projectKey: projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return EntryCreatedAsyncRS
-func (a *TestItemAPIService) StartChildItem2Execute(r ApiStartChildItem2Request) (*EntryCreatedAsyncRS, *http.Response, error) {
+//	@return ComEpamReportportalBaseReportingEntryCreatedAsyncRS
+func (a *TestItemAPIService) StartChildItem2Execute(r ApiStartChildItem2Request) (*ComEpamReportportalBaseReportingEntryCreatedAsyncRS, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPost
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *EntryCreatedAsyncRS
+		localVarReturnValue *ComEpamReportportalBaseReportingEntryCreatedAsyncRS
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "TestItemAPIService.StartChildItem2")
@@ -6718,15 +6718,15 @@ func (a *TestItemAPIService) StartChildItem2Execute(r ApiStartChildItem2Request)
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/item/{parentItem}"
+	localVarPath := localBasePath + "/v1/{projectKey}/item/{parentItem}"
 	localVarPath = strings.Replace(localVarPath, "{"+"parentItem"+"}", url.PathEscape(parameterValueToString(r.parentItem, "parentItem")), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
-	if r.startTestItemRQ == nil {
-		return localVarReturnValue, nil, reportError("startTestItemRQ is required and must be specified")
+	if r.comEpamReportportalBaseReportingStartTestItemRQ == nil {
+		return localVarReturnValue, nil, reportError("comEpamReportportalBaseReportingStartTestItemRQ is required and must be specified")
 	}
 
 	// to determine the Content-Type header
@@ -6747,7 +6747,7 @@ func (a *TestItemAPIService) StartChildItem2Execute(r ApiStartChildItem2Request)
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
 	// body params
-	localVarPostBody = r.startTestItemRQ
+	localVarPostBody = r.comEpamReportportalBaseReportingStartTestItemRQ
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -6789,7 +6789,7 @@ func (a *TestItemAPIService) StartChildItem2Execute(r ApiStartChildItem2Request)
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -6800,7 +6800,7 @@ func (a *TestItemAPIService) StartChildItem2Execute(r ApiStartChildItem2Request)
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -6811,7 +6811,7 @@ func (a *TestItemAPIService) StartChildItem2Execute(r ApiStartChildItem2Request)
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -6837,19 +6837,19 @@ func (a *TestItemAPIService) StartChildItem2Execute(r ApiStartChildItem2Request)
 }
 
 type ApiStartChildItem3Request struct {
-	ctx             context.Context
-	ApiService      *TestItemAPIService
-	parentItem      string
-	projectName     string
-	startTestItemRQ *StartTestItemRQ
+	ctx                                             context.Context
+	ApiService                                      *TestItemAPIService
+	parentItem                                      string
+	projectKey                                      string
+	comEpamReportportalBaseReportingStartTestItemRQ *ComEpamReportportalBaseReportingStartTestItemRQ
 }
 
-func (r ApiStartChildItem3Request) StartTestItemRQ(startTestItemRQ StartTestItemRQ) ApiStartChildItem3Request {
-	r.startTestItemRQ = &startTestItemRQ
+func (r ApiStartChildItem3Request) ComEpamReportportalBaseReportingStartTestItemRQ(comEpamReportportalBaseReportingStartTestItemRQ ComEpamReportportalBaseReportingStartTestItemRQ) ApiStartChildItem3Request {
+	r.comEpamReportportalBaseReportingStartTestItemRQ = &comEpamReportportalBaseReportingStartTestItemRQ
 	return r
 }
 
-func (r ApiStartChildItem3Request) Execute() (*EntryCreatedAsyncRS, *http.Response, error) {
+func (r ApiStartChildItem3Request) Execute() (*ComEpamReportportalBaseReportingEntryCreatedAsyncRS, *http.Response, error) {
 	return r.ApiService.StartChildItem3Execute(r)
 }
 
@@ -6858,27 +6858,27 @@ StartChildItem3 Start a child test item
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param parentItem
-	@param projectName
+	@param projectKey
 	@return ApiStartChildItem3Request
 */
-func (a *TestItemAPIService) StartChildItem3(ctx context.Context, parentItem string, projectName string) ApiStartChildItem3Request {
+func (a *TestItemAPIService) StartChildItem3(ctx context.Context, parentItem string, projectKey string) ApiStartChildItem3Request {
 	return ApiStartChildItem3Request{
-		ApiService:  a,
-		ctx:         ctx,
-		parentItem:  parentItem,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		parentItem: parentItem,
+		projectKey: projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return EntryCreatedAsyncRS
-func (a *TestItemAPIService) StartChildItem3Execute(r ApiStartChildItem3Request) (*EntryCreatedAsyncRS, *http.Response, error) {
+//	@return ComEpamReportportalBaseReportingEntryCreatedAsyncRS
+func (a *TestItemAPIService) StartChildItem3Execute(r ApiStartChildItem3Request) (*ComEpamReportportalBaseReportingEntryCreatedAsyncRS, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPost
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *EntryCreatedAsyncRS
+		localVarReturnValue *ComEpamReportportalBaseReportingEntryCreatedAsyncRS
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "TestItemAPIService.StartChildItem3")
@@ -6886,15 +6886,15 @@ func (a *TestItemAPIService) StartChildItem3Execute(r ApiStartChildItem3Request)
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/item/{parentItem}/"
+	localVarPath := localBasePath + "/v1/{projectKey}/item/{parentItem}/"
 	localVarPath = strings.Replace(localVarPath, "{"+"parentItem"+"}", url.PathEscape(parameterValueToString(r.parentItem, "parentItem")), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
-	if r.startTestItemRQ == nil {
-		return localVarReturnValue, nil, reportError("startTestItemRQ is required and must be specified")
+	if r.comEpamReportportalBaseReportingStartTestItemRQ == nil {
+		return localVarReturnValue, nil, reportError("comEpamReportportalBaseReportingStartTestItemRQ is required and must be specified")
 	}
 
 	// to determine the Content-Type header
@@ -6915,7 +6915,7 @@ func (a *TestItemAPIService) StartChildItem3Execute(r ApiStartChildItem3Request)
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
 	// body params
-	localVarPostBody = r.startTestItemRQ
+	localVarPostBody = r.comEpamReportportalBaseReportingStartTestItemRQ
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -6957,7 +6957,7 @@ func (a *TestItemAPIService) StartChildItem3Execute(r ApiStartChildItem3Request)
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -6968,7 +6968,7 @@ func (a *TestItemAPIService) StartChildItem3Execute(r ApiStartChildItem3Request)
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -6979,7 +6979,7 @@ func (a *TestItemAPIService) StartChildItem3Execute(r ApiStartChildItem3Request)
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -7005,18 +7005,18 @@ func (a *TestItemAPIService) StartChildItem3Execute(r ApiStartChildItem3Request)
 }
 
 type ApiStartRootItemRequest struct {
-	ctx             context.Context
-	ApiService      *TestItemAPIService
-	projectName     string
-	startTestItemRQ *StartTestItemRQ
+	ctx                                             context.Context
+	ApiService                                      *TestItemAPIService
+	projectKey                                      string
+	comEpamReportportalBaseReportingStartTestItemRQ *ComEpamReportportalBaseReportingStartTestItemRQ
 }
 
-func (r ApiStartRootItemRequest) StartTestItemRQ(startTestItemRQ StartTestItemRQ) ApiStartRootItemRequest {
-	r.startTestItemRQ = &startTestItemRQ
+func (r ApiStartRootItemRequest) ComEpamReportportalBaseReportingStartTestItemRQ(comEpamReportportalBaseReportingStartTestItemRQ ComEpamReportportalBaseReportingStartTestItemRQ) ApiStartRootItemRequest {
+	r.comEpamReportportalBaseReportingStartTestItemRQ = &comEpamReportportalBaseReportingStartTestItemRQ
 	return r
 }
 
-func (r ApiStartRootItemRequest) Execute() (*EntryCreatedAsyncRS, *http.Response, error) {
+func (r ApiStartRootItemRequest) Execute() (*ComEpamReportportalBaseReportingEntryCreatedAsyncRS, *http.Response, error) {
 	return r.ApiService.StartRootItemExecute(r)
 }
 
@@ -7024,26 +7024,26 @@ func (r ApiStartRootItemRequest) Execute() (*EntryCreatedAsyncRS, *http.Response
 StartRootItem Start a root test item
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param projectName
+	@param projectKey
 	@return ApiStartRootItemRequest
 */
-func (a *TestItemAPIService) StartRootItem(ctx context.Context, projectName string) ApiStartRootItemRequest {
+func (a *TestItemAPIService) StartRootItem(ctx context.Context, projectKey string) ApiStartRootItemRequest {
 	return ApiStartRootItemRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		projectKey: projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return EntryCreatedAsyncRS
-func (a *TestItemAPIService) StartRootItemExecute(r ApiStartRootItemRequest) (*EntryCreatedAsyncRS, *http.Response, error) {
+//	@return ComEpamReportportalBaseReportingEntryCreatedAsyncRS
+func (a *TestItemAPIService) StartRootItemExecute(r ApiStartRootItemRequest) (*ComEpamReportportalBaseReportingEntryCreatedAsyncRS, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPost
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *EntryCreatedAsyncRS
+		localVarReturnValue *ComEpamReportportalBaseReportingEntryCreatedAsyncRS
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "TestItemAPIService.StartRootItem")
@@ -7051,14 +7051,14 @@ func (a *TestItemAPIService) StartRootItemExecute(r ApiStartRootItemRequest) (*E
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/item"
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath := localBasePath + "/v1/{projectKey}/item"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
-	if r.startTestItemRQ == nil {
-		return localVarReturnValue, nil, reportError("startTestItemRQ is required and must be specified")
+	if r.comEpamReportportalBaseReportingStartTestItemRQ == nil {
+		return localVarReturnValue, nil, reportError("comEpamReportportalBaseReportingStartTestItemRQ is required and must be specified")
 	}
 
 	// to determine the Content-Type header
@@ -7079,7 +7079,7 @@ func (a *TestItemAPIService) StartRootItemExecute(r ApiStartRootItemRequest) (*E
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
 	// body params
-	localVarPostBody = r.startTestItemRQ
+	localVarPostBody = r.comEpamReportportalBaseReportingStartTestItemRQ
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -7121,7 +7121,7 @@ func (a *TestItemAPIService) StartRootItemExecute(r ApiStartRootItemRequest) (*E
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -7132,7 +7132,7 @@ func (a *TestItemAPIService) StartRootItemExecute(r ApiStartRootItemRequest) (*E
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -7143,7 +7143,7 @@ func (a *TestItemAPIService) StartRootItemExecute(r ApiStartRootItemRequest) (*E
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -7169,18 +7169,18 @@ func (a *TestItemAPIService) StartRootItemExecute(r ApiStartRootItemRequest) (*E
 }
 
 type ApiStartRootItem3Request struct {
-	ctx             context.Context
-	ApiService      *TestItemAPIService
-	projectName     string
-	startTestItemRQ *StartTestItemRQ
+	ctx                                             context.Context
+	ApiService                                      *TestItemAPIService
+	projectKey                                      string
+	comEpamReportportalBaseReportingStartTestItemRQ *ComEpamReportportalBaseReportingStartTestItemRQ
 }
 
-func (r ApiStartRootItem3Request) StartTestItemRQ(startTestItemRQ StartTestItemRQ) ApiStartRootItem3Request {
-	r.startTestItemRQ = &startTestItemRQ
+func (r ApiStartRootItem3Request) ComEpamReportportalBaseReportingStartTestItemRQ(comEpamReportportalBaseReportingStartTestItemRQ ComEpamReportportalBaseReportingStartTestItemRQ) ApiStartRootItem3Request {
+	r.comEpamReportportalBaseReportingStartTestItemRQ = &comEpamReportportalBaseReportingStartTestItemRQ
 	return r
 }
 
-func (r ApiStartRootItem3Request) Execute() (*EntryCreatedAsyncRS, *http.Response, error) {
+func (r ApiStartRootItem3Request) Execute() (*ComEpamReportportalBaseReportingEntryCreatedAsyncRS, *http.Response, error) {
 	return r.ApiService.StartRootItem3Execute(r)
 }
 
@@ -7188,26 +7188,26 @@ func (r ApiStartRootItem3Request) Execute() (*EntryCreatedAsyncRS, *http.Respons
 StartRootItem3 Start a root test item
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param projectName
+	@param projectKey
 	@return ApiStartRootItem3Request
 */
-func (a *TestItemAPIService) StartRootItem3(ctx context.Context, projectName string) ApiStartRootItem3Request {
+func (a *TestItemAPIService) StartRootItem3(ctx context.Context, projectKey string) ApiStartRootItem3Request {
 	return ApiStartRootItem3Request{
-		ApiService:  a,
-		ctx:         ctx,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		projectKey: projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return EntryCreatedAsyncRS
-func (a *TestItemAPIService) StartRootItem3Execute(r ApiStartRootItem3Request) (*EntryCreatedAsyncRS, *http.Response, error) {
+//	@return ComEpamReportportalBaseReportingEntryCreatedAsyncRS
+func (a *TestItemAPIService) StartRootItem3Execute(r ApiStartRootItem3Request) (*ComEpamReportportalBaseReportingEntryCreatedAsyncRS, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPost
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *EntryCreatedAsyncRS
+		localVarReturnValue *ComEpamReportportalBaseReportingEntryCreatedAsyncRS
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "TestItemAPIService.StartRootItem3")
@@ -7215,14 +7215,14 @@ func (a *TestItemAPIService) StartRootItem3Execute(r ApiStartRootItem3Request) (
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/item/"
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath := localBasePath + "/v1/{projectKey}/item/"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
-	if r.startTestItemRQ == nil {
-		return localVarReturnValue, nil, reportError("startTestItemRQ is required and must be specified")
+	if r.comEpamReportportalBaseReportingStartTestItemRQ == nil {
+		return localVarReturnValue, nil, reportError("comEpamReportportalBaseReportingStartTestItemRQ is required and must be specified")
 	}
 
 	// to determine the Content-Type header
@@ -7243,7 +7243,7 @@ func (a *TestItemAPIService) StartRootItem3Execute(r ApiStartRootItem3Request) (
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
 	// body params
-	localVarPostBody = r.startTestItemRQ
+	localVarPostBody = r.comEpamReportportalBaseReportingStartTestItemRQ
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -7285,7 +7285,7 @@ func (a *TestItemAPIService) StartRootItem3Execute(r ApiStartRootItem3Request) (
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -7296,7 +7296,7 @@ func (a *TestItemAPIService) StartRootItem3Execute(r ApiStartRootItem3Request) (
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -7307,7 +7307,7 @@ func (a *TestItemAPIService) StartRootItem3Execute(r ApiStartRootItem3Request) (
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -7333,18 +7333,18 @@ func (a *TestItemAPIService) StartRootItem3Execute(r ApiStartRootItem3Request) (
 }
 
 type ApiUnlinkExternalIssuesRequest struct {
-	ctx                   context.Context
-	ApiService            *TestItemAPIService
-	projectName           string
-	unlinkExternalIssueRQ *UnlinkExternalIssueRQ
+	ctx                                                   context.Context
+	ApiService                                            *TestItemAPIService
+	projectKey                                            string
+	comEpamReportportalBaseModelItemUnlinkExternalIssueRQ *ComEpamReportportalBaseModelItemUnlinkExternalIssueRQ
 }
 
-func (r ApiUnlinkExternalIssuesRequest) UnlinkExternalIssueRQ(unlinkExternalIssueRQ UnlinkExternalIssueRQ) ApiUnlinkExternalIssuesRequest {
-	r.unlinkExternalIssueRQ = &unlinkExternalIssueRQ
+func (r ApiUnlinkExternalIssuesRequest) ComEpamReportportalBaseModelItemUnlinkExternalIssueRQ(comEpamReportportalBaseModelItemUnlinkExternalIssueRQ ComEpamReportportalBaseModelItemUnlinkExternalIssueRQ) ApiUnlinkExternalIssuesRequest {
+	r.comEpamReportportalBaseModelItemUnlinkExternalIssueRQ = &comEpamReportportalBaseModelItemUnlinkExternalIssueRQ
 	return r
 }
 
-func (r ApiUnlinkExternalIssuesRequest) Execute() ([]OperationCompletionRS, *http.Response, error) {
+func (r ApiUnlinkExternalIssuesRequest) Execute() ([]ComEpamReportportalBaseReportingOperationCompletionRS, *http.Response, error) {
 	return r.ApiService.UnlinkExternalIssuesExecute(r)
 }
 
@@ -7352,26 +7352,26 @@ func (r ApiUnlinkExternalIssuesRequest) Execute() ([]OperationCompletionRS, *htt
 UnlinkExternalIssues Unlink external issue for specified test items
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param projectName
+	@param projectKey
 	@return ApiUnlinkExternalIssuesRequest
 */
-func (a *TestItemAPIService) UnlinkExternalIssues(ctx context.Context, projectName string) ApiUnlinkExternalIssuesRequest {
+func (a *TestItemAPIService) UnlinkExternalIssues(ctx context.Context, projectKey string) ApiUnlinkExternalIssuesRequest {
 	return ApiUnlinkExternalIssuesRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		projectKey: projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return []OperationCompletionRS
-func (a *TestItemAPIService) UnlinkExternalIssuesExecute(r ApiUnlinkExternalIssuesRequest) ([]OperationCompletionRS, *http.Response, error) {
+//	@return []ComEpamReportportalBaseReportingOperationCompletionRS
+func (a *TestItemAPIService) UnlinkExternalIssuesExecute(r ApiUnlinkExternalIssuesRequest) ([]ComEpamReportportalBaseReportingOperationCompletionRS, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPut
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue []OperationCompletionRS
+		localVarReturnValue []ComEpamReportportalBaseReportingOperationCompletionRS
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "TestItemAPIService.UnlinkExternalIssues")
@@ -7379,14 +7379,14 @@ func (a *TestItemAPIService) UnlinkExternalIssuesExecute(r ApiUnlinkExternalIssu
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/item/issue/unlink"
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath := localBasePath + "/v1/{projectKey}/item/issue/unlink"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
-	if r.unlinkExternalIssueRQ == nil {
-		return localVarReturnValue, nil, reportError("unlinkExternalIssueRQ is required and must be specified")
+	if r.comEpamReportportalBaseModelItemUnlinkExternalIssueRQ == nil {
+		return localVarReturnValue, nil, reportError("comEpamReportportalBaseModelItemUnlinkExternalIssueRQ is required and must be specified")
 	}
 
 	// to determine the Content-Type header
@@ -7407,7 +7407,7 @@ func (a *TestItemAPIService) UnlinkExternalIssuesExecute(r ApiUnlinkExternalIssu
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
 	// body params
-	localVarPostBody = r.unlinkExternalIssueRQ
+	localVarPostBody = r.comEpamReportportalBaseModelItemUnlinkExternalIssueRQ
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -7449,7 +7449,7 @@ func (a *TestItemAPIService) UnlinkExternalIssuesExecute(r ApiUnlinkExternalIssu
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -7460,7 +7460,7 @@ func (a *TestItemAPIService) UnlinkExternalIssuesExecute(r ApiUnlinkExternalIssu
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -7471,7 +7471,7 @@ func (a *TestItemAPIService) UnlinkExternalIssuesExecute(r ApiUnlinkExternalIssu
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -7497,19 +7497,19 @@ func (a *TestItemAPIService) UnlinkExternalIssuesExecute(r ApiUnlinkExternalIssu
 }
 
 type ApiUpdateTestItemRequest struct {
-	ctx              context.Context
-	ApiService       *TestItemAPIService
-	itemId           int64
-	projectName      string
-	updateTestItemRQ *UpdateTestItemRQ
+	ctx                                              context.Context
+	ApiService                                       *TestItemAPIService
+	itemId                                           int64
+	projectKey                                       string
+	comEpamReportportalBaseModelItemUpdateTestItemRQ *ComEpamReportportalBaseModelItemUpdateTestItemRQ
 }
 
-func (r ApiUpdateTestItemRequest) UpdateTestItemRQ(updateTestItemRQ UpdateTestItemRQ) ApiUpdateTestItemRequest {
-	r.updateTestItemRQ = &updateTestItemRQ
+func (r ApiUpdateTestItemRequest) ComEpamReportportalBaseModelItemUpdateTestItemRQ(comEpamReportportalBaseModelItemUpdateTestItemRQ ComEpamReportportalBaseModelItemUpdateTestItemRQ) ApiUpdateTestItemRequest {
+	r.comEpamReportportalBaseModelItemUpdateTestItemRQ = &comEpamReportportalBaseModelItemUpdateTestItemRQ
 	return r
 }
 
-func (r ApiUpdateTestItemRequest) Execute() (*OperationCompletionRS, *http.Response, error) {
+func (r ApiUpdateTestItemRequest) Execute() (*ComEpamReportportalBaseReportingOperationCompletionRS, *http.Response, error) {
 	return r.ApiService.UpdateTestItemExecute(r)
 }
 
@@ -7518,27 +7518,27 @@ UpdateTestItem Update test item
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param itemId
-	@param projectName
+	@param projectKey
 	@return ApiUpdateTestItemRequest
 */
-func (a *TestItemAPIService) UpdateTestItem(ctx context.Context, itemId int64, projectName string) ApiUpdateTestItemRequest {
+func (a *TestItemAPIService) UpdateTestItem(ctx context.Context, itemId int64, projectKey string) ApiUpdateTestItemRequest {
 	return ApiUpdateTestItemRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		itemId:      itemId,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		itemId:     itemId,
+		projectKey: projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return OperationCompletionRS
-func (a *TestItemAPIService) UpdateTestItemExecute(r ApiUpdateTestItemRequest) (*OperationCompletionRS, *http.Response, error) {
+//	@return ComEpamReportportalBaseReportingOperationCompletionRS
+func (a *TestItemAPIService) UpdateTestItemExecute(r ApiUpdateTestItemRequest) (*ComEpamReportportalBaseReportingOperationCompletionRS, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPut
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *OperationCompletionRS
+		localVarReturnValue *ComEpamReportportalBaseReportingOperationCompletionRS
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "TestItemAPIService.UpdateTestItem")
@@ -7546,15 +7546,15 @@ func (a *TestItemAPIService) UpdateTestItemExecute(r ApiUpdateTestItemRequest) (
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/item/{itemId}/update"
+	localVarPath := localBasePath + "/v1/{projectKey}/item/{itemId}/update"
 	localVarPath = strings.Replace(localVarPath, "{"+"itemId"+"}", url.PathEscape(parameterValueToString(r.itemId, "itemId")), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
-	if r.updateTestItemRQ == nil {
-		return localVarReturnValue, nil, reportError("updateTestItemRQ is required and must be specified")
+	if r.comEpamReportportalBaseModelItemUpdateTestItemRQ == nil {
+		return localVarReturnValue, nil, reportError("comEpamReportportalBaseModelItemUpdateTestItemRQ is required and must be specified")
 	}
 
 	// to determine the Content-Type header
@@ -7575,7 +7575,7 @@ func (a *TestItemAPIService) UpdateTestItemExecute(r ApiUpdateTestItemRequest) (
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
 	// body params
-	localVarPostBody = r.updateTestItemRQ
+	localVarPostBody = r.comEpamReportportalBaseModelItemUpdateTestItemRQ
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -7617,7 +7617,7 @@ func (a *TestItemAPIService) UpdateTestItemExecute(r ApiUpdateTestItemRequest) (
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -7628,7 +7628,7 @@ func (a *TestItemAPIService) UpdateTestItemExecute(r ApiUpdateTestItemRequest) (
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -7639,7 +7639,7 @@ func (a *TestItemAPIService) UpdateTestItemExecute(r ApiUpdateTestItemRequest) (
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()

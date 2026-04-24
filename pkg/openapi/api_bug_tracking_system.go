@@ -3,7 +3,7 @@ ReportPortal
 
 ReportPortal API documentation
 
-API version: 5.15.1
+API version: develop-531
 Contact: support@reportportal.io
 */
 
@@ -24,19 +24,19 @@ import (
 type BugTrackingSystemAPIService service
 
 type ApiCreateIssueRequest struct {
-	ctx           context.Context
-	ApiService    *BugTrackingSystemAPIService
-	integrationId int64
-	projectName   string
-	postTicketRQ  *PostTicketRQ
+	ctx                                                                  context.Context
+	ApiService                                                           *BugTrackingSystemAPIService
+	integrationId                                                        int64
+	projectKey                                                           string
+	comEpamReportportalBaseInfrastructureModelExternalsystemPostTicketRQ *ComEpamReportportalBaseInfrastructureModelExternalsystemPostTicketRQ
 }
 
-func (r ApiCreateIssueRequest) PostTicketRQ(postTicketRQ PostTicketRQ) ApiCreateIssueRequest {
-	r.postTicketRQ = &postTicketRQ
+func (r ApiCreateIssueRequest) ComEpamReportportalBaseInfrastructureModelExternalsystemPostTicketRQ(comEpamReportportalBaseInfrastructureModelExternalsystemPostTicketRQ ComEpamReportportalBaseInfrastructureModelExternalsystemPostTicketRQ) ApiCreateIssueRequest {
+	r.comEpamReportportalBaseInfrastructureModelExternalsystemPostTicketRQ = &comEpamReportportalBaseInfrastructureModelExternalsystemPostTicketRQ
 	return r
 }
 
-func (r ApiCreateIssueRequest) Execute() (*Ticket, *http.Response, error) {
+func (r ApiCreateIssueRequest) Execute() (*ComEpamReportportalBaseInfrastructureModelExternalsystemTicket, *http.Response, error) {
 	return r.ApiService.CreateIssueExecute(r)
 }
 
@@ -45,27 +45,27 @@ CreateIssue Post ticket to the bts integration
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param integrationId
-	@param projectName
+	@param projectKey
 	@return ApiCreateIssueRequest
 */
-func (a *BugTrackingSystemAPIService) CreateIssue(ctx context.Context, integrationId int64, projectName string) ApiCreateIssueRequest {
+func (a *BugTrackingSystemAPIService) CreateIssue(ctx context.Context, integrationId int64, projectKey string) ApiCreateIssueRequest {
 	return ApiCreateIssueRequest{
 		ApiService:    a,
 		ctx:           ctx,
 		integrationId: integrationId,
-		projectName:   projectName,
+		projectKey:    projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return Ticket
-func (a *BugTrackingSystemAPIService) CreateIssueExecute(r ApiCreateIssueRequest) (*Ticket, *http.Response, error) {
+//	@return ComEpamReportportalBaseInfrastructureModelExternalsystemTicket
+func (a *BugTrackingSystemAPIService) CreateIssueExecute(r ApiCreateIssueRequest) (*ComEpamReportportalBaseInfrastructureModelExternalsystemTicket, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPost
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *Ticket
+		localVarReturnValue *ComEpamReportportalBaseInfrastructureModelExternalsystemTicket
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "BugTrackingSystemAPIService.CreateIssue")
@@ -73,15 +73,15 @@ func (a *BugTrackingSystemAPIService) CreateIssueExecute(r ApiCreateIssueRequest
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/bts/{projectName}/{integrationId}/ticket"
+	localVarPath := localBasePath + "/v1/bts/{projectKey}/{integrationId}/ticket"
 	localVarPath = strings.Replace(localVarPath, "{"+"integrationId"+"}", url.PathEscape(parameterValueToString(r.integrationId, "integrationId")), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
-	if r.postTicketRQ == nil {
-		return localVarReturnValue, nil, reportError("postTicketRQ is required and must be specified")
+	if r.comEpamReportportalBaseInfrastructureModelExternalsystemPostTicketRQ == nil {
+		return localVarReturnValue, nil, reportError("comEpamReportportalBaseInfrastructureModelExternalsystemPostTicketRQ is required and must be specified")
 	}
 
 	// to determine the Content-Type header
@@ -102,7 +102,7 @@ func (a *BugTrackingSystemAPIService) CreateIssueExecute(r ApiCreateIssueRequest
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
 	// body params
-	localVarPostBody = r.postTicketRQ
+	localVarPostBody = r.comEpamReportportalBaseInfrastructureModelExternalsystemPostTicketRQ
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -144,7 +144,7 @@ func (a *BugTrackingSystemAPIService) CreateIssueExecute(r ApiCreateIssueRequest
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -155,7 +155,7 @@ func (a *BugTrackingSystemAPIService) CreateIssueExecute(r ApiCreateIssueRequest
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -166,7 +166,7 @@ func (a *BugTrackingSystemAPIService) CreateIssueExecute(r ApiCreateIssueRequest
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -195,7 +195,7 @@ type ApiGetAllowableIssueTypesRequest struct {
 	ctx           context.Context
 	ApiService    *BugTrackingSystemAPIService
 	integrationId int64
-	projectName   string
+	projectKey    string
 }
 
 func (r ApiGetAllowableIssueTypesRequest) Execute() ([]string, *http.Response, error) {
@@ -207,15 +207,15 @@ GetAllowableIssueTypes Get list of allowable issue types for bug tracking system
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param integrationId
-	@param projectName
+	@param projectKey
 	@return ApiGetAllowableIssueTypesRequest
 */
-func (a *BugTrackingSystemAPIService) GetAllowableIssueTypes(ctx context.Context, integrationId int64, projectName string) ApiGetAllowableIssueTypesRequest {
+func (a *BugTrackingSystemAPIService) GetAllowableIssueTypes(ctx context.Context, integrationId int64, projectKey string) ApiGetAllowableIssueTypesRequest {
 	return ApiGetAllowableIssueTypesRequest{
 		ApiService:    a,
 		ctx:           ctx,
 		integrationId: integrationId,
-		projectName:   projectName,
+		projectKey:    projectKey,
 	}
 }
 
@@ -235,9 +235,9 @@ func (a *BugTrackingSystemAPIService) GetAllowableIssueTypesExecute(r ApiGetAllo
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/bts/{projectName}/{integrationId}/issue_types"
+	localVarPath := localBasePath + "/v1/bts/{projectKey}/{integrationId}/issue_types"
 	localVarPath = strings.Replace(localVarPath, "{"+"integrationId"+"}", url.PathEscape(parameterValueToString(r.integrationId, "integrationId")), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -301,7 +301,7 @@ func (a *BugTrackingSystemAPIService) GetAllowableIssueTypesExecute(r ApiGetAllo
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -312,7 +312,7 @@ func (a *BugTrackingSystemAPIService) GetAllowableIssueTypesExecute(r ApiGetAllo
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -323,7 +323,7 @@ func (a *BugTrackingSystemAPIService) GetAllowableIssueTypesExecute(r ApiGetAllo
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -454,7 +454,7 @@ func (a *BugTrackingSystemAPIService) GetAllowableIssueTypes1Execute(r ApiGetAll
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -465,7 +465,7 @@ func (a *BugTrackingSystemAPIService) GetAllowableIssueTypes1Execute(r ApiGetAll
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -476,7 +476,7 @@ func (a *BugTrackingSystemAPIService) GetAllowableIssueTypes1Execute(r ApiGetAll
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -506,7 +506,7 @@ type ApiGetSetOfIntegrationSystemFieldsRequest struct {
 	ApiService    *BugTrackingSystemAPIService
 	integrationId int64
 	issueType     *string
-	projectName   string
+	projectKey    string
 }
 
 func (r ApiGetSetOfIntegrationSystemFieldsRequest) IssueType(issueType string) ApiGetSetOfIntegrationSystemFieldsRequest {
@@ -514,7 +514,7 @@ func (r ApiGetSetOfIntegrationSystemFieldsRequest) IssueType(issueType string) A
 	return r
 }
 
-func (r ApiGetSetOfIntegrationSystemFieldsRequest) Execute() ([]PostFormField, *http.Response, error) {
+func (r ApiGetSetOfIntegrationSystemFieldsRequest) Execute() ([]ComEpamReportportalBaseInfrastructureModelExternalsystemPostFormField, *http.Response, error) {
 	return r.ApiService.GetSetOfIntegrationSystemFieldsExecute(r)
 }
 
@@ -523,27 +523,27 @@ GetSetOfIntegrationSystemFields Get list of fields required for posting ticket i
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param integrationId
-	@param projectName
+	@param projectKey
 	@return ApiGetSetOfIntegrationSystemFieldsRequest
 */
-func (a *BugTrackingSystemAPIService) GetSetOfIntegrationSystemFields(ctx context.Context, integrationId int64, projectName string) ApiGetSetOfIntegrationSystemFieldsRequest {
+func (a *BugTrackingSystemAPIService) GetSetOfIntegrationSystemFields(ctx context.Context, integrationId int64, projectKey string) ApiGetSetOfIntegrationSystemFieldsRequest {
 	return ApiGetSetOfIntegrationSystemFieldsRequest{
 		ApiService:    a,
 		ctx:           ctx,
 		integrationId: integrationId,
-		projectName:   projectName,
+		projectKey:    projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return []PostFormField
-func (a *BugTrackingSystemAPIService) GetSetOfIntegrationSystemFieldsExecute(r ApiGetSetOfIntegrationSystemFieldsRequest) ([]PostFormField, *http.Response, error) {
+//	@return []ComEpamReportportalBaseInfrastructureModelExternalsystemPostFormField
+func (a *BugTrackingSystemAPIService) GetSetOfIntegrationSystemFieldsExecute(r ApiGetSetOfIntegrationSystemFieldsRequest) ([]ComEpamReportportalBaseInfrastructureModelExternalsystemPostFormField, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodGet
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue []PostFormField
+		localVarReturnValue []ComEpamReportportalBaseInfrastructureModelExternalsystemPostFormField
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "BugTrackingSystemAPIService.GetSetOfIntegrationSystemFields")
@@ -551,9 +551,9 @@ func (a *BugTrackingSystemAPIService) GetSetOfIntegrationSystemFieldsExecute(r A
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/bts/{projectName}/{integrationId}/fields-set"
+	localVarPath := localBasePath + "/v1/bts/{projectKey}/{integrationId}/fields-set"
 	localVarPath = strings.Replace(localVarPath, "{"+"integrationId"+"}", url.PathEscape(parameterValueToString(r.integrationId, "integrationId")), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -621,7 +621,7 @@ func (a *BugTrackingSystemAPIService) GetSetOfIntegrationSystemFieldsExecute(r A
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -632,7 +632,7 @@ func (a *BugTrackingSystemAPIService) GetSetOfIntegrationSystemFieldsExecute(r A
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -643,7 +643,7 @@ func (a *BugTrackingSystemAPIService) GetSetOfIntegrationSystemFieldsExecute(r A
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -680,7 +680,7 @@ func (r ApiGetSetOfIntegrationSystemFields1Request) IssueType(issueType string) 
 	return r
 }
 
-func (r ApiGetSetOfIntegrationSystemFields1Request) Execute() ([]PostFormField, *http.Response, error) {
+func (r ApiGetSetOfIntegrationSystemFields1Request) Execute() ([]ComEpamReportportalBaseInfrastructureModelExternalsystemPostFormField, *http.Response, error) {
 	return r.ApiService.GetSetOfIntegrationSystemFields1Execute(r)
 }
 
@@ -701,13 +701,13 @@ func (a *BugTrackingSystemAPIService) GetSetOfIntegrationSystemFields1(ctx conte
 
 // Execute executes the request
 //
-//	@return []PostFormField
-func (a *BugTrackingSystemAPIService) GetSetOfIntegrationSystemFields1Execute(r ApiGetSetOfIntegrationSystemFields1Request) ([]PostFormField, *http.Response, error) {
+//	@return []ComEpamReportportalBaseInfrastructureModelExternalsystemPostFormField
+func (a *BugTrackingSystemAPIService) GetSetOfIntegrationSystemFields1Execute(r ApiGetSetOfIntegrationSystemFields1Request) ([]ComEpamReportportalBaseInfrastructureModelExternalsystemPostFormField, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodGet
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue []PostFormField
+		localVarReturnValue []ComEpamReportportalBaseInfrastructureModelExternalsystemPostFormField
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "BugTrackingSystemAPIService.GetSetOfIntegrationSystemFields1")
@@ -784,7 +784,7 @@ func (a *BugTrackingSystemAPIService) GetSetOfIntegrationSystemFields1Execute(r 
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -795,7 +795,7 @@ func (a *BugTrackingSystemAPIService) GetSetOfIntegrationSystemFields1Execute(r 
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -806,7 +806,7 @@ func (a *BugTrackingSystemAPIService) GetSetOfIntegrationSystemFields1Execute(r 
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -832,12 +832,12 @@ func (a *BugTrackingSystemAPIService) GetSetOfIntegrationSystemFields1Execute(r 
 }
 
 type ApiGetTicketRequest struct {
-	ctx         context.Context
-	ApiService  *BugTrackingSystemAPIService
-	btsProject  *string
-	btsUrl      *string
-	projectName string
-	ticketId    string
+	ctx        context.Context
+	ApiService *BugTrackingSystemAPIService
+	btsProject *string
+	btsUrl     *string
+	projectKey string
+	ticketId   string
 }
 
 func (r ApiGetTicketRequest) BtsProject(btsProject string) ApiGetTicketRequest {
@@ -850,7 +850,7 @@ func (r ApiGetTicketRequest) BtsUrl(btsUrl string) ApiGetTicketRequest {
 	return r
 }
 
-func (r ApiGetTicketRequest) Execute() (*Ticket, *http.Response, error) {
+func (r ApiGetTicketRequest) Execute() (*ComEpamReportportalBaseInfrastructureModelExternalsystemTicket, *http.Response, error) {
 	return r.ApiService.GetTicketExecute(r)
 }
 
@@ -858,28 +858,28 @@ func (r ApiGetTicketRequest) Execute() (*Ticket, *http.Response, error) {
 GetTicket Get ticket from the bts integration
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param projectName
+	@param projectKey
 	@param ticketId
 	@return ApiGetTicketRequest
 */
-func (a *BugTrackingSystemAPIService) GetTicket(ctx context.Context, projectName string, ticketId string) ApiGetTicketRequest {
+func (a *BugTrackingSystemAPIService) GetTicket(ctx context.Context, projectKey string, ticketId string) ApiGetTicketRequest {
 	return ApiGetTicketRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		projectName: projectName,
-		ticketId:    ticketId,
+		ApiService: a,
+		ctx:        ctx,
+		projectKey: projectKey,
+		ticketId:   ticketId,
 	}
 }
 
 // Execute executes the request
 //
-//	@return Ticket
-func (a *BugTrackingSystemAPIService) GetTicketExecute(r ApiGetTicketRequest) (*Ticket, *http.Response, error) {
+//	@return ComEpamReportportalBaseInfrastructureModelExternalsystemTicket
+func (a *BugTrackingSystemAPIService) GetTicketExecute(r ApiGetTicketRequest) (*ComEpamReportportalBaseInfrastructureModelExternalsystemTicket, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodGet
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *Ticket
+		localVarReturnValue *ComEpamReportportalBaseInfrastructureModelExternalsystemTicket
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "BugTrackingSystemAPIService.GetTicket")
@@ -887,8 +887,8 @@ func (a *BugTrackingSystemAPIService) GetTicketExecute(r ApiGetTicketRequest) (*
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/bts/{projectName}/ticket/{ticketId}"
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath := localBasePath + "/v1/bts/{projectKey}/ticket/{ticketId}"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"ticketId"+"}", url.PathEscape(parameterValueToString(r.ticketId, "ticketId")), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -961,7 +961,7 @@ func (a *BugTrackingSystemAPIService) GetTicketExecute(r ApiGetTicketRequest) (*
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -972,7 +972,7 @@ func (a *BugTrackingSystemAPIService) GetTicketExecute(r ApiGetTicketRequest) (*
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -983,7 +983,7 @@ func (a *BugTrackingSystemAPIService) GetTicketExecute(r ApiGetTicketRequest) (*
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()

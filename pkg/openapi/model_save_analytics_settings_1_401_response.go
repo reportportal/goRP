@@ -3,7 +3,7 @@ ReportPortal
 
 ReportPortal API documentation
 
-API version: 5.15.1
+API version: develop-531
 Contact: support@reportportal.io
 */
 
@@ -18,14 +18,14 @@ import (
 
 // SaveAnalyticsSettings1401Response - struct for SaveAnalyticsSettings1401Response
 type SaveAnalyticsSettings1401Response struct {
-	ErrorRS *ErrorRS
-	String  *string
+	ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS *ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
+	String                                                     *string
 }
 
-// ErrorRSAsSaveAnalyticsSettings1401Response is a convenience function that returns ErrorRS wrapped in SaveAnalyticsSettings1401Response
-func ErrorRSAsSaveAnalyticsSettings1401Response(v *ErrorRS) SaveAnalyticsSettings1401Response {
+// ComEpamReportportalBaseInfrastructureRulesExceptionErrorRSAsSaveAnalyticsSettings1401Response is a convenience function that returns ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS wrapped in SaveAnalyticsSettings1401Response
+func ComEpamReportportalBaseInfrastructureRulesExceptionErrorRSAsSaveAnalyticsSettings1401Response(v *ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS) SaveAnalyticsSettings1401Response {
 	return SaveAnalyticsSettings1401Response{
-		ErrorRS: v,
+		ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS: v,
 	}
 }
 
@@ -40,17 +40,17 @@ func StringAsSaveAnalyticsSettings1401Response(v *string) SaveAnalyticsSettings1
 func (dst *SaveAnalyticsSettings1401Response) UnmarshalJSON(data []byte) error {
 	var err error
 	match := 0
-	// try to unmarshal data into ErrorRS
-	err = json.Unmarshal(data, &dst.ErrorRS)
+	// try to unmarshal data into ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
+	err = json.Unmarshal(data, &dst.ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS)
 	if err == nil {
-		jsonErrorRS, _ := json.Marshal(dst.ErrorRS)
-		if string(jsonErrorRS) == "{}" { // empty struct
-			dst.ErrorRS = nil
+		jsonComEpamReportportalBaseInfrastructureRulesExceptionErrorRS, _ := json.Marshal(dst.ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS)
+		if string(jsonComEpamReportportalBaseInfrastructureRulesExceptionErrorRS) == "{}" { // empty struct
+			dst.ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS = nil
 		} else {
 			match++
 		}
 	} else {
-		dst.ErrorRS = nil
+		dst.ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS = nil
 	}
 
 	// try to unmarshal data into String
@@ -68,7 +68,7 @@ func (dst *SaveAnalyticsSettings1401Response) UnmarshalJSON(data []byte) error {
 
 	if match > 1 { // more than 1 match
 		// reset to nil
-		dst.ErrorRS = nil
+		dst.ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS = nil
 		dst.String = nil
 
 		return fmt.Errorf("data matches more than one schema in oneOf(SaveAnalyticsSettings1401Response)")
@@ -81,8 +81,8 @@ func (dst *SaveAnalyticsSettings1401Response) UnmarshalJSON(data []byte) error {
 
 // Marshal data from the first non-nil pointers in the struct to JSON
 func (src SaveAnalyticsSettings1401Response) MarshalJSON() ([]byte, error) {
-	if src.ErrorRS != nil {
-		return json.Marshal(&src.ErrorRS)
+	if src.ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS != nil {
+		return json.Marshal(&src.ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS)
 	}
 
 	if src.String != nil {
@@ -97,8 +97,8 @@ func (obj *SaveAnalyticsSettings1401Response) GetActualInstance() interface{} {
 	if obj == nil {
 		return nil
 	}
-	if obj.ErrorRS != nil {
-		return obj.ErrorRS
+	if obj.ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS != nil {
+		return obj.ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 	}
 
 	if obj.String != nil {
@@ -111,8 +111,8 @@ func (obj *SaveAnalyticsSettings1401Response) GetActualInstance() interface{} {
 
 // Get the actual instance value
 func (obj SaveAnalyticsSettings1401Response) GetActualInstanceValue() interface{} {
-	if obj.ErrorRS != nil {
-		return *obj.ErrorRS
+	if obj.ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS != nil {
+		return *obj.ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 	}
 
 	if obj.String != nil {

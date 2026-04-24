@@ -3,7 +3,7 @@ ReportPortal
 
 ReportPortal API documentation
 
-API version: 5.15.1
+API version: develop-531
 Contact: support@reportportal.io
 */
 
@@ -29,6 +29,8 @@ type GroupInfo struct {
 	Name *string `json:"name,omitempty" validate:"regexp=^[A-Za-z0-9.'_\\\\- ]+$"`
 	// A slug is used to identify a resource. It should be unique and contain only lowercase letters, numbers, and hyphens. It should not start or end with a hyphen.
 	Slug *string `json:"slug,omitempty" validate:"regexp=^[a-z0-9]+(?:-[a-z0-9]+)*$"`
+	// Organization ID of the group.
+	OrgId *int64 `json:"org_id,omitempty"`
 	// User ID of the user who created the group.
 	CreatedBy *int64 `json:"created_by,omitempty"`
 	// Timestamp when group was created.
@@ -183,6 +185,38 @@ func (o *GroupInfo) SetSlug(v string) {
 	o.Slug = &v
 }
 
+// GetOrgId returns the OrgId field value if set, zero value otherwise.
+func (o *GroupInfo) GetOrgId() int64 {
+	if o == nil || IsNil(o.OrgId) {
+		var ret int64
+		return ret
+	}
+	return *o.OrgId
+}
+
+// GetOrgIdOk returns a tuple with the OrgId field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *GroupInfo) GetOrgIdOk() (*int64, bool) {
+	if o == nil || IsNil(o.OrgId) {
+		return nil, false
+	}
+	return o.OrgId, true
+}
+
+// HasOrgId returns a boolean if a field has been set.
+func (o *GroupInfo) HasOrgId() bool {
+	if o != nil && !IsNil(o.OrgId) {
+		return true
+	}
+
+	return false
+}
+
+// SetOrgId gets a reference to the given int64 and assigns it to the OrgId field.
+func (o *GroupInfo) SetOrgId(v int64) {
+	o.OrgId = &v
+}
+
 // GetCreatedBy returns the CreatedBy field value if set, zero value otherwise.
 func (o *GroupInfo) GetCreatedBy() int64 {
 	if o == nil || IsNil(o.CreatedBy) {
@@ -332,6 +366,9 @@ func (o GroupInfo) ToMap() (map[string]interface{}, error) {
 	}
 	if !IsNil(o.Slug) {
 		toSerialize["slug"] = o.Slug
+	}
+	if !IsNil(o.OrgId) {
+		toSerialize["org_id"] = o.OrgId
 	}
 	if !IsNil(o.CreatedBy) {
 		toSerialize["created_by"] = o.CreatedBy

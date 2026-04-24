@@ -3,7 +3,7 @@ ReportPortal
 
 ReportPortal API documentation
 
-API version: 5.15.1
+API version: develop-531
 Contact: support@reportportal.io
 */
 
@@ -25,18 +25,18 @@ import (
 type UserFilterAPIService service
 
 type ApiCreateFilterRequest struct {
-	ctx                context.Context
-	ApiService         *UserFilterAPIService
-	projectName        string
-	updateUserFilterRQ *UpdateUserFilterRQ
+	ctx                                                  context.Context
+	ApiService                                           *UserFilterAPIService
+	projectKey                                           string
+	comEpamReportportalBaseModelFilterUpdateUserFilterRQ *ComEpamReportportalBaseModelFilterUpdateUserFilterRQ
 }
 
-func (r ApiCreateFilterRequest) UpdateUserFilterRQ(updateUserFilterRQ UpdateUserFilterRQ) ApiCreateFilterRequest {
-	r.updateUserFilterRQ = &updateUserFilterRQ
+func (r ApiCreateFilterRequest) ComEpamReportportalBaseModelFilterUpdateUserFilterRQ(comEpamReportportalBaseModelFilterUpdateUserFilterRQ ComEpamReportportalBaseModelFilterUpdateUserFilterRQ) ApiCreateFilterRequest {
+	r.comEpamReportportalBaseModelFilterUpdateUserFilterRQ = &comEpamReportportalBaseModelFilterUpdateUserFilterRQ
 	return r
 }
 
-func (r ApiCreateFilterRequest) Execute() (*EntryCreatedRS, *http.Response, error) {
+func (r ApiCreateFilterRequest) Execute() (*ComEpamReportportalBaseModelEntryCreatedRS, *http.Response, error) {
 	return r.ApiService.CreateFilterExecute(r)
 }
 
@@ -44,26 +44,26 @@ func (r ApiCreateFilterRequest) Execute() (*EntryCreatedRS, *http.Response, erro
 CreateFilter Create user filter
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param projectName
+	@param projectKey
 	@return ApiCreateFilterRequest
 */
-func (a *UserFilterAPIService) CreateFilter(ctx context.Context, projectName string) ApiCreateFilterRequest {
+func (a *UserFilterAPIService) CreateFilter(ctx context.Context, projectKey string) ApiCreateFilterRequest {
 	return ApiCreateFilterRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		projectKey: projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return EntryCreatedRS
-func (a *UserFilterAPIService) CreateFilterExecute(r ApiCreateFilterRequest) (*EntryCreatedRS, *http.Response, error) {
+//	@return ComEpamReportportalBaseModelEntryCreatedRS
+func (a *UserFilterAPIService) CreateFilterExecute(r ApiCreateFilterRequest) (*ComEpamReportportalBaseModelEntryCreatedRS, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPost
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *EntryCreatedRS
+		localVarReturnValue *ComEpamReportportalBaseModelEntryCreatedRS
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "UserFilterAPIService.CreateFilter")
@@ -71,14 +71,14 @@ func (a *UserFilterAPIService) CreateFilterExecute(r ApiCreateFilterRequest) (*E
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/filter"
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath := localBasePath + "/v1/{projectKey}/filter"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
-	if r.updateUserFilterRQ == nil {
-		return localVarReturnValue, nil, reportError("updateUserFilterRQ is required and must be specified")
+	if r.comEpamReportportalBaseModelFilterUpdateUserFilterRQ == nil {
+		return localVarReturnValue, nil, reportError("comEpamReportportalBaseModelFilterUpdateUserFilterRQ is required and must be specified")
 	}
 
 	// to determine the Content-Type header
@@ -99,7 +99,7 @@ func (a *UserFilterAPIService) CreateFilterExecute(r ApiCreateFilterRequest) (*E
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
 	// body params
-	localVarPostBody = r.updateUserFilterRQ
+	localVarPostBody = r.comEpamReportportalBaseModelFilterUpdateUserFilterRQ
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -141,7 +141,7 @@ func (a *UserFilterAPIService) CreateFilterExecute(r ApiCreateFilterRequest) (*E
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -152,7 +152,7 @@ func (a *UserFilterAPIService) CreateFilterExecute(r ApiCreateFilterRequest) (*E
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -163,7 +163,7 @@ func (a *UserFilterAPIService) CreateFilterExecute(r ApiCreateFilterRequest) (*E
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -189,13 +189,13 @@ func (a *UserFilterAPIService) CreateFilterExecute(r ApiCreateFilterRequest) (*E
 }
 
 type ApiDeleteFilterRequest struct {
-	ctx         context.Context
-	ApiService  *UserFilterAPIService
-	filterId    int64
-	projectName string
+	ctx        context.Context
+	ApiService *UserFilterAPIService
+	filterId   int64
+	projectKey string
 }
 
-func (r ApiDeleteFilterRequest) Execute() (*OperationCompletionRS, *http.Response, error) {
+func (r ApiDeleteFilterRequest) Execute() (*ComEpamReportportalBaseReportingOperationCompletionRS, *http.Response, error) {
 	return r.ApiService.DeleteFilterExecute(r)
 }
 
@@ -204,27 +204,27 @@ DeleteFilter Delete specified user filter by id
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param filterId
-	@param projectName
+	@param projectKey
 	@return ApiDeleteFilterRequest
 */
-func (a *UserFilterAPIService) DeleteFilter(ctx context.Context, filterId int64, projectName string) ApiDeleteFilterRequest {
+func (a *UserFilterAPIService) DeleteFilter(ctx context.Context, filterId int64, projectKey string) ApiDeleteFilterRequest {
 	return ApiDeleteFilterRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		filterId:    filterId,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		filterId:   filterId,
+		projectKey: projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return OperationCompletionRS
-func (a *UserFilterAPIService) DeleteFilterExecute(r ApiDeleteFilterRequest) (*OperationCompletionRS, *http.Response, error) {
+//	@return ComEpamReportportalBaseReportingOperationCompletionRS
+func (a *UserFilterAPIService) DeleteFilterExecute(r ApiDeleteFilterRequest) (*ComEpamReportportalBaseReportingOperationCompletionRS, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodDelete
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *OperationCompletionRS
+		localVarReturnValue *ComEpamReportportalBaseReportingOperationCompletionRS
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "UserFilterAPIService.DeleteFilter")
@@ -232,9 +232,9 @@ func (a *UserFilterAPIService) DeleteFilterExecute(r ApiDeleteFilterRequest) (*O
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/filter/{filterId}"
+	localVarPath := localBasePath + "/v1/{projectKey}/filter/{filterId}"
 	localVarPath = strings.Replace(localVarPath, "{"+"filterId"+"}", url.PathEscape(parameterValueToString(r.filterId, "filterId")), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -298,7 +298,7 @@ func (a *UserFilterAPIService) DeleteFilterExecute(r ApiDeleteFilterRequest) (*O
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -309,7 +309,7 @@ func (a *UserFilterAPIService) DeleteFilterExecute(r ApiDeleteFilterRequest) (*O
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -320,7 +320,7 @@ func (a *UserFilterAPIService) DeleteFilterExecute(r ApiDeleteFilterRequest) (*O
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -348,12 +348,11 @@ func (a *UserFilterAPIService) DeleteFilterExecute(r ApiDeleteFilterRequest) (*O
 type ApiGetAllFiltersRequest struct {
 	ctx               context.Context
 	ApiService        *UserFilterAPIService
-	projectName       string
+	projectKey        string
 	pagePage          *int32
 	pageSize          *int32
 	pageSort          *string
 	filterEqId        *int32
-	filterEqLocked    *bool
 	filterEqProjectId *int32
 	filterEqOwner     *string
 	filterEqName      *string
@@ -383,12 +382,6 @@ func (r ApiGetAllFiltersRequest) FilterEqId(filterEqId int32) ApiGetAllFiltersRe
 	return r
 }
 
-// Filters by &#39;locked&#39;
-func (r ApiGetAllFiltersRequest) FilterEqLocked(filterEqLocked bool) ApiGetAllFiltersRequest {
-	r.filterEqLocked = &filterEqLocked
-	return r
-}
-
 // Filters by &#39;projectId&#39;
 func (r ApiGetAllFiltersRequest) FilterEqProjectId(filterEqProjectId int32) ApiGetAllFiltersRequest {
 	r.filterEqProjectId = &filterEqProjectId
@@ -407,7 +400,7 @@ func (r ApiGetAllFiltersRequest) FilterEqName(filterEqName string) ApiGetAllFilt
 	return r
 }
 
-func (r ApiGetAllFiltersRequest) Execute() (*PageUserFilterResource, *http.Response, error) {
+func (r ApiGetAllFiltersRequest) Execute() (*ComEpamReportportalBaseModelPageComEpamReportportalBaseModelFilterUserFilterResource, *http.Response, error) {
 	return r.ApiService.GetAllFiltersExecute(r)
 }
 
@@ -415,26 +408,26 @@ func (r ApiGetAllFiltersRequest) Execute() (*PageUserFilterResource, *http.Respo
 GetAllFilters Get filters
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param projectName
+	@param projectKey
 	@return ApiGetAllFiltersRequest
 */
-func (a *UserFilterAPIService) GetAllFilters(ctx context.Context, projectName string) ApiGetAllFiltersRequest {
+func (a *UserFilterAPIService) GetAllFilters(ctx context.Context, projectKey string) ApiGetAllFiltersRequest {
 	return ApiGetAllFiltersRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		projectKey: projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return PageUserFilterResource
-func (a *UserFilterAPIService) GetAllFiltersExecute(r ApiGetAllFiltersRequest) (*PageUserFilterResource, *http.Response, error) {
+//	@return ComEpamReportportalBaseModelPageComEpamReportportalBaseModelFilterUserFilterResource
+func (a *UserFilterAPIService) GetAllFiltersExecute(r ApiGetAllFiltersRequest) (*ComEpamReportportalBaseModelPageComEpamReportportalBaseModelFilterUserFilterResource, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodGet
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *PageUserFilterResource
+		localVarReturnValue *ComEpamReportportalBaseModelPageComEpamReportportalBaseModelFilterUserFilterResource
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "UserFilterAPIService.GetAllFilters")
@@ -442,8 +435,8 @@ func (a *UserFilterAPIService) GetAllFiltersExecute(r ApiGetAllFiltersRequest) (
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/filter"
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath := localBasePath + "/v1/{projectKey}/filter"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -460,9 +453,6 @@ func (a *UserFilterAPIService) GetAllFiltersExecute(r ApiGetAllFiltersRequest) (
 	}
 	if r.filterEqId != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.id", r.filterEqId, "form", "")
-	}
-	if r.filterEqLocked != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.locked", r.filterEqLocked, "form", "")
 	}
 	if r.filterEqProjectId != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.projectId", r.filterEqProjectId, "form", "")
@@ -531,7 +521,7 @@ func (a *UserFilterAPIService) GetAllFiltersExecute(r ApiGetAllFiltersRequest) (
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -542,7 +532,7 @@ func (a *UserFilterAPIService) GetAllFiltersExecute(r ApiGetAllFiltersRequest) (
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -553,7 +543,7 @@ func (a *UserFilterAPIService) GetAllFiltersExecute(r ApiGetAllFiltersRequest) (
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -581,12 +571,11 @@ func (a *UserFilterAPIService) GetAllFiltersExecute(r ApiGetAllFiltersRequest) (
 type ApiGetAllFiltersNamesRequest struct {
 	ctx               context.Context
 	ApiService        *UserFilterAPIService
-	projectName       string
+	projectKey        string
 	pagePage          *int32
 	pageSize          *int32
 	pageSort          *string
 	filterEqId        *int32
-	filterEqLocked    *bool
 	filterEqProjectId *int32
 	filterEqOwner     *string
 	filterEqName      *string
@@ -616,12 +605,6 @@ func (r ApiGetAllFiltersNamesRequest) FilterEqId(filterEqId int32) ApiGetAllFilt
 	return r
 }
 
-// Filters by &#39;locked&#39;
-func (r ApiGetAllFiltersNamesRequest) FilterEqLocked(filterEqLocked bool) ApiGetAllFiltersNamesRequest {
-	r.filterEqLocked = &filterEqLocked
-	return r
-}
-
 // Filters by &#39;projectId&#39;
 func (r ApiGetAllFiltersNamesRequest) FilterEqProjectId(filterEqProjectId int32) ApiGetAllFiltersNamesRequest {
 	r.filterEqProjectId = &filterEqProjectId
@@ -640,7 +623,7 @@ func (r ApiGetAllFiltersNamesRequest) FilterEqName(filterEqName string) ApiGetAl
 	return r
 }
 
-func (r ApiGetAllFiltersNamesRequest) Execute() (*PageOwnedEntityResource, *http.Response, error) {
+func (r ApiGetAllFiltersNamesRequest) Execute() (*ComEpamReportportalBaseModelPageComEpamReportportalBaseModelOwnedEntityResource, *http.Response, error) {
 	return r.ApiService.GetAllFiltersNamesExecute(r)
 }
 
@@ -648,26 +631,26 @@ func (r ApiGetAllFiltersNamesRequest) Execute() (*PageOwnedEntityResource, *http
 GetAllFiltersNames Get available filter names
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param projectName
+	@param projectKey
 	@return ApiGetAllFiltersNamesRequest
 */
-func (a *UserFilterAPIService) GetAllFiltersNames(ctx context.Context, projectName string) ApiGetAllFiltersNamesRequest {
+func (a *UserFilterAPIService) GetAllFiltersNames(ctx context.Context, projectKey string) ApiGetAllFiltersNamesRequest {
 	return ApiGetAllFiltersNamesRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		projectKey: projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return PageOwnedEntityResource
-func (a *UserFilterAPIService) GetAllFiltersNamesExecute(r ApiGetAllFiltersNamesRequest) (*PageOwnedEntityResource, *http.Response, error) {
+//	@return ComEpamReportportalBaseModelPageComEpamReportportalBaseModelOwnedEntityResource
+func (a *UserFilterAPIService) GetAllFiltersNamesExecute(r ApiGetAllFiltersNamesRequest) (*ComEpamReportportalBaseModelPageComEpamReportportalBaseModelOwnedEntityResource, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodGet
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *PageOwnedEntityResource
+		localVarReturnValue *ComEpamReportportalBaseModelPageComEpamReportportalBaseModelOwnedEntityResource
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "UserFilterAPIService.GetAllFiltersNames")
@@ -675,8 +658,8 @@ func (a *UserFilterAPIService) GetAllFiltersNamesExecute(r ApiGetAllFiltersNames
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/filter/names"
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath := localBasePath + "/v1/{projectKey}/filter/names"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -693,9 +676,6 @@ func (a *UserFilterAPIService) GetAllFiltersNamesExecute(r ApiGetAllFiltersNames
 	}
 	if r.filterEqId != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.id", r.filterEqId, "form", "")
-	}
-	if r.filterEqLocked != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.locked", r.filterEqLocked, "form", "")
 	}
 	if r.filterEqProjectId != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.projectId", r.filterEqProjectId, "form", "")
@@ -764,7 +744,7 @@ func (a *UserFilterAPIService) GetAllFiltersNamesExecute(r ApiGetAllFiltersNames
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -775,7 +755,7 @@ func (a *UserFilterAPIService) GetAllFiltersNamesExecute(r ApiGetAllFiltersNames
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -786,7 +766,7 @@ func (a *UserFilterAPIService) GetAllFiltersNamesExecute(r ApiGetAllFiltersNames
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -812,13 +792,13 @@ func (a *UserFilterAPIService) GetAllFiltersNamesExecute(r ApiGetAllFiltersNames
 }
 
 type ApiGetFilterRequest struct {
-	ctx         context.Context
-	ApiService  *UserFilterAPIService
-	filterId    int64
-	projectName string
+	ctx        context.Context
+	ApiService *UserFilterAPIService
+	filterId   int64
+	projectKey string
 }
 
-func (r ApiGetFilterRequest) Execute() (*UserFilterResource, *http.Response, error) {
+func (r ApiGetFilterRequest) Execute() (*ComEpamReportportalBaseModelFilterUserFilterResource, *http.Response, error) {
 	return r.ApiService.GetFilterExecute(r)
 }
 
@@ -827,27 +807,27 @@ GetFilter Get specified user filter by id
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param filterId
-	@param projectName
+	@param projectKey
 	@return ApiGetFilterRequest
 */
-func (a *UserFilterAPIService) GetFilter(ctx context.Context, filterId int64, projectName string) ApiGetFilterRequest {
+func (a *UserFilterAPIService) GetFilter(ctx context.Context, filterId int64, projectKey string) ApiGetFilterRequest {
 	return ApiGetFilterRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		filterId:    filterId,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		filterId:   filterId,
+		projectKey: projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return UserFilterResource
-func (a *UserFilterAPIService) GetFilterExecute(r ApiGetFilterRequest) (*UserFilterResource, *http.Response, error) {
+//	@return ComEpamReportportalBaseModelFilterUserFilterResource
+func (a *UserFilterAPIService) GetFilterExecute(r ApiGetFilterRequest) (*ComEpamReportportalBaseModelFilterUserFilterResource, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodGet
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *UserFilterResource
+		localVarReturnValue *ComEpamReportportalBaseModelFilterUserFilterResource
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "UserFilterAPIService.GetFilter")
@@ -855,9 +835,9 @@ func (a *UserFilterAPIService) GetFilterExecute(r ApiGetFilterRequest) (*UserFil
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/filter/{filterId}"
+	localVarPath := localBasePath + "/v1/{projectKey}/filter/{filterId}"
 	localVarPath = strings.Replace(localVarPath, "{"+"filterId"+"}", url.PathEscape(parameterValueToString(r.filterId, "filterId")), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -921,7 +901,7 @@ func (a *UserFilterAPIService) GetFilterExecute(r ApiGetFilterRequest) (*UserFil
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -932,7 +912,7 @@ func (a *UserFilterAPIService) GetFilterExecute(r ApiGetFilterRequest) (*UserFil
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -943,7 +923,7 @@ func (a *UserFilterAPIService) GetFilterExecute(r ApiGetFilterRequest) (*UserFil
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -969,10 +949,10 @@ func (a *UserFilterAPIService) GetFilterExecute(r ApiGetFilterRequest) (*UserFil
 }
 
 type ApiGetUserFiltersRequest struct {
-	ctx         context.Context
-	ApiService  *UserFilterAPIService
-	ids         *[]int64
-	projectName string
+	ctx        context.Context
+	ApiService *UserFilterAPIService
+	ids        *[]int64
+	projectKey string
 }
 
 func (r ApiGetUserFiltersRequest) Ids(ids []int64) ApiGetUserFiltersRequest {
@@ -980,7 +960,7 @@ func (r ApiGetUserFiltersRequest) Ids(ids []int64) ApiGetUserFiltersRequest {
 	return r
 }
 
-func (r ApiGetUserFiltersRequest) Execute() ([]UserFilterResource, *http.Response, error) {
+func (r ApiGetUserFiltersRequest) Execute() ([]ComEpamReportportalBaseModelFilterUserFilterResource, *http.Response, error) {
 	return r.ApiService.GetUserFiltersExecute(r)
 }
 
@@ -988,26 +968,26 @@ func (r ApiGetUserFiltersRequest) Execute() ([]UserFilterResource, *http.Respons
 GetUserFilters Get list of specified user filters
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param projectName
+	@param projectKey
 	@return ApiGetUserFiltersRequest
 */
-func (a *UserFilterAPIService) GetUserFilters(ctx context.Context, projectName string) ApiGetUserFiltersRequest {
+func (a *UserFilterAPIService) GetUserFilters(ctx context.Context, projectKey string) ApiGetUserFiltersRequest {
 	return ApiGetUserFiltersRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		projectKey: projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return []UserFilterResource
-func (a *UserFilterAPIService) GetUserFiltersExecute(r ApiGetUserFiltersRequest) ([]UserFilterResource, *http.Response, error) {
+//	@return []ComEpamReportportalBaseModelFilterUserFilterResource
+func (a *UserFilterAPIService) GetUserFiltersExecute(r ApiGetUserFiltersRequest) ([]ComEpamReportportalBaseModelFilterUserFilterResource, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodGet
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue []UserFilterResource
+		localVarReturnValue []ComEpamReportportalBaseModelFilterUserFilterResource
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "UserFilterAPIService.GetUserFilters")
@@ -1015,8 +995,8 @@ func (a *UserFilterAPIService) GetUserFiltersExecute(r ApiGetUserFiltersRequest)
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/filter/filters"
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath := localBasePath + "/v1/{projectKey}/filter/filters"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -1094,7 +1074,7 @@ func (a *UserFilterAPIService) GetUserFiltersExecute(r ApiGetUserFiltersRequest)
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1105,7 +1085,7 @@ func (a *UserFilterAPIService) GetUserFiltersExecute(r ApiGetUserFiltersRequest)
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1116,7 +1096,7 @@ func (a *UserFilterAPIService) GetUserFiltersExecute(r ApiGetUserFiltersRequest)
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1142,19 +1122,19 @@ func (a *UserFilterAPIService) GetUserFiltersExecute(r ApiGetUserFiltersRequest)
 }
 
 type ApiUpdateUserFilterRequest struct {
-	ctx                context.Context
-	ApiService         *UserFilterAPIService
-	filterId           int64
-	projectName        string
-	updateUserFilterRQ *UpdateUserFilterRQ
+	ctx                                                  context.Context
+	ApiService                                           *UserFilterAPIService
+	filterId                                             int64
+	projectKey                                           string
+	comEpamReportportalBaseModelFilterUpdateUserFilterRQ *ComEpamReportportalBaseModelFilterUpdateUserFilterRQ
 }
 
-func (r ApiUpdateUserFilterRequest) UpdateUserFilterRQ(updateUserFilterRQ UpdateUserFilterRQ) ApiUpdateUserFilterRequest {
-	r.updateUserFilterRQ = &updateUserFilterRQ
+func (r ApiUpdateUserFilterRequest) ComEpamReportportalBaseModelFilterUpdateUserFilterRQ(comEpamReportportalBaseModelFilterUpdateUserFilterRQ ComEpamReportportalBaseModelFilterUpdateUserFilterRQ) ApiUpdateUserFilterRequest {
+	r.comEpamReportportalBaseModelFilterUpdateUserFilterRQ = &comEpamReportportalBaseModelFilterUpdateUserFilterRQ
 	return r
 }
 
-func (r ApiUpdateUserFilterRequest) Execute() (*OperationCompletionRS, *http.Response, error) {
+func (r ApiUpdateUserFilterRequest) Execute() (*ComEpamReportportalBaseReportingOperationCompletionRS, *http.Response, error) {
 	return r.ApiService.UpdateUserFilterExecute(r)
 }
 
@@ -1163,27 +1143,27 @@ UpdateUserFilter Update specified user filter
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param filterId
-	@param projectName
+	@param projectKey
 	@return ApiUpdateUserFilterRequest
 */
-func (a *UserFilterAPIService) UpdateUserFilter(ctx context.Context, filterId int64, projectName string) ApiUpdateUserFilterRequest {
+func (a *UserFilterAPIService) UpdateUserFilter(ctx context.Context, filterId int64, projectKey string) ApiUpdateUserFilterRequest {
 	return ApiUpdateUserFilterRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		filterId:    filterId,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		filterId:   filterId,
+		projectKey: projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return OperationCompletionRS
-func (a *UserFilterAPIService) UpdateUserFilterExecute(r ApiUpdateUserFilterRequest) (*OperationCompletionRS, *http.Response, error) {
+//	@return ComEpamReportportalBaseReportingOperationCompletionRS
+func (a *UserFilterAPIService) UpdateUserFilterExecute(r ApiUpdateUserFilterRequest) (*ComEpamReportportalBaseReportingOperationCompletionRS, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPut
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *OperationCompletionRS
+		localVarReturnValue *ComEpamReportportalBaseReportingOperationCompletionRS
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "UserFilterAPIService.UpdateUserFilter")
@@ -1191,15 +1171,15 @@ func (a *UserFilterAPIService) UpdateUserFilterExecute(r ApiUpdateUserFilterRequ
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/filter/{filterId}"
+	localVarPath := localBasePath + "/v1/{projectKey}/filter/{filterId}"
 	localVarPath = strings.Replace(localVarPath, "{"+"filterId"+"}", url.PathEscape(parameterValueToString(r.filterId, "filterId")), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
-	if r.updateUserFilterRQ == nil {
-		return localVarReturnValue, nil, reportError("updateUserFilterRQ is required and must be specified")
+	if r.comEpamReportportalBaseModelFilterUpdateUserFilterRQ == nil {
+		return localVarReturnValue, nil, reportError("comEpamReportportalBaseModelFilterUpdateUserFilterRQ is required and must be specified")
 	}
 
 	// to determine the Content-Type header
@@ -1220,7 +1200,7 @@ func (a *UserFilterAPIService) UpdateUserFilterExecute(r ApiUpdateUserFilterRequ
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
 	// body params
-	localVarPostBody = r.updateUserFilterRQ
+	localVarPostBody = r.comEpamReportportalBaseModelFilterUpdateUserFilterRQ
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -1262,7 +1242,7 @@ func (a *UserFilterAPIService) UpdateUserFilterExecute(r ApiUpdateUserFilterRequ
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1273,7 +1253,7 @@ func (a *UserFilterAPIService) UpdateUserFilterExecute(r ApiUpdateUserFilterRequ
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1284,7 +1264,7 @@ func (a *UserFilterAPIService) UpdateUserFilterExecute(r ApiUpdateUserFilterRequ
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1310,18 +1290,18 @@ func (a *UserFilterAPIService) UpdateUserFilterExecute(r ApiUpdateUserFilterRequ
 }
 
 type ApiUpdateUserFiltersRequest struct {
-	ctx                             context.Context
-	ApiService                      *UserFilterAPIService
-	projectName                     string
-	collectionsRQBulkUpdateFilterRQ *CollectionsRQBulkUpdateFilterRQ
+	ctx                                                                                           context.Context
+	ApiService                                                                                    *UserFilterAPIService
+	projectKey                                                                                    string
+	comEpamReportportalBaseModelCollectionsRQComEpamReportportalBaseModelFilterBulkUpdateFilterRQ *ComEpamReportportalBaseModelCollectionsRQComEpamReportportalBaseModelFilterBulkUpdateFilterRQ
 }
 
-func (r ApiUpdateUserFiltersRequest) CollectionsRQBulkUpdateFilterRQ(collectionsRQBulkUpdateFilterRQ CollectionsRQBulkUpdateFilterRQ) ApiUpdateUserFiltersRequest {
-	r.collectionsRQBulkUpdateFilterRQ = &collectionsRQBulkUpdateFilterRQ
+func (r ApiUpdateUserFiltersRequest) ComEpamReportportalBaseModelCollectionsRQComEpamReportportalBaseModelFilterBulkUpdateFilterRQ(comEpamReportportalBaseModelCollectionsRQComEpamReportportalBaseModelFilterBulkUpdateFilterRQ ComEpamReportportalBaseModelCollectionsRQComEpamReportportalBaseModelFilterBulkUpdateFilterRQ) ApiUpdateUserFiltersRequest {
+	r.comEpamReportportalBaseModelCollectionsRQComEpamReportportalBaseModelFilterBulkUpdateFilterRQ = &comEpamReportportalBaseModelCollectionsRQComEpamReportportalBaseModelFilterBulkUpdateFilterRQ
 	return r
 }
 
-func (r ApiUpdateUserFiltersRequest) Execute() ([]OperationCompletionRS, *http.Response, error) {
+func (r ApiUpdateUserFiltersRequest) Execute() ([]ComEpamReportportalBaseReportingOperationCompletionRS, *http.Response, error) {
 	return r.ApiService.UpdateUserFiltersExecute(r)
 }
 
@@ -1329,26 +1309,26 @@ func (r ApiUpdateUserFiltersRequest) Execute() ([]OperationCompletionRS, *http.R
 UpdateUserFilters Update list of user filters
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param projectName
+	@param projectKey
 	@return ApiUpdateUserFiltersRequest
 */
-func (a *UserFilterAPIService) UpdateUserFilters(ctx context.Context, projectName string) ApiUpdateUserFiltersRequest {
+func (a *UserFilterAPIService) UpdateUserFilters(ctx context.Context, projectKey string) ApiUpdateUserFiltersRequest {
 	return ApiUpdateUserFiltersRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		projectKey: projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return []OperationCompletionRS
-func (a *UserFilterAPIService) UpdateUserFiltersExecute(r ApiUpdateUserFiltersRequest) ([]OperationCompletionRS, *http.Response, error) {
+//	@return []ComEpamReportportalBaseReportingOperationCompletionRS
+func (a *UserFilterAPIService) UpdateUserFiltersExecute(r ApiUpdateUserFiltersRequest) ([]ComEpamReportportalBaseReportingOperationCompletionRS, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPut
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue []OperationCompletionRS
+		localVarReturnValue []ComEpamReportportalBaseReportingOperationCompletionRS
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "UserFilterAPIService.UpdateUserFilters")
@@ -1356,14 +1336,14 @@ func (a *UserFilterAPIService) UpdateUserFiltersExecute(r ApiUpdateUserFiltersRe
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/filter"
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath := localBasePath + "/v1/{projectKey}/filter"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
-	if r.collectionsRQBulkUpdateFilterRQ == nil {
-		return localVarReturnValue, nil, reportError("collectionsRQBulkUpdateFilterRQ is required and must be specified")
+	if r.comEpamReportportalBaseModelCollectionsRQComEpamReportportalBaseModelFilterBulkUpdateFilterRQ == nil {
+		return localVarReturnValue, nil, reportError("comEpamReportportalBaseModelCollectionsRQComEpamReportportalBaseModelFilterBulkUpdateFilterRQ is required and must be specified")
 	}
 
 	// to determine the Content-Type header
@@ -1384,7 +1364,7 @@ func (a *UserFilterAPIService) UpdateUserFiltersExecute(r ApiUpdateUserFiltersRe
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
 	// body params
-	localVarPostBody = r.collectionsRQBulkUpdateFilterRQ
+	localVarPostBody = r.comEpamReportportalBaseModelCollectionsRQComEpamReportportalBaseModelFilterBulkUpdateFilterRQ
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -1426,7 +1406,7 @@ func (a *UserFilterAPIService) UpdateUserFiltersExecute(r ApiUpdateUserFiltersRe
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1437,7 +1417,7 @@ func (a *UserFilterAPIService) UpdateUserFiltersExecute(r ApiUpdateUserFiltersRe
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1448,7 +1428,7 @@ func (a *UserFilterAPIService) UpdateUserFiltersExecute(r ApiUpdateUserFiltersRe
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()

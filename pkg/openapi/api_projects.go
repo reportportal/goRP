@@ -3,7 +3,7 @@ ReportPortal
 
 ReportPortal API documentation
 
-API version: 5.15.1
+API version: develop-531
 Contact: support@reportportal.io
 */
 
@@ -24,50 +24,50 @@ import (
 type ProjectsAPIService service
 
 type ApiAddGroupToProjectByIdRequest struct {
-	ctx                          context.Context
-	ApiService                   *ProjectsAPIService
-	groupId                      int64
-	projectName                  string
-	addProjectToGroupByIdRequest *AddProjectToGroupByIdRequest
+	ctx                                                     context.Context
+	ApiService                                              *ProjectsAPIService
+	groupId                                                 int64
+	projectKey                                              string
+	comEpamReportportalApiModelAddProjectToGroupByIdRequest *ComEpamReportportalApiModelAddProjectToGroupByIdRequest
 }
 
-func (r ApiAddGroupToProjectByIdRequest) AddProjectToGroupByIdRequest(addProjectToGroupByIdRequest AddProjectToGroupByIdRequest) ApiAddGroupToProjectByIdRequest {
-	r.addProjectToGroupByIdRequest = &addProjectToGroupByIdRequest
+func (r ApiAddGroupToProjectByIdRequest) ComEpamReportportalApiModelAddProjectToGroupByIdRequest(comEpamReportportalApiModelAddProjectToGroupByIdRequest ComEpamReportportalApiModelAddProjectToGroupByIdRequest) ApiAddGroupToProjectByIdRequest {
+	r.comEpamReportportalApiModelAddProjectToGroupByIdRequest = &comEpamReportportalApiModelAddProjectToGroupByIdRequest
 	return r
 }
 
-func (r ApiAddGroupToProjectByIdRequest) Execute() (*SuccessfulUpdate, *http.Response, error) {
+func (r ApiAddGroupToProjectByIdRequest) Execute() (*ComEpamReportportalApiModelSuccessfulUpdate, *http.Response, error) {
 	return r.ApiService.AddGroupToProjectByIdExecute(r)
 }
 
 /*
 AddGroupToProjectById Add or update group to project
 
-Add or update group to project with permission.  ### Authority  - `ADMINISTRATOR` - `PROJECT MANAGER`
+Add or update group to project with permission.  ### Authority  - `ADMINISTRATOR` - `EDITOR`
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param groupId Group identifier.
-	@param projectName Project name.
+	@param projectKey Project key.
 	@return ApiAddGroupToProjectByIdRequest
 */
-func (a *ProjectsAPIService) AddGroupToProjectById(ctx context.Context, groupId int64, projectName string) ApiAddGroupToProjectByIdRequest {
+func (a *ProjectsAPIService) AddGroupToProjectById(ctx context.Context, groupId int64, projectKey string) ApiAddGroupToProjectByIdRequest {
 	return ApiAddGroupToProjectByIdRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		groupId:     groupId,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		groupId:    groupId,
+		projectKey: projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return SuccessfulUpdate
-func (a *ProjectsAPIService) AddGroupToProjectByIdExecute(r ApiAddGroupToProjectByIdRequest) (*SuccessfulUpdate, *http.Response, error) {
+//	@return ComEpamReportportalApiModelSuccessfulUpdate
+func (a *ProjectsAPIService) AddGroupToProjectByIdExecute(r ApiAddGroupToProjectByIdRequest) (*ComEpamReportportalApiModelSuccessfulUpdate, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPut
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *SuccessfulUpdate
+		localVarReturnValue *ComEpamReportportalApiModelSuccessfulUpdate
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ProjectsAPIService.AddGroupToProjectById")
@@ -75,9 +75,9 @@ func (a *ProjectsAPIService) AddGroupToProjectByIdExecute(r ApiAddGroupToProject
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/projects/{project_name}/groups/{group_id}"
+	localVarPath := localBasePath + "/projects/{project_key}/groups/{group_id}"
 	localVarPath = strings.Replace(localVarPath, "{"+"group_id"+"}", url.PathEscape(parameterValueToString(r.groupId, "groupId")), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"project_name"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"project_key"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -104,7 +104,7 @@ func (a *ProjectsAPIService) AddGroupToProjectByIdExecute(r ApiAddGroupToProject
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
 	// body params
-	localVarPostBody = r.addProjectToGroupByIdRequest
+	localVarPostBody = r.comEpamReportportalApiModelAddProjectToGroupByIdRequest
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -146,7 +146,7 @@ func (a *ProjectsAPIService) AddGroupToProjectByIdExecute(r ApiAddGroupToProject
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -217,7 +217,7 @@ func (a *ProjectsAPIService) AddGroupToProjectByIdExecute(r ApiAddGroupToProject
 type ApiCreateLogTypeRequest struct {
 	ctx            context.Context
 	ApiService     *ProjectsAPIService
-	projectName    string
+	projectKey     string
 	logTypeRequest *LogTypeRequest
 }
 
@@ -233,17 +233,17 @@ func (r ApiCreateLogTypeRequest) Execute() (*LogTypeResponse, *http.Response, er
 /*
 CreateLogType Create new log type
 
-Create new log type in project.  ### Authority  - `ADMINISTRATOR` - `PROJECT MANAGER`
+Create new log type in project.  ### Authority  - `ADMINISTRATOR` - `EDITOR`
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param projectName Project name.
+	@param projectKey Project key.
 	@return ApiCreateLogTypeRequest
 */
-func (a *ProjectsAPIService) CreateLogType(ctx context.Context, projectName string) ApiCreateLogTypeRequest {
+func (a *ProjectsAPIService) CreateLogType(ctx context.Context, projectKey string) ApiCreateLogTypeRequest {
 	return ApiCreateLogTypeRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		projectKey: projectKey,
 	}
 }
 
@@ -263,8 +263,8 @@ func (a *ProjectsAPIService) CreateLogTypeExecute(r ApiCreateLogTypeRequest) (*L
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/projects/{project_name}/log-types"
-	localVarPath = strings.Replace(localVarPath, "{"+"project_name"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath := localBasePath + "/projects/{project_key}/log-types"
+	localVarPath = strings.Replace(localVarPath, "{"+"project_key"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -333,7 +333,7 @@ func (a *ProjectsAPIService) CreateLogTypeExecute(r ApiCreateLogTypeRequest) (*L
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -402,10 +402,10 @@ func (a *ProjectsAPIService) CreateLogTypeExecute(r ApiCreateLogTypeRequest) (*L
 }
 
 type ApiDeleteGroupFromProjectByIdRequest struct {
-	ctx         context.Context
-	ApiService  *ProjectsAPIService
-	groupId     int64
-	projectName string
+	ctx        context.Context
+	ApiService *ProjectsAPIService
+	groupId    int64
+	projectKey string
 }
 
 func (r ApiDeleteGroupFromProjectByIdRequest) Execute() (*http.Response, error) {
@@ -415,19 +415,19 @@ func (r ApiDeleteGroupFromProjectByIdRequest) Execute() (*http.Response, error) 
 /*
 DeleteGroupFromProjectById Delete group from project by id
 
-Delete group from project by id.  ### Authority  - `ADMINISTRATOR` - `PROJECT MANAGER`
+Delete group from project by id.  ### Authority  - `ADMINISTRATOR` - `EDITOR`
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param groupId Group identifier.
-	@param projectName Project name.
+	@param projectKey Project key.
 	@return ApiDeleteGroupFromProjectByIdRequest
 */
-func (a *ProjectsAPIService) DeleteGroupFromProjectById(ctx context.Context, groupId int64, projectName string) ApiDeleteGroupFromProjectByIdRequest {
+func (a *ProjectsAPIService) DeleteGroupFromProjectById(ctx context.Context, groupId int64, projectKey string) ApiDeleteGroupFromProjectByIdRequest {
 	return ApiDeleteGroupFromProjectByIdRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		groupId:     groupId,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		groupId:    groupId,
+		projectKey: projectKey,
 	}
 }
 
@@ -444,9 +444,9 @@ func (a *ProjectsAPIService) DeleteGroupFromProjectByIdExecute(r ApiDeleteGroupF
 		return nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/projects/{project_name}/groups/{group_id}"
+	localVarPath := localBasePath + "/projects/{project_key}/groups/{group_id}"
 	localVarPath = strings.Replace(localVarPath, "{"+"group_id"+"}", url.PathEscape(parameterValueToString(r.groupId, "groupId")), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"project_name"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"project_key"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -513,7 +513,7 @@ func (a *ProjectsAPIService) DeleteGroupFromProjectByIdExecute(r ApiDeleteGroupF
 			return localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -573,10 +573,10 @@ func (a *ProjectsAPIService) DeleteGroupFromProjectByIdExecute(r ApiDeleteGroupF
 }
 
 type ApiDeleteLogTypeByIdRequest struct {
-	ctx         context.Context
-	ApiService  *ProjectsAPIService
-	logTypeId   int64
-	projectName string
+	ctx        context.Context
+	ApiService *ProjectsAPIService
+	logTypeId  int64
+	projectKey string
 }
 
 func (r ApiDeleteLogTypeByIdRequest) Execute() (*http.Response, error) {
@@ -586,19 +586,19 @@ func (r ApiDeleteLogTypeByIdRequest) Execute() (*http.Response, error) {
 /*
 DeleteLogTypeById Delete log type
 
-Delete log type from project by id.  ### Authority  - `ADMINISTRATOR` - `PROJECT MANAGER`
+Delete log type from project by id.  ### Authority  - `ADMINISTRATOR` - `EDITOR`
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param logTypeId Log type identifier.
-	@param projectName Project name.
+	@param projectKey Project key.
 	@return ApiDeleteLogTypeByIdRequest
 */
-func (a *ProjectsAPIService) DeleteLogTypeById(ctx context.Context, logTypeId int64, projectName string) ApiDeleteLogTypeByIdRequest {
+func (a *ProjectsAPIService) DeleteLogTypeById(ctx context.Context, logTypeId int64, projectKey string) ApiDeleteLogTypeByIdRequest {
 	return ApiDeleteLogTypeByIdRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		logTypeId:   logTypeId,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		logTypeId:  logTypeId,
+		projectKey: projectKey,
 	}
 }
 
@@ -615,9 +615,9 @@ func (a *ProjectsAPIService) DeleteLogTypeByIdExecute(r ApiDeleteLogTypeByIdRequ
 		return nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/projects/{project_name}/log-types/{log_type_id}"
+	localVarPath := localBasePath + "/projects/{project_key}/log-types/{log_type_id}"
 	localVarPath = strings.Replace(localVarPath, "{"+"log_type_id"+"}", url.PathEscape(parameterValueToString(r.logTypeId, "logTypeId")), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"project_name"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"project_key"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -684,7 +684,7 @@ func (a *ProjectsAPIService) DeleteLogTypeByIdExecute(r ApiDeleteLogTypeByIdRequ
 			return localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -744,11 +744,11 @@ func (a *ProjectsAPIService) DeleteLogTypeByIdExecute(r ApiDeleteLogTypeByIdRequ
 }
 
 type ApiGetGroupsOfProjectRequest struct {
-	ctx         context.Context
-	ApiService  *ProjectsAPIService
-	projectName string
-	limit       *int32
-	offset      *int32
+	ctx        context.Context
+	ApiService *ProjectsAPIService
+	projectKey string
+	limit      *int32
+	offset     *int32
 }
 
 // The limit used for this page of results. This will be the same as the limit query parameter unless it exceeded the maximum value allowed for this API endpoint.
@@ -763,36 +763,36 @@ func (r ApiGetGroupsOfProjectRequest) Offset(offset int32) ApiGetGroupsOfProject
 	return r
 }
 
-func (r ApiGetGroupsOfProjectRequest) Execute() (*ProjectGroupsPage, *http.Response, error) {
+func (r ApiGetGroupsOfProjectRequest) Execute() (*ComEpamReportportalApiModelProjectGroupsPage, *http.Response, error) {
 	return r.ApiService.GetGroupsOfProjectExecute(r)
 }
 
 /*
 GetGroupsOfProject Get all groups of project
 
-Get all groups of project.  ### Authority  - `ADMINISTRATOR` - `PROJECT MANAGER` - `MEMBER` - `OPERATOR`
+Get all groups of project.  ### Authority  - `ADMINISTRATOR` - `EDITOR` - `VIEWER`
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param projectName Project name.
+	@param projectKey Project key.
 	@return ApiGetGroupsOfProjectRequest
 */
-func (a *ProjectsAPIService) GetGroupsOfProject(ctx context.Context, projectName string) ApiGetGroupsOfProjectRequest {
+func (a *ProjectsAPIService) GetGroupsOfProject(ctx context.Context, projectKey string) ApiGetGroupsOfProjectRequest {
 	return ApiGetGroupsOfProjectRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		projectKey: projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return ProjectGroupsPage
-func (a *ProjectsAPIService) GetGroupsOfProjectExecute(r ApiGetGroupsOfProjectRequest) (*ProjectGroupsPage, *http.Response, error) {
+//	@return ComEpamReportportalApiModelProjectGroupsPage
+func (a *ProjectsAPIService) GetGroupsOfProjectExecute(r ApiGetGroupsOfProjectRequest) (*ComEpamReportportalApiModelProjectGroupsPage, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodGet
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *ProjectGroupsPage
+		localVarReturnValue *ComEpamReportportalApiModelProjectGroupsPage
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ProjectsAPIService.GetGroupsOfProject")
@@ -800,8 +800,8 @@ func (a *ProjectsAPIService) GetGroupsOfProjectExecute(r ApiGetGroupsOfProjectRe
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/projects/{project_name}/groups"
-	localVarPath = strings.Replace(localVarPath, "{"+"project_name"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath := localBasePath + "/projects/{project_key}/groups"
+	localVarPath = strings.Replace(localVarPath, "{"+"project_key"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -879,7 +879,7 @@ func (a *ProjectsAPIService) GetGroupsOfProjectExecute(r ApiGetGroupsOfProjectRe
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -948,41 +948,41 @@ func (a *ProjectsAPIService) GetGroupsOfProjectExecute(r ApiGetGroupsOfProjectRe
 }
 
 type ApiGetLogTypesRequest struct {
-	ctx         context.Context
-	ApiService  *ProjectsAPIService
-	projectName string
+	ctx        context.Context
+	ApiService *ProjectsAPIService
+	projectKey string
 }
 
-func (r ApiGetLogTypesRequest) Execute() (*GetLogTypes200Response, *http.Response, error) {
+func (r ApiGetLogTypesRequest) Execute() (*ComEpamReportportalApiModelGetLogTypes200Response, *http.Response, error) {
 	return r.ApiService.GetLogTypesExecute(r)
 }
 
 /*
 GetLogTypes Get log types of project
 
-Get log types of project.  ### Authority  - `ADMINISTRATOR` - `PROJECT MANAGER` - `MEMBER` - `OPERATOR` - `CUSTOMER`
+Get log types of project.  ### Authority  - `ADMINISTRATOR` - `EDITOR` - `VIEWER`
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param projectName Project name.
+	@param projectKey Project key.
 	@return ApiGetLogTypesRequest
 */
-func (a *ProjectsAPIService) GetLogTypes(ctx context.Context, projectName string) ApiGetLogTypesRequest {
+func (a *ProjectsAPIService) GetLogTypes(ctx context.Context, projectKey string) ApiGetLogTypesRequest {
 	return ApiGetLogTypesRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		projectKey: projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return GetLogTypes200Response
-func (a *ProjectsAPIService) GetLogTypesExecute(r ApiGetLogTypesRequest) (*GetLogTypes200Response, *http.Response, error) {
+//	@return ComEpamReportportalApiModelGetLogTypes200Response
+func (a *ProjectsAPIService) GetLogTypesExecute(r ApiGetLogTypesRequest) (*ComEpamReportportalApiModelGetLogTypes200Response, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodGet
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *GetLogTypes200Response
+		localVarReturnValue *ComEpamReportportalApiModelGetLogTypes200Response
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ProjectsAPIService.GetLogTypes")
@@ -990,8 +990,8 @@ func (a *ProjectsAPIService) GetLogTypesExecute(r ApiGetLogTypesRequest) (*GetLo
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/projects/{project_name}/log-types"
-	localVarPath = strings.Replace(localVarPath, "{"+"project_name"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath := localBasePath + "/projects/{project_key}/log-types"
+	localVarPath = strings.Replace(localVarPath, "{"+"project_key"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -1055,7 +1055,7 @@ func (a *ProjectsAPIService) GetLogTypesExecute(r ApiGetLogTypesRequest) (*GetLo
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1124,10 +1124,10 @@ func (a *ProjectsAPIService) GetLogTypesExecute(r ApiGetLogTypesRequest) (*GetLo
 }
 
 type ApiGetProjectGroupByIdRequest struct {
-	ctx         context.Context
-	ApiService  *ProjectsAPIService
-	groupId     int64
-	projectName string
+	ctx        context.Context
+	ApiService *ProjectsAPIService
+	groupId    int64
+	projectKey string
 }
 
 func (r ApiGetProjectGroupByIdRequest) Execute() (*ProjectGroupInfo, *http.Response, error) {
@@ -1137,19 +1137,19 @@ func (r ApiGetProjectGroupByIdRequest) Execute() (*ProjectGroupInfo, *http.Respo
 /*
 GetProjectGroupById Get group by id
 
-Get group by id from project.  ### Authority  - `ADMINISTRATOR` - `PROJECT MANAGER`
+Get group by id from project.  ### Authority  - `ADMINISTRATOR` - `EDITOR` - `VIEWER`
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param groupId Group identifier.
-	@param projectName Project name.
+	@param projectKey Project key.
 	@return ApiGetProjectGroupByIdRequest
 */
-func (a *ProjectsAPIService) GetProjectGroupById(ctx context.Context, groupId int64, projectName string) ApiGetProjectGroupByIdRequest {
+func (a *ProjectsAPIService) GetProjectGroupById(ctx context.Context, groupId int64, projectKey string) ApiGetProjectGroupByIdRequest {
 	return ApiGetProjectGroupByIdRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		groupId:     groupId,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		groupId:    groupId,
+		projectKey: projectKey,
 	}
 }
 
@@ -1169,9 +1169,9 @@ func (a *ProjectsAPIService) GetProjectGroupByIdExecute(r ApiGetProjectGroupById
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/projects/{project_name}/groups/{group_id}"
+	localVarPath := localBasePath + "/projects/{project_key}/groups/{group_id}"
 	localVarPath = strings.Replace(localVarPath, "{"+"group_id"+"}", url.PathEscape(parameterValueToString(r.groupId, "groupId")), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"project_name"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"project_key"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -1238,7 +1238,7 @@ func (a *ProjectsAPIService) GetProjectGroupByIdExecute(r ApiGetProjectGroupById
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1310,7 +1310,7 @@ type ApiUpdateLogTypeByIdRequest struct {
 	ctx            context.Context
 	ApiService     *ProjectsAPIService
 	logTypeId      int64
-	projectName    string
+	projectKey     string
 	logTypeRequest *LogTypeRequest
 }
 
@@ -1319,38 +1319,38 @@ func (r ApiUpdateLogTypeByIdRequest) LogTypeRequest(logTypeRequest LogTypeReques
 	return r
 }
 
-func (r ApiUpdateLogTypeByIdRequest) Execute() (*SuccessfulUpdate, *http.Response, error) {
+func (r ApiUpdateLogTypeByIdRequest) Execute() (*ComEpamReportportalApiModelSuccessfulUpdate, *http.Response, error) {
 	return r.ApiService.UpdateLogTypeByIdExecute(r)
 }
 
 /*
 UpdateLogTypeById Update log type
 
-Update log type in project by id.  ### Authority  - `ADMINISTRATOR` - `PROJECT MANAGER`
+Update log type in project by id.  ### Authority  - `ADMINISTRATOR` - `EDITOR`
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param logTypeId Log type identifier.
-	@param projectName Project name.
+	@param projectKey Project key.
 	@return ApiUpdateLogTypeByIdRequest
 */
-func (a *ProjectsAPIService) UpdateLogTypeById(ctx context.Context, logTypeId int64, projectName string) ApiUpdateLogTypeByIdRequest {
+func (a *ProjectsAPIService) UpdateLogTypeById(ctx context.Context, logTypeId int64, projectKey string) ApiUpdateLogTypeByIdRequest {
 	return ApiUpdateLogTypeByIdRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		logTypeId:   logTypeId,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		logTypeId:  logTypeId,
+		projectKey: projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return SuccessfulUpdate
-func (a *ProjectsAPIService) UpdateLogTypeByIdExecute(r ApiUpdateLogTypeByIdRequest) (*SuccessfulUpdate, *http.Response, error) {
+//	@return ComEpamReportportalApiModelSuccessfulUpdate
+func (a *ProjectsAPIService) UpdateLogTypeByIdExecute(r ApiUpdateLogTypeByIdRequest) (*ComEpamReportportalApiModelSuccessfulUpdate, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPut
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *SuccessfulUpdate
+		localVarReturnValue *ComEpamReportportalApiModelSuccessfulUpdate
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ProjectsAPIService.UpdateLogTypeById")
@@ -1358,9 +1358,9 @@ func (a *ProjectsAPIService) UpdateLogTypeByIdExecute(r ApiUpdateLogTypeByIdRequ
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/projects/{project_name}/log-types/{log_type_id}"
+	localVarPath := localBasePath + "/projects/{project_key}/log-types/{log_type_id}"
 	localVarPath = strings.Replace(localVarPath, "{"+"log_type_id"+"}", url.PathEscape(parameterValueToString(r.logTypeId, "logTypeId")), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"project_name"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"project_key"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -1432,7 +1432,7 @@ func (a *ProjectsAPIService) UpdateLogTypeByIdExecute(r ApiUpdateLogTypeByIdRequ
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()

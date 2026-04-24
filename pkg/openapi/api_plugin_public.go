@@ -3,7 +3,7 @@ ReportPortal
 
 ReportPortal API documentation
 
-API version: 5.15.1
+API version: develop-531
 Contact: support@reportportal.io
 */
 
@@ -144,7 +144,7 @@ func (a *PluginPublicAPIService) ExecutePublicPluginCommandExecute(r ApiExecuteP
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -155,7 +155,7 @@ func (a *PluginPublicAPIService) ExecutePublicPluginCommandExecute(r ApiExecuteP
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -166,7 +166,7 @@ func (a *PluginPublicAPIService) ExecutePublicPluginCommandExecute(r ApiExecuteP
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -196,7 +196,7 @@ type ApiGetPlugins1Request struct {
 	ApiService *PluginPublicAPIService
 }
 
-func (r ApiGetPlugins1Request) Execute() ([]IntegrationTypeResource, *http.Response, error) {
+func (r ApiGetPlugins1Request) Execute() ([]ComEpamReportportalBaseModelIntegrationIntegrationTypeResource, *http.Response, error) {
 	return r.ApiService.GetPlugins1Execute(r)
 }
 
@@ -215,13 +215,13 @@ func (a *PluginPublicAPIService) GetPlugins1(ctx context.Context) ApiGetPlugins1
 
 // Execute executes the request
 //
-//	@return []IntegrationTypeResource
-func (a *PluginPublicAPIService) GetPlugins1Execute(r ApiGetPlugins1Request) ([]IntegrationTypeResource, *http.Response, error) {
+//	@return []ComEpamReportportalBaseModelIntegrationIntegrationTypeResource
+func (a *PluginPublicAPIService) GetPlugins1Execute(r ApiGetPlugins1Request) ([]ComEpamReportportalBaseModelIntegrationIntegrationTypeResource, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodGet
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue []IntegrationTypeResource
+		localVarReturnValue []ComEpamReportportalBaseModelIntegrationIntegrationTypeResource
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "PluginPublicAPIService.GetPlugins1")
@@ -293,7 +293,7 @@ func (a *PluginPublicAPIService) GetPlugins1Execute(r ApiGetPlugins1Request) ([]
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -304,7 +304,7 @@ func (a *PluginPublicAPIService) GetPlugins1Execute(r ApiGetPlugins1Request) ([]
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -315,7 +315,7 @@ func (a *PluginPublicAPIService) GetPlugins1Execute(r ApiGetPlugins1Request) ([]
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -447,7 +447,7 @@ func (a *PluginPublicAPIService) GetPublicFileExecute(r ApiGetPublicFileRequest)
 			return localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -458,7 +458,7 @@ func (a *PluginPublicAPIService) GetPublicFileExecute(r ApiGetPublicFileRequest)
 			return localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -469,7 +469,7 @@ func (a *PluginPublicAPIService) GetPublicFileExecute(r ApiGetPublicFileRequest)
 			return localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()

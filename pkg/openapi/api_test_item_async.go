@@ -3,7 +3,7 @@ ReportPortal
 
 ReportPortal API documentation
 
-API version: 5.15.1
+API version: develop-531
 Contact: support@reportportal.io
 */
 
@@ -24,19 +24,19 @@ import (
 type TestItemAsyncAPIService service
 
 type ApiFinishTestItemRequest struct {
-	ctx              context.Context
-	ApiService       *TestItemAsyncAPIService
-	projectName      string
-	testItemId       string
-	finishTestItemRQ *FinishTestItemRQ
+	ctx                                              context.Context
+	ApiService                                       *TestItemAsyncAPIService
+	projectKey                                       string
+	testItemId                                       string
+	comEpamReportportalBaseReportingFinishTestItemRQ *ComEpamReportportalBaseReportingFinishTestItemRQ
 }
 
-func (r ApiFinishTestItemRequest) FinishTestItemRQ(finishTestItemRQ FinishTestItemRQ) ApiFinishTestItemRequest {
-	r.finishTestItemRQ = &finishTestItemRQ
+func (r ApiFinishTestItemRequest) ComEpamReportportalBaseReportingFinishTestItemRQ(comEpamReportportalBaseReportingFinishTestItemRQ ComEpamReportportalBaseReportingFinishTestItemRQ) ApiFinishTestItemRequest {
+	r.comEpamReportportalBaseReportingFinishTestItemRQ = &comEpamReportportalBaseReportingFinishTestItemRQ
 	return r
 }
 
-func (r ApiFinishTestItemRequest) Execute() (*OperationCompletionRS, *http.Response, error) {
+func (r ApiFinishTestItemRequest) Execute() (*ComEpamReportportalBaseReportingOperationCompletionRS, *http.Response, error) {
 	return r.ApiService.FinishTestItemExecute(r)
 }
 
@@ -46,28 +46,28 @@ FinishTestItem Finish Test Item
 Finish test item
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param projectName
+	@param projectKey
 	@param testItemId
 	@return ApiFinishTestItemRequest
 */
-func (a *TestItemAsyncAPIService) FinishTestItem(ctx context.Context, projectName string, testItemId string) ApiFinishTestItemRequest {
+func (a *TestItemAsyncAPIService) FinishTestItem(ctx context.Context, projectKey string, testItemId string) ApiFinishTestItemRequest {
 	return ApiFinishTestItemRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		projectName: projectName,
-		testItemId:  testItemId,
+		ApiService: a,
+		ctx:        ctx,
+		projectKey: projectKey,
+		testItemId: testItemId,
 	}
 }
 
 // Execute executes the request
 //
-//	@return OperationCompletionRS
-func (a *TestItemAsyncAPIService) FinishTestItemExecute(r ApiFinishTestItemRequest) (*OperationCompletionRS, *http.Response, error) {
+//	@return ComEpamReportportalBaseReportingOperationCompletionRS
+func (a *TestItemAsyncAPIService) FinishTestItemExecute(r ApiFinishTestItemRequest) (*ComEpamReportportalBaseReportingOperationCompletionRS, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPut
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *OperationCompletionRS
+		localVarReturnValue *ComEpamReportportalBaseReportingOperationCompletionRS
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "TestItemAsyncAPIService.FinishTestItem")
@@ -75,15 +75,15 @@ func (a *TestItemAsyncAPIService) FinishTestItemExecute(r ApiFinishTestItemReque
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v2/{projectName}/item/{testItemId}"
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath := localBasePath + "/v2/{projectKey}/item/{testItemId}"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"testItemId"+"}", url.PathEscape(parameterValueToString(r.testItemId, "testItemId")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
-	if r.finishTestItemRQ == nil {
-		return localVarReturnValue, nil, reportError("finishTestItemRQ is required and must be specified")
+	if r.comEpamReportportalBaseReportingFinishTestItemRQ == nil {
+		return localVarReturnValue, nil, reportError("comEpamReportportalBaseReportingFinishTestItemRQ is required and must be specified")
 	}
 
 	// to determine the Content-Type header
@@ -104,7 +104,7 @@ func (a *TestItemAsyncAPIService) FinishTestItemExecute(r ApiFinishTestItemReque
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
 	// body params
-	localVarPostBody = r.finishTestItemRQ
+	localVarPostBody = r.comEpamReportportalBaseReportingFinishTestItemRQ
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -146,7 +146,7 @@ func (a *TestItemAsyncAPIService) FinishTestItemExecute(r ApiFinishTestItemReque
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -157,7 +157,7 @@ func (a *TestItemAsyncAPIService) FinishTestItemExecute(r ApiFinishTestItemReque
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -168,7 +168,7 @@ func (a *TestItemAsyncAPIService) FinishTestItemExecute(r ApiFinishTestItemReque
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -194,19 +194,19 @@ func (a *TestItemAsyncAPIService) FinishTestItemExecute(r ApiFinishTestItemReque
 }
 
 type ApiFinishTestItem1Request struct {
-	ctx              context.Context
-	ApiService       *TestItemAsyncAPIService
-	projectName      string
-	testItemId       string
-	finishTestItemRQ *FinishTestItemRQ
+	ctx                                              context.Context
+	ApiService                                       *TestItemAsyncAPIService
+	projectKey                                       string
+	testItemId                                       string
+	comEpamReportportalBaseReportingFinishTestItemRQ *ComEpamReportportalBaseReportingFinishTestItemRQ
 }
 
-func (r ApiFinishTestItem1Request) FinishTestItemRQ(finishTestItemRQ FinishTestItemRQ) ApiFinishTestItem1Request {
-	r.finishTestItemRQ = &finishTestItemRQ
+func (r ApiFinishTestItem1Request) ComEpamReportportalBaseReportingFinishTestItemRQ(comEpamReportportalBaseReportingFinishTestItemRQ ComEpamReportportalBaseReportingFinishTestItemRQ) ApiFinishTestItem1Request {
+	r.comEpamReportportalBaseReportingFinishTestItemRQ = &comEpamReportportalBaseReportingFinishTestItemRQ
 	return r
 }
 
-func (r ApiFinishTestItem1Request) Execute() (*OperationCompletionRS, *http.Response, error) {
+func (r ApiFinishTestItem1Request) Execute() (*ComEpamReportportalBaseReportingOperationCompletionRS, *http.Response, error) {
 	return r.ApiService.FinishTestItem1Execute(r)
 }
 
@@ -216,28 +216,28 @@ FinishTestItem1 Finish Test Item
 Finish test item
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param projectName
+	@param projectKey
 	@param testItemId
 	@return ApiFinishTestItem1Request
 */
-func (a *TestItemAsyncAPIService) FinishTestItem1(ctx context.Context, projectName string, testItemId string) ApiFinishTestItem1Request {
+func (a *TestItemAsyncAPIService) FinishTestItem1(ctx context.Context, projectKey string, testItemId string) ApiFinishTestItem1Request {
 	return ApiFinishTestItem1Request{
-		ApiService:  a,
-		ctx:         ctx,
-		projectName: projectName,
-		testItemId:  testItemId,
+		ApiService: a,
+		ctx:        ctx,
+		projectKey: projectKey,
+		testItemId: testItemId,
 	}
 }
 
 // Execute executes the request
 //
-//	@return OperationCompletionRS
-func (a *TestItemAsyncAPIService) FinishTestItem1Execute(r ApiFinishTestItem1Request) (*OperationCompletionRS, *http.Response, error) {
+//	@return ComEpamReportportalBaseReportingOperationCompletionRS
+func (a *TestItemAsyncAPIService) FinishTestItem1Execute(r ApiFinishTestItem1Request) (*ComEpamReportportalBaseReportingOperationCompletionRS, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPut
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *OperationCompletionRS
+		localVarReturnValue *ComEpamReportportalBaseReportingOperationCompletionRS
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "TestItemAsyncAPIService.FinishTestItem1")
@@ -245,15 +245,15 @@ func (a *TestItemAsyncAPIService) FinishTestItem1Execute(r ApiFinishTestItem1Req
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v2/{projectName}/item/{testItemId}/"
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath := localBasePath + "/v2/{projectKey}/item/{testItemId}/"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"testItemId"+"}", url.PathEscape(parameterValueToString(r.testItemId, "testItemId")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
-	if r.finishTestItemRQ == nil {
-		return localVarReturnValue, nil, reportError("finishTestItemRQ is required and must be specified")
+	if r.comEpamReportportalBaseReportingFinishTestItemRQ == nil {
+		return localVarReturnValue, nil, reportError("comEpamReportportalBaseReportingFinishTestItemRQ is required and must be specified")
 	}
 
 	// to determine the Content-Type header
@@ -274,7 +274,7 @@ func (a *TestItemAsyncAPIService) FinishTestItem1Execute(r ApiFinishTestItem1Req
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
 	// body params
-	localVarPostBody = r.finishTestItemRQ
+	localVarPostBody = r.comEpamReportportalBaseReportingFinishTestItemRQ
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -316,7 +316,7 @@ func (a *TestItemAsyncAPIService) FinishTestItem1Execute(r ApiFinishTestItem1Req
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -327,7 +327,7 @@ func (a *TestItemAsyncAPIService) FinishTestItem1Execute(r ApiFinishTestItem1Req
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -338,7 +338,7 @@ func (a *TestItemAsyncAPIService) FinishTestItem1Execute(r ApiFinishTestItem1Req
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -364,19 +364,19 @@ func (a *TestItemAsyncAPIService) FinishTestItem1Execute(r ApiFinishTestItem1Req
 }
 
 type ApiStartChildItemRequest struct {
-	ctx             context.Context
-	ApiService      *TestItemAsyncAPIService
-	parentItem      string
-	projectName     string
-	startTestItemRQ *StartTestItemRQ
+	ctx                                             context.Context
+	ApiService                                      *TestItemAsyncAPIService
+	parentItem                                      string
+	projectKey                                      string
+	comEpamReportportalBaseReportingStartTestItemRQ *ComEpamReportportalBaseReportingStartTestItemRQ
 }
 
-func (r ApiStartChildItemRequest) StartTestItemRQ(startTestItemRQ StartTestItemRQ) ApiStartChildItemRequest {
-	r.startTestItemRQ = &startTestItemRQ
+func (r ApiStartChildItemRequest) ComEpamReportportalBaseReportingStartTestItemRQ(comEpamReportportalBaseReportingStartTestItemRQ ComEpamReportportalBaseReportingStartTestItemRQ) ApiStartChildItemRequest {
+	r.comEpamReportportalBaseReportingStartTestItemRQ = &comEpamReportportalBaseReportingStartTestItemRQ
 	return r
 }
 
-func (r ApiStartChildItemRequest) Execute() (*EntryCreatedAsyncRS, *http.Response, error) {
+func (r ApiStartChildItemRequest) Execute() (*ComEpamReportportalBaseReportingEntryCreatedAsyncRS, *http.Response, error) {
 	return r.ApiService.StartChildItemExecute(r)
 }
 
@@ -387,27 +387,27 @@ Start a child test item
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param parentItem
-	@param projectName
+	@param projectKey
 	@return ApiStartChildItemRequest
 */
-func (a *TestItemAsyncAPIService) StartChildItem(ctx context.Context, parentItem string, projectName string) ApiStartChildItemRequest {
+func (a *TestItemAsyncAPIService) StartChildItem(ctx context.Context, parentItem string, projectKey string) ApiStartChildItemRequest {
 	return ApiStartChildItemRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		parentItem:  parentItem,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		parentItem: parentItem,
+		projectKey: projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return EntryCreatedAsyncRS
-func (a *TestItemAsyncAPIService) StartChildItemExecute(r ApiStartChildItemRequest) (*EntryCreatedAsyncRS, *http.Response, error) {
+//	@return ComEpamReportportalBaseReportingEntryCreatedAsyncRS
+func (a *TestItemAsyncAPIService) StartChildItemExecute(r ApiStartChildItemRequest) (*ComEpamReportportalBaseReportingEntryCreatedAsyncRS, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPost
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *EntryCreatedAsyncRS
+		localVarReturnValue *ComEpamReportportalBaseReportingEntryCreatedAsyncRS
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "TestItemAsyncAPIService.StartChildItem")
@@ -415,15 +415,15 @@ func (a *TestItemAsyncAPIService) StartChildItemExecute(r ApiStartChildItemReque
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v2/{projectName}/item/{parentItem}"
+	localVarPath := localBasePath + "/v2/{projectKey}/item/{parentItem}"
 	localVarPath = strings.Replace(localVarPath, "{"+"parentItem"+"}", url.PathEscape(parameterValueToString(r.parentItem, "parentItem")), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
-	if r.startTestItemRQ == nil {
-		return localVarReturnValue, nil, reportError("startTestItemRQ is required and must be specified")
+	if r.comEpamReportportalBaseReportingStartTestItemRQ == nil {
+		return localVarReturnValue, nil, reportError("comEpamReportportalBaseReportingStartTestItemRQ is required and must be specified")
 	}
 
 	// to determine the Content-Type header
@@ -444,7 +444,7 @@ func (a *TestItemAsyncAPIService) StartChildItemExecute(r ApiStartChildItemReque
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
 	// body params
-	localVarPostBody = r.startTestItemRQ
+	localVarPostBody = r.comEpamReportportalBaseReportingStartTestItemRQ
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -486,7 +486,7 @@ func (a *TestItemAsyncAPIService) StartChildItemExecute(r ApiStartChildItemReque
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -497,7 +497,7 @@ func (a *TestItemAsyncAPIService) StartChildItemExecute(r ApiStartChildItemReque
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -508,7 +508,7 @@ func (a *TestItemAsyncAPIService) StartChildItemExecute(r ApiStartChildItemReque
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -534,19 +534,19 @@ func (a *TestItemAsyncAPIService) StartChildItemExecute(r ApiStartChildItemReque
 }
 
 type ApiStartChildItem1Request struct {
-	ctx             context.Context
-	ApiService      *TestItemAsyncAPIService
-	parentItem      string
-	projectName     string
-	startTestItemRQ *StartTestItemRQ
+	ctx                                             context.Context
+	ApiService                                      *TestItemAsyncAPIService
+	parentItem                                      string
+	projectKey                                      string
+	comEpamReportportalBaseReportingStartTestItemRQ *ComEpamReportportalBaseReportingStartTestItemRQ
 }
 
-func (r ApiStartChildItem1Request) StartTestItemRQ(startTestItemRQ StartTestItemRQ) ApiStartChildItem1Request {
-	r.startTestItemRQ = &startTestItemRQ
+func (r ApiStartChildItem1Request) ComEpamReportportalBaseReportingStartTestItemRQ(comEpamReportportalBaseReportingStartTestItemRQ ComEpamReportportalBaseReportingStartTestItemRQ) ApiStartChildItem1Request {
+	r.comEpamReportportalBaseReportingStartTestItemRQ = &comEpamReportportalBaseReportingStartTestItemRQ
 	return r
 }
 
-func (r ApiStartChildItem1Request) Execute() (*EntryCreatedAsyncRS, *http.Response, error) {
+func (r ApiStartChildItem1Request) Execute() (*ComEpamReportportalBaseReportingEntryCreatedAsyncRS, *http.Response, error) {
 	return r.ApiService.StartChildItem1Execute(r)
 }
 
@@ -557,27 +557,27 @@ Start a child test item
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param parentItem
-	@param projectName
+	@param projectKey
 	@return ApiStartChildItem1Request
 */
-func (a *TestItemAsyncAPIService) StartChildItem1(ctx context.Context, parentItem string, projectName string) ApiStartChildItem1Request {
+func (a *TestItemAsyncAPIService) StartChildItem1(ctx context.Context, parentItem string, projectKey string) ApiStartChildItem1Request {
 	return ApiStartChildItem1Request{
-		ApiService:  a,
-		ctx:         ctx,
-		parentItem:  parentItem,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		parentItem: parentItem,
+		projectKey: projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return EntryCreatedAsyncRS
-func (a *TestItemAsyncAPIService) StartChildItem1Execute(r ApiStartChildItem1Request) (*EntryCreatedAsyncRS, *http.Response, error) {
+//	@return ComEpamReportportalBaseReportingEntryCreatedAsyncRS
+func (a *TestItemAsyncAPIService) StartChildItem1Execute(r ApiStartChildItem1Request) (*ComEpamReportportalBaseReportingEntryCreatedAsyncRS, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPost
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *EntryCreatedAsyncRS
+		localVarReturnValue *ComEpamReportportalBaseReportingEntryCreatedAsyncRS
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "TestItemAsyncAPIService.StartChildItem1")
@@ -585,15 +585,15 @@ func (a *TestItemAsyncAPIService) StartChildItem1Execute(r ApiStartChildItem1Req
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v2/{projectName}/item/{parentItem}/"
+	localVarPath := localBasePath + "/v2/{projectKey}/item/{parentItem}/"
 	localVarPath = strings.Replace(localVarPath, "{"+"parentItem"+"}", url.PathEscape(parameterValueToString(r.parentItem, "parentItem")), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
-	if r.startTestItemRQ == nil {
-		return localVarReturnValue, nil, reportError("startTestItemRQ is required and must be specified")
+	if r.comEpamReportportalBaseReportingStartTestItemRQ == nil {
+		return localVarReturnValue, nil, reportError("comEpamReportportalBaseReportingStartTestItemRQ is required and must be specified")
 	}
 
 	// to determine the Content-Type header
@@ -614,7 +614,7 @@ func (a *TestItemAsyncAPIService) StartChildItem1Execute(r ApiStartChildItem1Req
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
 	// body params
-	localVarPostBody = r.startTestItemRQ
+	localVarPostBody = r.comEpamReportportalBaseReportingStartTestItemRQ
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -656,7 +656,7 @@ func (a *TestItemAsyncAPIService) StartChildItem1Execute(r ApiStartChildItem1Req
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -667,7 +667,7 @@ func (a *TestItemAsyncAPIService) StartChildItem1Execute(r ApiStartChildItem1Req
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -678,7 +678,7 @@ func (a *TestItemAsyncAPIService) StartChildItem1Execute(r ApiStartChildItem1Req
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -704,18 +704,18 @@ func (a *TestItemAsyncAPIService) StartChildItem1Execute(r ApiStartChildItem1Req
 }
 
 type ApiStartRootItem1Request struct {
-	ctx             context.Context
-	ApiService      *TestItemAsyncAPIService
-	projectName     string
-	startTestItemRQ *StartTestItemRQ
+	ctx                                             context.Context
+	ApiService                                      *TestItemAsyncAPIService
+	projectKey                                      string
+	comEpamReportportalBaseReportingStartTestItemRQ *ComEpamReportportalBaseReportingStartTestItemRQ
 }
 
-func (r ApiStartRootItem1Request) StartTestItemRQ(startTestItemRQ StartTestItemRQ) ApiStartRootItem1Request {
-	r.startTestItemRQ = &startTestItemRQ
+func (r ApiStartRootItem1Request) ComEpamReportportalBaseReportingStartTestItemRQ(comEpamReportportalBaseReportingStartTestItemRQ ComEpamReportportalBaseReportingStartTestItemRQ) ApiStartRootItem1Request {
+	r.comEpamReportportalBaseReportingStartTestItemRQ = &comEpamReportportalBaseReportingStartTestItemRQ
 	return r
 }
 
-func (r ApiStartRootItem1Request) Execute() (*EntryCreatedAsyncRS, *http.Response, error) {
+func (r ApiStartRootItem1Request) Execute() (*ComEpamReportportalBaseReportingEntryCreatedAsyncRS, *http.Response, error) {
 	return r.ApiService.StartRootItem1Execute(r)
 }
 
@@ -725,26 +725,26 @@ StartRootItem1 Start Root Item
 Start a root test item
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param projectName
+	@param projectKey
 	@return ApiStartRootItem1Request
 */
-func (a *TestItemAsyncAPIService) StartRootItem1(ctx context.Context, projectName string) ApiStartRootItem1Request {
+func (a *TestItemAsyncAPIService) StartRootItem1(ctx context.Context, projectKey string) ApiStartRootItem1Request {
 	return ApiStartRootItem1Request{
-		ApiService:  a,
-		ctx:         ctx,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		projectKey: projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return EntryCreatedAsyncRS
-func (a *TestItemAsyncAPIService) StartRootItem1Execute(r ApiStartRootItem1Request) (*EntryCreatedAsyncRS, *http.Response, error) {
+//	@return ComEpamReportportalBaseReportingEntryCreatedAsyncRS
+func (a *TestItemAsyncAPIService) StartRootItem1Execute(r ApiStartRootItem1Request) (*ComEpamReportportalBaseReportingEntryCreatedAsyncRS, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPost
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *EntryCreatedAsyncRS
+		localVarReturnValue *ComEpamReportportalBaseReportingEntryCreatedAsyncRS
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "TestItemAsyncAPIService.StartRootItem1")
@@ -752,14 +752,14 @@ func (a *TestItemAsyncAPIService) StartRootItem1Execute(r ApiStartRootItem1Reque
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v2/{projectName}/item"
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath := localBasePath + "/v2/{projectKey}/item"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
-	if r.startTestItemRQ == nil {
-		return localVarReturnValue, nil, reportError("startTestItemRQ is required and must be specified")
+	if r.comEpamReportportalBaseReportingStartTestItemRQ == nil {
+		return localVarReturnValue, nil, reportError("comEpamReportportalBaseReportingStartTestItemRQ is required and must be specified")
 	}
 
 	// to determine the Content-Type header
@@ -780,7 +780,7 @@ func (a *TestItemAsyncAPIService) StartRootItem1Execute(r ApiStartRootItem1Reque
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
 	// body params
-	localVarPostBody = r.startTestItemRQ
+	localVarPostBody = r.comEpamReportportalBaseReportingStartTestItemRQ
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -822,7 +822,7 @@ func (a *TestItemAsyncAPIService) StartRootItem1Execute(r ApiStartRootItem1Reque
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -833,7 +833,7 @@ func (a *TestItemAsyncAPIService) StartRootItem1Execute(r ApiStartRootItem1Reque
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -844,7 +844,7 @@ func (a *TestItemAsyncAPIService) StartRootItem1Execute(r ApiStartRootItem1Reque
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -870,18 +870,18 @@ func (a *TestItemAsyncAPIService) StartRootItem1Execute(r ApiStartRootItem1Reque
 }
 
 type ApiStartRootItem2Request struct {
-	ctx             context.Context
-	ApiService      *TestItemAsyncAPIService
-	projectName     string
-	startTestItemRQ *StartTestItemRQ
+	ctx                                             context.Context
+	ApiService                                      *TestItemAsyncAPIService
+	projectKey                                      string
+	comEpamReportportalBaseReportingStartTestItemRQ *ComEpamReportportalBaseReportingStartTestItemRQ
 }
 
-func (r ApiStartRootItem2Request) StartTestItemRQ(startTestItemRQ StartTestItemRQ) ApiStartRootItem2Request {
-	r.startTestItemRQ = &startTestItemRQ
+func (r ApiStartRootItem2Request) ComEpamReportportalBaseReportingStartTestItemRQ(comEpamReportportalBaseReportingStartTestItemRQ ComEpamReportportalBaseReportingStartTestItemRQ) ApiStartRootItem2Request {
+	r.comEpamReportportalBaseReportingStartTestItemRQ = &comEpamReportportalBaseReportingStartTestItemRQ
 	return r
 }
 
-func (r ApiStartRootItem2Request) Execute() (*EntryCreatedAsyncRS, *http.Response, error) {
+func (r ApiStartRootItem2Request) Execute() (*ComEpamReportportalBaseReportingEntryCreatedAsyncRS, *http.Response, error) {
 	return r.ApiService.StartRootItem2Execute(r)
 }
 
@@ -891,26 +891,26 @@ StartRootItem2 Start Root Item
 Start a root test item
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param projectName
+	@param projectKey
 	@return ApiStartRootItem2Request
 */
-func (a *TestItemAsyncAPIService) StartRootItem2(ctx context.Context, projectName string) ApiStartRootItem2Request {
+func (a *TestItemAsyncAPIService) StartRootItem2(ctx context.Context, projectKey string) ApiStartRootItem2Request {
 	return ApiStartRootItem2Request{
-		ApiService:  a,
-		ctx:         ctx,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		projectKey: projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return EntryCreatedAsyncRS
-func (a *TestItemAsyncAPIService) StartRootItem2Execute(r ApiStartRootItem2Request) (*EntryCreatedAsyncRS, *http.Response, error) {
+//	@return ComEpamReportportalBaseReportingEntryCreatedAsyncRS
+func (a *TestItemAsyncAPIService) StartRootItem2Execute(r ApiStartRootItem2Request) (*ComEpamReportportalBaseReportingEntryCreatedAsyncRS, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPost
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *EntryCreatedAsyncRS
+		localVarReturnValue *ComEpamReportportalBaseReportingEntryCreatedAsyncRS
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "TestItemAsyncAPIService.StartRootItem2")
@@ -918,14 +918,14 @@ func (a *TestItemAsyncAPIService) StartRootItem2Execute(r ApiStartRootItem2Reque
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v2/{projectName}/item/"
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath := localBasePath + "/v2/{projectKey}/item/"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
-	if r.startTestItemRQ == nil {
-		return localVarReturnValue, nil, reportError("startTestItemRQ is required and must be specified")
+	if r.comEpamReportportalBaseReportingStartTestItemRQ == nil {
+		return localVarReturnValue, nil, reportError("comEpamReportportalBaseReportingStartTestItemRQ is required and must be specified")
 	}
 
 	// to determine the Content-Type header
@@ -946,7 +946,7 @@ func (a *TestItemAsyncAPIService) StartRootItem2Execute(r ApiStartRootItem2Reque
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
 	// body params
-	localVarPostBody = r.startTestItemRQ
+	localVarPostBody = r.comEpamReportportalBaseReportingStartTestItemRQ
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -988,7 +988,7 @@ func (a *TestItemAsyncAPIService) StartRootItem2Execute(r ApiStartRootItem2Reque
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -999,7 +999,7 @@ func (a *TestItemAsyncAPIService) StartRootItem2Execute(r ApiStartRootItem2Reque
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1010,7 +1010,7 @@ func (a *TestItemAsyncAPIService) StartRootItem2Execute(r ApiStartRootItem2Reque
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()

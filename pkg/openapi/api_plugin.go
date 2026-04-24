@@ -3,7 +3,7 @@ ReportPortal
 
 ReportPortal API documentation
 
-API version: 5.15.1
+API version: develop-531
 Contact: support@reportportal.io
 */
 
@@ -30,7 +30,7 @@ type ApiDeletePluginRequest struct {
 	pluginId   int64
 }
 
-func (r ApiDeletePluginRequest) Execute() (*OperationCompletionRS, *http.Response, error) {
+func (r ApiDeletePluginRequest) Execute() (*ComEpamReportportalBaseReportingOperationCompletionRS, *http.Response, error) {
 	return r.ApiService.DeletePluginExecute(r)
 }
 
@@ -51,13 +51,13 @@ func (a *PluginAPIService) DeletePlugin(ctx context.Context, pluginId int64) Api
 
 // Execute executes the request
 //
-//	@return OperationCompletionRS
-func (a *PluginAPIService) DeletePluginExecute(r ApiDeletePluginRequest) (*OperationCompletionRS, *http.Response, error) {
+//	@return ComEpamReportportalBaseReportingOperationCompletionRS
+func (a *PluginAPIService) DeletePluginExecute(r ApiDeletePluginRequest) (*ComEpamReportportalBaseReportingOperationCompletionRS, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodDelete
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *OperationCompletionRS
+		localVarReturnValue *ComEpamReportportalBaseReportingOperationCompletionRS
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "PluginAPIService.DeletePlugin")
@@ -130,7 +130,7 @@ func (a *PluginAPIService) DeletePluginExecute(r ApiDeletePluginRequest) (*Opera
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -141,7 +141,7 @@ func (a *PluginAPIService) DeletePluginExecute(r ApiDeletePluginRequest) (*Opera
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -152,7 +152,7 @@ func (a *PluginAPIService) DeletePluginExecute(r ApiDeletePluginRequest) (*Opera
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -181,9 +181,9 @@ type ApiExecuteImportPluginCommandRequest struct {
 	ctx            context.Context
 	ApiService     *PluginAPIService
 	pluginName     string
-	projectName    string
+	projectKey     string
 	file           *os.File
-	launchImportRq *LaunchImportRQ
+	launchImportRq *ComEpamReportportalBaseModelLaunchLaunchImportRQ
 }
 
 func (r ApiExecuteImportPluginCommandRequest) File(file *os.File) ApiExecuteImportPluginCommandRequest {
@@ -191,7 +191,7 @@ func (r ApiExecuteImportPluginCommandRequest) File(file *os.File) ApiExecuteImpo
 	return r
 }
 
-func (r ApiExecuteImportPluginCommandRequest) LaunchImportRq(launchImportRq LaunchImportRQ) ApiExecuteImportPluginCommandRequest {
+func (r ApiExecuteImportPluginCommandRequest) LaunchImportRq(launchImportRq ComEpamReportportalBaseModelLaunchLaunchImportRQ) ApiExecuteImportPluginCommandRequest {
 	r.launchImportRq = &launchImportRq
 	return r
 }
@@ -205,15 +205,15 @@ ExecuteImportPluginCommand Send report to the specified plugin for importing
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param pluginName
-	@param projectName
+	@param projectKey
 	@return ApiExecuteImportPluginCommandRequest
 */
-func (a *PluginAPIService) ExecuteImportPluginCommand(ctx context.Context, pluginName string, projectName string) ApiExecuteImportPluginCommandRequest {
+func (a *PluginAPIService) ExecuteImportPluginCommand(ctx context.Context, pluginName string, projectKey string) ApiExecuteImportPluginCommandRequest {
 	return ApiExecuteImportPluginCommandRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		pluginName:  pluginName,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		pluginName: pluginName,
+		projectKey: projectKey,
 	}
 }
 
@@ -233,9 +233,9 @@ func (a *PluginAPIService) ExecuteImportPluginCommandExecute(r ApiExecuteImportP
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/plugin/{projectName}/{pluginName}/import"
+	localVarPath := localBasePath + "/v1/plugin/{projectKey}/{pluginName}/import"
 	localVarPath = strings.Replace(localVarPath, "{"+"pluginName"+"}", url.PathEscape(parameterValueToString(r.pluginName, "pluginName")), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -324,7 +324,7 @@ func (a *PluginAPIService) ExecuteImportPluginCommandExecute(r ApiExecuteImportP
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -335,7 +335,7 @@ func (a *PluginAPIService) ExecuteImportPluginCommandExecute(r ApiExecuteImportP
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -346,7 +346,7 @@ func (a *PluginAPIService) ExecuteImportPluginCommandExecute(r ApiExecuteImportP
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -376,7 +376,7 @@ type ApiExecutePluginCommandRequest struct {
 	ApiService  *PluginAPIService
 	command     string
 	pluginName  string
-	projectName string
+	projectKey  string
 	requestBody *map[string]interface{}
 }
 
@@ -395,16 +395,16 @@ ExecutePluginCommand Execute command to the plugin instance
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param command
 	@param pluginName
-	@param projectName
+	@param projectKey
 	@return ApiExecutePluginCommandRequest
 */
-func (a *PluginAPIService) ExecutePluginCommand(ctx context.Context, command string, pluginName string, projectName string) ApiExecutePluginCommandRequest {
+func (a *PluginAPIService) ExecutePluginCommand(ctx context.Context, command string, pluginName string, projectKey string) ApiExecutePluginCommandRequest {
 	return ApiExecutePluginCommandRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		command:     command,
-		pluginName:  pluginName,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		command:    command,
+		pluginName: pluginName,
+		projectKey: projectKey,
 	}
 }
 
@@ -424,10 +424,10 @@ func (a *PluginAPIService) ExecutePluginCommandExecute(r ApiExecutePluginCommand
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/plugin/{projectName}/{pluginName}/common/{command}"
+	localVarPath := localBasePath + "/v1/plugin/{projectKey}/{pluginName}/common/{command}"
 	localVarPath = strings.Replace(localVarPath, "{"+"command"+"}", url.PathEscape(parameterValueToString(r.command, "command")), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"pluginName"+"}", url.PathEscape(parameterValueToString(r.pluginName, "pluginName")), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -496,7 +496,7 @@ func (a *PluginAPIService) ExecutePluginCommandExecute(r ApiExecutePluginCommand
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -507,7 +507,7 @@ func (a *PluginAPIService) ExecutePluginCommandExecute(r ApiExecutePluginCommand
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -518,7 +518,7 @@ func (a *PluginAPIService) ExecutePluginCommandExecute(r ApiExecutePluginCommand
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -548,7 +548,7 @@ type ApiGetPluginsRequest struct {
 	ApiService *PluginAPIService
 }
 
-func (r ApiGetPluginsRequest) Execute() ([]IntegrationTypeResource, *http.Response, error) {
+func (r ApiGetPluginsRequest) Execute() ([]ComEpamReportportalBaseModelIntegrationIntegrationTypeResource, *http.Response, error) {
 	return r.ApiService.GetPluginsExecute(r)
 }
 
@@ -567,13 +567,13 @@ func (a *PluginAPIService) GetPlugins(ctx context.Context) ApiGetPluginsRequest 
 
 // Execute executes the request
 //
-//	@return []IntegrationTypeResource
-func (a *PluginAPIService) GetPluginsExecute(r ApiGetPluginsRequest) ([]IntegrationTypeResource, *http.Response, error) {
+//	@return []ComEpamReportportalBaseModelIntegrationIntegrationTypeResource
+func (a *PluginAPIService) GetPluginsExecute(r ApiGetPluginsRequest) ([]ComEpamReportportalBaseModelIntegrationIntegrationTypeResource, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodGet
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue []IntegrationTypeResource
+		localVarReturnValue []ComEpamReportportalBaseModelIntegrationIntegrationTypeResource
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "PluginAPIService.GetPlugins")
@@ -645,7 +645,7 @@ func (a *PluginAPIService) GetPluginsExecute(r ApiGetPluginsRequest) ([]Integrat
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -656,7 +656,7 @@ func (a *PluginAPIService) GetPluginsExecute(r ApiGetPluginsRequest) ([]Integrat
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -667,7 +667,7 @@ func (a *PluginAPIService) GetPluginsExecute(r ApiGetPluginsRequest) ([]Integrat
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -693,18 +693,18 @@ func (a *PluginAPIService) GetPluginsExecute(r ApiGetPluginsRequest) ([]Integrat
 }
 
 type ApiUpdatePluginStateRequest struct {
-	ctx                 context.Context
-	ApiService          *PluginAPIService
-	pluginId            int64
-	updatePluginStateRQ *UpdatePluginStateRQ
+	ctx                                                        context.Context
+	ApiService                                                 *PluginAPIService
+	pluginId                                                   int64
+	comEpamReportportalBaseModelIntegrationUpdatePluginStateRQ *ComEpamReportportalBaseModelIntegrationUpdatePluginStateRQ
 }
 
-func (r ApiUpdatePluginStateRequest) UpdatePluginStateRQ(updatePluginStateRQ UpdatePluginStateRQ) ApiUpdatePluginStateRequest {
-	r.updatePluginStateRQ = &updatePluginStateRQ
+func (r ApiUpdatePluginStateRequest) ComEpamReportportalBaseModelIntegrationUpdatePluginStateRQ(comEpamReportportalBaseModelIntegrationUpdatePluginStateRQ ComEpamReportportalBaseModelIntegrationUpdatePluginStateRQ) ApiUpdatePluginStateRequest {
+	r.comEpamReportportalBaseModelIntegrationUpdatePluginStateRQ = &comEpamReportportalBaseModelIntegrationUpdatePluginStateRQ
 	return r
 }
 
-func (r ApiUpdatePluginStateRequest) Execute() (*OperationCompletionRS, *http.Response, error) {
+func (r ApiUpdatePluginStateRequest) Execute() (*ComEpamReportportalBaseReportingOperationCompletionRS, *http.Response, error) {
 	return r.ApiService.UpdatePluginStateExecute(r)
 }
 
@@ -725,13 +725,13 @@ func (a *PluginAPIService) UpdatePluginState(ctx context.Context, pluginId int64
 
 // Execute executes the request
 //
-//	@return OperationCompletionRS
-func (a *PluginAPIService) UpdatePluginStateExecute(r ApiUpdatePluginStateRequest) (*OperationCompletionRS, *http.Response, error) {
+//	@return ComEpamReportportalBaseReportingOperationCompletionRS
+func (a *PluginAPIService) UpdatePluginStateExecute(r ApiUpdatePluginStateRequest) (*ComEpamReportportalBaseReportingOperationCompletionRS, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPut
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *OperationCompletionRS
+		localVarReturnValue *ComEpamReportportalBaseReportingOperationCompletionRS
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "PluginAPIService.UpdatePluginState")
@@ -745,8 +745,8 @@ func (a *PluginAPIService) UpdatePluginStateExecute(r ApiUpdatePluginStateReques
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
-	if r.updatePluginStateRQ == nil {
-		return localVarReturnValue, nil, reportError("updatePluginStateRQ is required and must be specified")
+	if r.comEpamReportportalBaseModelIntegrationUpdatePluginStateRQ == nil {
+		return localVarReturnValue, nil, reportError("comEpamReportportalBaseModelIntegrationUpdatePluginStateRQ is required and must be specified")
 	}
 
 	// to determine the Content-Type header
@@ -767,7 +767,7 @@ func (a *PluginAPIService) UpdatePluginStateExecute(r ApiUpdatePluginStateReques
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
 	// body params
-	localVarPostBody = r.updatePluginStateRQ
+	localVarPostBody = r.comEpamReportportalBaseModelIntegrationUpdatePluginStateRQ
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -809,7 +809,7 @@ func (a *PluginAPIService) UpdatePluginStateExecute(r ApiUpdatePluginStateReques
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -820,7 +820,7 @@ func (a *PluginAPIService) UpdatePluginStateExecute(r ApiUpdatePluginStateReques
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -831,7 +831,7 @@ func (a *PluginAPIService) UpdatePluginStateExecute(r ApiUpdatePluginStateReques
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -867,7 +867,7 @@ func (r ApiUploadPluginRequest) File(file *os.File) ApiUploadPluginRequest {
 	return r
 }
 
-func (r ApiUploadPluginRequest) Execute() (*EntryCreatedRS, *http.Response, error) {
+func (r ApiUploadPluginRequest) Execute() (*ComEpamReportportalBaseModelEntryCreatedRS, *http.Response, error) {
 	return r.ApiService.UploadPluginExecute(r)
 }
 
@@ -886,13 +886,13 @@ func (a *PluginAPIService) UploadPlugin(ctx context.Context) ApiUploadPluginRequ
 
 // Execute executes the request
 //
-//	@return EntryCreatedRS
-func (a *PluginAPIService) UploadPluginExecute(r ApiUploadPluginRequest) (*EntryCreatedRS, *http.Response, error) {
+//	@return ComEpamReportportalBaseModelEntryCreatedRS
+func (a *PluginAPIService) UploadPluginExecute(r ApiUploadPluginRequest) (*ComEpamReportportalBaseModelEntryCreatedRS, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPost
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *EntryCreatedRS
+		localVarReturnValue *ComEpamReportportalBaseModelEntryCreatedRS
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "PluginAPIService.UploadPlugin")
@@ -982,7 +982,7 @@ func (a *PluginAPIService) UploadPluginExecute(r ApiUploadPluginRequest) (*Entry
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -993,7 +993,7 @@ func (a *PluginAPIService) UploadPluginExecute(r ApiUploadPluginRequest) (*Entry
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1004,7 +1004,7 @@ func (a *PluginAPIService) UploadPluginExecute(r ApiUploadPluginRequest) (*Entry
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()

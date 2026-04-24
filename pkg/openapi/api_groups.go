@@ -3,7 +3,7 @@ ReportPortal
 
 ReportPortal API documentation
 
-API version: 5.15.1
+API version: develop-531
 Contact: support@reportportal.io
 */
 
@@ -24,26 +24,26 @@ import (
 type GroupsAPIService service
 
 type ApiAddProjectToGroupByIdRequest struct {
-	ctx                          context.Context
-	ApiService                   *GroupsAPIService
-	groupId                      int64
-	projectId                    int64
-	addProjectToGroupByIdRequest *AddProjectToGroupByIdRequest
+	ctx                                                     context.Context
+	ApiService                                              *GroupsAPIService
+	groupId                                                 int64
+	projectId                                               int64
+	comEpamReportportalApiModelAddProjectToGroupByIdRequest *ComEpamReportportalApiModelAddProjectToGroupByIdRequest
 }
 
-func (r ApiAddProjectToGroupByIdRequest) AddProjectToGroupByIdRequest(addProjectToGroupByIdRequest AddProjectToGroupByIdRequest) ApiAddProjectToGroupByIdRequest {
-	r.addProjectToGroupByIdRequest = &addProjectToGroupByIdRequest
+func (r ApiAddProjectToGroupByIdRequest) ComEpamReportportalApiModelAddProjectToGroupByIdRequest(comEpamReportportalApiModelAddProjectToGroupByIdRequest ComEpamReportportalApiModelAddProjectToGroupByIdRequest) ApiAddProjectToGroupByIdRequest {
+	r.comEpamReportportalApiModelAddProjectToGroupByIdRequest = &comEpamReportportalApiModelAddProjectToGroupByIdRequest
 	return r
 }
 
-func (r ApiAddProjectToGroupByIdRequest) Execute() (*SuccessfulUpdate, *http.Response, error) {
+func (r ApiAddProjectToGroupByIdRequest) Execute() (*ComEpamReportportalApiModelSuccessfulUpdate, *http.Response, error) {
 	return r.ApiService.AddProjectToGroupByIdExecute(r)
 }
 
 /*
 AddProjectToGroupById Add or update group project
 
-Add or update project in group.  ### Authority  - `ADMINISTRATOR`
+Add or update project in group.  ### Authority  - `ADMINISTRATOR` - `MANAGER` : Access to groups when assigned to an organization.
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param groupId Group identifier.
@@ -61,13 +61,13 @@ func (a *GroupsAPIService) AddProjectToGroupById(ctx context.Context, groupId in
 
 // Execute executes the request
 //
-//	@return SuccessfulUpdate
-func (a *GroupsAPIService) AddProjectToGroupByIdExecute(r ApiAddProjectToGroupByIdRequest) (*SuccessfulUpdate, *http.Response, error) {
+//	@return ComEpamReportportalApiModelSuccessfulUpdate
+func (a *GroupsAPIService) AddProjectToGroupByIdExecute(r ApiAddProjectToGroupByIdRequest) (*ComEpamReportportalApiModelSuccessfulUpdate, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPut
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *SuccessfulUpdate
+		localVarReturnValue *ComEpamReportportalApiModelSuccessfulUpdate
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "GroupsAPIService.AddProjectToGroupById")
@@ -107,7 +107,7 @@ func (a *GroupsAPIService) AddProjectToGroupByIdExecute(r ApiAddProjectToGroupBy
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
 	// body params
-	localVarPostBody = r.addProjectToGroupByIdRequest
+	localVarPostBody = r.comEpamReportportalApiModelAddProjectToGroupByIdRequest
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -149,7 +149,7 @@ func (a *GroupsAPIService) AddProjectToGroupByIdExecute(r ApiAddProjectToGroupBy
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -224,14 +224,14 @@ type ApiAddUserToGroupByIdRequest struct {
 	userId     int64
 }
 
-func (r ApiAddUserToGroupByIdRequest) Execute() (*SuccessfulUpdate, *http.Response, error) {
+func (r ApiAddUserToGroupByIdRequest) Execute() (*ComEpamReportportalApiModelSuccessfulUpdate, *http.Response, error) {
 	return r.ApiService.AddUserToGroupByIdExecute(r)
 }
 
 /*
 AddUserToGroupById Add group user
 
-Add user into group.  ### Authority  - `ADMINISTRATOR`
+Add user into group.  ### Authority  - `ADMINISTRATOR` - `MANAGER` : Access to groups when assigned to an organization.
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param groupId Group identifier.
@@ -249,13 +249,13 @@ func (a *GroupsAPIService) AddUserToGroupById(ctx context.Context, groupId int64
 
 // Execute executes the request
 //
-//	@return SuccessfulUpdate
-func (a *GroupsAPIService) AddUserToGroupByIdExecute(r ApiAddUserToGroupByIdRequest) (*SuccessfulUpdate, *http.Response, error) {
+//	@return ComEpamReportportalApiModelSuccessfulUpdate
+func (a *GroupsAPIService) AddUserToGroupByIdExecute(r ApiAddUserToGroupByIdRequest) (*ComEpamReportportalApiModelSuccessfulUpdate, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPut
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *SuccessfulUpdate
+		localVarReturnValue *ComEpamReportportalApiModelSuccessfulUpdate
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "GroupsAPIService.AddUserToGroupById")
@@ -335,7 +335,7 @@ func (a *GroupsAPIService) AddUserToGroupByIdExecute(r ApiAddUserToGroupByIdRequ
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -518,7 +518,7 @@ func (a *GroupsAPIService) CreateGroupExecute(r ApiCreateGroupRequest) (*GroupIn
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -599,7 +599,7 @@ func (r ApiDeleteGroupRequest) Execute() (*http.Response, error) {
 /*
 DeleteGroup Delete group
 
-Delete a group by ID.  ### Authority  - `ADMINISTRATOR`
+Delete a group by ID.  ### Authority  - `ADMINISTRATOR` - `MANAGER` : Access to groups when assigned to an organization.
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param groupId Group identifier.
@@ -694,7 +694,7 @@ func (a *GroupsAPIService) DeleteGroupExecute(r ApiDeleteGroupRequest) (*http.Re
 			return localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -767,7 +767,7 @@ func (r ApiDeleteProjectFromGroupByIdRequest) Execute() (*http.Response, error) 
 /*
 DeleteProjectFromGroupById Delete group project
 
-Delete project from group.  ### Authority  - `ADMINISTRATOR`
+Delete project from group.  ### Authority  - `ADMINISTRATOR` - `MANAGER` : Access to groups when assigned to an organization.
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param groupId Group identifier.
@@ -868,7 +868,7 @@ func (a *GroupsAPIService) DeleteProjectFromGroupByIdExecute(r ApiDeleteProjectF
 			return localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -941,7 +941,7 @@ func (r ApiDeleteUserFromGroupByIdRequest) Execute() (*http.Response, error) {
 /*
 DeleteUserFromGroupById Delete group user
 
-Delete a user from a group.  ### Authority  - `ADMINISTRATOR`
+Delete a user from a group.  ### Authority  - `ADMINISTRATOR` - `MANAGER` : Access to groups when assigned to an organization.
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param groupId Group identifier.
@@ -1042,7 +1042,7 @@ func (a *GroupsAPIService) DeleteUserFromGroupByIdExecute(r ApiDeleteUserFromGro
 			return localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1114,7 +1114,7 @@ func (r ApiGetGroupByIdRequest) Execute() (*GroupInfo, *http.Response, error) {
 /*
 GetGroupById Get group
 
-Get a group by ID.  ### Authority  - `ADMINISTRATOR`
+Get a group by ID.  ### Authority  - `ADMINISTRATOR` - `MANAGER` : Access to groups when assigned to an organization.
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param groupId Group identifier.
@@ -1212,7 +1212,7 @@ func (a *GroupsAPIService) GetGroupByIdExecute(r ApiGetGroupByIdRequest) (*Group
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1294,7 +1294,7 @@ func (r ApiGetGroupProjectByIdRequest) Execute() (*GroupProjectInfo, *http.Respo
 /*
 GetGroupProjectById Get group project
 
-Get project of group.  ### Authority  - `ADMINISTRATOR`
+Get project of group.  ### Authority  - `ADMINISTRATOR` - `MANAGER` : Access to groups when assigned to an organization.
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param groupId Group identifier.
@@ -1398,7 +1398,7 @@ func (a *GroupsAPIService) GetGroupProjectByIdExecute(r ApiGetGroupProjectByIdRe
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1493,7 +1493,7 @@ func (r ApiGetGroupProjectsRequest) Execute() (*GroupProjectsPage, *http.Respons
 /*
 GetGroupProjects Get all group projects
 
-Get all projects of group.  ### Authority  - `ADMINISTRATOR`
+Get all projects of group.  ### Authority  - `ADMINISTRATOR` - `MANAGER` : Access to groups when assigned to an organization.
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param groupId Group identifier.
@@ -1605,7 +1605,7 @@ func (a *GroupsAPIService) GetGroupProjectsExecute(r ApiGetGroupProjectsRequest)
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1687,7 +1687,7 @@ func (r ApiGetGroupUserByIdRequest) Execute() (*GroupUserInfo, *http.Response, e
 /*
 GetGroupUserById Get group user
 
-Get all users of group.  ### Authority  - `ADMINISTRATOR`
+Get all users of group.  ### Authority  - `ADMINISTRATOR` - `MANAGER` : Access to groups when assigned to an organization.
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param groupId Group identifier.
@@ -1791,7 +1791,7 @@ func (a *GroupsAPIService) GetGroupUserByIdExecute(r ApiGetGroupUserByIdRequest)
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1886,7 +1886,7 @@ func (r ApiGetGroupUsersRequest) Execute() (*GroupUsersPage, *http.Response, err
 /*
 GetGroupUsers Get all group users
 
-Get all users of group.  ### Authority  - `ADMINISTRATOR`
+Get all users of group.  ### Authority  - `ADMINISTRATOR` - `MANAGER` : Access to groups when assigned to an organization.
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param groupId Group identifier.
@@ -1998,7 +1998,7 @@ func (a *GroupsAPIService) GetGroupUsersExecute(r ApiGetGroupUsersRequest) (*Gro
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -2072,6 +2072,7 @@ type ApiGetGroupsRequest struct {
 	limit      *int32
 	offset     *int32
 	order      *string
+	orgId      *int64
 	sort       *string
 }
 
@@ -2090,6 +2091,12 @@ func (r ApiGetGroupsRequest) Offset(offset int32) ApiGetGroupsRequest {
 // Indicate sorting direction.
 func (r ApiGetGroupsRequest) Order(order string) ApiGetGroupsRequest {
 	r.order = &order
+	return r
+}
+
+// Organization identifier.
+func (r ApiGetGroupsRequest) OrgId(orgId int64) ApiGetGroupsRequest {
+	r.orgId = &orgId
 	return r
 }
 
@@ -2161,6 +2168,9 @@ func (a *GroupsAPIService) GetGroupsExecute(r ApiGetGroupsRequest) (*GroupPage, 
 		parameterAddToHeaderOrQuery(localVarQueryParams, "order", defaultValue, "form", "")
 		r.order = &defaultValue
 	}
+	if r.orgId != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "orgId", r.orgId, "form", "")
+	}
 	if r.sort != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "sort", r.sort, "form", "")
 	} else {
@@ -2226,7 +2236,7 @@ func (a *GroupsAPIService) GetGroupsExecute(r ApiGetGroupsRequest) (*GroupPage, 
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -2295,14 +2305,14 @@ func (r ApiUpdateGroupRequest) UpdateGroupRequest(updateGroupRequest UpdateGroup
 	return r
 }
 
-func (r ApiUpdateGroupRequest) Execute() (*SuccessfulUpdate, *http.Response, error) {
+func (r ApiUpdateGroupRequest) Execute() (*ComEpamReportportalApiModelSuccessfulUpdate, *http.Response, error) {
 	return r.ApiService.UpdateGroupExecute(r)
 }
 
 /*
 UpdateGroup Update group
 
-Update a group by ID.  ### Authority  - `ADMINISTRATOR`
+Update a group by ID.  ### Authority  - `ADMINISTRATOR` - `MANAGER` : Access to groups when assigned to an organization.
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param groupId Group identifier.
@@ -2318,13 +2328,13 @@ func (a *GroupsAPIService) UpdateGroup(ctx context.Context, groupId int64) ApiUp
 
 // Execute executes the request
 //
-//	@return SuccessfulUpdate
-func (a *GroupsAPIService) UpdateGroupExecute(r ApiUpdateGroupRequest) (*SuccessfulUpdate, *http.Response, error) {
+//	@return ComEpamReportportalApiModelSuccessfulUpdate
+func (a *GroupsAPIService) UpdateGroupExecute(r ApiUpdateGroupRequest) (*ComEpamReportportalApiModelSuccessfulUpdate, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPut
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *SuccessfulUpdate
+		localVarReturnValue *ComEpamReportportalApiModelSuccessfulUpdate
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "GroupsAPIService.UpdateGroup")
@@ -2405,7 +2415,7 @@ func (a *GroupsAPIService) UpdateGroupExecute(r ApiUpdateGroupRequest) (*Success
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()

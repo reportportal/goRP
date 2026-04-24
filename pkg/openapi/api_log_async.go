@@ -3,7 +3,7 @@ ReportPortal
 
 ReportPortal API documentation
 
-API version: 5.15.1
+API version: develop-531
 Contact: support@reportportal.io
 */
 
@@ -26,43 +26,45 @@ type LogAsyncAPIService service
 type ApiCreateLogRequest struct {
 	ctx             context.Context
 	ApiService      *LogAsyncAPIService
-	projectName     string
-	jsonRequestPart *string
+	projectKey      string
+	jsonRequestPart *[]ComEpamReportportalBaseReportingSaveLogRQ
 }
 
-func (r ApiCreateLogRequest) JsonRequestPart(jsonRequestPart string) ApiCreateLogRequest {
+func (r ApiCreateLogRequest) JsonRequestPart(jsonRequestPart []ComEpamReportportalBaseReportingSaveLogRQ) ApiCreateLogRequest {
 	r.jsonRequestPart = &jsonRequestPart
 	return r
 }
 
-func (r ApiCreateLogRequest) Execute() (*BatchSaveOperatingRS, *http.Response, error) {
+func (r ApiCreateLogRequest) Execute() (*ComEpamReportportalBaseReportingBatchSaveOperatingRS, *http.Response, error) {
 	return r.ApiService.CreateLogExecute(r)
 }
 
 /*
-CreateLog Create log (batching operation)
+CreateLog Create Log
+
+Create log (batching operation)
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param projectName
+	@param projectKey
 	@return ApiCreateLogRequest
 */
-func (a *LogAsyncAPIService) CreateLog(ctx context.Context, projectName string) ApiCreateLogRequest {
+func (a *LogAsyncAPIService) CreateLog(ctx context.Context, projectKey string) ApiCreateLogRequest {
 	return ApiCreateLogRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		projectKey: projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return BatchSaveOperatingRS
-func (a *LogAsyncAPIService) CreateLogExecute(r ApiCreateLogRequest) (*BatchSaveOperatingRS, *http.Response, error) {
+//	@return ComEpamReportportalBaseReportingBatchSaveOperatingRS
+func (a *LogAsyncAPIService) CreateLogExecute(r ApiCreateLogRequest) (*ComEpamReportportalBaseReportingBatchSaveOperatingRS, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPost
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *BatchSaveOperatingRS
+		localVarReturnValue *ComEpamReportportalBaseReportingBatchSaveOperatingRS
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "LogAsyncAPIService.CreateLog")
@@ -70,12 +72,15 @@ func (a *LogAsyncAPIService) CreateLogExecute(r ApiCreateLogRequest) (*BatchSave
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v2/{projectName}/log"
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath := localBasePath + "/v2/{projectKey}/log"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
+	if r.jsonRequestPart == nil {
+		return localVarReturnValue, nil, reportError("jsonRequestPart is required and must be specified")
+	}
 
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{"multipart/form-data"}
@@ -94,9 +99,7 @@ func (a *LogAsyncAPIService) CreateLogExecute(r ApiCreateLogRequest) (*BatchSave
 	if localVarHTTPHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
-	if r.jsonRequestPart != nil {
-		parameterAddToHeaderOrQuery(localVarFormParams, "json_request_part", r.jsonRequestPart, "form", "")
-	}
+	parameterAddToHeaderOrQuery(localVarFormParams, "json_request_part", r.jsonRequestPart, "", "csv")
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -138,7 +141,7 @@ func (a *LogAsyncAPIService) CreateLogExecute(r ApiCreateLogRequest) (*BatchSave
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -149,7 +152,7 @@ func (a *LogAsyncAPIService) CreateLogExecute(r ApiCreateLogRequest) (*BatchSave
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -160,7 +163,7 @@ func (a *LogAsyncAPIService) CreateLogExecute(r ApiCreateLogRequest) (*BatchSave
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -186,18 +189,18 @@ func (a *LogAsyncAPIService) CreateLogExecute(r ApiCreateLogRequest) (*BatchSave
 }
 
 type ApiCreateLogEntryRequest struct {
-	ctx         context.Context
-	ApiService  *LogAsyncAPIService
-	projectName string
-	saveLogRQ   *SaveLogRQ
+	ctx                                       context.Context
+	ApiService                                *LogAsyncAPIService
+	projectKey                                string
+	comEpamReportportalBaseReportingSaveLogRQ *ComEpamReportportalBaseReportingSaveLogRQ
 }
 
-func (r ApiCreateLogEntryRequest) SaveLogRQ(saveLogRQ SaveLogRQ) ApiCreateLogEntryRequest {
-	r.saveLogRQ = &saveLogRQ
+func (r ApiCreateLogEntryRequest) ComEpamReportportalBaseReportingSaveLogRQ(comEpamReportportalBaseReportingSaveLogRQ ComEpamReportportalBaseReportingSaveLogRQ) ApiCreateLogEntryRequest {
+	r.comEpamReportportalBaseReportingSaveLogRQ = &comEpamReportportalBaseReportingSaveLogRQ
 	return r
 }
 
-func (r ApiCreateLogEntryRequest) Execute() (*EntryCreatedAsyncRS, *http.Response, error) {
+func (r ApiCreateLogEntryRequest) Execute() (*ComEpamReportportalBaseReportingEntryCreatedAsyncRS, *http.Response, error) {
 	return r.ApiService.CreateLogEntryExecute(r)
 }
 
@@ -207,26 +210,26 @@ CreateLogEntry Create Log Entry
 Create log
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param projectName
+	@param projectKey
 	@return ApiCreateLogEntryRequest
 */
-func (a *LogAsyncAPIService) CreateLogEntry(ctx context.Context, projectName string) ApiCreateLogEntryRequest {
+func (a *LogAsyncAPIService) CreateLogEntry(ctx context.Context, projectKey string) ApiCreateLogEntryRequest {
 	return ApiCreateLogEntryRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		projectKey: projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return EntryCreatedAsyncRS
-func (a *LogAsyncAPIService) CreateLogEntryExecute(r ApiCreateLogEntryRequest) (*EntryCreatedAsyncRS, *http.Response, error) {
+//	@return ComEpamReportportalBaseReportingEntryCreatedAsyncRS
+func (a *LogAsyncAPIService) CreateLogEntryExecute(r ApiCreateLogEntryRequest) (*ComEpamReportportalBaseReportingEntryCreatedAsyncRS, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPost
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *EntryCreatedAsyncRS
+		localVarReturnValue *ComEpamReportportalBaseReportingEntryCreatedAsyncRS
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "LogAsyncAPIService.CreateLogEntry")
@@ -234,14 +237,14 @@ func (a *LogAsyncAPIService) CreateLogEntryExecute(r ApiCreateLogEntryRequest) (
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v2/{projectName}/log/entry"
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath := localBasePath + "/v2/{projectKey}/log/entry"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
-	if r.saveLogRQ == nil {
-		return localVarReturnValue, nil, reportError("saveLogRQ is required and must be specified")
+	if r.comEpamReportportalBaseReportingSaveLogRQ == nil {
+		return localVarReturnValue, nil, reportError("comEpamReportportalBaseReportingSaveLogRQ is required and must be specified")
 	}
 
 	// to determine the Content-Type header
@@ -262,7 +265,7 @@ func (a *LogAsyncAPIService) CreateLogEntryExecute(r ApiCreateLogEntryRequest) (
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
 	// body params
-	localVarPostBody = r.saveLogRQ
+	localVarPostBody = r.comEpamReportportalBaseReportingSaveLogRQ
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -304,7 +307,7 @@ func (a *LogAsyncAPIService) CreateLogEntryExecute(r ApiCreateLogEntryRequest) (
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -315,7 +318,7 @@ func (a *LogAsyncAPIService) CreateLogEntryExecute(r ApiCreateLogEntryRequest) (
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -326,7 +329,7 @@ func (a *LogAsyncAPIService) CreateLogEntryExecute(r ApiCreateLogEntryRequest) (
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()

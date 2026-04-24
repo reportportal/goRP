@@ -3,7 +3,7 @@ ReportPortal
 
 ReportPortal API documentation
 
-API version: 5.15.1
+API version: develop-531
 Contact: support@reportportal.io
 */
 
@@ -26,6 +26,8 @@ type CreateGroupRequest struct {
 	Name string `json:"name" validate:"regexp=^[A-Za-z0-9.'_\\\\- ]+$"`
 	// A slug is used to identify a resource. It should be unique and contain only lowercase letters, numbers, and hyphens. It should not start or end with a hyphen.
 	Slug *string `json:"slug,omitempty" validate:"regexp=^[a-z0-9]+(?:-[a-z0-9]+)*$"`
+	// Organization identifier.
+	OrgId int64 `json:"org_id"`
 }
 
 type _CreateGroupRequest CreateGroupRequest
@@ -34,9 +36,10 @@ type _CreateGroupRequest CreateGroupRequest
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewCreateGroupRequest(name string) *CreateGroupRequest {
+func NewCreateGroupRequest(name string, orgId int64) *CreateGroupRequest {
 	this := CreateGroupRequest{}
 	this.Name = name
+	this.OrgId = orgId
 	return &this
 }
 
@@ -104,6 +107,30 @@ func (o *CreateGroupRequest) SetSlug(v string) {
 	o.Slug = &v
 }
 
+// GetOrgId returns the OrgId field value
+func (o *CreateGroupRequest) GetOrgId() int64 {
+	if o == nil {
+		var ret int64
+		return ret
+	}
+
+	return o.OrgId
+}
+
+// GetOrgIdOk returns a tuple with the OrgId field value
+// and a boolean to check if the value has been set.
+func (o *CreateGroupRequest) GetOrgIdOk() (*int64, bool) {
+	if o == nil {
+		return nil, false
+	}
+	return &o.OrgId, true
+}
+
+// SetOrgId sets field value
+func (o *CreateGroupRequest) SetOrgId(v int64) {
+	o.OrgId = v
+}
+
 func (o CreateGroupRequest) MarshalJSON() ([]byte, error) {
 	toSerialize, err := o.ToMap()
 	if err != nil {
@@ -118,6 +145,7 @@ func (o CreateGroupRequest) ToMap() (map[string]interface{}, error) {
 	if !IsNil(o.Slug) {
 		toSerialize["slug"] = o.Slug
 	}
+	toSerialize["org_id"] = o.OrgId
 	return toSerialize, nil
 }
 
@@ -127,6 +155,7 @@ func (o *CreateGroupRequest) UnmarshalJSON(data []byte) (err error) {
 	// that every required field exists as a key in the generic map.
 	requiredProperties := []string{
 		"name",
+		"org_id",
 	}
 
 	allProperties := make(map[string]interface{})

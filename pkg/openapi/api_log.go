@@ -3,7 +3,7 @@ ReportPortal
 
 ReportPortal API documentation
 
-API version: 5.15.1
+API version: develop-531
 Contact: support@reportportal.io
 */
 
@@ -26,16 +26,16 @@ type LogAPIService service
 type ApiCreateLog1Request struct {
 	ctx             context.Context
 	ApiService      *LogAPIService
-	projectName     string
-	jsonRequestPart *string
+	projectKey      string
+	jsonRequestPart *[]ComEpamReportportalBaseReportingSaveLogRQ
 }
 
-func (r ApiCreateLog1Request) JsonRequestPart(jsonRequestPart string) ApiCreateLog1Request {
+func (r ApiCreateLog1Request) JsonRequestPart(jsonRequestPart []ComEpamReportportalBaseReportingSaveLogRQ) ApiCreateLog1Request {
 	r.jsonRequestPart = &jsonRequestPart
 	return r
 }
 
-func (r ApiCreateLog1Request) Execute() (*BatchSaveOperatingRS, *http.Response, error) {
+func (r ApiCreateLog1Request) Execute() (*ComEpamReportportalBaseReportingBatchSaveOperatingRS, *http.Response, error) {
 	return r.ApiService.CreateLog1Execute(r)
 }
 
@@ -43,26 +43,26 @@ func (r ApiCreateLog1Request) Execute() (*BatchSaveOperatingRS, *http.Response, 
 CreateLog1 Create log (batching operation)
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param projectName
+	@param projectKey
 	@return ApiCreateLog1Request
 */
-func (a *LogAPIService) CreateLog1(ctx context.Context, projectName string) ApiCreateLog1Request {
+func (a *LogAPIService) CreateLog1(ctx context.Context, projectKey string) ApiCreateLog1Request {
 	return ApiCreateLog1Request{
-		ApiService:  a,
-		ctx:         ctx,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		projectKey: projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return BatchSaveOperatingRS
-func (a *LogAPIService) CreateLog1Execute(r ApiCreateLog1Request) (*BatchSaveOperatingRS, *http.Response, error) {
+//	@return ComEpamReportportalBaseReportingBatchSaveOperatingRS
+func (a *LogAPIService) CreateLog1Execute(r ApiCreateLog1Request) (*ComEpamReportportalBaseReportingBatchSaveOperatingRS, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPost
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *BatchSaveOperatingRS
+		localVarReturnValue *ComEpamReportportalBaseReportingBatchSaveOperatingRS
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "LogAPIService.CreateLog1")
@@ -70,12 +70,15 @@ func (a *LogAPIService) CreateLog1Execute(r ApiCreateLog1Request) (*BatchSaveOpe
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/log"
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath := localBasePath + "/v1/{projectKey}/log"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
+	if r.jsonRequestPart == nil {
+		return localVarReturnValue, nil, reportError("jsonRequestPart is required and must be specified")
+	}
 
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{"multipart/form-data"}
@@ -94,9 +97,7 @@ func (a *LogAPIService) CreateLog1Execute(r ApiCreateLog1Request) (*BatchSaveOpe
 	if localVarHTTPHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
-	if r.jsonRequestPart != nil {
-		parameterAddToHeaderOrQuery(localVarFormParams, "json_request_part", r.jsonRequestPart, "form", "")
-	}
+	parameterAddToHeaderOrQuery(localVarFormParams, "json_request_part", r.jsonRequestPart, "", "csv")
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -138,7 +139,7 @@ func (a *LogAPIService) CreateLog1Execute(r ApiCreateLog1Request) (*BatchSaveOpe
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -149,7 +150,7 @@ func (a *LogAPIService) CreateLog1Execute(r ApiCreateLog1Request) (*BatchSaveOpe
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -160,7 +161,7 @@ func (a *LogAPIService) CreateLog1Execute(r ApiCreateLog1Request) (*BatchSaveOpe
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -186,18 +187,18 @@ func (a *LogAPIService) CreateLog1Execute(r ApiCreateLog1Request) (*BatchSaveOpe
 }
 
 type ApiCreateLogEntry1Request struct {
-	ctx         context.Context
-	ApiService  *LogAPIService
-	projectName string
-	saveLogRQ   *SaveLogRQ
+	ctx                                       context.Context
+	ApiService                                *LogAPIService
+	projectKey                                string
+	comEpamReportportalBaseReportingSaveLogRQ *ComEpamReportportalBaseReportingSaveLogRQ
 }
 
-func (r ApiCreateLogEntry1Request) SaveLogRQ(saveLogRQ SaveLogRQ) ApiCreateLogEntry1Request {
-	r.saveLogRQ = &saveLogRQ
+func (r ApiCreateLogEntry1Request) ComEpamReportportalBaseReportingSaveLogRQ(comEpamReportportalBaseReportingSaveLogRQ ComEpamReportportalBaseReportingSaveLogRQ) ApiCreateLogEntry1Request {
+	r.comEpamReportportalBaseReportingSaveLogRQ = &comEpamReportportalBaseReportingSaveLogRQ
 	return r
 }
 
-func (r ApiCreateLogEntry1Request) Execute() (*EntryCreatedAsyncRS, *http.Response, error) {
+func (r ApiCreateLogEntry1Request) Execute() (*ComEpamReportportalBaseReportingEntryCreatedAsyncRS, *http.Response, error) {
 	return r.ApiService.CreateLogEntry1Execute(r)
 }
 
@@ -205,26 +206,26 @@ func (r ApiCreateLogEntry1Request) Execute() (*EntryCreatedAsyncRS, *http.Respon
 CreateLogEntry1 Create log
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param projectName
+	@param projectKey
 	@return ApiCreateLogEntry1Request
 */
-func (a *LogAPIService) CreateLogEntry1(ctx context.Context, projectName string) ApiCreateLogEntry1Request {
+func (a *LogAPIService) CreateLogEntry1(ctx context.Context, projectKey string) ApiCreateLogEntry1Request {
 	return ApiCreateLogEntry1Request{
-		ApiService:  a,
-		ctx:         ctx,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		projectKey: projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return EntryCreatedAsyncRS
-func (a *LogAPIService) CreateLogEntry1Execute(r ApiCreateLogEntry1Request) (*EntryCreatedAsyncRS, *http.Response, error) {
+//	@return ComEpamReportportalBaseReportingEntryCreatedAsyncRS
+func (a *LogAPIService) CreateLogEntry1Execute(r ApiCreateLogEntry1Request) (*ComEpamReportportalBaseReportingEntryCreatedAsyncRS, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPost
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *EntryCreatedAsyncRS
+		localVarReturnValue *ComEpamReportportalBaseReportingEntryCreatedAsyncRS
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "LogAPIService.CreateLogEntry1")
@@ -232,14 +233,14 @@ func (a *LogAPIService) CreateLogEntry1Execute(r ApiCreateLogEntry1Request) (*En
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/log/entry"
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath := localBasePath + "/v1/{projectKey}/log/entry"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
-	if r.saveLogRQ == nil {
-		return localVarReturnValue, nil, reportError("saveLogRQ is required and must be specified")
+	if r.comEpamReportportalBaseReportingSaveLogRQ == nil {
+		return localVarReturnValue, nil, reportError("comEpamReportportalBaseReportingSaveLogRQ is required and must be specified")
 	}
 
 	// to determine the Content-Type header
@@ -260,7 +261,7 @@ func (a *LogAPIService) CreateLogEntry1Execute(r ApiCreateLogEntry1Request) (*En
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
 	// body params
-	localVarPostBody = r.saveLogRQ
+	localVarPostBody = r.comEpamReportportalBaseReportingSaveLogRQ
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -302,7 +303,7 @@ func (a *LogAPIService) CreateLogEntry1Execute(r ApiCreateLogEntry1Request) (*En
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -313,7 +314,7 @@ func (a *LogAPIService) CreateLogEntry1Execute(r ApiCreateLogEntry1Request) (*En
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -324,7 +325,7 @@ func (a *LogAPIService) CreateLogEntry1Execute(r ApiCreateLogEntry1Request) (*En
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -350,13 +351,13 @@ func (a *LogAPIService) CreateLogEntry1Execute(r ApiCreateLogEntry1Request) (*En
 }
 
 type ApiDeleteLogRequest struct {
-	ctx         context.Context
-	ApiService  *LogAPIService
-	logId       int64
-	projectName string
+	ctx        context.Context
+	ApiService *LogAPIService
+	logId      int64
+	projectKey string
 }
 
-func (r ApiDeleteLogRequest) Execute() (*OperationCompletionRS, *http.Response, error) {
+func (r ApiDeleteLogRequest) Execute() (*ComEpamReportportalBaseReportingOperationCompletionRS, *http.Response, error) {
 	return r.ApiService.DeleteLogExecute(r)
 }
 
@@ -365,27 +366,27 @@ DeleteLog Delete log
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param logId
-	@param projectName
+	@param projectKey
 	@return ApiDeleteLogRequest
 */
-func (a *LogAPIService) DeleteLog(ctx context.Context, logId int64, projectName string) ApiDeleteLogRequest {
+func (a *LogAPIService) DeleteLog(ctx context.Context, logId int64, projectKey string) ApiDeleteLogRequest {
 	return ApiDeleteLogRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		logId:       logId,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		logId:      logId,
+		projectKey: projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return OperationCompletionRS
-func (a *LogAPIService) DeleteLogExecute(r ApiDeleteLogRequest) (*OperationCompletionRS, *http.Response, error) {
+//	@return ComEpamReportportalBaseReportingOperationCompletionRS
+func (a *LogAPIService) DeleteLogExecute(r ApiDeleteLogRequest) (*ComEpamReportportalBaseReportingOperationCompletionRS, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodDelete
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *OperationCompletionRS
+		localVarReturnValue *ComEpamReportportalBaseReportingOperationCompletionRS
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "LogAPIService.DeleteLog")
@@ -393,9 +394,9 @@ func (a *LogAPIService) DeleteLogExecute(r ApiDeleteLogRequest) (*OperationCompl
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/log/{logId}"
+	localVarPath := localBasePath + "/v1/{projectKey}/log/{logId}"
 	localVarPath = strings.Replace(localVarPath, "{"+"logId"+"}", url.PathEscape(parameterValueToString(r.logId, "logId")), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -459,7 +460,7 @@ func (a *LogAPIService) DeleteLogExecute(r ApiDeleteLogRequest) (*OperationCompl
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -470,7 +471,7 @@ func (a *LogAPIService) DeleteLogExecute(r ApiDeleteLogRequest) (*OperationCompl
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -481,7 +482,7 @@ func (a *LogAPIService) DeleteLogExecute(r ApiDeleteLogRequest) (*OperationCompl
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -511,7 +512,7 @@ type ApiGetErrorPageRequest struct {
 	ApiService                  *LogAPIService
 	params                      *map[string]string
 	parentId                    int64
-	projectName                 string
+	projectKey                  string
 	filterEqLogId               *int32
 	filterEqLaunchId            *int32
 	filterEqStatus              *string
@@ -652,7 +653,7 @@ func (r ApiGetErrorPageRequest) PageSort(pageSort string) ApiGetErrorPageRequest
 	return r
 }
 
-func (r ApiGetErrorPageRequest) Execute() ([]PagedLogResource, *http.Response, error) {
+func (r ApiGetErrorPageRequest) Execute() ([]ComEpamReportportalBaseCoreLogImplPagedLogResource, *http.Response, error) {
 	return r.ApiService.GetErrorPageExecute(r)
 }
 
@@ -661,27 +662,27 @@ GetErrorPage Get next or previous log in test item
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param parentId
-	@param projectName
+	@param projectKey
 	@return ApiGetErrorPageRequest
 */
-func (a *LogAPIService) GetErrorPage(ctx context.Context, parentId int64, projectName string) ApiGetErrorPageRequest {
+func (a *LogAPIService) GetErrorPage(ctx context.Context, parentId int64, projectKey string) ApiGetErrorPageRequest {
 	return ApiGetErrorPageRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		parentId:    parentId,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		parentId:   parentId,
+		projectKey: projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return []PagedLogResource
-func (a *LogAPIService) GetErrorPageExecute(r ApiGetErrorPageRequest) ([]PagedLogResource, *http.Response, error) {
+//	@return []ComEpamReportportalBaseCoreLogImplPagedLogResource
+func (a *LogAPIService) GetErrorPageExecute(r ApiGetErrorPageRequest) ([]ComEpamReportportalBaseCoreLogImplPagedLogResource, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodGet
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue []PagedLogResource
+		localVarReturnValue []ComEpamReportportalBaseCoreLogImplPagedLogResource
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "LogAPIService.GetErrorPage")
@@ -689,9 +690,9 @@ func (a *LogAPIService) GetErrorPageExecute(r ApiGetErrorPageRequest) ([]PagedLo
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/log/locations/{parentId}"
+	localVarPath := localBasePath + "/v1/{projectKey}/log/locations/{parentId}"
 	localVarPath = strings.Replace(localVarPath, "{"+"parentId"+"}", url.PathEscape(parameterValueToString(r.parentId, "parentId")), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -816,7 +817,7 @@ func (a *LogAPIService) GetErrorPageExecute(r ApiGetErrorPageRequest) ([]PagedLo
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -827,7 +828,7 @@ func (a *LogAPIService) GetErrorPageExecute(r ApiGetErrorPageRequest) ([]PagedLo
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -838,7 +839,7 @@ func (a *LogAPIService) GetErrorPageExecute(r ApiGetErrorPageRequest) ([]PagedLo
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -864,13 +865,13 @@ func (a *LogAPIService) GetErrorPageExecute(r ApiGetErrorPageRequest) ([]PagedLo
 }
 
 type ApiGetLogRequest struct {
-	ctx         context.Context
-	ApiService  *LogAPIService
-	logId       string
-	projectName string
+	ctx        context.Context
+	ApiService *LogAPIService
+	logId      string
+	projectKey string
 }
 
-func (r ApiGetLogRequest) Execute() (*LogResource, *http.Response, error) {
+func (r ApiGetLogRequest) Execute() (*ComEpamReportportalBaseModelLogLogResource, *http.Response, error) {
 	return r.ApiService.GetLogExecute(r)
 }
 
@@ -879,27 +880,27 @@ GetLog Get log by ID
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param logId
-	@param projectName
+	@param projectKey
 	@return ApiGetLogRequest
 */
-func (a *LogAPIService) GetLog(ctx context.Context, logId string, projectName string) ApiGetLogRequest {
+func (a *LogAPIService) GetLog(ctx context.Context, logId string, projectKey string) ApiGetLogRequest {
 	return ApiGetLogRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		logId:       logId,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		logId:      logId,
+		projectKey: projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return LogResource
-func (a *LogAPIService) GetLogExecute(r ApiGetLogRequest) (*LogResource, *http.Response, error) {
+//	@return ComEpamReportportalBaseModelLogLogResource
+func (a *LogAPIService) GetLogExecute(r ApiGetLogRequest) (*ComEpamReportportalBaseModelLogLogResource, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodGet
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *LogResource
+		localVarReturnValue *ComEpamReportportalBaseModelLogLogResource
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "LogAPIService.GetLog")
@@ -907,9 +908,9 @@ func (a *LogAPIService) GetLogExecute(r ApiGetLogRequest) (*LogResource, *http.R
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/log/{logId}"
+	localVarPath := localBasePath + "/v1/{projectKey}/log/{logId}"
 	localVarPath = strings.Replace(localVarPath, "{"+"logId"+"}", url.PathEscape(parameterValueToString(r.logId, "logId")), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -973,7 +974,7 @@ func (a *LogAPIService) GetLogExecute(r ApiGetLogRequest) (*LogResource, *http.R
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -984,7 +985,7 @@ func (a *LogAPIService) GetLogExecute(r ApiGetLogRequest) (*LogResource, *http.R
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -995,7 +996,7 @@ func (a *LogAPIService) GetLogExecute(r ApiGetLogRequest) (*LogResource, *http.R
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1021,13 +1022,13 @@ func (a *LogAPIService) GetLogExecute(r ApiGetLogRequest) (*LogResource, *http.R
 }
 
 type ApiGetLogByUuidRequest struct {
-	ctx         context.Context
-	ApiService  *LogAPIService
-	logId       string
-	projectName string
+	ctx        context.Context
+	ApiService *LogAPIService
+	logId      string
+	projectKey string
 }
 
-func (r ApiGetLogByUuidRequest) Execute() (*LogResource, *http.Response, error) {
+func (r ApiGetLogByUuidRequest) Execute() (*ComEpamReportportalBaseModelLogLogResource, *http.Response, error) {
 	return r.ApiService.GetLogByUuidExecute(r)
 }
 
@@ -1036,31 +1037,31 @@ GetLogByUuid Get log by UUID (Will be removed in version 6.0)
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param logId
-	@param projectName
+	@param projectKey
 	@return ApiGetLogByUuidRequest
 
 Deprecated
 */
-func (a *LogAPIService) GetLogByUuid(ctx context.Context, logId string, projectName string) ApiGetLogByUuidRequest {
+func (a *LogAPIService) GetLogByUuid(ctx context.Context, logId string, projectKey string) ApiGetLogByUuidRequest {
 	return ApiGetLogByUuidRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		logId:       logId,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		logId:      logId,
+		projectKey: projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return LogResource
+//	@return ComEpamReportportalBaseModelLogLogResource
 //
 // Deprecated
-func (a *LogAPIService) GetLogByUuidExecute(r ApiGetLogByUuidRequest) (*LogResource, *http.Response, error) {
+func (a *LogAPIService) GetLogByUuidExecute(r ApiGetLogByUuidRequest) (*ComEpamReportportalBaseModelLogLogResource, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodGet
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *LogResource
+		localVarReturnValue *ComEpamReportportalBaseModelLogLogResource
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "LogAPIService.GetLogByUuid")
@@ -1068,9 +1069,9 @@ func (a *LogAPIService) GetLogByUuidExecute(r ApiGetLogByUuidRequest) (*LogResou
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/log/uuid/{logId}"
+	localVarPath := localBasePath + "/v1/{projectKey}/log/uuid/{logId}"
 	localVarPath = strings.Replace(localVarPath, "{"+"logId"+"}", url.PathEscape(parameterValueToString(r.logId, "logId")), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -1134,7 +1135,7 @@ func (a *LogAPIService) GetLogByUuidExecute(r ApiGetLogByUuidRequest) (*LogResou
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1145,7 +1146,7 @@ func (a *LogAPIService) GetLogByUuidExecute(r ApiGetLogByUuidRequest) (*LogResou
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1156,7 +1157,7 @@ func (a *LogAPIService) GetLogByUuidExecute(r ApiGetLogByUuidRequest) (*LogResou
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1184,7 +1185,7 @@ func (a *LogAPIService) GetLogByUuidExecute(r ApiGetLogByUuidRequest) (*LogResou
 type ApiGetLogsRequest struct {
 	ctx                         context.Context
 	ApiService                  *LogAPIService
-	projectName                 string
+	projectKey                  string
 	filterUnderPath             *string
 	filterEqLogId               *int32
 	filterEqLaunchId            *int32
@@ -1326,7 +1327,7 @@ func (r ApiGetLogsRequest) PageSort(pageSort string) ApiGetLogsRequest {
 	return r
 }
 
-func (r ApiGetLogsRequest) Execute() (*PageLogResource, *http.Response, error) {
+func (r ApiGetLogsRequest) Execute() (*ComEpamReportportalBaseModelPageComEpamReportportalBaseModelLogLogResource, *http.Response, error) {
 	return r.ApiService.GetLogsExecute(r)
 }
 
@@ -1334,26 +1335,26 @@ func (r ApiGetLogsRequest) Execute() (*PageLogResource, *http.Response, error) {
 GetLogs Get logs by filter
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param projectName
+	@param projectKey
 	@return ApiGetLogsRequest
 */
-func (a *LogAPIService) GetLogs(ctx context.Context, projectName string) ApiGetLogsRequest {
+func (a *LogAPIService) GetLogs(ctx context.Context, projectKey string) ApiGetLogsRequest {
 	return ApiGetLogsRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		projectKey: projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return PageLogResource
-func (a *LogAPIService) GetLogsExecute(r ApiGetLogsRequest) (*PageLogResource, *http.Response, error) {
+//	@return ComEpamReportportalBaseModelPageComEpamReportportalBaseModelLogLogResource
+func (a *LogAPIService) GetLogsExecute(r ApiGetLogsRequest) (*ComEpamReportportalBaseModelPageComEpamReportportalBaseModelLogLogResource, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodGet
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *PageLogResource
+		localVarReturnValue *ComEpamReportportalBaseModelPageComEpamReportportalBaseModelLogLogResource
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "LogAPIService.GetLogs")
@@ -1361,8 +1362,8 @@ func (a *LogAPIService) GetLogsExecute(r ApiGetLogsRequest) (*PageLogResource, *
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/log"
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath := localBasePath + "/v1/{projectKey}/log"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -1486,7 +1487,7 @@ func (a *LogAPIService) GetLogsExecute(r ApiGetLogsRequest) (*PageLogResource, *
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1497,7 +1498,7 @@ func (a *LogAPIService) GetLogsExecute(r ApiGetLogsRequest) (*PageLogResource, *
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1508,7 +1509,7 @@ func (a *LogAPIService) GetLogsExecute(r ApiGetLogsRequest) (*PageLogResource, *
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1534,18 +1535,18 @@ func (a *LogAPIService) GetLogsExecute(r ApiGetLogsRequest) (*PageLogResource, *
 }
 
 type ApiGetLogsUnderRequest struct {
-	ctx            context.Context
-	ApiService     *LogAPIService
-	projectName    string
-	getLogsUnderRq *GetLogsUnderRq
+	ctx                                           context.Context
+	ApiService                                    *LogAPIService
+	projectKey                                    string
+	comEpamReportportalBaseModelLogGetLogsUnderRq *ComEpamReportportalBaseModelLogGetLogsUnderRq
 }
 
-func (r ApiGetLogsUnderRequest) GetLogsUnderRq(getLogsUnderRq GetLogsUnderRq) ApiGetLogsUnderRequest {
-	r.getLogsUnderRq = &getLogsUnderRq
+func (r ApiGetLogsUnderRequest) ComEpamReportportalBaseModelLogGetLogsUnderRq(comEpamReportportalBaseModelLogGetLogsUnderRq ComEpamReportportalBaseModelLogGetLogsUnderRq) ApiGetLogsUnderRequest {
+	r.comEpamReportportalBaseModelLogGetLogsUnderRq = &comEpamReportportalBaseModelLogGetLogsUnderRq
 	return r
 }
 
-func (r ApiGetLogsUnderRequest) Execute() (*map[string][]LogResource, *http.Response, error) {
+func (r ApiGetLogsUnderRequest) Execute() (*map[string][]ComEpamReportportalBaseModelLogLogResource, *http.Response, error) {
 	return r.ApiService.GetLogsUnderExecute(r)
 }
 
@@ -1553,26 +1554,26 @@ func (r ApiGetLogsUnderRequest) Execute() (*map[string][]LogResource, *http.Resp
 GetLogsUnder Get logs under items
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param projectName
+	@param projectKey
 	@return ApiGetLogsUnderRequest
 */
-func (a *LogAPIService) GetLogsUnder(ctx context.Context, projectName string) ApiGetLogsUnderRequest {
+func (a *LogAPIService) GetLogsUnder(ctx context.Context, projectKey string) ApiGetLogsUnderRequest {
 	return ApiGetLogsUnderRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		projectKey: projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return map[string][]LogResource
-func (a *LogAPIService) GetLogsUnderExecute(r ApiGetLogsUnderRequest) (*map[string][]LogResource, *http.Response, error) {
+//	@return map[string][]ComEpamReportportalBaseModelLogLogResource
+func (a *LogAPIService) GetLogsUnderExecute(r ApiGetLogsUnderRequest) (*map[string][]ComEpamReportportalBaseModelLogLogResource, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPost
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *map[string][]LogResource
+		localVarReturnValue *map[string][]ComEpamReportportalBaseModelLogLogResource
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "LogAPIService.GetLogsUnder")
@@ -1580,14 +1581,14 @@ func (a *LogAPIService) GetLogsUnderExecute(r ApiGetLogsUnderRequest) (*map[stri
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/log/under"
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath := localBasePath + "/v1/{projectKey}/log/under"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
-	if r.getLogsUnderRq == nil {
-		return localVarReturnValue, nil, reportError("getLogsUnderRq is required and must be specified")
+	if r.comEpamReportportalBaseModelLogGetLogsUnderRq == nil {
+		return localVarReturnValue, nil, reportError("comEpamReportportalBaseModelLogGetLogsUnderRq is required and must be specified")
 	}
 
 	// to determine the Content-Type header
@@ -1608,7 +1609,7 @@ func (a *LogAPIService) GetLogsUnderExecute(r ApiGetLogsUnderRequest) (*map[stri
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
 	// body params
-	localVarPostBody = r.getLogsUnderRq
+	localVarPostBody = r.comEpamReportportalBaseModelLogGetLogsUnderRq
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -1650,7 +1651,7 @@ func (a *LogAPIService) GetLogsUnderExecute(r ApiGetLogsUnderRequest) (*map[stri
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1661,7 +1662,7 @@ func (a *LogAPIService) GetLogsUnderExecute(r ApiGetLogsUnderRequest) (*map[stri
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1672,7 +1673,7 @@ func (a *LogAPIService) GetLogsUnderExecute(r ApiGetLogsUnderRequest) (*map[stri
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1702,7 +1703,7 @@ type ApiGetLogsWithLocationBySearchRequest struct {
 	ApiService                  *LogAPIService
 	params                      *map[string]string
 	parentId                    int64
-	projectName                 string
+	projectKey                  string
 	filterEqLogId               *int32
 	filterEqLaunchId            *int32
 	filterEqStatus              *string
@@ -1843,7 +1844,7 @@ func (r ApiGetLogsWithLocationBySearchRequest) PageSort(pageSort string) ApiGetL
 	return r
 }
 
-func (r ApiGetLogsWithLocationBySearchRequest) Execute() (*PagePagedLogResource, *http.Response, error) {
+func (r ApiGetLogsWithLocationBySearchRequest) Execute() (*ComEpamReportportalBaseModelPageComEpamReportportalBaseCoreLogImplPagedLogResource, *http.Response, error) {
 	return r.ApiService.GetLogsWithLocationBySearchExecute(r)
 }
 
@@ -1852,27 +1853,27 @@ GetLogsWithLocationBySearch Get logs with location by search filter
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param parentId
-	@param projectName
+	@param projectKey
 	@return ApiGetLogsWithLocationBySearchRequest
 */
-func (a *LogAPIService) GetLogsWithLocationBySearch(ctx context.Context, parentId int64, projectName string) ApiGetLogsWithLocationBySearchRequest {
+func (a *LogAPIService) GetLogsWithLocationBySearch(ctx context.Context, parentId int64, projectKey string) ApiGetLogsWithLocationBySearchRequest {
 	return ApiGetLogsWithLocationBySearchRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		parentId:    parentId,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		parentId:   parentId,
+		projectKey: projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return PagePagedLogResource
-func (a *LogAPIService) GetLogsWithLocationBySearchExecute(r ApiGetLogsWithLocationBySearchRequest) (*PagePagedLogResource, *http.Response, error) {
+//	@return ComEpamReportportalBaseModelPageComEpamReportportalBaseCoreLogImplPagedLogResource
+func (a *LogAPIService) GetLogsWithLocationBySearchExecute(r ApiGetLogsWithLocationBySearchRequest) (*ComEpamReportportalBaseModelPageComEpamReportportalBaseCoreLogImplPagedLogResource, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodGet
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *PagePagedLogResource
+		localVarReturnValue *ComEpamReportportalBaseModelPageComEpamReportportalBaseCoreLogImplPagedLogResource
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "LogAPIService.GetLogsWithLocationBySearch")
@@ -1880,9 +1881,9 @@ func (a *LogAPIService) GetLogsWithLocationBySearchExecute(r ApiGetLogsWithLocat
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/log/locations/search/{parentId}"
+	localVarPath := localBasePath + "/v1/{projectKey}/log/locations/search/{parentId}"
 	localVarPath = strings.Replace(localVarPath, "{"+"parentId"+"}", url.PathEscape(parameterValueToString(r.parentId, "parentId")), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -2007,7 +2008,7 @@ func (a *LogAPIService) GetLogsWithLocationBySearchExecute(r ApiGetLogsWithLocat
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -2018,7 +2019,7 @@ func (a *LogAPIService) GetLogsWithLocationBySearchExecute(r ApiGetLogsWithLocat
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -2029,7 +2030,7 @@ func (a *LogAPIService) GetLogsWithLocationBySearchExecute(r ApiGetLogsWithLocat
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -2059,7 +2060,7 @@ type ApiGetNestedItemsRequest struct {
 	ApiService                  *LogAPIService
 	params                      *map[string]string
 	parentId                    int64
-	projectName                 string
+	projectKey                  string
 	filterEqLogId               *int32
 	filterEqLaunchId            *int32
 	filterEqStatus              *string
@@ -2200,7 +2201,7 @@ func (r ApiGetNestedItemsRequest) PageSort(pageSort string) ApiGetNestedItemsReq
 	return r
 }
 
-func (r ApiGetNestedItemsRequest) Execute() (*PageObject, *http.Response, error) {
+func (r ApiGetNestedItemsRequest) Execute() (*ComEpamReportportalBaseModelPageJavaLangObject, *http.Response, error) {
 	return r.ApiService.GetNestedItemsExecute(r)
 }
 
@@ -2209,27 +2210,27 @@ GetNestedItems Get nested steps with logs for the parent Test Item
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param parentId
-	@param projectName
+	@param projectKey
 	@return ApiGetNestedItemsRequest
 */
-func (a *LogAPIService) GetNestedItems(ctx context.Context, parentId int64, projectName string) ApiGetNestedItemsRequest {
+func (a *LogAPIService) GetNestedItems(ctx context.Context, parentId int64, projectKey string) ApiGetNestedItemsRequest {
 	return ApiGetNestedItemsRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		parentId:    parentId,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		parentId:   parentId,
+		projectKey: projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return PageObject
-func (a *LogAPIService) GetNestedItemsExecute(r ApiGetNestedItemsRequest) (*PageObject, *http.Response, error) {
+//	@return ComEpamReportportalBaseModelPageJavaLangObject
+func (a *LogAPIService) GetNestedItemsExecute(r ApiGetNestedItemsRequest) (*ComEpamReportportalBaseModelPageJavaLangObject, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodGet
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *PageObject
+		localVarReturnValue *ComEpamReportportalBaseModelPageJavaLangObject
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "LogAPIService.GetNestedItems")
@@ -2237,9 +2238,9 @@ func (a *LogAPIService) GetNestedItemsExecute(r ApiGetNestedItemsRequest) (*Page
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/log/nested/{parentId}"
+	localVarPath := localBasePath + "/v1/{projectKey}/log/nested/{parentId}"
 	localVarPath = strings.Replace(localVarPath, "{"+"parentId"+"}", url.PathEscape(parameterValueToString(r.parentId, "parentId")), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -2364,7 +2365,7 @@ func (a *LogAPIService) GetNestedItemsExecute(r ApiGetNestedItemsRequest) (*Page
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -2375,7 +2376,7 @@ func (a *LogAPIService) GetNestedItemsExecute(r ApiGetNestedItemsRequest) (*Page
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -2386,7 +2387,7 @@ func (a *LogAPIService) GetNestedItemsExecute(r ApiGetNestedItemsRequest) (*Page
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -2415,7 +2416,7 @@ type ApiGetPageNumberRequest struct {
 	ctx                         context.Context
 	ApiService                  *LogAPIService
 	logId                       int64
-	projectName                 string
+	projectKey                  string
 	filterEqLogId               *int32
 	filterEqLaunchId            *int32
 	filterEqStatus              *string
@@ -2560,15 +2561,15 @@ GetPageNumber Get logs by filter
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param logId
-	@param projectName
+	@param projectKey
 	@return ApiGetPageNumberRequest
 */
-func (a *LogAPIService) GetPageNumber(ctx context.Context, logId int64, projectName string) ApiGetPageNumberRequest {
+func (a *LogAPIService) GetPageNumber(ctx context.Context, logId int64, projectKey string) ApiGetPageNumberRequest {
 	return ApiGetPageNumberRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		logId:       logId,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		logId:      logId,
+		projectKey: projectKey,
 	}
 }
 
@@ -2588,9 +2589,9 @@ func (a *LogAPIService) GetPageNumberExecute(r ApiGetPageNumberRequest) (map[str
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/log/{logId}/page"
+	localVarPath := localBasePath + "/v1/{projectKey}/log/{logId}/page"
 	localVarPath = strings.Replace(localVarPath, "{"+"logId"+"}", url.PathEscape(parameterValueToString(r.logId, "logId")), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -2711,7 +2712,7 @@ func (a *LogAPIService) GetPageNumberExecute(r ApiGetPageNumberRequest) (map[str
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -2722,7 +2723,7 @@ func (a *LogAPIService) GetPageNumberExecute(r ApiGetPageNumberRequest) (map[str
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -2733,7 +2734,7 @@ func (a *LogAPIService) GetPageNumberExecute(r ApiGetPageNumberRequest) (map[str
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -2759,19 +2760,19 @@ func (a *LogAPIService) GetPageNumberExecute(r ApiGetPageNumberRequest) (map[str
 }
 
 type ApiSearchLogsRequest struct {
-	ctx         context.Context
-	ApiService  *LogAPIService
-	itemId      int64
-	projectName string
-	searchLogRq *SearchLogRq
+	ctx                                        context.Context
+	ApiService                                 *LogAPIService
+	itemId                                     int64
+	projectKey                                 string
+	comEpamReportportalBaseModelLogSearchLogRq *ComEpamReportportalBaseModelLogSearchLogRq
 }
 
-func (r ApiSearchLogsRequest) SearchLogRq(searchLogRq SearchLogRq) ApiSearchLogsRequest {
-	r.searchLogRq = &searchLogRq
+func (r ApiSearchLogsRequest) ComEpamReportportalBaseModelLogSearchLogRq(comEpamReportportalBaseModelLogSearchLogRq ComEpamReportportalBaseModelLogSearchLogRq) ApiSearchLogsRequest {
+	r.comEpamReportportalBaseModelLogSearchLogRq = &comEpamReportportalBaseModelLogSearchLogRq
 	return r
 }
 
-func (r ApiSearchLogsRequest) Execute() ([]SearchLogRs, *http.Response, error) {
+func (r ApiSearchLogsRequest) Execute() ([]ComEpamReportportalBaseModelLogSearchLogRs, *http.Response, error) {
 	return r.ApiService.SearchLogsExecute(r)
 }
 
@@ -2780,27 +2781,27 @@ SearchLogs Search test items with similar error logs
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param itemId
-	@param projectName
+	@param projectKey
 	@return ApiSearchLogsRequest
 */
-func (a *LogAPIService) SearchLogs(ctx context.Context, itemId int64, projectName string) ApiSearchLogsRequest {
+func (a *LogAPIService) SearchLogs(ctx context.Context, itemId int64, projectKey string) ApiSearchLogsRequest {
 	return ApiSearchLogsRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		itemId:      itemId,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		itemId:     itemId,
+		projectKey: projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return []SearchLogRs
-func (a *LogAPIService) SearchLogsExecute(r ApiSearchLogsRequest) ([]SearchLogRs, *http.Response, error) {
+//	@return []ComEpamReportportalBaseModelLogSearchLogRs
+func (a *LogAPIService) SearchLogsExecute(r ApiSearchLogsRequest) ([]ComEpamReportportalBaseModelLogSearchLogRs, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPost
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue []SearchLogRs
+		localVarReturnValue []ComEpamReportportalBaseModelLogSearchLogRs
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "LogAPIService.SearchLogs")
@@ -2808,15 +2809,15 @@ func (a *LogAPIService) SearchLogsExecute(r ApiSearchLogsRequest) ([]SearchLogRs
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/log/search/{itemId}"
+	localVarPath := localBasePath + "/v1/{projectKey}/log/search/{itemId}"
 	localVarPath = strings.Replace(localVarPath, "{"+"itemId"+"}", url.PathEscape(parameterValueToString(r.itemId, "itemId")), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
-	if r.searchLogRq == nil {
-		return localVarReturnValue, nil, reportError("searchLogRq is required and must be specified")
+	if r.comEpamReportportalBaseModelLogSearchLogRq == nil {
+		return localVarReturnValue, nil, reportError("comEpamReportportalBaseModelLogSearchLogRq is required and must be specified")
 	}
 
 	// to determine the Content-Type header
@@ -2837,7 +2838,7 @@ func (a *LogAPIService) SearchLogsExecute(r ApiSearchLogsRequest) ([]SearchLogRs
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
 	// body params
-	localVarPostBody = r.searchLogRq
+	localVarPostBody = r.comEpamReportportalBaseModelLogSearchLogRq
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -2879,7 +2880,7 @@ func (a *LogAPIService) SearchLogsExecute(r ApiSearchLogsRequest) ([]SearchLogRs
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -2890,7 +2891,7 @@ func (a *LogAPIService) SearchLogsExecute(r ApiSearchLogsRequest) ([]SearchLogRs
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -2901,7 +2902,7 @@ func (a *LogAPIService) SearchLogsExecute(r ApiSearchLogsRequest) ([]SearchLogRs
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()

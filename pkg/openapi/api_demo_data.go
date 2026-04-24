@@ -3,7 +3,7 @@ ReportPortal
 
 ReportPortal API documentation
 
-API version: 5.15.1
+API version: develop-531
 Contact: support@reportportal.io
 */
 
@@ -24,18 +24,18 @@ import (
 type DemoDataAPIService service
 
 type ApiGenerateRequest struct {
-	ctx         context.Context
-	ApiService  *DemoDataAPIService
-	projectName string
-	demoDataRq  *DemoDataRq
+	ctx                                            context.Context
+	ApiService                                     *DemoDataAPIService
+	projectKey                                     string
+	comEpamReportportalBaseDemodataModelDemoDataRq *ComEpamReportportalBaseDemodataModelDemoDataRq
 }
 
-func (r ApiGenerateRequest) DemoDataRq(demoDataRq DemoDataRq) ApiGenerateRequest {
-	r.demoDataRq = &demoDataRq
+func (r ApiGenerateRequest) ComEpamReportportalBaseDemodataModelDemoDataRq(comEpamReportportalBaseDemodataModelDemoDataRq ComEpamReportportalBaseDemodataModelDemoDataRq) ApiGenerateRequest {
+	r.comEpamReportportalBaseDemodataModelDemoDataRq = &comEpamReportportalBaseDemodataModelDemoDataRq
 	return r
 }
 
-func (r ApiGenerateRequest) Execute() (*DemoDataRs, *http.Response, error) {
+func (r ApiGenerateRequest) Execute() (*ComEpamReportportalBaseDemodataModelDemoDataRs, *http.Response, error) {
 	return r.ApiService.GenerateExecute(r)
 }
 
@@ -43,26 +43,26 @@ func (r ApiGenerateRequest) Execute() (*DemoDataRs, *http.Response, error) {
 Generate generate
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param projectName
+	@param projectKey
 	@return ApiGenerateRequest
 */
-func (a *DemoDataAPIService) Generate(ctx context.Context, projectName string) ApiGenerateRequest {
+func (a *DemoDataAPIService) Generate(ctx context.Context, projectKey string) ApiGenerateRequest {
 	return ApiGenerateRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		projectKey: projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return DemoDataRs
-func (a *DemoDataAPIService) GenerateExecute(r ApiGenerateRequest) (*DemoDataRs, *http.Response, error) {
+//	@return ComEpamReportportalBaseDemodataModelDemoDataRs
+func (a *DemoDataAPIService) GenerateExecute(r ApiGenerateRequest) (*ComEpamReportportalBaseDemodataModelDemoDataRs, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPost
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *DemoDataRs
+		localVarReturnValue *ComEpamReportportalBaseDemodataModelDemoDataRs
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "DemoDataAPIService.Generate")
@@ -70,14 +70,14 @@ func (a *DemoDataAPIService) GenerateExecute(r ApiGenerateRequest) (*DemoDataRs,
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/demo/{projectName}/generate"
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath := localBasePath + "/v1/demo/{projectKey}/generate"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
-	if r.demoDataRq == nil {
-		return localVarReturnValue, nil, reportError("demoDataRq is required and must be specified")
+	if r.comEpamReportportalBaseDemodataModelDemoDataRq == nil {
+		return localVarReturnValue, nil, reportError("comEpamReportportalBaseDemodataModelDemoDataRq is required and must be specified")
 	}
 
 	// to determine the Content-Type header
@@ -98,7 +98,7 @@ func (a *DemoDataAPIService) GenerateExecute(r ApiGenerateRequest) (*DemoDataRs,
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
 	// body params
-	localVarPostBody = r.demoDataRq
+	localVarPostBody = r.comEpamReportportalBaseDemodataModelDemoDataRq
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err

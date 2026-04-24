@@ -3,7 +3,7 @@ ReportPortal
 
 ReportPortal API documentation
 
-API version: 5.15.1
+API version: develop-531
 Contact: support@reportportal.io
 */
 
@@ -24,13 +24,13 @@ import (
 type ActivityAPIService service
 
 type ApiGetActivityRequest struct {
-	ctx         context.Context
-	ApiService  *ActivityAPIService
-	activityId  int64
-	projectName string
+	ctx        context.Context
+	ApiService *ActivityAPIService
+	activityId int64
+	projectKey string
 }
 
-func (r ApiGetActivityRequest) Execute() (*ActivityResource, *http.Response, error) {
+func (r ApiGetActivityRequest) Execute() (*ComEpamReportportalBaseInfrastructureModelActivityResource, *http.Response, error) {
 	return r.ApiService.GetActivityExecute(r)
 }
 
@@ -41,27 +41,27 @@ Fetches the activity details by its ID for a specific project.
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param activityId The ID of the activity to be searched
-	@param projectName The name of the project for which the activity should be searched
+	@param projectKey The name of the project for which the activity should be searched
 	@return ApiGetActivityRequest
 */
-func (a *ActivityAPIService) GetActivity(ctx context.Context, activityId int64, projectName string) ApiGetActivityRequest {
+func (a *ActivityAPIService) GetActivity(ctx context.Context, activityId int64, projectKey string) ApiGetActivityRequest {
 	return ApiGetActivityRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		activityId:  activityId,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		activityId: activityId,
+		projectKey: projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return ActivityResource
-func (a *ActivityAPIService) GetActivityExecute(r ApiGetActivityRequest) (*ActivityResource, *http.Response, error) {
+//	@return ComEpamReportportalBaseInfrastructureModelActivityResource
+func (a *ActivityAPIService) GetActivityExecute(r ApiGetActivityRequest) (*ComEpamReportportalBaseInfrastructureModelActivityResource, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodGet
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *ActivityResource
+		localVarReturnValue *ComEpamReportportalBaseInfrastructureModelActivityResource
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ActivityAPIService.GetActivity")
@@ -69,9 +69,9 @@ func (a *ActivityAPIService) GetActivityExecute(r ApiGetActivityRequest) (*Activ
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/activity/{activityId}"
+	localVarPath := localBasePath + "/v1/{projectKey}/activity/{activityId}"
 	localVarPath = strings.Replace(localVarPath, "{"+"activityId"+"}", url.PathEscape(parameterValueToString(r.activityId, "activityId")), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -124,7 +124,7 @@ func (a *ActivityAPIService) GetActivityExecute(r ApiGetActivityRequest) (*Activ
 			error: localVarHTTPResponse.Status,
 		}
 		if localVarHTTPResponse.StatusCode == 401 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -135,7 +135,7 @@ func (a *ActivityAPIService) GetActivityExecute(r ApiGetActivityRequest) (*Activ
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -146,7 +146,7 @@ func (a *ActivityAPIService) GetActivityExecute(r ApiGetActivityRequest) (*Activ
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -157,7 +157,7 @@ func (a *ActivityAPIService) GetActivityExecute(r ApiGetActivityRequest) (*Activ
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -168,7 +168,7 @@ func (a *ActivityAPIService) GetActivityExecute(r ApiGetActivityRequest) (*Activ
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 404 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -193,27 +193,29 @@ func (a *ActivityAPIService) GetActivityExecute(r ApiGetActivityRequest) (*Activ
 }
 
 type ApiGetTestItemActivitiesRequest struct {
-	ctx                 context.Context
-	ApiService          *ActivityAPIService
-	itemId              int64
-	projectName         string
-	filterEqObjectName  *string
-	filterEqSubjectName *string
-	filterEqProjectName *string
-	filterEqObjectId    *int32
-	filterEqSubjectId   *int32
-	filterEqObjectType  *string
-	filterEqSubjectType *string
-	filterEqUser        *string
-	filterEqPriority    *string
-	filterEqId          *int32
-	filterEqEventName   *string
-	filterEqProjectId   *int32
-	filterEqAction      *string
-	filterEqCreatedAt   *string
-	pagePage            *int32
-	pageSize            *int32
-	pageSort            *string
+	ctx                      context.Context
+	ApiService               *ActivityAPIService
+	itemId                   int64
+	projectKey               string
+	filterEqObjectName       *string
+	filterEqSubjectName      *string
+	filterEqProjectName      *string
+	filterEqObjectId         *int32
+	filterEqOrganizationId   *int32
+	filterEqSubjectId        *int32
+	filterEqObjectType       *string
+	filterEqSubjectType      *string
+	filterEqUser             *string
+	filterEqPriority         *string
+	filterEqId               *int32
+	filterEqEventName        *string
+	filterEqProjectId        *int32
+	filterEqAction           *string
+	filterEqCreatedAt        *string
+	filterEqOrganizationName *string
+	pagePage                 *int32
+	pageSize                 *int32
+	pageSort                 *string
 }
 
 // Filters by &#39;objectName&#39;
@@ -237,6 +239,12 @@ func (r ApiGetTestItemActivitiesRequest) FilterEqProjectName(filterEqProjectName
 // Filters by &#39;objectId&#39;
 func (r ApiGetTestItemActivitiesRequest) FilterEqObjectId(filterEqObjectId int32) ApiGetTestItemActivitiesRequest {
 	r.filterEqObjectId = &filterEqObjectId
+	return r
+}
+
+// Filters by &#39;organizationId&#39;
+func (r ApiGetTestItemActivitiesRequest) FilterEqOrganizationId(filterEqOrganizationId int32) ApiGetTestItemActivitiesRequest {
+	r.filterEqOrganizationId = &filterEqOrganizationId
 	return r
 }
 
@@ -300,6 +308,12 @@ func (r ApiGetTestItemActivitiesRequest) FilterEqCreatedAt(filterEqCreatedAt str
 	return r
 }
 
+// Filters by &#39;organizationName&#39;
+func (r ApiGetTestItemActivitiesRequest) FilterEqOrganizationName(filterEqOrganizationName string) ApiGetTestItemActivitiesRequest {
+	r.filterEqOrganizationName = &filterEqOrganizationName
+	return r
+}
+
 // Results page you want to retrieve (0..N)
 func (r ApiGetTestItemActivitiesRequest) PagePage(pagePage int32) ApiGetTestItemActivitiesRequest {
 	r.pagePage = &pagePage
@@ -318,7 +332,7 @@ func (r ApiGetTestItemActivitiesRequest) PageSort(pageSort string) ApiGetTestIte
 	return r
 }
 
-func (r ApiGetTestItemActivitiesRequest) Execute() (*Page, *http.Response, error) {
+func (r ApiGetTestItemActivitiesRequest) Execute() (*ComEpamReportportalBaseModelPage, *http.Response, error) {
 	return r.ApiService.GetTestItemActivitiesExecute(r)
 }
 
@@ -404,27 +418,27 @@ positive Numbers, Dates or specific TimeStamp values)</li>
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param itemId The ID of the test item for which all its activities should be searched
-	@param projectName The name of the project for which the activities should be searched
+	@param projectKey The name of the project for which the activities should be searched
 	@return ApiGetTestItemActivitiesRequest
 */
-func (a *ActivityAPIService) GetTestItemActivities(ctx context.Context, itemId int64, projectName string) ApiGetTestItemActivitiesRequest {
+func (a *ActivityAPIService) GetTestItemActivities(ctx context.Context, itemId int64, projectKey string) ApiGetTestItemActivitiesRequest {
 	return ApiGetTestItemActivitiesRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		itemId:      itemId,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		itemId:     itemId,
+		projectKey: projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return Page
-func (a *ActivityAPIService) GetTestItemActivitiesExecute(r ApiGetTestItemActivitiesRequest) (*Page, *http.Response, error) {
+//	@return ComEpamReportportalBaseModelPage
+func (a *ActivityAPIService) GetTestItemActivitiesExecute(r ApiGetTestItemActivitiesRequest) (*ComEpamReportportalBaseModelPage, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodGet
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *Page
+		localVarReturnValue *ComEpamReportportalBaseModelPage
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ActivityAPIService.GetTestItemActivities")
@@ -432,9 +446,9 @@ func (a *ActivityAPIService) GetTestItemActivitiesExecute(r ApiGetTestItemActivi
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/activity/item/{itemId}"
+	localVarPath := localBasePath + "/v1/{projectKey}/activity/item/{itemId}"
 	localVarPath = strings.Replace(localVarPath, "{"+"itemId"+"}", url.PathEscape(parameterValueToString(r.itemId, "itemId")), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -451,6 +465,9 @@ func (a *ActivityAPIService) GetTestItemActivitiesExecute(r ApiGetTestItemActivi
 	}
 	if r.filterEqObjectId != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.objectId", r.filterEqObjectId, "form", "")
+	}
+	if r.filterEqOrganizationId != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.organizationId", r.filterEqOrganizationId, "form", "")
 	}
 	if r.filterEqSubjectId != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.subjectId", r.filterEqSubjectId, "form", "")
@@ -481,6 +498,9 @@ func (a *ActivityAPIService) GetTestItemActivitiesExecute(r ApiGetTestItemActivi
 	}
 	if r.filterEqCreatedAt != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.createdAt", r.filterEqCreatedAt, "form", "")
+	}
+	if r.filterEqOrganizationName != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.organizationName", r.filterEqOrganizationName, "form", "")
 	}
 	if r.pagePage != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "page.page", r.pagePage, "form", "")
@@ -538,7 +558,7 @@ func (a *ActivityAPIService) GetTestItemActivitiesExecute(r ApiGetTestItemActivi
 			error: localVarHTTPResponse.Status,
 		}
 		if localVarHTTPResponse.StatusCode == 401 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -560,7 +580,7 @@ func (a *ActivityAPIService) GetTestItemActivitiesExecute(r ApiGetTestItemActivi
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -571,7 +591,7 @@ func (a *ActivityAPIService) GetTestItemActivitiesExecute(r ApiGetTestItemActivi
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -582,7 +602,7 @@ func (a *ActivityAPIService) GetTestItemActivitiesExecute(r ApiGetTestItemActivi
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 404 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()

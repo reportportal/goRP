@@ -3,7 +3,7 @@ ReportPortal
 
 ReportPortal API documentation
 
-API version: 5.15.1
+API version: develop-531
 Contact: support@reportportal.io
 */
 
@@ -23,220 +23,11 @@ import (
 // ActivityEventAPIService ActivityEventAPI service
 type ActivityEventAPIService service
 
-type ApiGetActivitiesRequest struct {
-	ctx              context.Context
-	ApiService       *ActivityEventAPIService
-	limit            *int32
-	offset           *int32
-	order            *string
-	sort             *string
-	searchCriteriaRQ *SearchCriteriaRQ
-}
-
-func (r ApiGetActivitiesRequest) Limit(limit int32) ApiGetActivitiesRequest {
-	r.limit = &limit
-	return r
-}
-
-func (r ApiGetActivitiesRequest) Offset(offset int32) ApiGetActivitiesRequest {
-	r.offset = &offset
-	return r
-}
-
-func (r ApiGetActivitiesRequest) Order(order string) ApiGetActivitiesRequest {
-	r.order = &order
-	return r
-}
-
-func (r ApiGetActivitiesRequest) Sort(sort string) ApiGetActivitiesRequest {
-	r.sort = &sort
-	return r
-}
-
-func (r ApiGetActivitiesRequest) SearchCriteriaRQ(searchCriteriaRQ SearchCriteriaRQ) ApiGetActivitiesRequest {
-	r.searchCriteriaRQ = &searchCriteriaRQ
-	return r
-}
-
-func (r ApiGetActivitiesRequest) Execute() (*PagedResponseActivityEventResource, *http.Response, error) {
-	return r.ApiService.GetActivitiesExecute(r)
-}
-
-/*
-GetActivities Get activities by search criteria
-
-	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@return ApiGetActivitiesRequest
-*/
-func (a *ActivityEventAPIService) GetActivities(ctx context.Context) ApiGetActivitiesRequest {
-	return ApiGetActivitiesRequest{
-		ApiService: a,
-		ctx:        ctx,
-	}
-}
-
-// Execute executes the request
-//
-//	@return PagedResponseActivityEventResource
-func (a *ActivityEventAPIService) GetActivitiesExecute(r ApiGetActivitiesRequest) (*PagedResponseActivityEventResource, *http.Response, error) {
-	var (
-		localVarHTTPMethod  = http.MethodPost
-		localVarPostBody    interface{}
-		formFiles           []formFile
-		localVarReturnValue *PagedResponseActivityEventResource
-	)
-
-	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ActivityEventAPIService.GetActivities")
-	if err != nil {
-		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
-	}
-
-	localVarPath := localBasePath + "/v1/activities/searches"
-
-	localVarHeaderParams := make(map[string]string)
-	localVarQueryParams := url.Values{}
-	localVarFormParams := url.Values{}
-	if r.limit == nil {
-		return localVarReturnValue, nil, reportError("limit is required and must be specified")
-	}
-	if *r.limit < 0 {
-		return localVarReturnValue, nil, reportError("limit must be greater than 0")
-	}
-	if *r.limit > 300 {
-		return localVarReturnValue, nil, reportError("limit must be less than 300")
-	}
-	if r.offset == nil {
-		return localVarReturnValue, nil, reportError("offset is required and must be specified")
-	}
-	if *r.offset < 0 {
-		return localVarReturnValue, nil, reportError("offset must be greater than 0")
-	}
-	if r.order == nil {
-		return localVarReturnValue, nil, reportError("order is required and must be specified")
-	}
-	if r.sort == nil {
-		return localVarReturnValue, nil, reportError("sort is required and must be specified")
-	}
-	if r.searchCriteriaRQ == nil {
-		return localVarReturnValue, nil, reportError("searchCriteriaRQ is required and must be specified")
-	}
-
-	parameterAddToHeaderOrQuery(localVarQueryParams, "limit", r.limit, "form", "")
-	parameterAddToHeaderOrQuery(localVarQueryParams, "offset", r.offset, "form", "")
-	parameterAddToHeaderOrQuery(localVarQueryParams, "order", r.order, "form", "")
-	parameterAddToHeaderOrQuery(localVarQueryParams, "sort", r.sort, "form", "")
-	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{"application/json"}
-
-	// set Content-Type header
-	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
-	if localVarHTTPContentType != "" {
-		localVarHeaderParams["Content-Type"] = localVarHTTPContentType
-	}
-
-	// to determine the Accept header
-	localVarHTTPHeaderAccepts := []string{"application/json"}
-
-	// set Accept header
-	localVarHTTPHeaderAccept := selectHeaderAccept(localVarHTTPHeaderAccepts)
-	if localVarHTTPHeaderAccept != "" {
-		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
-	}
-	// body params
-	localVarPostBody = r.searchCriteriaRQ
-	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
-	if err != nil {
-		return localVarReturnValue, nil, err
-	}
-
-	localVarHTTPResponse, err := a.client.callAPI(req)
-	if err != nil || localVarHTTPResponse == nil {
-		return localVarReturnValue, localVarHTTPResponse, err
-	}
-
-	localVarBody, err := io.ReadAll(localVarHTTPResponse.Body)
-	localVarHTTPResponse.Body.Close()
-	localVarHTTPResponse.Body = io.NopCloser(bytes.NewBuffer(localVarBody))
-	if err != nil {
-		return localVarReturnValue, localVarHTTPResponse, err
-	}
-
-	if a.client.cfg.ResponseMiddleware != nil {
-		err = a.client.cfg.ResponseMiddleware(localVarHTTPResponse, localVarBody)
-		if err != nil {
-			return localVarReturnValue, localVarHTTPResponse, err
-		}
-	}
-
-	if localVarHTTPResponse.StatusCode >= 300 {
-		newErr := &GenericOpenAPIError{
-			body:  localVarBody,
-			error: localVarHTTPResponse.Status,
-		}
-		if localVarHTTPResponse.StatusCode == 401 {
-			var v SaveAnalyticsSettings1401Response
-			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return localVarReturnValue, localVarHTTPResponse, newErr
-			}
-			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-			newErr.model = v
-			return localVarReturnValue, localVarHTTPResponse, newErr
-		}
-		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
-			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return localVarReturnValue, localVarHTTPResponse, newErr
-			}
-			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-			newErr.model = v
-			return localVarReturnValue, localVarHTTPResponse, newErr
-		}
-		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
-			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return localVarReturnValue, localVarHTTPResponse, newErr
-			}
-			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-			newErr.model = v
-			return localVarReturnValue, localVarHTTPResponse, newErr
-		}
-		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
-			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return localVarReturnValue, localVarHTTPResponse, newErr
-			}
-			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-			newErr.model = v
-			return localVarReturnValue, localVarHTTPResponse, newErr
-		}
-		return localVarReturnValue, localVarHTTPResponse, newErr
-	}
-
-	err = a.client.decode(&localVarReturnValue, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
-	if err != nil {
-		newErr := &GenericOpenAPIError{
-			body:  localVarBody,
-			error: err.Error(),
-		}
-		return localVarReturnValue, localVarHTTPResponse, newErr
-	}
-
-	return localVarReturnValue, localVarHTTPResponse, nil
-}
-
 type ApiGetProjectSubjectNameRequest struct {
 	ctx                  context.Context
 	ApiService           *ActivityEventAPIService
 	filterCntSubjectName *string
-	projectName          string
+	projectKey           string
 }
 
 func (r ApiGetProjectSubjectNameRequest) FilterCntSubjectName(filterCntSubjectName string) ApiGetProjectSubjectNameRequest {
@@ -254,14 +45,14 @@ GetProjectSubjectName Load project activities subjectNames by filter
 Only for current project
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param projectName
+	@param projectKey
 	@return ApiGetProjectSubjectNameRequest
 */
-func (a *ActivityEventAPIService) GetProjectSubjectName(ctx context.Context, projectName string) ApiGetProjectSubjectNameRequest {
+func (a *ActivityEventAPIService) GetProjectSubjectName(ctx context.Context, projectKey string) ApiGetProjectSubjectNameRequest {
 	return ApiGetProjectSubjectNameRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		projectKey: projectKey,
 	}
 }
 
@@ -281,8 +72,8 @@ func (a *ActivityEventAPIService) GetProjectSubjectNameExecute(r ApiGetProjectSu
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/activities/{projectName}/subjectName"
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath := localBasePath + "/v1/activities/{projectKey}/subjectName"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -350,7 +141,7 @@ func (a *ActivityEventAPIService) GetProjectSubjectNameExecute(r ApiGetProjectSu
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -361,7 +152,7 @@ func (a *ActivityEventAPIService) GetProjectSubjectNameExecute(r ApiGetProjectSu
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -372,7 +163,7 @@ func (a *ActivityEventAPIService) GetProjectSubjectNameExecute(r ApiGetProjectSu
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()

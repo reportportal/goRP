@@ -3,7 +3,7 @@ ReportPortal
 
 ReportPortal API documentation
 
-API version: 5.15.1
+API version: develop-531
 Contact: support@reportportal.io
 */
 
@@ -124,7 +124,7 @@ func (a *SettingsAPIService) GetServerSettingsExecute(r ApiGetServerSettingsRequ
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -135,7 +135,7 @@ func (a *SettingsAPIService) GetServerSettingsExecute(r ApiGetServerSettingsRequ
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -146,7 +146,7 @@ func (a *SettingsAPIService) GetServerSettingsExecute(r ApiGetServerSettingsRequ
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -172,17 +172,17 @@ func (a *SettingsAPIService) GetServerSettingsExecute(r ApiGetServerSettingsRequ
 }
 
 type ApiSaveAnalyticsSettingsRequest struct {
-	ctx               context.Context
-	ApiService        *SettingsAPIService
-	analyticsResource *AnalyticsResource
+	ctx                                                   context.Context
+	ApiService                                            *SettingsAPIService
+	comEpamReportportalBaseModelSettingsAnalyticsResource *ComEpamReportportalBaseModelSettingsAnalyticsResource
 }
 
-func (r ApiSaveAnalyticsSettingsRequest) AnalyticsResource(analyticsResource AnalyticsResource) ApiSaveAnalyticsSettingsRequest {
-	r.analyticsResource = &analyticsResource
+func (r ApiSaveAnalyticsSettingsRequest) ComEpamReportportalBaseModelSettingsAnalyticsResource(comEpamReportportalBaseModelSettingsAnalyticsResource ComEpamReportportalBaseModelSettingsAnalyticsResource) ApiSaveAnalyticsSettingsRequest {
+	r.comEpamReportportalBaseModelSettingsAnalyticsResource = &comEpamReportportalBaseModelSettingsAnalyticsResource
 	return r
 }
 
-func (r ApiSaveAnalyticsSettingsRequest) Execute() (*OperationCompletionRS, *http.Response, error) {
+func (r ApiSaveAnalyticsSettingsRequest) Execute() (*ComEpamReportportalBaseReportingOperationCompletionRS, *http.Response, error) {
 	return r.ApiService.SaveAnalyticsSettingsExecute(r)
 }
 
@@ -201,13 +201,13 @@ func (a *SettingsAPIService) SaveAnalyticsSettings(ctx context.Context) ApiSaveA
 
 // Execute executes the request
 //
-//	@return OperationCompletionRS
-func (a *SettingsAPIService) SaveAnalyticsSettingsExecute(r ApiSaveAnalyticsSettingsRequest) (*OperationCompletionRS, *http.Response, error) {
+//	@return ComEpamReportportalBaseReportingOperationCompletionRS
+func (a *SettingsAPIService) SaveAnalyticsSettingsExecute(r ApiSaveAnalyticsSettingsRequest) (*ComEpamReportportalBaseReportingOperationCompletionRS, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPost
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *OperationCompletionRS
+		localVarReturnValue *ComEpamReportportalBaseReportingOperationCompletionRS
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "SettingsAPIService.SaveAnalyticsSettings")
@@ -220,8 +220,8 @@ func (a *SettingsAPIService) SaveAnalyticsSettingsExecute(r ApiSaveAnalyticsSett
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
-	if r.analyticsResource == nil {
-		return localVarReturnValue, nil, reportError("analyticsResource is required and must be specified")
+	if r.comEpamReportportalBaseModelSettingsAnalyticsResource == nil {
+		return localVarReturnValue, nil, reportError("comEpamReportportalBaseModelSettingsAnalyticsResource is required and must be specified")
 	}
 
 	// to determine the Content-Type header
@@ -242,7 +242,7 @@ func (a *SettingsAPIService) SaveAnalyticsSettingsExecute(r ApiSaveAnalyticsSett
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
 	// body params
-	localVarPostBody = r.analyticsResource
+	localVarPostBody = r.comEpamReportportalBaseModelSettingsAnalyticsResource
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -284,7 +284,7 @@ func (a *SettingsAPIService) SaveAnalyticsSettingsExecute(r ApiSaveAnalyticsSett
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -295,7 +295,7 @@ func (a *SettingsAPIService) SaveAnalyticsSettingsExecute(r ApiSaveAnalyticsSett
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -306,7 +306,7 @@ func (a *SettingsAPIService) SaveAnalyticsSettingsExecute(r ApiSaveAnalyticsSett
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -332,17 +332,17 @@ func (a *SettingsAPIService) SaveAnalyticsSettingsExecute(r ApiSaveAnalyticsSett
 }
 
 type ApiSaveAnalyticsSettings1Request struct {
-	ctx               context.Context
-	ApiService        *SettingsAPIService
-	analyticsResource *AnalyticsResource
+	ctx                                                   context.Context
+	ApiService                                            *SettingsAPIService
+	comEpamReportportalBaseModelSettingsAnalyticsResource *ComEpamReportportalBaseModelSettingsAnalyticsResource
 }
 
-func (r ApiSaveAnalyticsSettings1Request) AnalyticsResource(analyticsResource AnalyticsResource) ApiSaveAnalyticsSettings1Request {
-	r.analyticsResource = &analyticsResource
+func (r ApiSaveAnalyticsSettings1Request) ComEpamReportportalBaseModelSettingsAnalyticsResource(comEpamReportportalBaseModelSettingsAnalyticsResource ComEpamReportportalBaseModelSettingsAnalyticsResource) ApiSaveAnalyticsSettings1Request {
+	r.comEpamReportportalBaseModelSettingsAnalyticsResource = &comEpamReportportalBaseModelSettingsAnalyticsResource
 	return r
 }
 
-func (r ApiSaveAnalyticsSettings1Request) Execute() (*OperationCompletionRS, *http.Response, error) {
+func (r ApiSaveAnalyticsSettings1Request) Execute() (*ComEpamReportportalBaseReportingOperationCompletionRS, *http.Response, error) {
 	return r.ApiService.SaveAnalyticsSettings1Execute(r)
 }
 
@@ -361,13 +361,13 @@ func (a *SettingsAPIService) SaveAnalyticsSettings1(ctx context.Context) ApiSave
 
 // Execute executes the request
 //
-//	@return OperationCompletionRS
-func (a *SettingsAPIService) SaveAnalyticsSettings1Execute(r ApiSaveAnalyticsSettings1Request) (*OperationCompletionRS, *http.Response, error) {
+//	@return ComEpamReportportalBaseReportingOperationCompletionRS
+func (a *SettingsAPIService) SaveAnalyticsSettings1Execute(r ApiSaveAnalyticsSettings1Request) (*ComEpamReportportalBaseReportingOperationCompletionRS, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPut
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *OperationCompletionRS
+		localVarReturnValue *ComEpamReportportalBaseReportingOperationCompletionRS
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "SettingsAPIService.SaveAnalyticsSettings1")
@@ -380,8 +380,8 @@ func (a *SettingsAPIService) SaveAnalyticsSettings1Execute(r ApiSaveAnalyticsSet
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
-	if r.analyticsResource == nil {
-		return localVarReturnValue, nil, reportError("analyticsResource is required and must be specified")
+	if r.comEpamReportportalBaseModelSettingsAnalyticsResource == nil {
+		return localVarReturnValue, nil, reportError("comEpamReportportalBaseModelSettingsAnalyticsResource is required and must be specified")
 	}
 
 	// to determine the Content-Type header
@@ -402,7 +402,7 @@ func (a *SettingsAPIService) SaveAnalyticsSettings1Execute(r ApiSaveAnalyticsSet
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
 	// body params
-	localVarPostBody = r.analyticsResource
+	localVarPostBody = r.comEpamReportportalBaseModelSettingsAnalyticsResource
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -444,7 +444,7 @@ func (a *SettingsAPIService) SaveAnalyticsSettings1Execute(r ApiSaveAnalyticsSet
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -455,7 +455,7 @@ func (a *SettingsAPIService) SaveAnalyticsSettings1Execute(r ApiSaveAnalyticsSet
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -466,7 +466,7 @@ func (a *SettingsAPIService) SaveAnalyticsSettings1Execute(r ApiSaveAnalyticsSet
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -492,17 +492,17 @@ func (a *SettingsAPIService) SaveAnalyticsSettings1Execute(r ApiSaveAnalyticsSet
 }
 
 type ApiUpdateServerSettingsRequest struct {
-	ctx              context.Context
-	ApiService       *SettingsAPIService
-	updateSettingsRq *UpdateSettingsRq
+	ctx                                                  context.Context
+	ApiService                                           *SettingsAPIService
+	comEpamReportportalBaseModelSettingsUpdateSettingsRq *ComEpamReportportalBaseModelSettingsUpdateSettingsRq
 }
 
-func (r ApiUpdateServerSettingsRequest) UpdateSettingsRq(updateSettingsRq UpdateSettingsRq) ApiUpdateServerSettingsRequest {
-	r.updateSettingsRq = &updateSettingsRq
+func (r ApiUpdateServerSettingsRequest) ComEpamReportportalBaseModelSettingsUpdateSettingsRq(comEpamReportportalBaseModelSettingsUpdateSettingsRq ComEpamReportportalBaseModelSettingsUpdateSettingsRq) ApiUpdateServerSettingsRequest {
+	r.comEpamReportportalBaseModelSettingsUpdateSettingsRq = &comEpamReportportalBaseModelSettingsUpdateSettingsRq
 	return r
 }
 
-func (r ApiUpdateServerSettingsRequest) Execute() (*OperationCompletionRS, *http.Response, error) {
+func (r ApiUpdateServerSettingsRequest) Execute() (*ComEpamReportportalBaseReportingOperationCompletionRS, *http.Response, error) {
 	return r.ApiService.UpdateServerSettingsExecute(r)
 }
 
@@ -521,13 +521,13 @@ func (a *SettingsAPIService) UpdateServerSettings(ctx context.Context) ApiUpdate
 
 // Execute executes the request
 //
-//	@return OperationCompletionRS
-func (a *SettingsAPIService) UpdateServerSettingsExecute(r ApiUpdateServerSettingsRequest) (*OperationCompletionRS, *http.Response, error) {
+//	@return ComEpamReportportalBaseReportingOperationCompletionRS
+func (a *SettingsAPIService) UpdateServerSettingsExecute(r ApiUpdateServerSettingsRequest) (*ComEpamReportportalBaseReportingOperationCompletionRS, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPut
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *OperationCompletionRS
+		localVarReturnValue *ComEpamReportportalBaseReportingOperationCompletionRS
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "SettingsAPIService.UpdateServerSettings")
@@ -540,8 +540,8 @@ func (a *SettingsAPIService) UpdateServerSettingsExecute(r ApiUpdateServerSettin
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
-	if r.updateSettingsRq == nil {
-		return localVarReturnValue, nil, reportError("updateSettingsRq is required and must be specified")
+	if r.comEpamReportportalBaseModelSettingsUpdateSettingsRq == nil {
+		return localVarReturnValue, nil, reportError("comEpamReportportalBaseModelSettingsUpdateSettingsRq is required and must be specified")
 	}
 
 	// to determine the Content-Type header
@@ -562,7 +562,7 @@ func (a *SettingsAPIService) UpdateServerSettingsExecute(r ApiUpdateServerSettin
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
 	// body params
-	localVarPostBody = r.updateSettingsRq
+	localVarPostBody = r.comEpamReportportalBaseModelSettingsUpdateSettingsRq
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -604,7 +604,7 @@ func (a *SettingsAPIService) UpdateServerSettingsExecute(r ApiUpdateServerSettin
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -615,7 +615,7 @@ func (a *SettingsAPIService) UpdateServerSettingsExecute(r ApiUpdateServerSettin
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -626,7 +626,7 @@ func (a *SettingsAPIService) UpdateServerSettingsExecute(r ApiUpdateServerSettin
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()

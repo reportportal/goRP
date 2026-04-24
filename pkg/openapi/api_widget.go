@@ -3,7 +3,7 @@ ReportPortal
 
 ReportPortal API documentation
 
-API version: 5.15.1
+API version: develop-531
 Contact: support@reportportal.io
 */
 
@@ -25,18 +25,18 @@ import (
 type WidgetAPIService service
 
 type ApiCreateWidgetRequest struct {
-	ctx         context.Context
-	ApiService  *WidgetAPIService
-	projectName string
-	widgetRQ    *WidgetRQ
+	ctx                                        context.Context
+	ApiService                                 *WidgetAPIService
+	projectKey                                 string
+	comEpamReportportalBaseModelWidgetWidgetRQ *ComEpamReportportalBaseModelWidgetWidgetRQ
 }
 
-func (r ApiCreateWidgetRequest) WidgetRQ(widgetRQ WidgetRQ) ApiCreateWidgetRequest {
-	r.widgetRQ = &widgetRQ
+func (r ApiCreateWidgetRequest) ComEpamReportportalBaseModelWidgetWidgetRQ(comEpamReportportalBaseModelWidgetWidgetRQ ComEpamReportportalBaseModelWidgetWidgetRQ) ApiCreateWidgetRequest {
+	r.comEpamReportportalBaseModelWidgetWidgetRQ = &comEpamReportportalBaseModelWidgetWidgetRQ
 	return r
 }
 
-func (r ApiCreateWidgetRequest) Execute() (*EntryCreatedRS, *http.Response, error) {
+func (r ApiCreateWidgetRequest) Execute() (*ComEpamReportportalBaseModelEntryCreatedRS, *http.Response, error) {
 	return r.ApiService.CreateWidgetExecute(r)
 }
 
@@ -44,26 +44,26 @@ func (r ApiCreateWidgetRequest) Execute() (*EntryCreatedRS, *http.Response, erro
 CreateWidget Create a new widget
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param projectName
+	@param projectKey
 	@return ApiCreateWidgetRequest
 */
-func (a *WidgetAPIService) CreateWidget(ctx context.Context, projectName string) ApiCreateWidgetRequest {
+func (a *WidgetAPIService) CreateWidget(ctx context.Context, projectKey string) ApiCreateWidgetRequest {
 	return ApiCreateWidgetRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		projectKey: projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return EntryCreatedRS
-func (a *WidgetAPIService) CreateWidgetExecute(r ApiCreateWidgetRequest) (*EntryCreatedRS, *http.Response, error) {
+//	@return ComEpamReportportalBaseModelEntryCreatedRS
+func (a *WidgetAPIService) CreateWidgetExecute(r ApiCreateWidgetRequest) (*ComEpamReportportalBaseModelEntryCreatedRS, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPost
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *EntryCreatedRS
+		localVarReturnValue *ComEpamReportportalBaseModelEntryCreatedRS
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "WidgetAPIService.CreateWidget")
@@ -71,14 +71,14 @@ func (a *WidgetAPIService) CreateWidgetExecute(r ApiCreateWidgetRequest) (*Entry
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/widget"
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath := localBasePath + "/v1/{projectKey}/widget"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
-	if r.widgetRQ == nil {
-		return localVarReturnValue, nil, reportError("widgetRQ is required and must be specified")
+	if r.comEpamReportportalBaseModelWidgetWidgetRQ == nil {
+		return localVarReturnValue, nil, reportError("comEpamReportportalBaseModelWidgetWidgetRQ is required and must be specified")
 	}
 
 	// to determine the Content-Type header
@@ -99,7 +99,7 @@ func (a *WidgetAPIService) CreateWidgetExecute(r ApiCreateWidgetRequest) (*Entry
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
 	// body params
-	localVarPostBody = r.widgetRQ
+	localVarPostBody = r.comEpamReportportalBaseModelWidgetWidgetRQ
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -141,7 +141,7 @@ func (a *WidgetAPIService) CreateWidgetExecute(r ApiCreateWidgetRequest) (*Entry
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -152,7 +152,7 @@ func (a *WidgetAPIService) CreateWidgetExecute(r ApiCreateWidgetRequest) (*Entry
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -163,7 +163,7 @@ func (a *WidgetAPIService) CreateWidgetExecute(r ApiCreateWidgetRequest) (*Entry
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -189,13 +189,13 @@ func (a *WidgetAPIService) CreateWidgetExecute(r ApiCreateWidgetRequest) (*Entry
 }
 
 type ApiGetWidgetRequest struct {
-	ctx         context.Context
-	ApiService  *WidgetAPIService
-	projectName string
-	widgetId    int64
+	ctx        context.Context
+	ApiService *WidgetAPIService
+	projectKey string
+	widgetId   int64
 }
 
-func (r ApiGetWidgetRequest) Execute() (*WidgetResource, *http.Response, error) {
+func (r ApiGetWidgetRequest) Execute() (*ComEpamReportportalBaseModelWidgetWidgetResource, *http.Response, error) {
 	return r.ApiService.GetWidgetExecute(r)
 }
 
@@ -203,28 +203,28 @@ func (r ApiGetWidgetRequest) Execute() (*WidgetResource, *http.Response, error) 
 GetWidget Get widget by ID
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param projectName
+	@param projectKey
 	@param widgetId
 	@return ApiGetWidgetRequest
 */
-func (a *WidgetAPIService) GetWidget(ctx context.Context, projectName string, widgetId int64) ApiGetWidgetRequest {
+func (a *WidgetAPIService) GetWidget(ctx context.Context, projectKey string, widgetId int64) ApiGetWidgetRequest {
 	return ApiGetWidgetRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		projectName: projectName,
-		widgetId:    widgetId,
+		ApiService: a,
+		ctx:        ctx,
+		projectKey: projectKey,
+		widgetId:   widgetId,
 	}
 }
 
 // Execute executes the request
 //
-//	@return WidgetResource
-func (a *WidgetAPIService) GetWidgetExecute(r ApiGetWidgetRequest) (*WidgetResource, *http.Response, error) {
+//	@return ComEpamReportportalBaseModelWidgetWidgetResource
+func (a *WidgetAPIService) GetWidgetExecute(r ApiGetWidgetRequest) (*ComEpamReportportalBaseModelWidgetWidgetResource, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodGet
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *WidgetResource
+		localVarReturnValue *ComEpamReportportalBaseModelWidgetWidgetResource
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "WidgetAPIService.GetWidget")
@@ -232,8 +232,8 @@ func (a *WidgetAPIService) GetWidgetExecute(r ApiGetWidgetRequest) (*WidgetResou
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/widget/{widgetId}"
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath := localBasePath + "/v1/{projectKey}/widget/{widgetId}"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"widgetId"+"}", url.PathEscape(parameterValueToString(r.widgetId, "widgetId")), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -298,7 +298,7 @@ func (a *WidgetAPIService) GetWidgetExecute(r ApiGetWidgetRequest) (*WidgetResou
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -309,7 +309,7 @@ func (a *WidgetAPIService) GetWidgetExecute(r ApiGetWidgetRequest) (*WidgetResou
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -320,7 +320,7 @@ func (a *WidgetAPIService) GetWidgetExecute(r ApiGetWidgetRequest) (*WidgetResou
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -346,15 +346,15 @@ func (a *WidgetAPIService) GetWidgetExecute(r ApiGetWidgetRequest) (*WidgetResou
 }
 
 type ApiGetWidget1Request struct {
-	ctx         context.Context
-	ApiService  *WidgetAPIService
-	params      *MultiValueMapStringString
-	projectName string
-	widgetId    int64
-	attributes  *[]string
+	ctx        context.Context
+	ApiService *WidgetAPIService
+	params     *OrgSpringframeworkUtilMultiValueMapJavaLangStringJavaLangString
+	projectKey string
+	widgetId   int64
+	attributes *[]string
 }
 
-func (r ApiGetWidget1Request) Params(params MultiValueMapStringString) ApiGetWidget1Request {
+func (r ApiGetWidget1Request) Params(params OrgSpringframeworkUtilMultiValueMapJavaLangStringJavaLangString) ApiGetWidget1Request {
 	r.params = &params
 	return r
 }
@@ -364,7 +364,7 @@ func (r ApiGetWidget1Request) Attributes(attributes []string) ApiGetWidget1Reque
 	return r
 }
 
-func (r ApiGetWidget1Request) Execute() (*WidgetResource, *http.Response, error) {
+func (r ApiGetWidget1Request) Execute() (*ComEpamReportportalBaseModelWidgetWidgetResource, *http.Response, error) {
 	return r.ApiService.GetWidget1Execute(r)
 }
 
@@ -372,28 +372,28 @@ func (r ApiGetWidget1Request) Execute() (*WidgetResource, *http.Response, error)
 GetWidget1 Get multilevel widget by ID
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param projectName
+	@param projectKey
 	@param widgetId
 	@return ApiGetWidget1Request
 */
-func (a *WidgetAPIService) GetWidget1(ctx context.Context, projectName string, widgetId int64) ApiGetWidget1Request {
+func (a *WidgetAPIService) GetWidget1(ctx context.Context, projectKey string, widgetId int64) ApiGetWidget1Request {
 	return ApiGetWidget1Request{
-		ApiService:  a,
-		ctx:         ctx,
-		projectName: projectName,
-		widgetId:    widgetId,
+		ApiService: a,
+		ctx:        ctx,
+		projectKey: projectKey,
+		widgetId:   widgetId,
 	}
 }
 
 // Execute executes the request
 //
-//	@return WidgetResource
-func (a *WidgetAPIService) GetWidget1Execute(r ApiGetWidget1Request) (*WidgetResource, *http.Response, error) {
+//	@return ComEpamReportportalBaseModelWidgetWidgetResource
+func (a *WidgetAPIService) GetWidget1Execute(r ApiGetWidget1Request) (*ComEpamReportportalBaseModelWidgetWidgetResource, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodGet
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *WidgetResource
+		localVarReturnValue *ComEpamReportportalBaseModelWidgetWidgetResource
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "WidgetAPIService.GetWidget1")
@@ -401,8 +401,8 @@ func (a *WidgetAPIService) GetWidget1Execute(r ApiGetWidget1Request) (*WidgetRes
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/widget/multilevel/{widgetId}"
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath := localBasePath + "/v1/{projectKey}/widget/multilevel/{widgetId}"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"widgetId"+"}", url.PathEscape(parameterValueToString(r.widgetId, "widgetId")), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -482,7 +482,7 @@ func (a *WidgetAPIService) GetWidget1Execute(r ApiGetWidget1Request) (*WidgetRes
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -493,7 +493,7 @@ func (a *WidgetAPIService) GetWidget1Execute(r ApiGetWidget1Request) (*WidgetRes
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -504,250 +504,7 @@ func (a *WidgetAPIService) GetWidget1Execute(r ApiGetWidget1Request) (*WidgetRes
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
-			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return localVarReturnValue, localVarHTTPResponse, newErr
-			}
-			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-			newErr.model = v
-			return localVarReturnValue, localVarHTTPResponse, newErr
-		}
-		return localVarReturnValue, localVarHTTPResponse, newErr
-	}
-
-	err = a.client.decode(&localVarReturnValue, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
-	if err != nil {
-		newErr := &GenericOpenAPIError{
-			body:  localVarBody,
-			error: err.Error(),
-		}
-		return localVarReturnValue, localVarHTTPResponse, newErr
-	}
-
-	return localVarReturnValue, localVarHTTPResponse, nil
-}
-
-type ApiGetWidgetNamesRequest struct {
-	ctx                 context.Context
-	ApiService          *WidgetAPIService
-	projectName         string
-	pagePage            *int32
-	pageSize            *int32
-	pageSort            *string
-	filterEqId          *int32
-	filterEqLocked      *bool
-	filterEqProjectId   *int32
-	filterEqOwner       *string
-	filterEqName        *string
-	filterEqDescription *string
-}
-
-// Results page you want to retrieve (0..N)
-func (r ApiGetWidgetNamesRequest) PagePage(pagePage int32) ApiGetWidgetNamesRequest {
-	r.pagePage = &pagePage
-	return r
-}
-
-// Number of records per page
-func (r ApiGetWidgetNamesRequest) PageSize(pageSize int32) ApiGetWidgetNamesRequest {
-	r.pageSize = &pageSize
-	return r
-}
-
-// Sorting criteria in the format: property, (asc|desc). Default sort order is ascending. Multiple sort criteria are supported.
-func (r ApiGetWidgetNamesRequest) PageSort(pageSort string) ApiGetWidgetNamesRequest {
-	r.pageSort = &pageSort
-	return r
-}
-
-// Filters by &#39;id&#39;
-func (r ApiGetWidgetNamesRequest) FilterEqId(filterEqId int32) ApiGetWidgetNamesRequest {
-	r.filterEqId = &filterEqId
-	return r
-}
-
-// Filters by &#39;locked&#39;
-func (r ApiGetWidgetNamesRequest) FilterEqLocked(filterEqLocked bool) ApiGetWidgetNamesRequest {
-	r.filterEqLocked = &filterEqLocked
-	return r
-}
-
-// Filters by &#39;projectId&#39;
-func (r ApiGetWidgetNamesRequest) FilterEqProjectId(filterEqProjectId int32) ApiGetWidgetNamesRequest {
-	r.filterEqProjectId = &filterEqProjectId
-	return r
-}
-
-// Filters by &#39;owner&#39;
-func (r ApiGetWidgetNamesRequest) FilterEqOwner(filterEqOwner string) ApiGetWidgetNamesRequest {
-	r.filterEqOwner = &filterEqOwner
-	return r
-}
-
-// Filters by &#39;name&#39;
-func (r ApiGetWidgetNamesRequest) FilterEqName(filterEqName string) ApiGetWidgetNamesRequest {
-	r.filterEqName = &filterEqName
-	return r
-}
-
-// Filters by &#39;description&#39;
-func (r ApiGetWidgetNamesRequest) FilterEqDescription(filterEqDescription string) ApiGetWidgetNamesRequest {
-	r.filterEqDescription = &filterEqDescription
-	return r
-}
-
-func (r ApiGetWidgetNamesRequest) Execute() (*PageObject, *http.Response, error) {
-	return r.ApiService.GetWidgetNamesExecute(r)
-}
-
-/*
-GetWidgetNames Load all widget names which belong to a user
-
-	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param projectName
-	@return ApiGetWidgetNamesRequest
-*/
-func (a *WidgetAPIService) GetWidgetNames(ctx context.Context, projectName string) ApiGetWidgetNamesRequest {
-	return ApiGetWidgetNamesRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		projectName: projectName,
-	}
-}
-
-// Execute executes the request
-//
-//	@return PageObject
-func (a *WidgetAPIService) GetWidgetNamesExecute(r ApiGetWidgetNamesRequest) (*PageObject, *http.Response, error) {
-	var (
-		localVarHTTPMethod  = http.MethodGet
-		localVarPostBody    interface{}
-		formFiles           []formFile
-		localVarReturnValue *PageObject
-	)
-
-	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "WidgetAPIService.GetWidgetNames")
-	if err != nil {
-		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
-	}
-
-	localVarPath := localBasePath + "/v1/{projectName}/widget/names/all"
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
-
-	localVarHeaderParams := make(map[string]string)
-	localVarQueryParams := url.Values{}
-	localVarFormParams := url.Values{}
-
-	if r.pagePage != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "page.page", r.pagePage, "form", "")
-	}
-	if r.pageSize != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "page.size", r.pageSize, "form", "")
-	}
-	if r.pageSort != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "page.sort", r.pageSort, "form", "")
-	}
-	if r.filterEqId != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.id", r.filterEqId, "form", "")
-	}
-	if r.filterEqLocked != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.locked", r.filterEqLocked, "form", "")
-	}
-	if r.filterEqProjectId != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.projectId", r.filterEqProjectId, "form", "")
-	}
-	if r.filterEqOwner != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.owner", r.filterEqOwner, "form", "")
-	}
-	if r.filterEqName != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.name", r.filterEqName, "form", "")
-	}
-	if r.filterEqDescription != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.description", r.filterEqDescription, "form", "")
-	}
-	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
-
-	// set Content-Type header
-	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
-	if localVarHTTPContentType != "" {
-		localVarHeaderParams["Content-Type"] = localVarHTTPContentType
-	}
-
-	// to determine the Accept header
-	localVarHTTPHeaderAccepts := []string{"application/json"}
-
-	// set Accept header
-	localVarHTTPHeaderAccept := selectHeaderAccept(localVarHTTPHeaderAccepts)
-	if localVarHTTPHeaderAccept != "" {
-		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
-	}
-	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
-	if err != nil {
-		return localVarReturnValue, nil, err
-	}
-
-	localVarHTTPResponse, err := a.client.callAPI(req)
-	if err != nil || localVarHTTPResponse == nil {
-		return localVarReturnValue, localVarHTTPResponse, err
-	}
-
-	localVarBody, err := io.ReadAll(localVarHTTPResponse.Body)
-	localVarHTTPResponse.Body.Close()
-	localVarHTTPResponse.Body = io.NopCloser(bytes.NewBuffer(localVarBody))
-	if err != nil {
-		return localVarReturnValue, localVarHTTPResponse, err
-	}
-
-	if a.client.cfg.ResponseMiddleware != nil {
-		err = a.client.cfg.ResponseMiddleware(localVarHTTPResponse, localVarBody)
-		if err != nil {
-			return localVarReturnValue, localVarHTTPResponse, err
-		}
-	}
-
-	if localVarHTTPResponse.StatusCode >= 300 {
-		newErr := &GenericOpenAPIError{
-			body:  localVarBody,
-			error: localVarHTTPResponse.Status,
-		}
-		if localVarHTTPResponse.StatusCode == 401 {
-			var v SaveAnalyticsSettings1401Response
-			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return localVarReturnValue, localVarHTTPResponse, newErr
-			}
-			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-			newErr.model = v
-			return localVarReturnValue, localVarHTTPResponse, newErr
-		}
-		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
-			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return localVarReturnValue, localVarHTTPResponse, newErr
-			}
-			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-			newErr.model = v
-			return localVarReturnValue, localVarHTTPResponse, newErr
-		}
-		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
-			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return localVarReturnValue, localVarHTTPResponse, newErr
-			}
-			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-			newErr.model = v
-			return localVarReturnValue, localVarHTTPResponse, newErr
-		}
-		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -773,14 +530,14 @@ func (a *WidgetAPIService) GetWidgetNamesExecute(r ApiGetWidgetNamesRequest) (*P
 }
 
 type ApiGetWidgetPreviewRequest struct {
-	ctx             context.Context
-	ApiService      *WidgetAPIService
-	projectName     string
-	widgetPreviewRQ *WidgetPreviewRQ
+	ctx                                               context.Context
+	ApiService                                        *WidgetAPIService
+	projectKey                                        string
+	comEpamReportportalBaseModelWidgetWidgetPreviewRQ *ComEpamReportportalBaseModelWidgetWidgetPreviewRQ
 }
 
-func (r ApiGetWidgetPreviewRequest) WidgetPreviewRQ(widgetPreviewRQ WidgetPreviewRQ) ApiGetWidgetPreviewRequest {
-	r.widgetPreviewRQ = &widgetPreviewRQ
+func (r ApiGetWidgetPreviewRequest) ComEpamReportportalBaseModelWidgetWidgetPreviewRQ(comEpamReportportalBaseModelWidgetWidgetPreviewRQ ComEpamReportportalBaseModelWidgetWidgetPreviewRQ) ApiGetWidgetPreviewRequest {
+	r.comEpamReportportalBaseModelWidgetWidgetPreviewRQ = &comEpamReportportalBaseModelWidgetWidgetPreviewRQ
 	return r
 }
 
@@ -792,14 +549,14 @@ func (r ApiGetWidgetPreviewRequest) Execute() (map[string]interface{}, *http.Res
 GetWidgetPreview Get widget preview
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param projectName
+	@param projectKey
 	@return ApiGetWidgetPreviewRequest
 */
-func (a *WidgetAPIService) GetWidgetPreview(ctx context.Context, projectName string) ApiGetWidgetPreviewRequest {
+func (a *WidgetAPIService) GetWidgetPreview(ctx context.Context, projectKey string) ApiGetWidgetPreviewRequest {
 	return ApiGetWidgetPreviewRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		projectKey: projectKey,
 	}
 }
 
@@ -819,14 +576,14 @@ func (a *WidgetAPIService) GetWidgetPreviewExecute(r ApiGetWidgetPreviewRequest)
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/widget/preview"
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath := localBasePath + "/v1/{projectKey}/widget/preview"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
-	if r.widgetPreviewRQ == nil {
-		return localVarReturnValue, nil, reportError("widgetPreviewRQ is required and must be specified")
+	if r.comEpamReportportalBaseModelWidgetWidgetPreviewRQ == nil {
+		return localVarReturnValue, nil, reportError("comEpamReportportalBaseModelWidgetWidgetPreviewRQ is required and must be specified")
 	}
 
 	// to determine the Content-Type header
@@ -847,7 +604,7 @@ func (a *WidgetAPIService) GetWidgetPreviewExecute(r ApiGetWidgetPreviewRequest)
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
 	// body params
-	localVarPostBody = r.widgetPreviewRQ
+	localVarPostBody = r.comEpamReportportalBaseModelWidgetWidgetPreviewRQ
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -889,7 +646,7 @@ func (a *WidgetAPIService) GetWidgetPreviewExecute(r ApiGetWidgetPreviewRequest)
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -900,7 +657,7 @@ func (a *WidgetAPIService) GetWidgetPreviewExecute(r ApiGetWidgetPreviewRequest)
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -911,7 +668,7 @@ func (a *WidgetAPIService) GetWidgetPreviewExecute(r ApiGetWidgetPreviewRequest)
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -937,19 +694,19 @@ func (a *WidgetAPIService) GetWidgetPreviewExecute(r ApiGetWidgetPreviewRequest)
 }
 
 type ApiUpdateWidgetRequest struct {
-	ctx         context.Context
-	ApiService  *WidgetAPIService
-	projectName string
-	widgetId    int64
-	widgetRQ    *WidgetRQ
+	ctx                                        context.Context
+	ApiService                                 *WidgetAPIService
+	projectKey                                 string
+	widgetId                                   int64
+	comEpamReportportalBaseModelWidgetWidgetRQ *ComEpamReportportalBaseModelWidgetWidgetRQ
 }
 
-func (r ApiUpdateWidgetRequest) WidgetRQ(widgetRQ WidgetRQ) ApiUpdateWidgetRequest {
-	r.widgetRQ = &widgetRQ
+func (r ApiUpdateWidgetRequest) ComEpamReportportalBaseModelWidgetWidgetRQ(comEpamReportportalBaseModelWidgetWidgetRQ ComEpamReportportalBaseModelWidgetWidgetRQ) ApiUpdateWidgetRequest {
+	r.comEpamReportportalBaseModelWidgetWidgetRQ = &comEpamReportportalBaseModelWidgetWidgetRQ
 	return r
 }
 
-func (r ApiUpdateWidgetRequest) Execute() (*OperationCompletionRS, *http.Response, error) {
+func (r ApiUpdateWidgetRequest) Execute() (*ComEpamReportportalBaseReportingOperationCompletionRS, *http.Response, error) {
 	return r.ApiService.UpdateWidgetExecute(r)
 }
 
@@ -957,28 +714,28 @@ func (r ApiUpdateWidgetRequest) Execute() (*OperationCompletionRS, *http.Respons
 UpdateWidget Update specified widget
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param projectName
+	@param projectKey
 	@param widgetId
 	@return ApiUpdateWidgetRequest
 */
-func (a *WidgetAPIService) UpdateWidget(ctx context.Context, projectName string, widgetId int64) ApiUpdateWidgetRequest {
+func (a *WidgetAPIService) UpdateWidget(ctx context.Context, projectKey string, widgetId int64) ApiUpdateWidgetRequest {
 	return ApiUpdateWidgetRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		projectName: projectName,
-		widgetId:    widgetId,
+		ApiService: a,
+		ctx:        ctx,
+		projectKey: projectKey,
+		widgetId:   widgetId,
 	}
 }
 
 // Execute executes the request
 //
-//	@return OperationCompletionRS
-func (a *WidgetAPIService) UpdateWidgetExecute(r ApiUpdateWidgetRequest) (*OperationCompletionRS, *http.Response, error) {
+//	@return ComEpamReportportalBaseReportingOperationCompletionRS
+func (a *WidgetAPIService) UpdateWidgetExecute(r ApiUpdateWidgetRequest) (*ComEpamReportportalBaseReportingOperationCompletionRS, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPut
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *OperationCompletionRS
+		localVarReturnValue *ComEpamReportportalBaseReportingOperationCompletionRS
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "WidgetAPIService.UpdateWidget")
@@ -986,15 +743,15 @@ func (a *WidgetAPIService) UpdateWidgetExecute(r ApiUpdateWidgetRequest) (*Opera
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/widget/{widgetId}"
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath := localBasePath + "/v1/{projectKey}/widget/{widgetId}"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"widgetId"+"}", url.PathEscape(parameterValueToString(r.widgetId, "widgetId")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
-	if r.widgetRQ == nil {
-		return localVarReturnValue, nil, reportError("widgetRQ is required and must be specified")
+	if r.comEpamReportportalBaseModelWidgetWidgetRQ == nil {
+		return localVarReturnValue, nil, reportError("comEpamReportportalBaseModelWidgetWidgetRQ is required and must be specified")
 	}
 
 	// to determine the Content-Type header
@@ -1015,7 +772,7 @@ func (a *WidgetAPIService) UpdateWidgetExecute(r ApiUpdateWidgetRequest) (*Opera
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
 	// body params
-	localVarPostBody = r.widgetRQ
+	localVarPostBody = r.comEpamReportportalBaseModelWidgetWidgetRQ
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -1057,7 +814,7 @@ func (a *WidgetAPIService) UpdateWidgetExecute(r ApiUpdateWidgetRequest) (*Opera
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1068,7 +825,7 @@ func (a *WidgetAPIService) UpdateWidgetExecute(r ApiUpdateWidgetRequest) (*Opera
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1079,7 +836,7 @@ func (a *WidgetAPIService) UpdateWidgetExecute(r ApiUpdateWidgetRequest) (*Opera
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()

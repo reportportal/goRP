@@ -3,7 +3,7 @@ ReportPortal
 
 ReportPortal API documentation
 
-API version: 5.15.1
+API version: develop-531
 Contact: support@reportportal.io
 */
 
@@ -24,19 +24,19 @@ import (
 type DashboardAPIService service
 
 type ApiAddWidgetRequest struct {
-	ctx         context.Context
-	ApiService  *DashboardAPIService
-	dashboardId int64
-	projectName string
-	addWidgetRq *AddWidgetRq
+	ctx                                              context.Context
+	ApiService                                       *DashboardAPIService
+	dashboardId                                      int64
+	projectKey                                       string
+	comEpamReportportalBaseModelDashboardAddWidgetRq *ComEpamReportportalBaseModelDashboardAddWidgetRq
 }
 
-func (r ApiAddWidgetRequest) AddWidgetRq(addWidgetRq AddWidgetRq) ApiAddWidgetRequest {
-	r.addWidgetRq = &addWidgetRq
+func (r ApiAddWidgetRequest) ComEpamReportportalBaseModelDashboardAddWidgetRq(comEpamReportportalBaseModelDashboardAddWidgetRq ComEpamReportportalBaseModelDashboardAddWidgetRq) ApiAddWidgetRequest {
+	r.comEpamReportportalBaseModelDashboardAddWidgetRq = &comEpamReportportalBaseModelDashboardAddWidgetRq
 	return r
 }
 
-func (r ApiAddWidgetRequest) Execute() (*OperationCompletionRS, *http.Response, error) {
+func (r ApiAddWidgetRequest) Execute() (*ComEpamReportportalBaseReportingOperationCompletionRS, *http.Response, error) {
 	return r.ApiService.AddWidgetExecute(r)
 }
 
@@ -45,27 +45,27 @@ AddWidget Add widget to specified dashboard
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param dashboardId
-	@param projectName
+	@param projectKey
 	@return ApiAddWidgetRequest
 */
-func (a *DashboardAPIService) AddWidget(ctx context.Context, dashboardId int64, projectName string) ApiAddWidgetRequest {
+func (a *DashboardAPIService) AddWidget(ctx context.Context, dashboardId int64, projectKey string) ApiAddWidgetRequest {
 	return ApiAddWidgetRequest{
 		ApiService:  a,
 		ctx:         ctx,
 		dashboardId: dashboardId,
-		projectName: projectName,
+		projectKey:  projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return OperationCompletionRS
-func (a *DashboardAPIService) AddWidgetExecute(r ApiAddWidgetRequest) (*OperationCompletionRS, *http.Response, error) {
+//	@return ComEpamReportportalBaseReportingOperationCompletionRS
+func (a *DashboardAPIService) AddWidgetExecute(r ApiAddWidgetRequest) (*ComEpamReportportalBaseReportingOperationCompletionRS, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPut
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *OperationCompletionRS
+		localVarReturnValue *ComEpamReportportalBaseReportingOperationCompletionRS
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "DashboardAPIService.AddWidget")
@@ -73,15 +73,15 @@ func (a *DashboardAPIService) AddWidgetExecute(r ApiAddWidgetRequest) (*Operatio
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/dashboard/{dashboardId}/add"
+	localVarPath := localBasePath + "/v1/{projectKey}/dashboard/{dashboardId}/add"
 	localVarPath = strings.Replace(localVarPath, "{"+"dashboardId"+"}", url.PathEscape(parameterValueToString(r.dashboardId, "dashboardId")), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
-	if r.addWidgetRq == nil {
-		return localVarReturnValue, nil, reportError("addWidgetRq is required and must be specified")
+	if r.comEpamReportportalBaseModelDashboardAddWidgetRq == nil {
+		return localVarReturnValue, nil, reportError("comEpamReportportalBaseModelDashboardAddWidgetRq is required and must be specified")
 	}
 
 	// to determine the Content-Type header
@@ -102,7 +102,7 @@ func (a *DashboardAPIService) AddWidgetExecute(r ApiAddWidgetRequest) (*Operatio
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
 	// body params
-	localVarPostBody = r.addWidgetRq
+	localVarPostBody = r.comEpamReportportalBaseModelDashboardAddWidgetRq
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -144,7 +144,7 @@ func (a *DashboardAPIService) AddWidgetExecute(r ApiAddWidgetRequest) (*Operatio
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -155,7 +155,7 @@ func (a *DashboardAPIService) AddWidgetExecute(r ApiAddWidgetRequest) (*Operatio
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -166,7 +166,7 @@ func (a *DashboardAPIService) AddWidgetExecute(r ApiAddWidgetRequest) (*Operatio
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -192,18 +192,18 @@ func (a *DashboardAPIService) AddWidgetExecute(r ApiAddWidgetRequest) (*Operatio
 }
 
 type ApiCreateDashboardRequest struct {
-	ctx               context.Context
-	ApiService        *DashboardAPIService
-	projectName       string
-	createDashboardRQ *CreateDashboardRQ
+	ctx                                                    context.Context
+	ApiService                                             *DashboardAPIService
+	projectKey                                             string
+	comEpamReportportalBaseModelDashboardCreateDashboardRQ *ComEpamReportportalBaseModelDashboardCreateDashboardRQ
 }
 
-func (r ApiCreateDashboardRequest) CreateDashboardRQ(createDashboardRQ CreateDashboardRQ) ApiCreateDashboardRequest {
-	r.createDashboardRQ = &createDashboardRQ
+func (r ApiCreateDashboardRequest) ComEpamReportportalBaseModelDashboardCreateDashboardRQ(comEpamReportportalBaseModelDashboardCreateDashboardRQ ComEpamReportportalBaseModelDashboardCreateDashboardRQ) ApiCreateDashboardRequest {
+	r.comEpamReportportalBaseModelDashboardCreateDashboardRQ = &comEpamReportportalBaseModelDashboardCreateDashboardRQ
 	return r
 }
 
-func (r ApiCreateDashboardRequest) Execute() (*EntryCreatedRS, *http.Response, error) {
+func (r ApiCreateDashboardRequest) Execute() (*ComEpamReportportalBaseModelEntryCreatedRS, *http.Response, error) {
 	return r.ApiService.CreateDashboardExecute(r)
 }
 
@@ -211,26 +211,26 @@ func (r ApiCreateDashboardRequest) Execute() (*EntryCreatedRS, *http.Response, e
 CreateDashboard Create dashboard for specified project
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param projectName
+	@param projectKey
 	@return ApiCreateDashboardRequest
 */
-func (a *DashboardAPIService) CreateDashboard(ctx context.Context, projectName string) ApiCreateDashboardRequest {
+func (a *DashboardAPIService) CreateDashboard(ctx context.Context, projectKey string) ApiCreateDashboardRequest {
 	return ApiCreateDashboardRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		projectKey: projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return EntryCreatedRS
-func (a *DashboardAPIService) CreateDashboardExecute(r ApiCreateDashboardRequest) (*EntryCreatedRS, *http.Response, error) {
+//	@return ComEpamReportportalBaseModelEntryCreatedRS
+func (a *DashboardAPIService) CreateDashboardExecute(r ApiCreateDashboardRequest) (*ComEpamReportportalBaseModelEntryCreatedRS, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPost
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *EntryCreatedRS
+		localVarReturnValue *ComEpamReportportalBaseModelEntryCreatedRS
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "DashboardAPIService.CreateDashboard")
@@ -238,14 +238,14 @@ func (a *DashboardAPIService) CreateDashboardExecute(r ApiCreateDashboardRequest
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/dashboard"
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath := localBasePath + "/v1/{projectKey}/dashboard"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
-	if r.createDashboardRQ == nil {
-		return localVarReturnValue, nil, reportError("createDashboardRQ is required and must be specified")
+	if r.comEpamReportportalBaseModelDashboardCreateDashboardRQ == nil {
+		return localVarReturnValue, nil, reportError("comEpamReportportalBaseModelDashboardCreateDashboardRQ is required and must be specified")
 	}
 
 	// to determine the Content-Type header
@@ -266,7 +266,7 @@ func (a *DashboardAPIService) CreateDashboardExecute(r ApiCreateDashboardRequest
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
 	// body params
-	localVarPostBody = r.createDashboardRQ
+	localVarPostBody = r.comEpamReportportalBaseModelDashboardCreateDashboardRQ
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -308,7 +308,7 @@ func (a *DashboardAPIService) CreateDashboardExecute(r ApiCreateDashboardRequest
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -319,7 +319,7 @@ func (a *DashboardAPIService) CreateDashboardExecute(r ApiCreateDashboardRequest
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -330,7 +330,7 @@ func (a *DashboardAPIService) CreateDashboardExecute(r ApiCreateDashboardRequest
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -356,18 +356,18 @@ func (a *DashboardAPIService) CreateDashboardExecute(r ApiCreateDashboardRequest
 }
 
 type ApiCreatePreconfiguredRequest struct {
-	ctx                      context.Context
-	ApiService               *DashboardAPIService
-	projectName              string
-	dashboardPreconfiguredRq *DashboardPreconfiguredRq
+	ctx                                                           context.Context
+	ApiService                                                    *DashboardAPIService
+	projectKey                                                    string
+	comEpamReportportalBaseModelDashboardDashboardPreconfiguredRq *ComEpamReportportalBaseModelDashboardDashboardPreconfiguredRq
 }
 
-func (r ApiCreatePreconfiguredRequest) DashboardPreconfiguredRq(dashboardPreconfiguredRq DashboardPreconfiguredRq) ApiCreatePreconfiguredRequest {
-	r.dashboardPreconfiguredRq = &dashboardPreconfiguredRq
+func (r ApiCreatePreconfiguredRequest) ComEpamReportportalBaseModelDashboardDashboardPreconfiguredRq(comEpamReportportalBaseModelDashboardDashboardPreconfiguredRq ComEpamReportportalBaseModelDashboardDashboardPreconfiguredRq) ApiCreatePreconfiguredRequest {
+	r.comEpamReportportalBaseModelDashboardDashboardPreconfiguredRq = &comEpamReportportalBaseModelDashboardDashboardPreconfiguredRq
 	return r
 }
 
-func (r ApiCreatePreconfiguredRequest) Execute() (*EntryCreatedRS, *http.Response, error) {
+func (r ApiCreatePreconfiguredRequest) Execute() (*ComEpamReportportalBaseModelEntryCreatedRS, *http.Response, error) {
 	return r.ApiService.CreatePreconfiguredExecute(r)
 }
 
@@ -375,26 +375,26 @@ func (r ApiCreatePreconfiguredRequest) Execute() (*EntryCreatedRS, *http.Respons
 CreatePreconfigured Create Dashboard with provided configuration including its widgets and filters if any
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param projectName
+	@param projectKey
 	@return ApiCreatePreconfiguredRequest
 */
-func (a *DashboardAPIService) CreatePreconfigured(ctx context.Context, projectName string) ApiCreatePreconfiguredRequest {
+func (a *DashboardAPIService) CreatePreconfigured(ctx context.Context, projectKey string) ApiCreatePreconfiguredRequest {
 	return ApiCreatePreconfiguredRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		projectKey: projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return EntryCreatedRS
-func (a *DashboardAPIService) CreatePreconfiguredExecute(r ApiCreatePreconfiguredRequest) (*EntryCreatedRS, *http.Response, error) {
+//	@return ComEpamReportportalBaseModelEntryCreatedRS
+func (a *DashboardAPIService) CreatePreconfiguredExecute(r ApiCreatePreconfiguredRequest) (*ComEpamReportportalBaseModelEntryCreatedRS, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPost
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *EntryCreatedRS
+		localVarReturnValue *ComEpamReportportalBaseModelEntryCreatedRS
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "DashboardAPIService.CreatePreconfigured")
@@ -402,20 +402,20 @@ func (a *DashboardAPIService) CreatePreconfiguredExecute(r ApiCreatePreconfigure
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/dashboard/preconfigured"
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath := localBasePath + "/v1/{projectKey}/dashboard/preconfigured"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
-	if strlen(r.projectName) < 3 {
-		return localVarReturnValue, nil, reportError("projectName must have at least 3 elements")
+	if strlen(r.projectKey) < 3 {
+		return localVarReturnValue, nil, reportError("projectKey must have at least 3 elements")
 	}
-	if strlen(r.projectName) > 256 {
-		return localVarReturnValue, nil, reportError("projectName must have less than 256 elements")
+	if strlen(r.projectKey) > 256 {
+		return localVarReturnValue, nil, reportError("projectKey must have less than 256 elements")
 	}
-	if r.dashboardPreconfiguredRq == nil {
-		return localVarReturnValue, nil, reportError("dashboardPreconfiguredRq is required and must be specified")
+	if r.comEpamReportportalBaseModelDashboardDashboardPreconfiguredRq == nil {
+		return localVarReturnValue, nil, reportError("comEpamReportportalBaseModelDashboardDashboardPreconfiguredRq is required and must be specified")
 	}
 
 	// to determine the Content-Type header
@@ -436,7 +436,7 @@ func (a *DashboardAPIService) CreatePreconfiguredExecute(r ApiCreatePreconfigure
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
 	// body params
-	localVarPostBody = r.dashboardPreconfiguredRq
+	localVarPostBody = r.comEpamReportportalBaseModelDashboardDashboardPreconfiguredRq
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -478,7 +478,7 @@ func (a *DashboardAPIService) CreatePreconfiguredExecute(r ApiCreatePreconfigure
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -489,7 +489,7 @@ func (a *DashboardAPIService) CreatePreconfiguredExecute(r ApiCreatePreconfigure
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -500,7 +500,7 @@ func (a *DashboardAPIService) CreatePreconfiguredExecute(r ApiCreatePreconfigure
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -529,10 +529,10 @@ type ApiDeleteDashboardRequest struct {
 	ctx         context.Context
 	ApiService  *DashboardAPIService
 	dashboardId int64
-	projectName string
+	projectKey  string
 }
 
-func (r ApiDeleteDashboardRequest) Execute() (*OperationCompletionRS, *http.Response, error) {
+func (r ApiDeleteDashboardRequest) Execute() (*ComEpamReportportalBaseReportingOperationCompletionRS, *http.Response, error) {
 	return r.ApiService.DeleteDashboardExecute(r)
 }
 
@@ -541,27 +541,27 @@ DeleteDashboard Delete specified dashboard by ID for specified project
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param dashboardId
-	@param projectName
+	@param projectKey
 	@return ApiDeleteDashboardRequest
 */
-func (a *DashboardAPIService) DeleteDashboard(ctx context.Context, dashboardId int64, projectName string) ApiDeleteDashboardRequest {
+func (a *DashboardAPIService) DeleteDashboard(ctx context.Context, dashboardId int64, projectKey string) ApiDeleteDashboardRequest {
 	return ApiDeleteDashboardRequest{
 		ApiService:  a,
 		ctx:         ctx,
 		dashboardId: dashboardId,
-		projectName: projectName,
+		projectKey:  projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return OperationCompletionRS
-func (a *DashboardAPIService) DeleteDashboardExecute(r ApiDeleteDashboardRequest) (*OperationCompletionRS, *http.Response, error) {
+//	@return ComEpamReportportalBaseReportingOperationCompletionRS
+func (a *DashboardAPIService) DeleteDashboardExecute(r ApiDeleteDashboardRequest) (*ComEpamReportportalBaseReportingOperationCompletionRS, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodDelete
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *OperationCompletionRS
+		localVarReturnValue *ComEpamReportportalBaseReportingOperationCompletionRS
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "DashboardAPIService.DeleteDashboard")
@@ -569,9 +569,9 @@ func (a *DashboardAPIService) DeleteDashboardExecute(r ApiDeleteDashboardRequest
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/dashboard/{dashboardId}"
+	localVarPath := localBasePath + "/v1/{projectKey}/dashboard/{dashboardId}"
 	localVarPath = strings.Replace(localVarPath, "{"+"dashboardId"+"}", url.PathEscape(parameterValueToString(r.dashboardId, "dashboardId")), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -635,7 +635,7 @@ func (a *DashboardAPIService) DeleteDashboardExecute(r ApiDeleteDashboardRequest
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -646,7 +646,7 @@ func (a *DashboardAPIService) DeleteDashboardExecute(r ApiDeleteDashboardRequest
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -657,7 +657,7 @@ func (a *DashboardAPIService) DeleteDashboardExecute(r ApiDeleteDashboardRequest
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -685,12 +685,11 @@ func (a *DashboardAPIService) DeleteDashboardExecute(r ApiDeleteDashboardRequest
 type ApiGetAllDashboardsRequest struct {
 	ctx                  context.Context
 	ApiService           *DashboardAPIService
-	projectName          string
+	projectKey           string
 	pagePage             *int32
 	pageSize             *int32
 	pageSort             *string
 	filterEqId           *int32
-	filterEqLocked       *bool
 	filterEqProjectId    *int32
 	filterEqOwner        *string
 	filterEqName         *string
@@ -721,12 +720,6 @@ func (r ApiGetAllDashboardsRequest) FilterEqId(filterEqId int32) ApiGetAllDashbo
 	return r
 }
 
-// Filters by &#39;locked&#39;
-func (r ApiGetAllDashboardsRequest) FilterEqLocked(filterEqLocked bool) ApiGetAllDashboardsRequest {
-	r.filterEqLocked = &filterEqLocked
-	return r
-}
-
 // Filters by &#39;projectId&#39;
 func (r ApiGetAllDashboardsRequest) FilterEqProjectId(filterEqProjectId int32) ApiGetAllDashboardsRequest {
 	r.filterEqProjectId = &filterEqProjectId
@@ -751,7 +744,7 @@ func (r ApiGetAllDashboardsRequest) FilterEqCreationDate(filterEqCreationDate st
 	return r
 }
 
-func (r ApiGetAllDashboardsRequest) Execute() (*PageDashboardResource, *http.Response, error) {
+func (r ApiGetAllDashboardsRequest) Execute() (*ComEpamReportportalBaseModelPageComEpamReportportalBaseModelDashboardDashboardResource, *http.Response, error) {
 	return r.ApiService.GetAllDashboardsExecute(r)
 }
 
@@ -759,26 +752,26 @@ func (r ApiGetAllDashboardsRequest) Execute() (*PageDashboardResource, *http.Res
 GetAllDashboards Get all permitted dashboard resources for specified project
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param projectName
+	@param projectKey
 	@return ApiGetAllDashboardsRequest
 */
-func (a *DashboardAPIService) GetAllDashboards(ctx context.Context, projectName string) ApiGetAllDashboardsRequest {
+func (a *DashboardAPIService) GetAllDashboards(ctx context.Context, projectKey string) ApiGetAllDashboardsRequest {
 	return ApiGetAllDashboardsRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		projectKey: projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return PageDashboardResource
-func (a *DashboardAPIService) GetAllDashboardsExecute(r ApiGetAllDashboardsRequest) (*PageDashboardResource, *http.Response, error) {
+//	@return ComEpamReportportalBaseModelPageComEpamReportportalBaseModelDashboardDashboardResource
+func (a *DashboardAPIService) GetAllDashboardsExecute(r ApiGetAllDashboardsRequest) (*ComEpamReportportalBaseModelPageComEpamReportportalBaseModelDashboardDashboardResource, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodGet
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *PageDashboardResource
+		localVarReturnValue *ComEpamReportportalBaseModelPageComEpamReportportalBaseModelDashboardDashboardResource
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "DashboardAPIService.GetAllDashboards")
@@ -786,8 +779,8 @@ func (a *DashboardAPIService) GetAllDashboardsExecute(r ApiGetAllDashboardsReque
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/dashboard"
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath := localBasePath + "/v1/{projectKey}/dashboard"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -804,9 +797,6 @@ func (a *DashboardAPIService) GetAllDashboardsExecute(r ApiGetAllDashboardsReque
 	}
 	if r.filterEqId != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.id", r.filterEqId, "form", "")
-	}
-	if r.filterEqLocked != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.locked", r.filterEqLocked, "form", "")
 	}
 	if r.filterEqProjectId != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.projectId", r.filterEqProjectId, "form", "")
@@ -878,7 +868,7 @@ func (a *DashboardAPIService) GetAllDashboardsExecute(r ApiGetAllDashboardsReque
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -889,7 +879,7 @@ func (a *DashboardAPIService) GetAllDashboardsExecute(r ApiGetAllDashboardsReque
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -900,7 +890,7 @@ func (a *DashboardAPIService) GetAllDashboardsExecute(r ApiGetAllDashboardsReque
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -929,10 +919,10 @@ type ApiGetDashboardRequest struct {
 	ctx         context.Context
 	ApiService  *DashboardAPIService
 	dashboardId int64
-	projectName string
+	projectKey  string
 }
 
-func (r ApiGetDashboardRequest) Execute() (*DashboardResource, *http.Response, error) {
+func (r ApiGetDashboardRequest) Execute() (*ComEpamReportportalBaseModelDashboardDashboardResource, *http.Response, error) {
 	return r.ApiService.GetDashboardExecute(r)
 }
 
@@ -941,27 +931,27 @@ GetDashboard Get specified dashboard by ID for specified project
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param dashboardId
-	@param projectName
+	@param projectKey
 	@return ApiGetDashboardRequest
 */
-func (a *DashboardAPIService) GetDashboard(ctx context.Context, dashboardId int64, projectName string) ApiGetDashboardRequest {
+func (a *DashboardAPIService) GetDashboard(ctx context.Context, dashboardId int64, projectKey string) ApiGetDashboardRequest {
 	return ApiGetDashboardRequest{
 		ApiService:  a,
 		ctx:         ctx,
 		dashboardId: dashboardId,
-		projectName: projectName,
+		projectKey:  projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return DashboardResource
-func (a *DashboardAPIService) GetDashboardExecute(r ApiGetDashboardRequest) (*DashboardResource, *http.Response, error) {
+//	@return ComEpamReportportalBaseModelDashboardDashboardResource
+func (a *DashboardAPIService) GetDashboardExecute(r ApiGetDashboardRequest) (*ComEpamReportportalBaseModelDashboardDashboardResource, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodGet
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *DashboardResource
+		localVarReturnValue *ComEpamReportportalBaseModelDashboardDashboardResource
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "DashboardAPIService.GetDashboard")
@@ -969,9 +959,9 @@ func (a *DashboardAPIService) GetDashboardExecute(r ApiGetDashboardRequest) (*Da
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/dashboard/{dashboardId}"
+	localVarPath := localBasePath + "/v1/{projectKey}/dashboard/{dashboardId}"
 	localVarPath = strings.Replace(localVarPath, "{"+"dashboardId"+"}", url.PathEscape(parameterValueToString(r.dashboardId, "dashboardId")), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -1035,7 +1025,7 @@ func (a *DashboardAPIService) GetDashboardExecute(r ApiGetDashboardRequest) (*Da
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1046,7 +1036,7 @@ func (a *DashboardAPIService) GetDashboardExecute(r ApiGetDashboardRequest) (*Da
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1057,7 +1047,7 @@ func (a *DashboardAPIService) GetDashboardExecute(r ApiGetDashboardRequest) (*Da
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1086,10 +1076,10 @@ type ApiGetDashboardConfigRequest struct {
 	ctx         context.Context
 	ApiService  *DashboardAPIService
 	dashboardId int64
-	projectName string
+	projectKey  string
 }
 
-func (r ApiGetDashboardConfigRequest) Execute() (*DashboardConfigResource, *http.Response, error) {
+func (r ApiGetDashboardConfigRequest) Execute() (*ComEpamReportportalBaseModelDashboardDashboardConfigResource, *http.Response, error) {
 	return r.ApiService.GetDashboardConfigExecute(r)
 }
 
@@ -1098,27 +1088,27 @@ GetDashboardConfig Get Dashboard configuration including its widgets and filters
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param dashboardId
-	@param projectName
+	@param projectKey
 	@return ApiGetDashboardConfigRequest
 */
-func (a *DashboardAPIService) GetDashboardConfig(ctx context.Context, dashboardId int64, projectName string) ApiGetDashboardConfigRequest {
+func (a *DashboardAPIService) GetDashboardConfig(ctx context.Context, dashboardId int64, projectKey string) ApiGetDashboardConfigRequest {
 	return ApiGetDashboardConfigRequest{
 		ApiService:  a,
 		ctx:         ctx,
 		dashboardId: dashboardId,
-		projectName: projectName,
+		projectKey:  projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return DashboardConfigResource
-func (a *DashboardAPIService) GetDashboardConfigExecute(r ApiGetDashboardConfigRequest) (*DashboardConfigResource, *http.Response, error) {
+//	@return ComEpamReportportalBaseModelDashboardDashboardConfigResource
+func (a *DashboardAPIService) GetDashboardConfigExecute(r ApiGetDashboardConfigRequest) (*ComEpamReportportalBaseModelDashboardDashboardConfigResource, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodGet
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *DashboardConfigResource
+		localVarReturnValue *ComEpamReportportalBaseModelDashboardDashboardConfigResource
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "DashboardAPIService.GetDashboardConfig")
@@ -1126,9 +1116,9 @@ func (a *DashboardAPIService) GetDashboardConfigExecute(r ApiGetDashboardConfigR
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/dashboard/{dashboardId}/config"
+	localVarPath := localBasePath + "/v1/{projectKey}/dashboard/{dashboardId}/config"
 	localVarPath = strings.Replace(localVarPath, "{"+"dashboardId"+"}", url.PathEscape(parameterValueToString(r.dashboardId, "dashboardId")), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -1192,7 +1182,7 @@ func (a *DashboardAPIService) GetDashboardConfigExecute(r ApiGetDashboardConfigR
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1203,7 +1193,7 @@ func (a *DashboardAPIService) GetDashboardConfigExecute(r ApiGetDashboardConfigR
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1214,175 +1204,7 @@ func (a *DashboardAPIService) GetDashboardConfigExecute(r ApiGetDashboardConfigR
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
-			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return localVarReturnValue, localVarHTTPResponse, newErr
-			}
-			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-			newErr.model = v
-			return localVarReturnValue, localVarHTTPResponse, newErr
-		}
-		return localVarReturnValue, localVarHTTPResponse, newErr
-	}
-
-	err = a.client.decode(&localVarReturnValue, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
-	if err != nil {
-		newErr := &GenericOpenAPIError{
-			body:  localVarBody,
-			error: err.Error(),
-		}
-		return localVarReturnValue, localVarHTTPResponse, newErr
-	}
-
-	return localVarReturnValue, localVarHTTPResponse, nil
-}
-
-type ApiPatchDashboardRequest struct {
-	ctx              context.Context
-	ApiService       *DashboardAPIService
-	dashboardId      int64
-	projectName      string
-	patchDashboardRQ *PatchDashboardRQ
-}
-
-func (r ApiPatchDashboardRequest) PatchDashboardRQ(patchDashboardRQ PatchDashboardRQ) ApiPatchDashboardRequest {
-	r.patchDashboardRQ = &patchDashboardRQ
-	return r
-}
-
-func (r ApiPatchDashboardRequest) Execute() (*OperationCompletionRS, *http.Response, error) {
-	return r.ApiService.PatchDashboardExecute(r)
-}
-
-/*
-PatchDashboard Patch specified dashboard for specified project
-
-	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param dashboardId
-	@param projectName
-	@return ApiPatchDashboardRequest
-*/
-func (a *DashboardAPIService) PatchDashboard(ctx context.Context, dashboardId int64, projectName string) ApiPatchDashboardRequest {
-	return ApiPatchDashboardRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		dashboardId: dashboardId,
-		projectName: projectName,
-	}
-}
-
-// Execute executes the request
-//
-//	@return OperationCompletionRS
-func (a *DashboardAPIService) PatchDashboardExecute(r ApiPatchDashboardRequest) (*OperationCompletionRS, *http.Response, error) {
-	var (
-		localVarHTTPMethod  = http.MethodPatch
-		localVarPostBody    interface{}
-		formFiles           []formFile
-		localVarReturnValue *OperationCompletionRS
-	)
-
-	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "DashboardAPIService.PatchDashboard")
-	if err != nil {
-		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
-	}
-
-	localVarPath := localBasePath + "/v1/{projectName}/dashboard/{dashboardId}"
-	localVarPath = strings.Replace(localVarPath, "{"+"dashboardId"+"}", url.PathEscape(parameterValueToString(r.dashboardId, "dashboardId")), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
-
-	localVarHeaderParams := make(map[string]string)
-	localVarQueryParams := url.Values{}
-	localVarFormParams := url.Values{}
-	if r.patchDashboardRQ == nil {
-		return localVarReturnValue, nil, reportError("patchDashboardRQ is required and must be specified")
-	}
-
-	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{"application/json"}
-
-	// set Content-Type header
-	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
-	if localVarHTTPContentType != "" {
-		localVarHeaderParams["Content-Type"] = localVarHTTPContentType
-	}
-
-	// to determine the Accept header
-	localVarHTTPHeaderAccepts := []string{"application/json"}
-
-	// set Accept header
-	localVarHTTPHeaderAccept := selectHeaderAccept(localVarHTTPHeaderAccepts)
-	if localVarHTTPHeaderAccept != "" {
-		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
-	}
-	// body params
-	localVarPostBody = r.patchDashboardRQ
-	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
-	if err != nil {
-		return localVarReturnValue, nil, err
-	}
-
-	localVarHTTPResponse, err := a.client.callAPI(req)
-	if err != nil || localVarHTTPResponse == nil {
-		return localVarReturnValue, localVarHTTPResponse, err
-	}
-
-	localVarBody, err := io.ReadAll(localVarHTTPResponse.Body)
-	localVarHTTPResponse.Body.Close()
-	localVarHTTPResponse.Body = io.NopCloser(bytes.NewBuffer(localVarBody))
-	if err != nil {
-		return localVarReturnValue, localVarHTTPResponse, err
-	}
-
-	if a.client.cfg.ResponseMiddleware != nil {
-		err = a.client.cfg.ResponseMiddleware(localVarHTTPResponse, localVarBody)
-		if err != nil {
-			return localVarReturnValue, localVarHTTPResponse, err
-		}
-	}
-
-	if localVarHTTPResponse.StatusCode >= 300 {
-		newErr := &GenericOpenAPIError{
-			body:  localVarBody,
-			error: localVarHTTPResponse.Status,
-		}
-		if localVarHTTPResponse.StatusCode == 401 {
-			var v SaveAnalyticsSettings1401Response
-			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return localVarReturnValue, localVarHTTPResponse, newErr
-			}
-			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-			newErr.model = v
-			return localVarReturnValue, localVarHTTPResponse, newErr
-		}
-		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
-			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return localVarReturnValue, localVarHTTPResponse, newErr
-			}
-			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-			newErr.model = v
-			return localVarReturnValue, localVarHTTPResponse, newErr
-		}
-		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
-			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return localVarReturnValue, localVarHTTPResponse, newErr
-			}
-			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-			newErr.model = v
-			return localVarReturnValue, localVarHTTPResponse, newErr
-		}
-		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1411,11 +1233,11 @@ type ApiRemoveWidgetRequest struct {
 	ctx         context.Context
 	ApiService  *DashboardAPIService
 	dashboardId int64
-	projectName string
+	projectKey  string
 	widgetId    int64
 }
 
-func (r ApiRemoveWidgetRequest) Execute() (*OperationCompletionRS, *http.Response, error) {
+func (r ApiRemoveWidgetRequest) Execute() (*ComEpamReportportalBaseReportingOperationCompletionRS, *http.Response, error) {
 	return r.ApiService.RemoveWidgetExecute(r)
 }
 
@@ -1424,29 +1246,29 @@ RemoveWidget Remove widget from specified dashboard
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param dashboardId
-	@param projectName
+	@param projectKey
 	@param widgetId
 	@return ApiRemoveWidgetRequest
 */
-func (a *DashboardAPIService) RemoveWidget(ctx context.Context, dashboardId int64, projectName string, widgetId int64) ApiRemoveWidgetRequest {
+func (a *DashboardAPIService) RemoveWidget(ctx context.Context, dashboardId int64, projectKey string, widgetId int64) ApiRemoveWidgetRequest {
 	return ApiRemoveWidgetRequest{
 		ApiService:  a,
 		ctx:         ctx,
 		dashboardId: dashboardId,
-		projectName: projectName,
+		projectKey:  projectKey,
 		widgetId:    widgetId,
 	}
 }
 
 // Execute executes the request
 //
-//	@return OperationCompletionRS
-func (a *DashboardAPIService) RemoveWidgetExecute(r ApiRemoveWidgetRequest) (*OperationCompletionRS, *http.Response, error) {
+//	@return ComEpamReportportalBaseReportingOperationCompletionRS
+func (a *DashboardAPIService) RemoveWidgetExecute(r ApiRemoveWidgetRequest) (*ComEpamReportportalBaseReportingOperationCompletionRS, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodDelete
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *OperationCompletionRS
+		localVarReturnValue *ComEpamReportportalBaseReportingOperationCompletionRS
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "DashboardAPIService.RemoveWidget")
@@ -1454,9 +1276,9 @@ func (a *DashboardAPIService) RemoveWidgetExecute(r ApiRemoveWidgetRequest) (*Op
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/dashboard/{dashboardId}/{widgetId}"
+	localVarPath := localBasePath + "/v1/{projectKey}/dashboard/{dashboardId}/{widgetId}"
 	localVarPath = strings.Replace(localVarPath, "{"+"dashboardId"+"}", url.PathEscape(parameterValueToString(r.dashboardId, "dashboardId")), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"widgetId"+"}", url.PathEscape(parameterValueToString(r.widgetId, "widgetId")), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -1521,7 +1343,7 @@ func (a *DashboardAPIService) RemoveWidgetExecute(r ApiRemoveWidgetRequest) (*Op
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1532,7 +1354,7 @@ func (a *DashboardAPIService) RemoveWidgetExecute(r ApiRemoveWidgetRequest) (*Op
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1543,7 +1365,7 @@ func (a *DashboardAPIService) RemoveWidgetExecute(r ApiRemoveWidgetRequest) (*Op
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1569,19 +1391,19 @@ func (a *DashboardAPIService) RemoveWidgetExecute(r ApiRemoveWidgetRequest) (*Op
 }
 
 type ApiUpdateDashboardRequest struct {
-	ctx               context.Context
-	ApiService        *DashboardAPIService
-	dashboardId       int64
-	projectName       string
-	updateDashboardRQ *UpdateDashboardRQ
+	ctx                                                    context.Context
+	ApiService                                             *DashboardAPIService
+	dashboardId                                            int64
+	projectKey                                             string
+	comEpamReportportalBaseModelDashboardUpdateDashboardRQ *ComEpamReportportalBaseModelDashboardUpdateDashboardRQ
 }
 
-func (r ApiUpdateDashboardRequest) UpdateDashboardRQ(updateDashboardRQ UpdateDashboardRQ) ApiUpdateDashboardRequest {
-	r.updateDashboardRQ = &updateDashboardRQ
+func (r ApiUpdateDashboardRequest) ComEpamReportportalBaseModelDashboardUpdateDashboardRQ(comEpamReportportalBaseModelDashboardUpdateDashboardRQ ComEpamReportportalBaseModelDashboardUpdateDashboardRQ) ApiUpdateDashboardRequest {
+	r.comEpamReportportalBaseModelDashboardUpdateDashboardRQ = &comEpamReportportalBaseModelDashboardUpdateDashboardRQ
 	return r
 }
 
-func (r ApiUpdateDashboardRequest) Execute() (*OperationCompletionRS, *http.Response, error) {
+func (r ApiUpdateDashboardRequest) Execute() (*ComEpamReportportalBaseReportingOperationCompletionRS, *http.Response, error) {
 	return r.ApiService.UpdateDashboardExecute(r)
 }
 
@@ -1590,27 +1412,27 @@ UpdateDashboard Update specified dashboard for specified project
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param dashboardId
-	@param projectName
+	@param projectKey
 	@return ApiUpdateDashboardRequest
 */
-func (a *DashboardAPIService) UpdateDashboard(ctx context.Context, dashboardId int64, projectName string) ApiUpdateDashboardRequest {
+func (a *DashboardAPIService) UpdateDashboard(ctx context.Context, dashboardId int64, projectKey string) ApiUpdateDashboardRequest {
 	return ApiUpdateDashboardRequest{
 		ApiService:  a,
 		ctx:         ctx,
 		dashboardId: dashboardId,
-		projectName: projectName,
+		projectKey:  projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return OperationCompletionRS
-func (a *DashboardAPIService) UpdateDashboardExecute(r ApiUpdateDashboardRequest) (*OperationCompletionRS, *http.Response, error) {
+//	@return ComEpamReportportalBaseReportingOperationCompletionRS
+func (a *DashboardAPIService) UpdateDashboardExecute(r ApiUpdateDashboardRequest) (*ComEpamReportportalBaseReportingOperationCompletionRS, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPut
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *OperationCompletionRS
+		localVarReturnValue *ComEpamReportportalBaseReportingOperationCompletionRS
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "DashboardAPIService.UpdateDashboard")
@@ -1618,15 +1440,15 @@ func (a *DashboardAPIService) UpdateDashboardExecute(r ApiUpdateDashboardRequest
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/dashboard/{dashboardId}"
+	localVarPath := localBasePath + "/v1/{projectKey}/dashboard/{dashboardId}"
 	localVarPath = strings.Replace(localVarPath, "{"+"dashboardId"+"}", url.PathEscape(parameterValueToString(r.dashboardId, "dashboardId")), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
-	if r.updateDashboardRQ == nil {
-		return localVarReturnValue, nil, reportError("updateDashboardRQ is required and must be specified")
+	if r.comEpamReportportalBaseModelDashboardUpdateDashboardRQ == nil {
+		return localVarReturnValue, nil, reportError("comEpamReportportalBaseModelDashboardUpdateDashboardRQ is required and must be specified")
 	}
 
 	// to determine the Content-Type header
@@ -1647,7 +1469,7 @@ func (a *DashboardAPIService) UpdateDashboardExecute(r ApiUpdateDashboardRequest
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
 	// body params
-	localVarPostBody = r.updateDashboardRQ
+	localVarPostBody = r.comEpamReportportalBaseModelDashboardUpdateDashboardRQ
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -1689,7 +1511,7 @@ func (a *DashboardAPIService) UpdateDashboardExecute(r ApiUpdateDashboardRequest
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1700,7 +1522,7 @@ func (a *DashboardAPIService) UpdateDashboardExecute(r ApiUpdateDashboardRequest
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1711,7 +1533,7 @@ func (a *DashboardAPIService) UpdateDashboardExecute(r ApiUpdateDashboardRequest
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()

@@ -3,7 +3,7 @@ ReportPortal
 
 ReportPortal API documentation
 
-API version: 5.15.1
+API version: develop-531
 Contact: support@reportportal.io
 */
 
@@ -24,18 +24,18 @@ import (
 type ProjectSettingsAPIService service
 
 type ApiCreateNotificationRequest struct {
-	ctx           context.Context
-	ApiService    *ProjectSettingsAPIService
-	projectName   string
-	senderCaseDTO *SenderCaseDTO
+	ctx                                                   context.Context
+	ApiService                                            *ProjectSettingsAPIService
+	projectKey                                            string
+	comEpamReportportalBaseModelProjectEmailSenderCaseDTO *ComEpamReportportalBaseModelProjectEmailSenderCaseDTO
 }
 
-func (r ApiCreateNotificationRequest) SenderCaseDTO(senderCaseDTO SenderCaseDTO) ApiCreateNotificationRequest {
-	r.senderCaseDTO = &senderCaseDTO
+func (r ApiCreateNotificationRequest) ComEpamReportportalBaseModelProjectEmailSenderCaseDTO(comEpamReportportalBaseModelProjectEmailSenderCaseDTO ComEpamReportportalBaseModelProjectEmailSenderCaseDTO) ApiCreateNotificationRequest {
+	r.comEpamReportportalBaseModelProjectEmailSenderCaseDTO = &comEpamReportportalBaseModelProjectEmailSenderCaseDTO
 	return r
 }
 
-func (r ApiCreateNotificationRequest) Execute() (*EntryCreatedRS, *http.Response, error) {
+func (r ApiCreateNotificationRequest) Execute() (*ComEpamReportportalBaseModelEntryCreatedRS, *http.Response, error) {
 	return r.ApiService.CreateNotificationExecute(r)
 }
 
@@ -45,26 +45,26 @@ CreateNotification Creates notification for specified project
 Only for users with PROJECT_MANAGER or ADMIN roles
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param projectName
+	@param projectKey
 	@return ApiCreateNotificationRequest
 */
-func (a *ProjectSettingsAPIService) CreateNotification(ctx context.Context, projectName string) ApiCreateNotificationRequest {
+func (a *ProjectSettingsAPIService) CreateNotification(ctx context.Context, projectKey string) ApiCreateNotificationRequest {
 	return ApiCreateNotificationRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		projectKey: projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return EntryCreatedRS
-func (a *ProjectSettingsAPIService) CreateNotificationExecute(r ApiCreateNotificationRequest) (*EntryCreatedRS, *http.Response, error) {
+//	@return ComEpamReportportalBaseModelEntryCreatedRS
+func (a *ProjectSettingsAPIService) CreateNotificationExecute(r ApiCreateNotificationRequest) (*ComEpamReportportalBaseModelEntryCreatedRS, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPost
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *EntryCreatedRS
+		localVarReturnValue *ComEpamReportportalBaseModelEntryCreatedRS
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ProjectSettingsAPIService.CreateNotification")
@@ -72,14 +72,14 @@ func (a *ProjectSettingsAPIService) CreateNotificationExecute(r ApiCreateNotific
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/settings/notification"
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath := localBasePath + "/v1/{projectKey}/settings/notification"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
-	if r.senderCaseDTO == nil {
-		return localVarReturnValue, nil, reportError("senderCaseDTO is required and must be specified")
+	if r.comEpamReportportalBaseModelProjectEmailSenderCaseDTO == nil {
+		return localVarReturnValue, nil, reportError("comEpamReportportalBaseModelProjectEmailSenderCaseDTO is required and must be specified")
 	}
 
 	// to determine the Content-Type header
@@ -100,7 +100,7 @@ func (a *ProjectSettingsAPIService) CreateNotificationExecute(r ApiCreateNotific
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
 	// body params
-	localVarPostBody = r.senderCaseDTO
+	localVarPostBody = r.comEpamReportportalBaseModelProjectEmailSenderCaseDTO
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -142,7 +142,7 @@ func (a *ProjectSettingsAPIService) CreateNotificationExecute(r ApiCreateNotific
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -153,7 +153,7 @@ func (a *ProjectSettingsAPIService) CreateNotificationExecute(r ApiCreateNotific
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -164,7 +164,7 @@ func (a *ProjectSettingsAPIService) CreateNotificationExecute(r ApiCreateNotific
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -190,18 +190,18 @@ func (a *ProjectSettingsAPIService) CreateNotificationExecute(r ApiCreateNotific
 }
 
 type ApiCreatePatternTemplateRequest struct {
-	ctx                     context.Context
-	ApiService              *ProjectSettingsAPIService
-	projectName             string
-	createPatternTemplateRQ *CreatePatternTemplateRQ
+	ctx                                                                     context.Context
+	ApiService                                                              *ProjectSettingsAPIService
+	projectKey                                                              string
+	comEpamReportportalBaseModelProjectConfigPatternCreatePatternTemplateRQ *ComEpamReportportalBaseModelProjectConfigPatternCreatePatternTemplateRQ
 }
 
-func (r ApiCreatePatternTemplateRequest) CreatePatternTemplateRQ(createPatternTemplateRQ CreatePatternTemplateRQ) ApiCreatePatternTemplateRequest {
-	r.createPatternTemplateRQ = &createPatternTemplateRQ
+func (r ApiCreatePatternTemplateRequest) ComEpamReportportalBaseModelProjectConfigPatternCreatePatternTemplateRQ(comEpamReportportalBaseModelProjectConfigPatternCreatePatternTemplateRQ ComEpamReportportalBaseModelProjectConfigPatternCreatePatternTemplateRQ) ApiCreatePatternTemplateRequest {
+	r.comEpamReportportalBaseModelProjectConfigPatternCreatePatternTemplateRQ = &comEpamReportportalBaseModelProjectConfigPatternCreatePatternTemplateRQ
 	return r
 }
 
-func (r ApiCreatePatternTemplateRequest) Execute() (*EntryCreatedRS, *http.Response, error) {
+func (r ApiCreatePatternTemplateRequest) Execute() (*ComEpamReportportalBaseModelEntryCreatedRS, *http.Response, error) {
 	return r.ApiService.CreatePatternTemplateExecute(r)
 }
 
@@ -209,26 +209,26 @@ func (r ApiCreatePatternTemplateRequest) Execute() (*EntryCreatedRS, *http.Respo
 CreatePatternTemplate Create pattern template for items' log messages pattern analysis
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param projectName
+	@param projectKey
 	@return ApiCreatePatternTemplateRequest
 */
-func (a *ProjectSettingsAPIService) CreatePatternTemplate(ctx context.Context, projectName string) ApiCreatePatternTemplateRequest {
+func (a *ProjectSettingsAPIService) CreatePatternTemplate(ctx context.Context, projectKey string) ApiCreatePatternTemplateRequest {
 	return ApiCreatePatternTemplateRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		projectKey: projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return EntryCreatedRS
-func (a *ProjectSettingsAPIService) CreatePatternTemplateExecute(r ApiCreatePatternTemplateRequest) (*EntryCreatedRS, *http.Response, error) {
+//	@return ComEpamReportportalBaseModelEntryCreatedRS
+func (a *ProjectSettingsAPIService) CreatePatternTemplateExecute(r ApiCreatePatternTemplateRequest) (*ComEpamReportportalBaseModelEntryCreatedRS, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPost
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *EntryCreatedRS
+		localVarReturnValue *ComEpamReportportalBaseModelEntryCreatedRS
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ProjectSettingsAPIService.CreatePatternTemplate")
@@ -236,14 +236,14 @@ func (a *ProjectSettingsAPIService) CreatePatternTemplateExecute(r ApiCreatePatt
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/settings/pattern"
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath := localBasePath + "/v1/{projectKey}/settings/pattern"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
-	if r.createPatternTemplateRQ == nil {
-		return localVarReturnValue, nil, reportError("createPatternTemplateRQ is required and must be specified")
+	if r.comEpamReportportalBaseModelProjectConfigPatternCreatePatternTemplateRQ == nil {
+		return localVarReturnValue, nil, reportError("comEpamReportportalBaseModelProjectConfigPatternCreatePatternTemplateRQ is required and must be specified")
 	}
 
 	// to determine the Content-Type header
@@ -264,7 +264,7 @@ func (a *ProjectSettingsAPIService) CreatePatternTemplateExecute(r ApiCreatePatt
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
 	// body params
-	localVarPostBody = r.createPatternTemplateRQ
+	localVarPostBody = r.comEpamReportportalBaseModelProjectConfigPatternCreatePatternTemplateRQ
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -306,7 +306,7 @@ func (a *ProjectSettingsAPIService) CreatePatternTemplateExecute(r ApiCreatePatt
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -317,7 +317,7 @@ func (a *ProjectSettingsAPIService) CreatePatternTemplateExecute(r ApiCreatePatt
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -328,7 +328,7 @@ func (a *ProjectSettingsAPIService) CreatePatternTemplateExecute(r ApiCreatePatt
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -354,18 +354,18 @@ func (a *ProjectSettingsAPIService) CreatePatternTemplateExecute(r ApiCreatePatt
 }
 
 type ApiCreateProjectIssueSubTypeRequest struct {
-	ctx                  context.Context
-	ApiService           *ProjectSettingsAPIService
-	projectName          string
-	createIssueSubTypeRQ *CreateIssueSubTypeRQ
+	ctx                                                           context.Context
+	ApiService                                                    *ProjectSettingsAPIService
+	projectKey                                                    string
+	comEpamReportportalBaseModelProjectConfigCreateIssueSubTypeRQ *ComEpamReportportalBaseModelProjectConfigCreateIssueSubTypeRQ
 }
 
-func (r ApiCreateProjectIssueSubTypeRequest) CreateIssueSubTypeRQ(createIssueSubTypeRQ CreateIssueSubTypeRQ) ApiCreateProjectIssueSubTypeRequest {
-	r.createIssueSubTypeRQ = &createIssueSubTypeRQ
+func (r ApiCreateProjectIssueSubTypeRequest) ComEpamReportportalBaseModelProjectConfigCreateIssueSubTypeRQ(comEpamReportportalBaseModelProjectConfigCreateIssueSubTypeRQ ComEpamReportportalBaseModelProjectConfigCreateIssueSubTypeRQ) ApiCreateProjectIssueSubTypeRequest {
+	r.comEpamReportportalBaseModelProjectConfigCreateIssueSubTypeRQ = &comEpamReportportalBaseModelProjectConfigCreateIssueSubTypeRQ
 	return r
 }
 
-func (r ApiCreateProjectIssueSubTypeRequest) Execute() (*IssueSubTypeCreatedRS, *http.Response, error) {
+func (r ApiCreateProjectIssueSubTypeRequest) Execute() (*ComEpamReportportalBaseModelProjectConfigIssueSubTypeCreatedRS, *http.Response, error) {
 	return r.ApiService.CreateProjectIssueSubTypeExecute(r)
 }
 
@@ -373,26 +373,26 @@ func (r ApiCreateProjectIssueSubTypeRequest) Execute() (*IssueSubTypeCreatedRS, 
 CreateProjectIssueSubType Creation of custom project specific issue sub-type
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param projectName
+	@param projectKey
 	@return ApiCreateProjectIssueSubTypeRequest
 */
-func (a *ProjectSettingsAPIService) CreateProjectIssueSubType(ctx context.Context, projectName string) ApiCreateProjectIssueSubTypeRequest {
+func (a *ProjectSettingsAPIService) CreateProjectIssueSubType(ctx context.Context, projectKey string) ApiCreateProjectIssueSubTypeRequest {
 	return ApiCreateProjectIssueSubTypeRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		projectKey: projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return IssueSubTypeCreatedRS
-func (a *ProjectSettingsAPIService) CreateProjectIssueSubTypeExecute(r ApiCreateProjectIssueSubTypeRequest) (*IssueSubTypeCreatedRS, *http.Response, error) {
+//	@return ComEpamReportportalBaseModelProjectConfigIssueSubTypeCreatedRS
+func (a *ProjectSettingsAPIService) CreateProjectIssueSubTypeExecute(r ApiCreateProjectIssueSubTypeRequest) (*ComEpamReportportalBaseModelProjectConfigIssueSubTypeCreatedRS, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPost
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *IssueSubTypeCreatedRS
+		localVarReturnValue *ComEpamReportportalBaseModelProjectConfigIssueSubTypeCreatedRS
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ProjectSettingsAPIService.CreateProjectIssueSubType")
@@ -400,14 +400,14 @@ func (a *ProjectSettingsAPIService) CreateProjectIssueSubTypeExecute(r ApiCreate
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/settings/sub-type"
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath := localBasePath + "/v1/{projectKey}/settings/sub-type"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
-	if r.createIssueSubTypeRQ == nil {
-		return localVarReturnValue, nil, reportError("createIssueSubTypeRQ is required and must be specified")
+	if r.comEpamReportportalBaseModelProjectConfigCreateIssueSubTypeRQ == nil {
+		return localVarReturnValue, nil, reportError("comEpamReportportalBaseModelProjectConfigCreateIssueSubTypeRQ is required and must be specified")
 	}
 
 	// to determine the Content-Type header
@@ -428,7 +428,7 @@ func (a *ProjectSettingsAPIService) CreateProjectIssueSubTypeExecute(r ApiCreate
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
 	// body params
-	localVarPostBody = r.createIssueSubTypeRQ
+	localVarPostBody = r.comEpamReportportalBaseModelProjectConfigCreateIssueSubTypeRQ
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -470,7 +470,7 @@ func (a *ProjectSettingsAPIService) CreateProjectIssueSubTypeExecute(r ApiCreate
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -481,7 +481,7 @@ func (a *ProjectSettingsAPIService) CreateProjectIssueSubTypeExecute(r ApiCreate
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -492,7 +492,7 @@ func (a *ProjectSettingsAPIService) CreateProjectIssueSubTypeExecute(r ApiCreate
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -521,10 +521,10 @@ type ApiDeleteNotificationRequest struct {
 	ctx            context.Context
 	ApiService     *ProjectSettingsAPIService
 	notificationId int64
-	projectName    string
+	projectKey     string
 }
 
-func (r ApiDeleteNotificationRequest) Execute() (*OperationCompletionRS, *http.Response, error) {
+func (r ApiDeleteNotificationRequest) Execute() (*ComEpamReportportalBaseReportingOperationCompletionRS, *http.Response, error) {
 	return r.ApiService.DeleteNotificationExecute(r)
 }
 
@@ -535,27 +535,27 @@ Only for users with PROJECT_MANAGER or ADMIN roles
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param notificationId
-	@param projectName
+	@param projectKey
 	@return ApiDeleteNotificationRequest
 */
-func (a *ProjectSettingsAPIService) DeleteNotification(ctx context.Context, notificationId int64, projectName string) ApiDeleteNotificationRequest {
+func (a *ProjectSettingsAPIService) DeleteNotification(ctx context.Context, notificationId int64, projectKey string) ApiDeleteNotificationRequest {
 	return ApiDeleteNotificationRequest{
 		ApiService:     a,
 		ctx:            ctx,
 		notificationId: notificationId,
-		projectName:    projectName,
+		projectKey:     projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return OperationCompletionRS
-func (a *ProjectSettingsAPIService) DeleteNotificationExecute(r ApiDeleteNotificationRequest) (*OperationCompletionRS, *http.Response, error) {
+//	@return ComEpamReportportalBaseReportingOperationCompletionRS
+func (a *ProjectSettingsAPIService) DeleteNotificationExecute(r ApiDeleteNotificationRequest) (*ComEpamReportportalBaseReportingOperationCompletionRS, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodDelete
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *OperationCompletionRS
+		localVarReturnValue *ComEpamReportportalBaseReportingOperationCompletionRS
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ProjectSettingsAPIService.DeleteNotification")
@@ -563,9 +563,9 @@ func (a *ProjectSettingsAPIService) DeleteNotificationExecute(r ApiDeleteNotific
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/settings/notification/{notificationId}"
+	localVarPath := localBasePath + "/v1/{projectKey}/settings/notification/{notificationId}"
 	localVarPath = strings.Replace(localVarPath, "{"+"notificationId"+"}", url.PathEscape(parameterValueToString(r.notificationId, "notificationId")), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -629,7 +629,7 @@ func (a *ProjectSettingsAPIService) DeleteNotificationExecute(r ApiDeleteNotific
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -640,7 +640,7 @@ func (a *ProjectSettingsAPIService) DeleteNotificationExecute(r ApiDeleteNotific
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -651,7 +651,7 @@ func (a *ProjectSettingsAPIService) DeleteNotificationExecute(r ApiDeleteNotific
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -677,13 +677,13 @@ func (a *ProjectSettingsAPIService) DeleteNotificationExecute(r ApiDeleteNotific
 }
 
 type ApiDeletePatternTemplateRequest struct {
-	ctx         context.Context
-	ApiService  *ProjectSettingsAPIService
-	id          int64
-	projectName string
+	ctx        context.Context
+	ApiService *ProjectSettingsAPIService
+	id         int64
+	projectKey string
 }
 
-func (r ApiDeletePatternTemplateRequest) Execute() (*OperationCompletionRS, *http.Response, error) {
+func (r ApiDeletePatternTemplateRequest) Execute() (*ComEpamReportportalBaseReportingOperationCompletionRS, *http.Response, error) {
 	return r.ApiService.DeletePatternTemplateExecute(r)
 }
 
@@ -692,27 +692,27 @@ DeletePatternTemplate Delete pattern template for items' log messages pattern an
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param id
-	@param projectName
+	@param projectKey
 	@return ApiDeletePatternTemplateRequest
 */
-func (a *ProjectSettingsAPIService) DeletePatternTemplate(ctx context.Context, id int64, projectName string) ApiDeletePatternTemplateRequest {
+func (a *ProjectSettingsAPIService) DeletePatternTemplate(ctx context.Context, id int64, projectKey string) ApiDeletePatternTemplateRequest {
 	return ApiDeletePatternTemplateRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		id:          id,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		id:         id,
+		projectKey: projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return OperationCompletionRS
-func (a *ProjectSettingsAPIService) DeletePatternTemplateExecute(r ApiDeletePatternTemplateRequest) (*OperationCompletionRS, *http.Response, error) {
+//	@return ComEpamReportportalBaseReportingOperationCompletionRS
+func (a *ProjectSettingsAPIService) DeletePatternTemplateExecute(r ApiDeletePatternTemplateRequest) (*ComEpamReportportalBaseReportingOperationCompletionRS, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodDelete
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *OperationCompletionRS
+		localVarReturnValue *ComEpamReportportalBaseReportingOperationCompletionRS
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ProjectSettingsAPIService.DeletePatternTemplate")
@@ -720,9 +720,9 @@ func (a *ProjectSettingsAPIService) DeletePatternTemplateExecute(r ApiDeletePatt
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/settings/pattern/{id}"
+	localVarPath := localBasePath + "/v1/{projectKey}/settings/pattern/{id}"
 	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", url.PathEscape(parameterValueToString(r.id, "id")), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -786,7 +786,7 @@ func (a *ProjectSettingsAPIService) DeletePatternTemplateExecute(r ApiDeletePatt
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -797,7 +797,7 @@ func (a *ProjectSettingsAPIService) DeletePatternTemplateExecute(r ApiDeletePatt
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -808,7 +808,7 @@ func (a *ProjectSettingsAPIService) DeletePatternTemplateExecute(r ApiDeletePatt
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -834,13 +834,13 @@ func (a *ProjectSettingsAPIService) DeletePatternTemplateExecute(r ApiDeletePatt
 }
 
 type ApiDeleteProjectIssueSubTypeRequest struct {
-	ctx         context.Context
-	ApiService  *ProjectSettingsAPIService
-	id          int64
-	projectName string
+	ctx        context.Context
+	ApiService *ProjectSettingsAPIService
+	id         int64
+	projectKey string
 }
 
-func (r ApiDeleteProjectIssueSubTypeRequest) Execute() (*OperationCompletionRS, *http.Response, error) {
+func (r ApiDeleteProjectIssueSubTypeRequest) Execute() (*ComEpamReportportalBaseReportingOperationCompletionRS, *http.Response, error) {
 	return r.ApiService.DeleteProjectIssueSubTypeExecute(r)
 }
 
@@ -849,27 +849,27 @@ DeleteProjectIssueSubType Delete custom project specific issue sub-type
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param id
-	@param projectName
+	@param projectKey
 	@return ApiDeleteProjectIssueSubTypeRequest
 */
-func (a *ProjectSettingsAPIService) DeleteProjectIssueSubType(ctx context.Context, id int64, projectName string) ApiDeleteProjectIssueSubTypeRequest {
+func (a *ProjectSettingsAPIService) DeleteProjectIssueSubType(ctx context.Context, id int64, projectKey string) ApiDeleteProjectIssueSubTypeRequest {
 	return ApiDeleteProjectIssueSubTypeRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		id:          id,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		id:         id,
+		projectKey: projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return OperationCompletionRS
-func (a *ProjectSettingsAPIService) DeleteProjectIssueSubTypeExecute(r ApiDeleteProjectIssueSubTypeRequest) (*OperationCompletionRS, *http.Response, error) {
+//	@return ComEpamReportportalBaseReportingOperationCompletionRS
+func (a *ProjectSettingsAPIService) DeleteProjectIssueSubTypeExecute(r ApiDeleteProjectIssueSubTypeRequest) (*ComEpamReportportalBaseReportingOperationCompletionRS, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodDelete
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *OperationCompletionRS
+		localVarReturnValue *ComEpamReportportalBaseReportingOperationCompletionRS
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ProjectSettingsAPIService.DeleteProjectIssueSubType")
@@ -877,9 +877,9 @@ func (a *ProjectSettingsAPIService) DeleteProjectIssueSubTypeExecute(r ApiDelete
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/settings/sub-type/{id}"
+	localVarPath := localBasePath + "/v1/{projectKey}/settings/sub-type/{id}"
 	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", url.PathEscape(parameterValueToString(r.id, "id")), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -943,7 +943,7 @@ func (a *ProjectSettingsAPIService) DeleteProjectIssueSubTypeExecute(r ApiDelete
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -954,7 +954,7 @@ func (a *ProjectSettingsAPIService) DeleteProjectIssueSubTypeExecute(r ApiDelete
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -965,7 +965,7 @@ func (a *ProjectSettingsAPIService) DeleteProjectIssueSubTypeExecute(r ApiDelete
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -991,12 +991,12 @@ func (a *ProjectSettingsAPIService) DeleteProjectIssueSubTypeExecute(r ApiDelete
 }
 
 type ApiGetNotificationsRequest struct {
-	ctx         context.Context
-	ApiService  *ProjectSettingsAPIService
-	projectName string
+	ctx        context.Context
+	ApiService *ProjectSettingsAPIService
+	projectKey string
 }
 
-func (r ApiGetNotificationsRequest) Execute() ([]SenderCaseDTO, *http.Response, error) {
+func (r ApiGetNotificationsRequest) Execute() ([]ComEpamReportportalBaseModelProjectEmailSenderCaseDTO, *http.Response, error) {
 	return r.ApiService.GetNotificationsExecute(r)
 }
 
@@ -1006,26 +1006,26 @@ GetNotifications Returns notifications config of specified project
 Only for users assigned to specified project
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param projectName
+	@param projectKey
 	@return ApiGetNotificationsRequest
 */
-func (a *ProjectSettingsAPIService) GetNotifications(ctx context.Context, projectName string) ApiGetNotificationsRequest {
+func (a *ProjectSettingsAPIService) GetNotifications(ctx context.Context, projectKey string) ApiGetNotificationsRequest {
 	return ApiGetNotificationsRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		projectKey: projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return []SenderCaseDTO
-func (a *ProjectSettingsAPIService) GetNotificationsExecute(r ApiGetNotificationsRequest) ([]SenderCaseDTO, *http.Response, error) {
+//	@return []ComEpamReportportalBaseModelProjectEmailSenderCaseDTO
+func (a *ProjectSettingsAPIService) GetNotificationsExecute(r ApiGetNotificationsRequest) ([]ComEpamReportportalBaseModelProjectEmailSenderCaseDTO, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodGet
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue []SenderCaseDTO
+		localVarReturnValue []ComEpamReportportalBaseModelProjectEmailSenderCaseDTO
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ProjectSettingsAPIService.GetNotifications")
@@ -1033,8 +1033,8 @@ func (a *ProjectSettingsAPIService) GetNotificationsExecute(r ApiGetNotification
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/settings/notification"
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath := localBasePath + "/v1/{projectKey}/settings/notification"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -1098,7 +1098,7 @@ func (a *ProjectSettingsAPIService) GetNotificationsExecute(r ApiGetNotification
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1109,7 +1109,7 @@ func (a *ProjectSettingsAPIService) GetNotificationsExecute(r ApiGetNotification
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1120,7 +1120,7 @@ func (a *ProjectSettingsAPIService) GetNotificationsExecute(r ApiGetNotification
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1146,12 +1146,12 @@ func (a *ProjectSettingsAPIService) GetNotificationsExecute(r ApiGetNotification
 }
 
 type ApiGetProjectSettingsRequest struct {
-	ctx         context.Context
-	ApiService  *ProjectSettingsAPIService
-	projectName string
+	ctx        context.Context
+	ApiService *ProjectSettingsAPIService
+	projectKey string
 }
 
-func (r ApiGetProjectSettingsRequest) Execute() (*ProjectSettingsResource, *http.Response, error) {
+func (r ApiGetProjectSettingsRequest) Execute() (*ComEpamReportportalBaseModelProjectConfigProjectSettingsResource, *http.Response, error) {
 	return r.ApiService.GetProjectSettingsExecute(r)
 }
 
@@ -1161,26 +1161,26 @@ GetProjectSettings Get project specific issue sub-types
 Only for users that are assigned to the project
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param projectName
+	@param projectKey
 	@return ApiGetProjectSettingsRequest
 */
-func (a *ProjectSettingsAPIService) GetProjectSettings(ctx context.Context, projectName string) ApiGetProjectSettingsRequest {
+func (a *ProjectSettingsAPIService) GetProjectSettings(ctx context.Context, projectKey string) ApiGetProjectSettingsRequest {
 	return ApiGetProjectSettingsRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		projectKey: projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return ProjectSettingsResource
-func (a *ProjectSettingsAPIService) GetProjectSettingsExecute(r ApiGetProjectSettingsRequest) (*ProjectSettingsResource, *http.Response, error) {
+//	@return ComEpamReportportalBaseModelProjectConfigProjectSettingsResource
+func (a *ProjectSettingsAPIService) GetProjectSettingsExecute(r ApiGetProjectSettingsRequest) (*ComEpamReportportalBaseModelProjectConfigProjectSettingsResource, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodGet
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *ProjectSettingsResource
+		localVarReturnValue *ComEpamReportportalBaseModelProjectConfigProjectSettingsResource
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ProjectSettingsAPIService.GetProjectSettings")
@@ -1188,8 +1188,8 @@ func (a *ProjectSettingsAPIService) GetProjectSettingsExecute(r ApiGetProjectSet
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/settings"
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath := localBasePath + "/v1/{projectKey}/settings"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -1253,7 +1253,7 @@ func (a *ProjectSettingsAPIService) GetProjectSettingsExecute(r ApiGetProjectSet
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1264,7 +1264,7 @@ func (a *ProjectSettingsAPIService) GetProjectSettingsExecute(r ApiGetProjectSet
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1275,7 +1275,7 @@ func (a *ProjectSettingsAPIService) GetProjectSettingsExecute(r ApiGetProjectSet
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1301,18 +1301,18 @@ func (a *ProjectSettingsAPIService) GetProjectSettingsExecute(r ApiGetProjectSet
 }
 
 type ApiUpdateNotificationRequest struct {
-	ctx           context.Context
-	ApiService    *ProjectSettingsAPIService
-	projectName   string
-	senderCaseDTO *SenderCaseDTO
+	ctx                                                   context.Context
+	ApiService                                            *ProjectSettingsAPIService
+	projectKey                                            string
+	comEpamReportportalBaseModelProjectEmailSenderCaseDTO *ComEpamReportportalBaseModelProjectEmailSenderCaseDTO
 }
 
-func (r ApiUpdateNotificationRequest) SenderCaseDTO(senderCaseDTO SenderCaseDTO) ApiUpdateNotificationRequest {
-	r.senderCaseDTO = &senderCaseDTO
+func (r ApiUpdateNotificationRequest) ComEpamReportportalBaseModelProjectEmailSenderCaseDTO(comEpamReportportalBaseModelProjectEmailSenderCaseDTO ComEpamReportportalBaseModelProjectEmailSenderCaseDTO) ApiUpdateNotificationRequest {
+	r.comEpamReportportalBaseModelProjectEmailSenderCaseDTO = &comEpamReportportalBaseModelProjectEmailSenderCaseDTO
 	return r
 }
 
-func (r ApiUpdateNotificationRequest) Execute() (*OperationCompletionRS, *http.Response, error) {
+func (r ApiUpdateNotificationRequest) Execute() (*ComEpamReportportalBaseReportingOperationCompletionRS, *http.Response, error) {
 	return r.ApiService.UpdateNotificationExecute(r)
 }
 
@@ -1322,26 +1322,26 @@ UpdateNotification Updates notification for specified project
 Only for users with PROJECT_MANAGER or ADMIN roles
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param projectName
+	@param projectKey
 	@return ApiUpdateNotificationRequest
 */
-func (a *ProjectSettingsAPIService) UpdateNotification(ctx context.Context, projectName string) ApiUpdateNotificationRequest {
+func (a *ProjectSettingsAPIService) UpdateNotification(ctx context.Context, projectKey string) ApiUpdateNotificationRequest {
 	return ApiUpdateNotificationRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		projectKey: projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return OperationCompletionRS
-func (a *ProjectSettingsAPIService) UpdateNotificationExecute(r ApiUpdateNotificationRequest) (*OperationCompletionRS, *http.Response, error) {
+//	@return ComEpamReportportalBaseReportingOperationCompletionRS
+func (a *ProjectSettingsAPIService) UpdateNotificationExecute(r ApiUpdateNotificationRequest) (*ComEpamReportportalBaseReportingOperationCompletionRS, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPut
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *OperationCompletionRS
+		localVarReturnValue *ComEpamReportportalBaseReportingOperationCompletionRS
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ProjectSettingsAPIService.UpdateNotification")
@@ -1349,14 +1349,14 @@ func (a *ProjectSettingsAPIService) UpdateNotificationExecute(r ApiUpdateNotific
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/settings/notification"
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath := localBasePath + "/v1/{projectKey}/settings/notification"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
-	if r.senderCaseDTO == nil {
-		return localVarReturnValue, nil, reportError("senderCaseDTO is required and must be specified")
+	if r.comEpamReportportalBaseModelProjectEmailSenderCaseDTO == nil {
+		return localVarReturnValue, nil, reportError("comEpamReportportalBaseModelProjectEmailSenderCaseDTO is required and must be specified")
 	}
 
 	// to determine the Content-Type header
@@ -1377,7 +1377,7 @@ func (a *ProjectSettingsAPIService) UpdateNotificationExecute(r ApiUpdateNotific
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
 	// body params
-	localVarPostBody = r.senderCaseDTO
+	localVarPostBody = r.comEpamReportportalBaseModelProjectEmailSenderCaseDTO
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -1419,7 +1419,7 @@ func (a *ProjectSettingsAPIService) UpdateNotificationExecute(r ApiUpdateNotific
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1430,7 +1430,7 @@ func (a *ProjectSettingsAPIService) UpdateNotificationExecute(r ApiUpdateNotific
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1441,7 +1441,7 @@ func (a *ProjectSettingsAPIService) UpdateNotificationExecute(r ApiUpdateNotific
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1467,19 +1467,19 @@ func (a *ProjectSettingsAPIService) UpdateNotificationExecute(r ApiUpdateNotific
 }
 
 type ApiUpdatePatternTemplateRequest struct {
-	ctx                     context.Context
-	ApiService              *ProjectSettingsAPIService
-	id                      int64
-	projectName             string
-	updatePatternTemplateRQ *UpdatePatternTemplateRQ
+	ctx                                                                     context.Context
+	ApiService                                                              *ProjectSettingsAPIService
+	id                                                                      int64
+	projectKey                                                              string
+	comEpamReportportalBaseModelProjectConfigPatternUpdatePatternTemplateRQ *ComEpamReportportalBaseModelProjectConfigPatternUpdatePatternTemplateRQ
 }
 
-func (r ApiUpdatePatternTemplateRequest) UpdatePatternTemplateRQ(updatePatternTemplateRQ UpdatePatternTemplateRQ) ApiUpdatePatternTemplateRequest {
-	r.updatePatternTemplateRQ = &updatePatternTemplateRQ
+func (r ApiUpdatePatternTemplateRequest) ComEpamReportportalBaseModelProjectConfigPatternUpdatePatternTemplateRQ(comEpamReportportalBaseModelProjectConfigPatternUpdatePatternTemplateRQ ComEpamReportportalBaseModelProjectConfigPatternUpdatePatternTemplateRQ) ApiUpdatePatternTemplateRequest {
+	r.comEpamReportportalBaseModelProjectConfigPatternUpdatePatternTemplateRQ = &comEpamReportportalBaseModelProjectConfigPatternUpdatePatternTemplateRQ
 	return r
 }
 
-func (r ApiUpdatePatternTemplateRequest) Execute() (*OperationCompletionRS, *http.Response, error) {
+func (r ApiUpdatePatternTemplateRequest) Execute() (*ComEpamReportportalBaseReportingOperationCompletionRS, *http.Response, error) {
 	return r.ApiService.UpdatePatternTemplateExecute(r)
 }
 
@@ -1488,27 +1488,27 @@ UpdatePatternTemplate Update pattern template for items' log messages pattern an
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param id
-	@param projectName
+	@param projectKey
 	@return ApiUpdatePatternTemplateRequest
 */
-func (a *ProjectSettingsAPIService) UpdatePatternTemplate(ctx context.Context, id int64, projectName string) ApiUpdatePatternTemplateRequest {
+func (a *ProjectSettingsAPIService) UpdatePatternTemplate(ctx context.Context, id int64, projectKey string) ApiUpdatePatternTemplateRequest {
 	return ApiUpdatePatternTemplateRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		id:          id,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		id:         id,
+		projectKey: projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return OperationCompletionRS
-func (a *ProjectSettingsAPIService) UpdatePatternTemplateExecute(r ApiUpdatePatternTemplateRequest) (*OperationCompletionRS, *http.Response, error) {
+//	@return ComEpamReportportalBaseReportingOperationCompletionRS
+func (a *ProjectSettingsAPIService) UpdatePatternTemplateExecute(r ApiUpdatePatternTemplateRequest) (*ComEpamReportportalBaseReportingOperationCompletionRS, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPut
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *OperationCompletionRS
+		localVarReturnValue *ComEpamReportportalBaseReportingOperationCompletionRS
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ProjectSettingsAPIService.UpdatePatternTemplate")
@@ -1516,15 +1516,15 @@ func (a *ProjectSettingsAPIService) UpdatePatternTemplateExecute(r ApiUpdatePatt
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/settings/pattern/{id}"
+	localVarPath := localBasePath + "/v1/{projectKey}/settings/pattern/{id}"
 	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", url.PathEscape(parameterValueToString(r.id, "id")), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
-	if r.updatePatternTemplateRQ == nil {
-		return localVarReturnValue, nil, reportError("updatePatternTemplateRQ is required and must be specified")
+	if r.comEpamReportportalBaseModelProjectConfigPatternUpdatePatternTemplateRQ == nil {
+		return localVarReturnValue, nil, reportError("comEpamReportportalBaseModelProjectConfigPatternUpdatePatternTemplateRQ is required and must be specified")
 	}
 
 	// to determine the Content-Type header
@@ -1545,7 +1545,7 @@ func (a *ProjectSettingsAPIService) UpdatePatternTemplateExecute(r ApiUpdatePatt
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
 	// body params
-	localVarPostBody = r.updatePatternTemplateRQ
+	localVarPostBody = r.comEpamReportportalBaseModelProjectConfigPatternUpdatePatternTemplateRQ
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -1587,7 +1587,7 @@ func (a *ProjectSettingsAPIService) UpdatePatternTemplateExecute(r ApiUpdatePatt
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1598,7 +1598,7 @@ func (a *ProjectSettingsAPIService) UpdatePatternTemplateExecute(r ApiUpdatePatt
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1609,7 +1609,7 @@ func (a *ProjectSettingsAPIService) UpdatePatternTemplateExecute(r ApiUpdatePatt
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1635,18 +1635,18 @@ func (a *ProjectSettingsAPIService) UpdatePatternTemplateExecute(r ApiUpdatePatt
 }
 
 type ApiUpdateProjectIssueSubTypeRequest struct {
-	ctx                  context.Context
-	ApiService           *ProjectSettingsAPIService
-	projectName          string
-	updateIssueSubTypeRQ *UpdateIssueSubTypeRQ
+	ctx                                                           context.Context
+	ApiService                                                    *ProjectSettingsAPIService
+	projectKey                                                    string
+	comEpamReportportalBaseModelProjectConfigUpdateIssueSubTypeRQ *ComEpamReportportalBaseModelProjectConfigUpdateIssueSubTypeRQ
 }
 
-func (r ApiUpdateProjectIssueSubTypeRequest) UpdateIssueSubTypeRQ(updateIssueSubTypeRQ UpdateIssueSubTypeRQ) ApiUpdateProjectIssueSubTypeRequest {
-	r.updateIssueSubTypeRQ = &updateIssueSubTypeRQ
+func (r ApiUpdateProjectIssueSubTypeRequest) ComEpamReportportalBaseModelProjectConfigUpdateIssueSubTypeRQ(comEpamReportportalBaseModelProjectConfigUpdateIssueSubTypeRQ ComEpamReportportalBaseModelProjectConfigUpdateIssueSubTypeRQ) ApiUpdateProjectIssueSubTypeRequest {
+	r.comEpamReportportalBaseModelProjectConfigUpdateIssueSubTypeRQ = &comEpamReportportalBaseModelProjectConfigUpdateIssueSubTypeRQ
 	return r
 }
 
-func (r ApiUpdateProjectIssueSubTypeRequest) Execute() (*OperationCompletionRS, *http.Response, error) {
+func (r ApiUpdateProjectIssueSubTypeRequest) Execute() (*ComEpamReportportalBaseReportingOperationCompletionRS, *http.Response, error) {
 	return r.ApiService.UpdateProjectIssueSubTypeExecute(r)
 }
 
@@ -1654,26 +1654,26 @@ func (r ApiUpdateProjectIssueSubTypeRequest) Execute() (*OperationCompletionRS, 
 UpdateProjectIssueSubType Update of custom project specific issue sub-type
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param projectName
+	@param projectKey
 	@return ApiUpdateProjectIssueSubTypeRequest
 */
-func (a *ProjectSettingsAPIService) UpdateProjectIssueSubType(ctx context.Context, projectName string) ApiUpdateProjectIssueSubTypeRequest {
+func (a *ProjectSettingsAPIService) UpdateProjectIssueSubType(ctx context.Context, projectKey string) ApiUpdateProjectIssueSubTypeRequest {
 	return ApiUpdateProjectIssueSubTypeRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		projectKey: projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return OperationCompletionRS
-func (a *ProjectSettingsAPIService) UpdateProjectIssueSubTypeExecute(r ApiUpdateProjectIssueSubTypeRequest) (*OperationCompletionRS, *http.Response, error) {
+//	@return ComEpamReportportalBaseReportingOperationCompletionRS
+func (a *ProjectSettingsAPIService) UpdateProjectIssueSubTypeExecute(r ApiUpdateProjectIssueSubTypeRequest) (*ComEpamReportportalBaseReportingOperationCompletionRS, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPut
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *OperationCompletionRS
+		localVarReturnValue *ComEpamReportportalBaseReportingOperationCompletionRS
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ProjectSettingsAPIService.UpdateProjectIssueSubType")
@@ -1681,14 +1681,14 @@ func (a *ProjectSettingsAPIService) UpdateProjectIssueSubTypeExecute(r ApiUpdate
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/settings/sub-type"
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath := localBasePath + "/v1/{projectKey}/settings/sub-type"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
-	if r.updateIssueSubTypeRQ == nil {
-		return localVarReturnValue, nil, reportError("updateIssueSubTypeRQ is required and must be specified")
+	if r.comEpamReportportalBaseModelProjectConfigUpdateIssueSubTypeRQ == nil {
+		return localVarReturnValue, nil, reportError("comEpamReportportalBaseModelProjectConfigUpdateIssueSubTypeRQ is required and must be specified")
 	}
 
 	// to determine the Content-Type header
@@ -1709,7 +1709,7 @@ func (a *ProjectSettingsAPIService) UpdateProjectIssueSubTypeExecute(r ApiUpdate
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
 	// body params
-	localVarPostBody = r.updateIssueSubTypeRQ
+	localVarPostBody = r.comEpamReportportalBaseModelProjectConfigUpdateIssueSubTypeRQ
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -1751,7 +1751,7 @@ func (a *ProjectSettingsAPIService) UpdateProjectIssueSubTypeExecute(r ApiUpdate
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1762,7 +1762,7 @@ func (a *ProjectSettingsAPIService) UpdateProjectIssueSubTypeExecute(r ApiUpdate
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1773,7 +1773,7 @@ func (a *ProjectSettingsAPIService) UpdateProjectIssueSubTypeExecute(r ApiUpdate
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()

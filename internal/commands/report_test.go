@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -424,4 +425,68 @@ func TestReportLaunch_EmptyInput(t *testing.T) {
 	assert.Empty(t, launchID)
 	assert.Equal(t, int32(0), launchStarts.Load(), "empty input should not start a launch")
 	assert.Equal(t, int32(0), launchFinishes.Load())
+}
+
+func TestReportLaunch_OutputTypeErrorLevels(t *testing.T) {
+	t.Parallel()
+
+	project := "testproj"
+	var logBodies [][]byte
+
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch {
+		case r.Method == http.MethodPost && r.URL.Path == "/api/v2/"+project+"/launch":
+			w.Header().Set("Content-Type", "application/json")
+			_ = json.NewEncoder(w).Encode(map[string]string{"id": "launch-uuid-1"})
+		case r.Method == http.MethodPut && strings.HasPrefix(r.URL.Path, "/api/v2/"+project+"/launch/"):
+			w.Header().Set("Content-Type", "application/json")
+			_ = json.NewEncoder(w).Encode(map[string]string{"id": "launch-uuid-1", "message": "finished"})
+		case r.Method == http.MethodPost && strings.HasPrefix(r.URL.Path, "/api/v2/"+project+"/item"):
+			w.Header().Set("Content-Type", "application/json")
+			_ = json.NewEncoder(w).Encode(map[string]string{"id": "test-item-1"})
+		case r.Method == http.MethodPut && strings.HasPrefix(r.URL.Path, "/api/v2/"+project+"/item/"):
+			w.Header().Set("Content-Type", "application/json")
+			_ = json.NewEncoder(w).Encode(map[string]string{"message": "finished"})
+		case r.Method == http.MethodPost && r.URL.Path == "/api/v2/"+project+"/log":
+			body, err := io.ReadAll(r.Body)
+			require.NoError(t, err)
+			logBodies = append(logBodies, body)
+			w.Header().Set("Content-Type", "application/json")
+			_ = json.NewEncoder(w).Encode(map[string]string{"id": "log-1"})
+		default:
+			http.NotFound(w, r)
+		}
+	}))
+	t.Cleanup(srv.Close)
+
+	lines := []string{
+		`{"time":"2025-01-01T00:00:00Z","action":"run","package":"example/pkg","test":"TestFail"}`,
+		`{"time":"2025-01-01T00:00:01Z","action":"output","package":"example/pkg","test":"TestFail","output":"--- FAIL: TestFail\n","OutputType":"frame"}`,
+		`{"time":"2025-01-01T00:00:02Z","action":"output","package":"example/pkg","test":"TestFail","output":"    main_test.go:10: expected 1 got 2\n","OutputType":"error"}`,
+		`{"time":"2025-01-01T00:00:03Z","action":"output","package":"example/pkg","test":"TestFail","output":"        stack trace line\n","OutputType":"error-continue"}`,
+		`{"time":"2025-01-01T00:00:04Z","action":"fail","package":"example/pkg","test":"TestFail","elapsed":0.1}`,
+		`{"time":"2025-01-01T00:00:05Z","action":"fail","package":"example/pkg","elapsed":0.2}`,
+	}
+	f, err := os.CreateTemp("", "test2json-outputtype-*.jsonl")
+	require.NoError(t, err)
+	t.Cleanup(func() { os.Remove(f.Name()) })
+	_, err = f.WriteString(strings.Join(lines, "\n") + "\n")
+	require.NoError(t, err)
+	require.NoError(t, f.Close())
+
+	cfg := &clientConfig{URL: srv.URL, Project: project, ApiKey: "tok"}
+	cmd := reportCmd(f.Name(), "outputtype-launch", false)
+
+	_, err = reportLaunch(context.Background(), cfg, cmd)
+	require.NoError(t, err)
+	require.NotEmpty(t, logBodies)
+
+	var sawErrorLevel bool
+	for _, body := range logBodies {
+		if strings.Contains(string(body), `"level":"ERROR"`) {
+			sawErrorLevel = true
+			break
+		}
+	}
+	assert.True(t, sawErrorLevel, "expected at least one ERROR-level log from OutputType error output")
 }

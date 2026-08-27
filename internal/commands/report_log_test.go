@@ -49,7 +49,10 @@ func TestShouldMergeOutput(t *testing.T) {
 
 	assert.True(t, shouldMergeOutput(&testEvent{OutputType: testOutputTypeErrorContinue}))
 	assert.True(t, shouldMergeOutput(&testEvent{Output: "\tcontinuation"}))
-	assert.False(t, shouldMergeOutput(&testEvent{OutputType: testOutputTypeFrame, Output: "\tframing"}))
+	assert.False(
+		t,
+		shouldMergeOutput(&testEvent{OutputType: testOutputTypeFrame, Output: "\tframing"}),
+	)
 	assert.False(t, shouldMergeOutput(&testEvent{OutputType: testOutputTypeError, Output: "err"}))
 	assert.False(t, shouldMergeOutput(&testEvent{Output: "plain line"}))
 }

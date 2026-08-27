@@ -440,7 +440,8 @@ func TestReportLaunch_OutputTypeErrorLevels(t *testing.T) {
 			_ = json.NewEncoder(w).Encode(map[string]string{"id": "launch-uuid-1"})
 		case r.Method == http.MethodPut && strings.HasPrefix(r.URL.Path, "/api/v2/"+project+"/launch/"):
 			w.Header().Set("Content-Type", "application/json")
-			_ = json.NewEncoder(w).Encode(map[string]string{"id": "launch-uuid-1", "message": "finished"})
+			_ = json.NewEncoder(w).
+				Encode(map[string]string{"id": "launch-uuid-1", "message": "finished"})
 		case r.Method == http.MethodPost && strings.HasPrefix(r.URL.Path, "/api/v2/"+project+"/item"):
 			w.Header().Set("Content-Type", "application/json")
 			_ = json.NewEncoder(w).Encode(map[string]string{"id": "test-item-1"})
@@ -488,5 +489,9 @@ func TestReportLaunch_OutputTypeErrorLevels(t *testing.T) {
 			break
 		}
 	}
-	assert.True(t, sawErrorLevel, "expected at least one ERROR-level log from OutputType error output")
+	assert.True(
+		t,
+		sawErrorLevel,
+		"expected at least one ERROR-level log from OutputType error output",
+	)
 }

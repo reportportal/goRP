@@ -1,0 +1,13 @@
+---
+description: goRP project guide — structure, conventions, and workflows for the ReportPortal CLI and library
+alwaysApply: true
+---
+
+# goRP
+
+The full project guide (repo structure, CLI command tree, configuration, code
+conventions, key design decisions, and things not to do) lives in `AGENTS.md`
+at the repository root. Read it before making changes in this repo.
+
+Do not copy its content into this file — `AGENTS.md` is the single source of
+truth; this rule only exists to point Cursor at it.

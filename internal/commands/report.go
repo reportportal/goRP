@@ -31,6 +31,13 @@ const (
 	testActionFail   = "fail"
 )
 
+// test2json OutputType values (Go 1.27+); see cmd/test2json documentation.
+const (
+	testOutputTypeFrame         = "frame"
+	testOutputTypeError         = "error"
+	testOutputTypeErrorContinue = "error-continue"
+)
+
 var (
 	reportCommand = &cli.Command{
 		Name:  "report",
@@ -200,13 +207,17 @@ func reportLaunch(ctx context.Context, cfg *clientConfig, cmd *cli.Command) (str
 //	fail   - the test or benchmark failed
 //	output - the test printed output
 //	skip   - the test was skipped or the package contained no tests
+//
+// OutputType is set on action == "output" in Go 1.27+ (blank, "frame", "error", "error-continue").
 type testEvent struct {
-	Time    time.Time `json:"time"` // encodes as an RFC3339-format string
-	Action  string    `json:"action"`
-	Package string    `json:"package"`
-	Test    string    `json:"test"`
-	Elapsed float64   `json:"elapsed"` // seconds
-	Output  string    `json:"output"`
+	Time        time.Time `json:"time"` // encodes as an RFC3339-format string
+	Action      string    `json:"action"`
+	Package     string    `json:"package"`
+	Test        string    `json:"test"`
+	Elapsed     float64   `json:"elapsed"` // seconds
+	Output      string    `json:"output"`
+	OutputType  string    `json:"OutputType,omitempty"`
+	FailedBuild string    `json:"FailedBuild,omitempty"`
 }
 
 type reporter struct {
@@ -373,6 +384,26 @@ func (r *reporter) startTest(ev *testEvent) error {
 	return nil
 }
 
+func logLevelForOutputType(outputType string) string {
+	switch outputType {
+	case testOutputTypeError, testOutputTypeErrorContinue:
+		return gorppkg.LogLevelError
+	default:
+		return gorppkg.LogLevelInfo
+	}
+}
+
+func shouldMergeOutput(ev *testEvent) bool {
+	if ev.OutputType == testOutputTypeErrorContinue {
+		return true
+	}
+	// Legacy fallback for Go < 1.27 streams without OutputType.
+	if ev.OutputType == "" {
+		return strings.HasPrefix(strings.TrimLeft(ev.Output, " "), "\t")
+	}
+	return false
+}
+
 func (r *reporter) log(ev *testEvent) {
 	if ev.Output == "" {
 		return
@@ -380,8 +411,7 @@ func (r *reporter) log(ev *testEvent) {
 	testName := r.getTestName(ev)
 	testUuid := r.tests[testName]
 
-	// if output starts from tab
-	if strings.HasPrefix(strings.TrimLeft(ev.Output, " "), "\t") && len(r.logs) > 0 {
+	if shouldMergeOutput(ev) && len(r.logs) > 0 {
 		lastLog := r.logs[len(r.logs)-1]
 		lastLog.Message = openapi.PtrString(*lastLog.Message + "\n" + ev.Output)
 		lastLog.Level = openapi.PtrString(gorppkg.LogLevelError)
@@ -391,7 +421,7 @@ func (r *reporter) log(ev *testEvent) {
 	rq := &openapi.SaveLogRQ{
 		ItemUuid:   openapi.PtrString(testUuid),
 		LaunchUuid: r.launchUUID,
-		Level:      openapi.PtrString(gorppkg.LogLevelInfo),
+		Level:      openapi.PtrString(logLevelForOutputType(ev.OutputType)),
 		Time:       ev.Time,
 		Message:    openapi.PtrString(ev.Output),
 	}

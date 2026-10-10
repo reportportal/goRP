@@ -2,8 +2,6 @@
 
 A [ReportPortal](https://reportportal.io) agent for [Ginkgo v2](https://github.com/onsi/ginkgo) — the Go BDD test framework.
 
-📖 **[Integration Guide](https://that-geeky-shree.github.io/report-portal-go/integration-guide.html)** — full setup, parallel execution, parameterized tests, and API flow diagrams.
-
 Reports test results to ReportPortal in real time as each spec runs, including priorities, external test reference IDs, structured logs, and file attachments. Supports parallel execution across multiple Ginkgo processes.
 
 ## Requirements

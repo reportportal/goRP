@@ -1,0 +1,3 @@
+# local ReportPortal credentials and agent log; never commit
+reportportal.properties
+rp-agent.log

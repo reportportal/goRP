@@ -7,13 +7,13 @@ vars:
   GO: go
   BINARY_DIR: bin
   BUILD_INFO_LDFLAGS: -ldflags "-w -extldflags '"-static"' -X main.date={{.BUILD_DATE}} -X main.version={{.VERSION}}"
-  GOLANG_CI: docker run --rm -v "{{.TASKFILE_DIR}}:/app" -w /app golangci/golangci-lint:v2.11.4 golangci-lint
+  GOLANG_CI: docker run --rm -v "{{.TASKFILE_DIR}}:/app" -w /app golangci/golangci-lint:v2.13.1 golangci-lint
   OUTPUT_DIR: "pkg/openapi"
   CLIENT_FILE: "{{.OUTPUT_DIR}}/client.go"
   # Canonical spec: JSON from https://demo.reportportal.io/api/v1/api-docs (OpenAPI 3.1; matches RP ~5.15.x)
   SPEC_PATH: "reportportal-api-docs.json"
   MODIFIED_SPEC_PATH: "openapi-modified.json"
-  OPENAPI_GENERATOR_IMAGE: "openapitools/openapi-generator-cli:v7.23.0"
+  OPENAPI_GENERATOR_IMAGE: "openapitools/openapi-generator-cli:v7.25.0"
 
 tasks:
   test:

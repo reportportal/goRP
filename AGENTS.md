@@ -81,7 +81,7 @@ against a fixed enum — pass any value `slog.Level.UnmarshalText` accepts (`deb
 |------|---------|
 | Build binary → `bin/gorp` | `task build` |
 | Run tests (with coverage) | `task test` |
-| Lint (Docker, golangci-lint v2.13.1) | `task lint` |
+| Lint (Docker, golangci-lint v2.15.0) | `task lint` |
 | Format (Docker) | `task fmt` |
 | Regenerate OpenAPI client | `task generate-openapi-client` (reads `openapi-modified.json`) |
 | Refresh spec from upstream, then regenerate | Replace `reportportal-api-docs.json`, then `task preprocess:schema && task generate-openapi-client` |
@@ -90,7 +90,7 @@ against a fixed enum — pass any value `slog.Level.UnmarshalText` accepts (`deb
 
 Upstream snapshot: `reportportal-api-docs.json` (from [https://demo.reportportal.io/api/v1/api-docs](https://demo.reportportal.io/api/v1/api-docs)). `task preprocess:schema` writes the normalized, jq-fixed spec to `openapi-modified.json`, which is the input for codegen.
 
-`task` is the task runner ([Taskfile.yml](Taskfile.yml)). Install it with `go install github.com/go-task/task/v3/cmd/task@latest` or via your package manager. `task lint`/`task fmt` run golangci-lint inside Docker (`golangci/golangci-lint:v2.13.1`) — no local install required, but Docker must be running. Podman works too: put a `docker` symlink to `podman` first on `PATH` — the Taskfile and `scripts/preprocess` call `docker` by name.
+`task` is the task runner ([Taskfile.yml](Taskfile.yml)). Install it with `go install github.com/go-task/task/v3/cmd/task@latest` or via your package manager. `task lint`/`task fmt` run golangci-lint inside Docker (`golangci/golangci-lint:v2.15.0`) — no local install required, but Docker must be running. Podman works too: put a `docker` symlink to `podman` first on `PATH` — the Taskfile and `scripts/preprocess` call `docker` by name.
 
 ## Code conventions
 

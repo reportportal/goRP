@@ -7,7 +7,7 @@ vars:
   GO: go
   BINARY_DIR: bin
   BUILD_INFO_LDFLAGS: -ldflags "-w -extldflags '"-static"' -X main.date={{.BUILD_DATE}} -X main.version={{.VERSION}}"
-  GOLANG_CI: docker run --rm -v "{{.TASKFILE_DIR}}:/app" -w /app golangci/golangci-lint:v2.13.1 golangci-lint
+  GOLANG_CI: docker run --rm -v "{{.TASKFILE_DIR}}:/app" -w /app golangci/golangci-lint:v2.15.0 golangci-lint
   OUTPUT_DIR: "pkg/openapi"
   CLIENT_FILE: "{{.OUTPUT_DIR}}/client.go"
   # Canonical spec: JSON from https://beta.epmrpp.reportportal.io/api/api-docs (ReportPortal 26.1, service-api 6.0.0)

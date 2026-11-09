@@ -516,3 +516,9 @@ all, err := client.GetAllLaunchesByFilterString(ctx, "my_project",
 | `0` | Success |
 | `1` | General error (bad arguments, config missing, API error, etc.) |
 | `10` | Quality gate check failed (status is not `PASSED`) |
+
+---
+
+## Compatibility
+
+This version of the client targets ReportPortal **26.1+** (organizations API, TMS). For older ReportPortal versions use goRP **v5.2.x**.

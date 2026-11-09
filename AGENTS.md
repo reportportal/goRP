@@ -14,7 +14,7 @@ A Go CLI tool (`gorp`) and library (`pkg/gorp`) for [ReportPortal](https://repor
 | `internal/commands/` | CLI command implementations (see below) |
 | `pkg/gorp/` | Hand-written public library (see below) |
 | `pkg/openapi/` | **Generated** OpenAPI client — never edit manually |
-| `scripts/` | Build helpers (`builddate.go`), cross-platform filesystem utils (`taskfs/`), OpenAPI spec preprocessing (`preprocess/`, `openapi-preprocess.jq`) |
+| `scripts/` | Build helpers (`builddate.go`), cross-platform filesystem utils (`taskfs/`), OpenAPI spec preprocessing (`preprocess/`, `openapi-preprocess.jq`), short-name type aliases template (`openapi-compat/`) |
 | `Taskfile.yml` | Task runner for build, test, lint, fmt, OpenAPI codegen |
 | `.claude/skills/reportportal/` | Skill for CLI/library reporting workflows (`start-launch`, `test2json`, quality gates, etc.). `.cursor/skills/reportportal/SKILL.md` symlinks to it — same file, don't edit both |
 
@@ -90,7 +90,7 @@ against a fixed enum — pass any value `slog.Level.UnmarshalText` accepts (`deb
 
 Upstream snapshot: `reportportal-api-docs.json` (from [https://demo.reportportal.io/api/v1/api-docs](https://demo.reportportal.io/api/v1/api-docs)). `task preprocess:schema` writes the normalized, jq-fixed spec to `openapi-modified.json`, which is the input for codegen.
 
-`task` is the task runner ([Taskfile.yml](Taskfile.yml)). Install it with `go install github.com/go-task/task/v3/cmd/task@latest` or via your package manager. `task lint`/`task fmt` run golangci-lint inside Docker (`golangci/golangci-lint:v2.13.1`) — no local install required, but Docker must be running.
+`task` is the task runner ([Taskfile.yml](Taskfile.yml)). Install it with `go install github.com/go-task/task/v3/cmd/task@latest` or via your package manager. `task lint`/`task fmt` run golangci-lint inside Docker (`golangci/golangci-lint:v2.13.1`) — no local install required, but Docker must be running. Podman works too: put a `docker` symlink to `podman` first on `PATH` — the Taskfile and `scripts/preprocess` call `docker` by name.
 
 ## Code conventions
 
@@ -112,10 +112,12 @@ Upstream snapshot: `reportportal-api-docs.json` (from [https://demo.reportportal
 - `pkg/openapi/` is regenerated from `openapi-modified.json`. Run `preprocess:schema` only when refreshing from `reportportal-api-docs.json` (it overwrites `openapi-modified.json`). Otherwise edit or keep `openapi-modified.json` and run `generate-openapi-client`.
 - `report test2json` parses `go test -json` output (see `internal/commands/report.go`'s `testEvent` struct). As of **Go 1.27**, `test2json` annotates `"action":"output"` events with an `OutputType` field (`"frame"`, `"error"`, `"error-continue"`, or blank) and `"action":"fail"` events with `FailedBuild` when the failure was a build failure. The repo's `testEvent` struct captures both fields; `logLevelForOutputType` promotes `error`/`error-continue` output to `ERROR`-level RP logs, and `shouldMergeOutput` merges `error-continue` (or, for pre-1.27 streams with no `OutputType`, tab-indented) chunks into the previous log entry. `FailedBuild` is parsed but not currently acted on. See `report.go` and `report_log_test.go` for the full logic and test coverage. **Note:** despite the pre-existing fields (`time`, `action`, etc.) being tagged with lowercase `json:"..."` names while `OutputType`/`FailedBuild` use exact-case tags, `encoding/json.Unmarshal`'s case-insensitive fallback makes both work correctly against the real (PascalCase) `go test -json` wire format — this is a cosmetic inconsistency, not a bug.
 - `Statuses.Canceled` (Go identifier, American spelling) serializes to the string `"CANCELLED"` (British spelling, matching the ReportPortal API) — don't "fix" the string value to match the identifier.
+- Generated types use long fully-qualified names (`ComEpamReportportal...`); short names (`StartLaunchRQ`, `PageMetadata`, …) are type aliases kept for backward compatibility in `scripts/openapi-compat/compat.go.tmpl`, which `task generate-openapi-client` copies to `pkg/openapi/compat.go`. If a regenerated spec renames a type, `go build` fails in `compat.go` — fix the template. An alias must point to the type with the same meaning, not just one that compiles: e.g. `LaunchResource` is the reporting model, while launch list/get endpoints return `LaunchViewModel` / `PageLaunchViewModel`.
 
 ## What NOT to do
 
 - **Do not edit any file in `pkg/openapi/`** — it is fully generated. Change the schema or generator config instead.
+- Do not edit `pkg/openapi/compat.go` directly — edit `scripts/openapi-compat/compat.go.tmpl` and regenerate (or re-copy with `taskfs copy`).
 - Do not add `default:` cases to ticker `select` loops — it causes busy-looping.
 - Do not use `sync.WaitGroup` for goroutines that can fail — use `errgroup.Group`.
 - Do not ignore `scanner.Err()` after a `bufio.Scanner` loop.

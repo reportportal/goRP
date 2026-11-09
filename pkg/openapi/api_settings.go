@@ -3,7 +3,7 @@ ReportPortal
 
 ReportPortal API documentation
 
-API version: 5.15.2
+API version: 6.0.0
 Contact: support@reportportal.io
 */
 
@@ -36,6 +36,8 @@ GetServerSettings Get server settings
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@return ApiGetServerSettingsRequest
+
+Deprecated
 */
 func (a *SettingsAPIService) GetServerSettings(ctx context.Context) ApiGetServerSettingsRequest {
 	return ApiGetServerSettingsRequest{
@@ -47,6 +49,8 @@ func (a *SettingsAPIService) GetServerSettings(ctx context.Context) ApiGetServer
 // Execute executes the request
 //
 //	@return map[string]string
+//
+// Deprecated
 func (a *SettingsAPIService) GetServerSettingsExecute(r ApiGetServerSettingsRequest) (map[string]string, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodGet
@@ -124,7 +128,7 @@ func (a *SettingsAPIService) GetServerSettingsExecute(r ApiGetServerSettingsRequ
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -135,7 +139,7 @@ func (a *SettingsAPIService) GetServerSettingsExecute(r ApiGetServerSettingsRequ
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -146,7 +150,158 @@ func (a *SettingsAPIService) GetServerSettingsExecute(r ApiGetServerSettingsRequ
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarReturnValue, localVarHTTPResponse, newErr
+			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
+			return localVarReturnValue, localVarHTTPResponse, newErr
+		}
+		return localVarReturnValue, localVarHTTPResponse, newErr
+	}
+
+	err = a.client.decode(&localVarReturnValue, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+	if err != nil {
+		newErr := &GenericOpenAPIError{
+			body:  localVarBody,
+			error: err.Error(),
+		}
+		return localVarReturnValue, localVarHTTPResponse, newErr
+	}
+
+	return localVarReturnValue, localVarHTTPResponse, nil
+}
+
+type ApiGetServerSettings1Request struct {
+	ctx        context.Context
+	ApiService *SettingsAPIService
+}
+
+func (r ApiGetServerSettings1Request) Execute() (string, *http.Response, error) {
+	return r.ApiService.GetServerSettings1Execute(r)
+}
+
+/*
+GetServerSettings1 Get server settings
+
+Get server-wide instance settings as key-value pairs.  ### Authority  - `ADMINISTRATOR`
+
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiGetServerSettings1Request
+*/
+func (a *SettingsAPIService) GetServerSettings1(ctx context.Context) ApiGetServerSettings1Request {
+	return ApiGetServerSettings1Request{
+		ApiService: a,
+		ctx:        ctx,
+	}
+}
+
+// Execute executes the request
+//
+//	@return string
+func (a *SettingsAPIService) GetServerSettings1Execute(r ApiGetServerSettings1Request) (string, *http.Response, error) {
+	var (
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue string
+	)
+
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "SettingsAPIService.GetServerSettings1")
+	if err != nil {
+		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
+	}
+
+	localVarPath := localBasePath + "/settings"
+
+	localVarHeaderParams := make(map[string]string)
+	localVarQueryParams := url.Values{}
+	localVarFormParams := url.Values{}
+
+	// to determine the Content-Type header
+	localVarHTTPContentTypes := []string{}
+
+	// set Content-Type header
+	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
+	if localVarHTTPContentType != "" {
+		localVarHeaderParams["Content-Type"] = localVarHTTPContentType
+	}
+
+	// to determine the Accept header
+	localVarHTTPHeaderAccepts := []string{"application/json"}
+
+	// set Accept header
+	localVarHTTPHeaderAccept := selectHeaderAccept(localVarHTTPHeaderAccepts)
+	if localVarHTTPHeaderAccept != "" {
+		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
+	}
+	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
+	if err != nil {
+		return localVarReturnValue, nil, err
+	}
+
+	localVarHTTPResponse, err := a.client.callAPI(req)
+	if err != nil || localVarHTTPResponse == nil {
+		return localVarReturnValue, localVarHTTPResponse, err
+	}
+
+	localVarBody, err := io.ReadAll(localVarHTTPResponse.Body)
+	localVarHTTPResponse.Body.Close()
+	localVarHTTPResponse.Body = io.NopCloser(bytes.NewBuffer(localVarBody))
+	if err != nil {
+		return localVarReturnValue, localVarHTTPResponse, err
+	}
+
+	if a.client.cfg.ResponseMiddleware != nil {
+		err = a.client.cfg.ResponseMiddleware(localVarHTTPResponse, localVarBody)
+		if err != nil {
+			return localVarReturnValue, localVarHTTPResponse, err
+		}
+	}
+
+	if localVarHTTPResponse.StatusCode >= 300 {
+		newErr := &GenericOpenAPIError{
+			body:  localVarBody,
+			error: localVarHTTPResponse.Status,
+		}
+		if localVarHTTPResponse.StatusCode == 401 {
+			var v Error
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarReturnValue, localVarHTTPResponse, newErr
+			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
+			return localVarReturnValue, localVarHTTPResponse, newErr
+		}
+		if localVarHTTPResponse.StatusCode == 500 {
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarReturnValue, localVarHTTPResponse, newErr
+			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
+			return localVarReturnValue, localVarHTTPResponse, newErr
+		}
+		if localVarHTTPResponse.StatusCode == 403 {
+			var v Error
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarReturnValue, localVarHTTPResponse, newErr
+			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
+			return localVarReturnValue, localVarHTTPResponse, newErr
+		}
+		if localVarHTTPResponse.StatusCode == 400 {
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -172,17 +327,17 @@ func (a *SettingsAPIService) GetServerSettingsExecute(r ApiGetServerSettingsRequ
 }
 
 type ApiSaveAnalyticsSettingsRequest struct {
-	ctx               context.Context
-	ApiService        *SettingsAPIService
-	analyticsResource *AnalyticsResource
+	ctx                      context.Context
+	ApiService               *SettingsAPIService
+	analyticsSettingsRequest *AnalyticsSettingsRequest
 }
 
-func (r ApiSaveAnalyticsSettingsRequest) AnalyticsResource(analyticsResource AnalyticsResource) ApiSaveAnalyticsSettingsRequest {
-	r.analyticsResource = &analyticsResource
+func (r ApiSaveAnalyticsSettingsRequest) AnalyticsSettingsRequest(analyticsSettingsRequest AnalyticsSettingsRequest) ApiSaveAnalyticsSettingsRequest {
+	r.analyticsSettingsRequest = &analyticsSettingsRequest
 	return r
 }
 
-func (r ApiSaveAnalyticsSettingsRequest) Execute() (*OperationCompletionRS, *http.Response, error) {
+func (r ApiSaveAnalyticsSettingsRequest) Execute() (*SuccessfulUpdate, *http.Response, error) {
 	return r.ApiService.SaveAnalyticsSettingsExecute(r)
 }
 
@@ -191,6 +346,8 @@ SaveAnalyticsSettings Update analytics settings
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@return ApiSaveAnalyticsSettingsRequest
+
+Deprecated
 */
 func (a *SettingsAPIService) SaveAnalyticsSettings(ctx context.Context) ApiSaveAnalyticsSettingsRequest {
 	return ApiSaveAnalyticsSettingsRequest{
@@ -201,13 +358,15 @@ func (a *SettingsAPIService) SaveAnalyticsSettings(ctx context.Context) ApiSaveA
 
 // Execute executes the request
 //
-//	@return OperationCompletionRS
-func (a *SettingsAPIService) SaveAnalyticsSettingsExecute(r ApiSaveAnalyticsSettingsRequest) (*OperationCompletionRS, *http.Response, error) {
+//	@return SuccessfulUpdate
+//
+// Deprecated
+func (a *SettingsAPIService) SaveAnalyticsSettingsExecute(r ApiSaveAnalyticsSettingsRequest) (*SuccessfulUpdate, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPost
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *OperationCompletionRS
+		localVarReturnValue *SuccessfulUpdate
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "SettingsAPIService.SaveAnalyticsSettings")
@@ -220,8 +379,8 @@ func (a *SettingsAPIService) SaveAnalyticsSettingsExecute(r ApiSaveAnalyticsSett
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
-	if r.analyticsResource == nil {
-		return localVarReturnValue, nil, reportError("analyticsResource is required and must be specified")
+	if r.analyticsSettingsRequest == nil {
+		return localVarReturnValue, nil, reportError("analyticsSettingsRequest is required and must be specified")
 	}
 
 	// to determine the Content-Type header
@@ -242,7 +401,7 @@ func (a *SettingsAPIService) SaveAnalyticsSettingsExecute(r ApiSaveAnalyticsSett
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
 	// body params
-	localVarPostBody = r.analyticsResource
+	localVarPostBody = r.analyticsSettingsRequest
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -284,7 +443,7 @@ func (a *SettingsAPIService) SaveAnalyticsSettingsExecute(r ApiSaveAnalyticsSett
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -295,7 +454,7 @@ func (a *SettingsAPIService) SaveAnalyticsSettingsExecute(r ApiSaveAnalyticsSett
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -306,7 +465,7 @@ func (a *SettingsAPIService) SaveAnalyticsSettingsExecute(r ApiSaveAnalyticsSett
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -332,17 +491,17 @@ func (a *SettingsAPIService) SaveAnalyticsSettingsExecute(r ApiSaveAnalyticsSett
 }
 
 type ApiSaveAnalyticsSettings1Request struct {
-	ctx               context.Context
-	ApiService        *SettingsAPIService
-	analyticsResource *AnalyticsResource
+	ctx                      context.Context
+	ApiService               *SettingsAPIService
+	analyticsSettingsRequest *AnalyticsSettingsRequest
 }
 
-func (r ApiSaveAnalyticsSettings1Request) AnalyticsResource(analyticsResource AnalyticsResource) ApiSaveAnalyticsSettings1Request {
-	r.analyticsResource = &analyticsResource
+func (r ApiSaveAnalyticsSettings1Request) AnalyticsSettingsRequest(analyticsSettingsRequest AnalyticsSettingsRequest) ApiSaveAnalyticsSettings1Request {
+	r.analyticsSettingsRequest = &analyticsSettingsRequest
 	return r
 }
 
-func (r ApiSaveAnalyticsSettings1Request) Execute() (*OperationCompletionRS, *http.Response, error) {
+func (r ApiSaveAnalyticsSettings1Request) Execute() (*SuccessfulUpdate, *http.Response, error) {
 	return r.ApiService.SaveAnalyticsSettings1Execute(r)
 }
 
@@ -351,6 +510,8 @@ SaveAnalyticsSettings1 Update analytics settings
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@return ApiSaveAnalyticsSettings1Request
+
+Deprecated
 */
 func (a *SettingsAPIService) SaveAnalyticsSettings1(ctx context.Context) ApiSaveAnalyticsSettings1Request {
 	return ApiSaveAnalyticsSettings1Request{
@@ -361,13 +522,15 @@ func (a *SettingsAPIService) SaveAnalyticsSettings1(ctx context.Context) ApiSave
 
 // Execute executes the request
 //
-//	@return OperationCompletionRS
-func (a *SettingsAPIService) SaveAnalyticsSettings1Execute(r ApiSaveAnalyticsSettings1Request) (*OperationCompletionRS, *http.Response, error) {
+//	@return SuccessfulUpdate
+//
+// Deprecated
+func (a *SettingsAPIService) SaveAnalyticsSettings1Execute(r ApiSaveAnalyticsSettings1Request) (*SuccessfulUpdate, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPut
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *OperationCompletionRS
+		localVarReturnValue *SuccessfulUpdate
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "SettingsAPIService.SaveAnalyticsSettings1")
@@ -380,8 +543,8 @@ func (a *SettingsAPIService) SaveAnalyticsSettings1Execute(r ApiSaveAnalyticsSet
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
-	if r.analyticsResource == nil {
-		return localVarReturnValue, nil, reportError("analyticsResource is required and must be specified")
+	if r.analyticsSettingsRequest == nil {
+		return localVarReturnValue, nil, reportError("analyticsSettingsRequest is required and must be specified")
 	}
 
 	// to determine the Content-Type header
@@ -402,7 +565,7 @@ func (a *SettingsAPIService) SaveAnalyticsSettings1Execute(r ApiSaveAnalyticsSet
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
 	// body params
-	localVarPostBody = r.analyticsResource
+	localVarPostBody = r.analyticsSettingsRequest
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -444,7 +607,7 @@ func (a *SettingsAPIService) SaveAnalyticsSettings1Execute(r ApiSaveAnalyticsSet
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -455,7 +618,7 @@ func (a *SettingsAPIService) SaveAnalyticsSettings1Execute(r ApiSaveAnalyticsSet
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -466,7 +629,335 @@ func (a *SettingsAPIService) SaveAnalyticsSettings1Execute(r ApiSaveAnalyticsSet
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarReturnValue, localVarHTTPResponse, newErr
+			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
+			return localVarReturnValue, localVarHTTPResponse, newErr
+		}
+		return localVarReturnValue, localVarHTTPResponse, newErr
+	}
+
+	err = a.client.decode(&localVarReturnValue, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+	if err != nil {
+		newErr := &GenericOpenAPIError{
+			body:  localVarBody,
+			error: err.Error(),
+		}
+		return localVarReturnValue, localVarHTTPResponse, newErr
+	}
+
+	return localVarReturnValue, localVarHTTPResponse, nil
+}
+
+type ApiSaveAnalyticsSettings2Request struct {
+	ctx                      context.Context
+	ApiService               *SettingsAPIService
+	analyticsSettingsRequest *AnalyticsSettingsRequest
+}
+
+func (r ApiSaveAnalyticsSettings2Request) AnalyticsSettingsRequest(analyticsSettingsRequest AnalyticsSettingsRequest) ApiSaveAnalyticsSettings2Request {
+	r.analyticsSettingsRequest = &analyticsSettingsRequest
+	return r
+}
+
+func (r ApiSaveAnalyticsSettings2Request) Execute() (*SuccessfulUpdate, *http.Response, error) {
+	return r.ApiService.SaveAnalyticsSettings2Execute(r)
+}
+
+/*
+SaveAnalyticsSettings2 Update analytics settings
+
+Enable or disable a server-wide analytics integration.  ### Authority  - `ADMINISTRATOR`
+
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiSaveAnalyticsSettings2Request
+*/
+func (a *SettingsAPIService) SaveAnalyticsSettings2(ctx context.Context) ApiSaveAnalyticsSettings2Request {
+	return ApiSaveAnalyticsSettings2Request{
+		ApiService: a,
+		ctx:        ctx,
+	}
+}
+
+// Execute executes the request
+//
+//	@return SuccessfulUpdate
+func (a *SettingsAPIService) SaveAnalyticsSettings2Execute(r ApiSaveAnalyticsSettings2Request) (*SuccessfulUpdate, *http.Response, error) {
+	var (
+		localVarHTTPMethod  = http.MethodPut
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *SuccessfulUpdate
+	)
+
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "SettingsAPIService.SaveAnalyticsSettings2")
+	if err != nil {
+		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
+	}
+
+	localVarPath := localBasePath + "/settings/analytics"
+
+	localVarHeaderParams := make(map[string]string)
+	localVarQueryParams := url.Values{}
+	localVarFormParams := url.Values{}
+	if r.analyticsSettingsRequest == nil {
+		return localVarReturnValue, nil, reportError("analyticsSettingsRequest is required and must be specified")
+	}
+
+	// to determine the Content-Type header
+	localVarHTTPContentTypes := []string{"application/json"}
+
+	// set Content-Type header
+	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
+	if localVarHTTPContentType != "" {
+		localVarHeaderParams["Content-Type"] = localVarHTTPContentType
+	}
+
+	// to determine the Accept header
+	localVarHTTPHeaderAccepts := []string{"application/json"}
+
+	// set Accept header
+	localVarHTTPHeaderAccept := selectHeaderAccept(localVarHTTPHeaderAccepts)
+	if localVarHTTPHeaderAccept != "" {
+		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
+	}
+	// body params
+	localVarPostBody = r.analyticsSettingsRequest
+	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
+	if err != nil {
+		return localVarReturnValue, nil, err
+	}
+
+	localVarHTTPResponse, err := a.client.callAPI(req)
+	if err != nil || localVarHTTPResponse == nil {
+		return localVarReturnValue, localVarHTTPResponse, err
+	}
+
+	localVarBody, err := io.ReadAll(localVarHTTPResponse.Body)
+	localVarHTTPResponse.Body.Close()
+	localVarHTTPResponse.Body = io.NopCloser(bytes.NewBuffer(localVarBody))
+	if err != nil {
+		return localVarReturnValue, localVarHTTPResponse, err
+	}
+
+	if a.client.cfg.ResponseMiddleware != nil {
+		err = a.client.cfg.ResponseMiddleware(localVarHTTPResponse, localVarBody)
+		if err != nil {
+			return localVarReturnValue, localVarHTTPResponse, err
+		}
+	}
+
+	if localVarHTTPResponse.StatusCode >= 300 {
+		newErr := &GenericOpenAPIError{
+			body:  localVarBody,
+			error: localVarHTTPResponse.Status,
+		}
+		if localVarHTTPResponse.StatusCode == 401 {
+			var v Error
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarReturnValue, localVarHTTPResponse, newErr
+			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
+			return localVarReturnValue, localVarHTTPResponse, newErr
+		}
+		if localVarHTTPResponse.StatusCode == 500 {
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarReturnValue, localVarHTTPResponse, newErr
+			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
+			return localVarReturnValue, localVarHTTPResponse, newErr
+		}
+		if localVarHTTPResponse.StatusCode == 403 {
+			var v Error
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarReturnValue, localVarHTTPResponse, newErr
+			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
+			return localVarReturnValue, localVarHTTPResponse, newErr
+		}
+		if localVarHTTPResponse.StatusCode == 400 {
+			var v Error
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarReturnValue, localVarHTTPResponse, newErr
+			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
+			return localVarReturnValue, localVarHTTPResponse, newErr
+		}
+		return localVarReturnValue, localVarHTTPResponse, newErr
+	}
+
+	err = a.client.decode(&localVarReturnValue, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+	if err != nil {
+		newErr := &GenericOpenAPIError{
+			body:  localVarBody,
+			error: err.Error(),
+		}
+		return localVarReturnValue, localVarHTTPResponse, newErr
+	}
+
+	return localVarReturnValue, localVarHTTPResponse, nil
+}
+
+type ApiSaveAnalyticsSettingsViaPostRequest struct {
+	ctx                      context.Context
+	ApiService               *SettingsAPIService
+	analyticsSettingsRequest *AnalyticsSettingsRequest
+}
+
+func (r ApiSaveAnalyticsSettingsViaPostRequest) AnalyticsSettingsRequest(analyticsSettingsRequest AnalyticsSettingsRequest) ApiSaveAnalyticsSettingsViaPostRequest {
+	r.analyticsSettingsRequest = &analyticsSettingsRequest
+	return r
+}
+
+func (r ApiSaveAnalyticsSettingsViaPostRequest) Execute() (*SuccessfulUpdate, *http.Response, error) {
+	return r.ApiService.SaveAnalyticsSettingsViaPostExecute(r)
+}
+
+/*
+SaveAnalyticsSettingsViaPost Update analytics settings (POST alias)
+
+Enable or disable a server-wide analytics integration.  Equivalent to `PUT /settings/analytics`. Kept only for backward compatibility with legacy clients that use the `POST` verb; prefer `PUT /settings/analytics`.  ### Authority  - `ADMINISTRATOR`
+
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiSaveAnalyticsSettingsViaPostRequest
+
+Deprecated
+*/
+func (a *SettingsAPIService) SaveAnalyticsSettingsViaPost(ctx context.Context) ApiSaveAnalyticsSettingsViaPostRequest {
+	return ApiSaveAnalyticsSettingsViaPostRequest{
+		ApiService: a,
+		ctx:        ctx,
+	}
+}
+
+// Execute executes the request
+//
+//	@return SuccessfulUpdate
+//
+// Deprecated
+func (a *SettingsAPIService) SaveAnalyticsSettingsViaPostExecute(r ApiSaveAnalyticsSettingsViaPostRequest) (*SuccessfulUpdate, *http.Response, error) {
+	var (
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *SuccessfulUpdate
+	)
+
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "SettingsAPIService.SaveAnalyticsSettingsViaPost")
+	if err != nil {
+		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
+	}
+
+	localVarPath := localBasePath + "/settings/analytics"
+
+	localVarHeaderParams := make(map[string]string)
+	localVarQueryParams := url.Values{}
+	localVarFormParams := url.Values{}
+	if r.analyticsSettingsRequest == nil {
+		return localVarReturnValue, nil, reportError("analyticsSettingsRequest is required and must be specified")
+	}
+
+	// to determine the Content-Type header
+	localVarHTTPContentTypes := []string{"application/json"}
+
+	// set Content-Type header
+	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
+	if localVarHTTPContentType != "" {
+		localVarHeaderParams["Content-Type"] = localVarHTTPContentType
+	}
+
+	// to determine the Accept header
+	localVarHTTPHeaderAccepts := []string{"application/json"}
+
+	// set Accept header
+	localVarHTTPHeaderAccept := selectHeaderAccept(localVarHTTPHeaderAccepts)
+	if localVarHTTPHeaderAccept != "" {
+		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
+	}
+	// body params
+	localVarPostBody = r.analyticsSettingsRequest
+	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
+	if err != nil {
+		return localVarReturnValue, nil, err
+	}
+
+	localVarHTTPResponse, err := a.client.callAPI(req)
+	if err != nil || localVarHTTPResponse == nil {
+		return localVarReturnValue, localVarHTTPResponse, err
+	}
+
+	localVarBody, err := io.ReadAll(localVarHTTPResponse.Body)
+	localVarHTTPResponse.Body.Close()
+	localVarHTTPResponse.Body = io.NopCloser(bytes.NewBuffer(localVarBody))
+	if err != nil {
+		return localVarReturnValue, localVarHTTPResponse, err
+	}
+
+	if a.client.cfg.ResponseMiddleware != nil {
+		err = a.client.cfg.ResponseMiddleware(localVarHTTPResponse, localVarBody)
+		if err != nil {
+			return localVarReturnValue, localVarHTTPResponse, err
+		}
+	}
+
+	if localVarHTTPResponse.StatusCode >= 300 {
+		newErr := &GenericOpenAPIError{
+			body:  localVarBody,
+			error: localVarHTTPResponse.Status,
+		}
+		if localVarHTTPResponse.StatusCode == 401 {
+			var v Error
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarReturnValue, localVarHTTPResponse, newErr
+			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
+			return localVarReturnValue, localVarHTTPResponse, newErr
+		}
+		if localVarHTTPResponse.StatusCode == 500 {
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarReturnValue, localVarHTTPResponse, newErr
+			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
+			return localVarReturnValue, localVarHTTPResponse, newErr
+		}
+		if localVarHTTPResponse.StatusCode == 403 {
+			var v Error
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarReturnValue, localVarHTTPResponse, newErr
+			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
+			return localVarReturnValue, localVarHTTPResponse, newErr
+		}
+		if localVarHTTPResponse.StatusCode == 400 {
+			var v Error
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -492,17 +983,17 @@ func (a *SettingsAPIService) SaveAnalyticsSettings1Execute(r ApiSaveAnalyticsSet
 }
 
 type ApiUpdateServerSettingsRequest struct {
-	ctx              context.Context
-	ApiService       *SettingsAPIService
-	updateSettingsRq *UpdateSettingsRq
+	ctx                         context.Context
+	ApiService                  *SettingsAPIService
+	updateServerSettingsRequest *UpdateServerSettingsRequest
 }
 
-func (r ApiUpdateServerSettingsRequest) UpdateSettingsRq(updateSettingsRq UpdateSettingsRq) ApiUpdateServerSettingsRequest {
-	r.updateSettingsRq = &updateSettingsRq
+func (r ApiUpdateServerSettingsRequest) UpdateServerSettingsRequest(updateServerSettingsRequest UpdateServerSettingsRequest) ApiUpdateServerSettingsRequest {
+	r.updateServerSettingsRequest = &updateServerSettingsRequest
 	return r
 }
 
-func (r ApiUpdateServerSettingsRequest) Execute() (*OperationCompletionRS, *http.Response, error) {
+func (r ApiUpdateServerSettingsRequest) Execute() (*SuccessfulUpdate, *http.Response, error) {
 	return r.ApiService.UpdateServerSettingsExecute(r)
 }
 
@@ -511,6 +1002,8 @@ UpdateServerSettings Update server settings with specified key
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@return ApiUpdateServerSettingsRequest
+
+Deprecated
 */
 func (a *SettingsAPIService) UpdateServerSettings(ctx context.Context) ApiUpdateServerSettingsRequest {
 	return ApiUpdateServerSettingsRequest{
@@ -521,13 +1014,15 @@ func (a *SettingsAPIService) UpdateServerSettings(ctx context.Context) ApiUpdate
 
 // Execute executes the request
 //
-//	@return OperationCompletionRS
-func (a *SettingsAPIService) UpdateServerSettingsExecute(r ApiUpdateServerSettingsRequest) (*OperationCompletionRS, *http.Response, error) {
+//	@return SuccessfulUpdate
+//
+// Deprecated
+func (a *SettingsAPIService) UpdateServerSettingsExecute(r ApiUpdateServerSettingsRequest) (*SuccessfulUpdate, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPut
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *OperationCompletionRS
+		localVarReturnValue *SuccessfulUpdate
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "SettingsAPIService.UpdateServerSettings")
@@ -540,8 +1035,8 @@ func (a *SettingsAPIService) UpdateServerSettingsExecute(r ApiUpdateServerSettin
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
-	if r.updateSettingsRq == nil {
-		return localVarReturnValue, nil, reportError("updateSettingsRq is required and must be specified")
+	if r.updateServerSettingsRequest == nil {
+		return localVarReturnValue, nil, reportError("updateServerSettingsRequest is required and must be specified")
 	}
 
 	// to determine the Content-Type header
@@ -562,7 +1057,7 @@ func (a *SettingsAPIService) UpdateServerSettingsExecute(r ApiUpdateServerSettin
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
 	// body params
-	localVarPostBody = r.updateSettingsRq
+	localVarPostBody = r.updateServerSettingsRequest
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -604,7 +1099,7 @@ func (a *SettingsAPIService) UpdateServerSettingsExecute(r ApiUpdateServerSettin
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -615,7 +1110,7 @@ func (a *SettingsAPIService) UpdateServerSettingsExecute(r ApiUpdateServerSettin
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -626,7 +1121,169 @@ func (a *SettingsAPIService) UpdateServerSettingsExecute(r ApiUpdateServerSettin
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarReturnValue, localVarHTTPResponse, newErr
+			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
+			return localVarReturnValue, localVarHTTPResponse, newErr
+		}
+		return localVarReturnValue, localVarHTTPResponse, newErr
+	}
+
+	err = a.client.decode(&localVarReturnValue, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+	if err != nil {
+		newErr := &GenericOpenAPIError{
+			body:  localVarBody,
+			error: err.Error(),
+		}
+		return localVarReturnValue, localVarHTTPResponse, newErr
+	}
+
+	return localVarReturnValue, localVarHTTPResponse, nil
+}
+
+type ApiUpdateServerSettings1Request struct {
+	ctx                         context.Context
+	ApiService                  *SettingsAPIService
+	updateServerSettingsRequest *UpdateServerSettingsRequest
+}
+
+func (r ApiUpdateServerSettings1Request) UpdateServerSettingsRequest(updateServerSettingsRequest UpdateServerSettingsRequest) ApiUpdateServerSettings1Request {
+	r.updateServerSettingsRequest = &updateServerSettingsRequest
+	return r
+}
+
+func (r ApiUpdateServerSettings1Request) Execute() (*SuccessfulUpdate, *http.Response, error) {
+	return r.ApiService.UpdateServerSettings1Execute(r)
+}
+
+/*
+UpdateServerSettings1 Update server settings
+
+Update a single server-wide instance setting by key.  ### Authority  - `ADMINISTRATOR`
+
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiUpdateServerSettings1Request
+*/
+func (a *SettingsAPIService) UpdateServerSettings1(ctx context.Context) ApiUpdateServerSettings1Request {
+	return ApiUpdateServerSettings1Request{
+		ApiService: a,
+		ctx:        ctx,
+	}
+}
+
+// Execute executes the request
+//
+//	@return SuccessfulUpdate
+func (a *SettingsAPIService) UpdateServerSettings1Execute(r ApiUpdateServerSettings1Request) (*SuccessfulUpdate, *http.Response, error) {
+	var (
+		localVarHTTPMethod  = http.MethodPut
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *SuccessfulUpdate
+	)
+
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "SettingsAPIService.UpdateServerSettings1")
+	if err != nil {
+		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
+	}
+
+	localVarPath := localBasePath + "/settings"
+
+	localVarHeaderParams := make(map[string]string)
+	localVarQueryParams := url.Values{}
+	localVarFormParams := url.Values{}
+	if r.updateServerSettingsRequest == nil {
+		return localVarReturnValue, nil, reportError("updateServerSettingsRequest is required and must be specified")
+	}
+
+	// to determine the Content-Type header
+	localVarHTTPContentTypes := []string{"application/json"}
+
+	// set Content-Type header
+	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
+	if localVarHTTPContentType != "" {
+		localVarHeaderParams["Content-Type"] = localVarHTTPContentType
+	}
+
+	// to determine the Accept header
+	localVarHTTPHeaderAccepts := []string{"application/json"}
+
+	// set Accept header
+	localVarHTTPHeaderAccept := selectHeaderAccept(localVarHTTPHeaderAccepts)
+	if localVarHTTPHeaderAccept != "" {
+		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
+	}
+	// body params
+	localVarPostBody = r.updateServerSettingsRequest
+	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
+	if err != nil {
+		return localVarReturnValue, nil, err
+	}
+
+	localVarHTTPResponse, err := a.client.callAPI(req)
+	if err != nil || localVarHTTPResponse == nil {
+		return localVarReturnValue, localVarHTTPResponse, err
+	}
+
+	localVarBody, err := io.ReadAll(localVarHTTPResponse.Body)
+	localVarHTTPResponse.Body.Close()
+	localVarHTTPResponse.Body = io.NopCloser(bytes.NewBuffer(localVarBody))
+	if err != nil {
+		return localVarReturnValue, localVarHTTPResponse, err
+	}
+
+	if a.client.cfg.ResponseMiddleware != nil {
+		err = a.client.cfg.ResponseMiddleware(localVarHTTPResponse, localVarBody)
+		if err != nil {
+			return localVarReturnValue, localVarHTTPResponse, err
+		}
+	}
+
+	if localVarHTTPResponse.StatusCode >= 300 {
+		newErr := &GenericOpenAPIError{
+			body:  localVarBody,
+			error: localVarHTTPResponse.Status,
+		}
+		if localVarHTTPResponse.StatusCode == 401 {
+			var v Error
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarReturnValue, localVarHTTPResponse, newErr
+			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
+			return localVarReturnValue, localVarHTTPResponse, newErr
+		}
+		if localVarHTTPResponse.StatusCode == 500 {
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarReturnValue, localVarHTTPResponse, newErr
+			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
+			return localVarReturnValue, localVarHTTPResponse, newErr
+		}
+		if localVarHTTPResponse.StatusCode == 403 {
+			var v Error
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarReturnValue, localVarHTTPResponse, newErr
+			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
+			return localVarReturnValue, localVarHTTPResponse, newErr
+		}
+		if localVarHTTPResponse.StatusCode == 400 {
+			var v Error
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()

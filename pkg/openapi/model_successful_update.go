@@ -3,7 +3,7 @@ ReportPortal
 
 ReportPortal API documentation
 
-API version: 5.15.2
+API version: 6.0.0
 Contact: support@reportportal.io
 */
 
@@ -18,7 +18,7 @@ import (
 // checks if the SuccessfulUpdate type satisfies the MappedNullable interface at compile time
 var _ MappedNullable = &SuccessfulUpdate{}
 
-// SuccessfulUpdate struct for SuccessfulUpdate
+// SuccessfulUpdate Confirmation message returned after a successful settings update.
 type SuccessfulUpdate struct {
 	Message *string `json:"message,omitempty"`
 }

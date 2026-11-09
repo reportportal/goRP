@@ -3,7 +3,7 @@ ReportPortal
 
 ReportPortal API documentation
 
-API version: 5.15.2
+API version: 6.0.0
 Contact: support@reportportal.io
 */
 
@@ -23,7 +23,7 @@ var _ MappedNullable = &UpdateGroupRequest{}
 // UpdateGroupRequest Update group request.
 type UpdateGroupRequest struct {
 	// Display name.
-	Name string `json:"name" validate:"regexp=^[A-Za-z0-9.'_\\\\- ]+$"`
+	Name string `json:"name" validate:"regexp=^[A-Za-z0-9.'_\\- ]+$"`
 	// A slug is used to identify a resource. It should be unique and contain only lowercase letters, numbers, and hyphens. It should not start or end with a hyphen.
 	Slug *string `json:"slug,omitempty" validate:"regexp=^[a-z0-9]+(?:-[a-z0-9]+)*$"`
 }

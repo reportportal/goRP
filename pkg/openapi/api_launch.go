@@ -3,7 +3,7 @@ ReportPortal
 
 ReportPortal API documentation
 
-API version: 5.15.2
+API version: 6.0.0
 Contact: support@reportportal.io
 */
 
@@ -25,18 +25,18 @@ import (
 type LaunchAPIService service
 
 type ApiBulkForceFinishRequest struct {
-	ctx                         context.Context
-	ApiService                  *LaunchAPIService
-	projectName                 string
-	bulkRQLongFinishExecutionRQ *BulkRQLongFinishExecutionRQ
+	ctx                                                                                             context.Context
+	ApiService                                                                                      *LaunchAPIService
+	projectKey                                                                                      string
+	comEpamReportportalBaseModelBulkRQJavaLangLongComEpamReportportalBaseReportingFinishExecutionRQ *ComEpamReportportalBaseModelBulkRQJavaLangLongComEpamReportportalBaseReportingFinishExecutionRQ
 }
 
-func (r ApiBulkForceFinishRequest) BulkRQLongFinishExecutionRQ(bulkRQLongFinishExecutionRQ BulkRQLongFinishExecutionRQ) ApiBulkForceFinishRequest {
-	r.bulkRQLongFinishExecutionRQ = &bulkRQLongFinishExecutionRQ
+func (r ApiBulkForceFinishRequest) ComEpamReportportalBaseModelBulkRQJavaLangLongComEpamReportportalBaseReportingFinishExecutionRQ(comEpamReportportalBaseModelBulkRQJavaLangLongComEpamReportportalBaseReportingFinishExecutionRQ ComEpamReportportalBaseModelBulkRQJavaLangLongComEpamReportportalBaseReportingFinishExecutionRQ) ApiBulkForceFinishRequest {
+	r.comEpamReportportalBaseModelBulkRQJavaLangLongComEpamReportportalBaseReportingFinishExecutionRQ = &comEpamReportportalBaseModelBulkRQJavaLangLongComEpamReportportalBaseReportingFinishExecutionRQ
 	return r
 }
 
-func (r ApiBulkForceFinishRequest) Execute() ([]OperationCompletionRS, *http.Response, error) {
+func (r ApiBulkForceFinishRequest) Execute() ([]ComEpamReportportalBaseReportingOperationCompletionRS, *http.Response, error) {
 	return r.ApiService.BulkForceFinishExecute(r)
 }
 
@@ -44,26 +44,26 @@ func (r ApiBulkForceFinishRequest) Execute() ([]OperationCompletionRS, *http.Res
 BulkForceFinish Force finish launch
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param projectName
+	@param projectKey
 	@return ApiBulkForceFinishRequest
 */
-func (a *LaunchAPIService) BulkForceFinish(ctx context.Context, projectName string) ApiBulkForceFinishRequest {
+func (a *LaunchAPIService) BulkForceFinish(ctx context.Context, projectKey string) ApiBulkForceFinishRequest {
 	return ApiBulkForceFinishRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		projectKey: projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return []OperationCompletionRS
-func (a *LaunchAPIService) BulkForceFinishExecute(r ApiBulkForceFinishRequest) ([]OperationCompletionRS, *http.Response, error) {
+//	@return []ComEpamReportportalBaseReportingOperationCompletionRS
+func (a *LaunchAPIService) BulkForceFinishExecute(r ApiBulkForceFinishRequest) ([]ComEpamReportportalBaseReportingOperationCompletionRS, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPut
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue []OperationCompletionRS
+		localVarReturnValue []ComEpamReportportalBaseReportingOperationCompletionRS
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "LaunchAPIService.BulkForceFinish")
@@ -71,14 +71,14 @@ func (a *LaunchAPIService) BulkForceFinishExecute(r ApiBulkForceFinishRequest) (
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/launch/stop"
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath := localBasePath + "/v1/{projectKey}/launch/stop"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
-	if r.bulkRQLongFinishExecutionRQ == nil {
-		return localVarReturnValue, nil, reportError("bulkRQLongFinishExecutionRQ is required and must be specified")
+	if r.comEpamReportportalBaseModelBulkRQJavaLangLongComEpamReportportalBaseReportingFinishExecutionRQ == nil {
+		return localVarReturnValue, nil, reportError("comEpamReportportalBaseModelBulkRQJavaLangLongComEpamReportportalBaseReportingFinishExecutionRQ is required and must be specified")
 	}
 
 	// to determine the Content-Type header
@@ -99,7 +99,7 @@ func (a *LaunchAPIService) BulkForceFinishExecute(r ApiBulkForceFinishRequest) (
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
 	// body params
-	localVarPostBody = r.bulkRQLongFinishExecutionRQ
+	localVarPostBody = r.comEpamReportportalBaseModelBulkRQJavaLangLongComEpamReportportalBaseReportingFinishExecutionRQ
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -141,7 +141,7 @@ func (a *LaunchAPIService) BulkForceFinishExecute(r ApiBulkForceFinishRequest) (
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -152,7 +152,7 @@ func (a *LaunchAPIService) BulkForceFinishExecute(r ApiBulkForceFinishRequest) (
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -163,7 +163,7 @@ func (a *LaunchAPIService) BulkForceFinishExecute(r ApiBulkForceFinishRequest) (
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -189,18 +189,18 @@ func (a *LaunchAPIService) BulkForceFinishExecute(r ApiBulkForceFinishRequest) (
 }
 
 type ApiBulkUpdateRequest struct {
-	ctx              context.Context
-	ApiService       *LaunchAPIService
-	projectName      string
-	bulkInfoUpdateRQ *BulkInfoUpdateRQ
+	ctx                                              context.Context
+	ApiService                                       *LaunchAPIService
+	projectKey                                       string
+	comEpamReportportalBaseReportingBulkInfoUpdateRQ *ComEpamReportportalBaseReportingBulkInfoUpdateRQ
 }
 
-func (r ApiBulkUpdateRequest) BulkInfoUpdateRQ(bulkInfoUpdateRQ BulkInfoUpdateRQ) ApiBulkUpdateRequest {
-	r.bulkInfoUpdateRQ = &bulkInfoUpdateRQ
+func (r ApiBulkUpdateRequest) ComEpamReportportalBaseReportingBulkInfoUpdateRQ(comEpamReportportalBaseReportingBulkInfoUpdateRQ ComEpamReportportalBaseReportingBulkInfoUpdateRQ) ApiBulkUpdateRequest {
+	r.comEpamReportportalBaseReportingBulkInfoUpdateRQ = &comEpamReportportalBaseReportingBulkInfoUpdateRQ
 	return r
 }
 
-func (r ApiBulkUpdateRequest) Execute() (*OperationCompletionRS, *http.Response, error) {
+func (r ApiBulkUpdateRequest) Execute() (*ComEpamReportportalBaseReportingOperationCompletionRS, *http.Response, error) {
 	return r.ApiService.BulkUpdateExecute(r)
 }
 
@@ -208,26 +208,26 @@ func (r ApiBulkUpdateRequest) Execute() (*OperationCompletionRS, *http.Response,
 BulkUpdate Bulk update attributes and description
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param projectName
+	@param projectKey
 	@return ApiBulkUpdateRequest
 */
-func (a *LaunchAPIService) BulkUpdate(ctx context.Context, projectName string) ApiBulkUpdateRequest {
+func (a *LaunchAPIService) BulkUpdate(ctx context.Context, projectKey string) ApiBulkUpdateRequest {
 	return ApiBulkUpdateRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		projectKey: projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return OperationCompletionRS
-func (a *LaunchAPIService) BulkUpdateExecute(r ApiBulkUpdateRequest) (*OperationCompletionRS, *http.Response, error) {
+//	@return ComEpamReportportalBaseReportingOperationCompletionRS
+func (a *LaunchAPIService) BulkUpdateExecute(r ApiBulkUpdateRequest) (*ComEpamReportportalBaseReportingOperationCompletionRS, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPut
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *OperationCompletionRS
+		localVarReturnValue *ComEpamReportportalBaseReportingOperationCompletionRS
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "LaunchAPIService.BulkUpdate")
@@ -235,14 +235,14 @@ func (a *LaunchAPIService) BulkUpdateExecute(r ApiBulkUpdateRequest) (*Operation
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/launch/info"
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath := localBasePath + "/v1/{projectKey}/launch/info"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
-	if r.bulkInfoUpdateRQ == nil {
-		return localVarReturnValue, nil, reportError("bulkInfoUpdateRQ is required and must be specified")
+	if r.comEpamReportportalBaseReportingBulkInfoUpdateRQ == nil {
+		return localVarReturnValue, nil, reportError("comEpamReportportalBaseReportingBulkInfoUpdateRQ is required and must be specified")
 	}
 
 	// to determine the Content-Type header
@@ -263,7 +263,7 @@ func (a *LaunchAPIService) BulkUpdateExecute(r ApiBulkUpdateRequest) (*Operation
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
 	// body params
-	localVarPostBody = r.bulkInfoUpdateRQ
+	localVarPostBody = r.comEpamReportportalBaseReportingBulkInfoUpdateRQ
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -305,7 +305,7 @@ func (a *LaunchAPIService) BulkUpdateExecute(r ApiBulkUpdateRequest) (*Operation
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -316,7 +316,7 @@ func (a *LaunchAPIService) BulkUpdateExecute(r ApiBulkUpdateRequest) (*Operation
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -327,7 +327,7 @@ func (a *LaunchAPIService) BulkUpdateExecute(r ApiBulkUpdateRequest) (*Operation
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -353,10 +353,10 @@ func (a *LaunchAPIService) BulkUpdateExecute(r ApiBulkUpdateRequest) (*Operation
 }
 
 type ApiCompareLaunchesRequest struct {
-	ctx         context.Context
-	ApiService  *LaunchAPIService
-	ids         *[]int64
-	projectName string
+	ctx        context.Context
+	ApiService *LaunchAPIService
+	ids        *[]int64
+	projectKey string
 }
 
 func (r ApiCompareLaunchesRequest) Ids(ids []int64) ApiCompareLaunchesRequest {
@@ -364,7 +364,7 @@ func (r ApiCompareLaunchesRequest) Ids(ids []int64) ApiCompareLaunchesRequest {
 	return r
 }
 
-func (r ApiCompareLaunchesRequest) Execute() (*map[string][]ChartStatisticsContent, *http.Response, error) {
+func (r ApiCompareLaunchesRequest) Execute() (*map[string][]ComEpamReportportalBaseInfrastructurePersistenceEntityWidgetContentChartStatisticsContent, *http.Response, error) {
 	return r.ApiService.CompareLaunchesExecute(r)
 }
 
@@ -372,26 +372,26 @@ func (r ApiCompareLaunchesRequest) Execute() (*map[string][]ChartStatisticsConte
 CompareLaunches Compare launches
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param projectName
+	@param projectKey
 	@return ApiCompareLaunchesRequest
 */
-func (a *LaunchAPIService) CompareLaunches(ctx context.Context, projectName string) ApiCompareLaunchesRequest {
+func (a *LaunchAPIService) CompareLaunches(ctx context.Context, projectKey string) ApiCompareLaunchesRequest {
 	return ApiCompareLaunchesRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		projectKey: projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return map[string][]ChartStatisticsContent
-func (a *LaunchAPIService) CompareLaunchesExecute(r ApiCompareLaunchesRequest) (*map[string][]ChartStatisticsContent, *http.Response, error) {
+//	@return map[string][]ComEpamReportportalBaseInfrastructurePersistenceEntityWidgetContentChartStatisticsContent
+func (a *LaunchAPIService) CompareLaunchesExecute(r ApiCompareLaunchesRequest) (*map[string][]ComEpamReportportalBaseInfrastructurePersistenceEntityWidgetContentChartStatisticsContent, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodGet
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *map[string][]ChartStatisticsContent
+		localVarReturnValue *map[string][]ComEpamReportportalBaseInfrastructurePersistenceEntityWidgetContentChartStatisticsContent
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "LaunchAPIService.CompareLaunches")
@@ -399,8 +399,8 @@ func (a *LaunchAPIService) CompareLaunchesExecute(r ApiCompareLaunchesRequest) (
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/launch/compare"
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath := localBasePath + "/v1/{projectKey}/launch/compare"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -478,7 +478,7 @@ func (a *LaunchAPIService) CompareLaunchesExecute(r ApiCompareLaunchesRequest) (
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -489,7 +489,7 @@ func (a *LaunchAPIService) CompareLaunchesExecute(r ApiCompareLaunchesRequest) (
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -500,7 +500,7 @@ func (a *LaunchAPIService) CompareLaunchesExecute(r ApiCompareLaunchesRequest) (
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -526,18 +526,18 @@ func (a *LaunchAPIService) CompareLaunchesExecute(r ApiCompareLaunchesRequest) (
 }
 
 type ApiCreateClustersRequest struct {
-	ctx              context.Context
-	ApiService       *LaunchAPIService
-	projectName      string
-	createClustersRQ *CreateClustersRQ
+	ctx                                                       context.Context
+	ApiService                                                *LaunchAPIService
+	projectKey                                                string
+	comEpamReportportalBaseModelLaunchClusterCreateClustersRQ *ComEpamReportportalBaseModelLaunchClusterCreateClustersRQ
 }
 
-func (r ApiCreateClustersRequest) CreateClustersRQ(createClustersRQ CreateClustersRQ) ApiCreateClustersRequest {
-	r.createClustersRQ = &createClustersRQ
+func (r ApiCreateClustersRequest) ComEpamReportportalBaseModelLaunchClusterCreateClustersRQ(comEpamReportportalBaseModelLaunchClusterCreateClustersRQ ComEpamReportportalBaseModelLaunchClusterCreateClustersRQ) ApiCreateClustersRequest {
+	r.comEpamReportportalBaseModelLaunchClusterCreateClustersRQ = &comEpamReportportalBaseModelLaunchClusterCreateClustersRQ
 	return r
 }
 
-func (r ApiCreateClustersRequest) Execute() (*OperationCompletionRS, *http.Response, error) {
+func (r ApiCreateClustersRequest) Execute() (*ComEpamReportportalBaseReportingOperationCompletionRS, *http.Response, error) {
 	return r.ApiService.CreateClustersExecute(r)
 }
 
@@ -545,26 +545,26 @@ func (r ApiCreateClustersRequest) Execute() (*OperationCompletionRS, *http.Respo
 CreateClusters Create launch clusters
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param projectName
+	@param projectKey
 	@return ApiCreateClustersRequest
 */
-func (a *LaunchAPIService) CreateClusters(ctx context.Context, projectName string) ApiCreateClustersRequest {
+func (a *LaunchAPIService) CreateClusters(ctx context.Context, projectKey string) ApiCreateClustersRequest {
 	return ApiCreateClustersRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		projectKey: projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return OperationCompletionRS
-func (a *LaunchAPIService) CreateClustersExecute(r ApiCreateClustersRequest) (*OperationCompletionRS, *http.Response, error) {
+//	@return ComEpamReportportalBaseReportingOperationCompletionRS
+func (a *LaunchAPIService) CreateClustersExecute(r ApiCreateClustersRequest) (*ComEpamReportportalBaseReportingOperationCompletionRS, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPost
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *OperationCompletionRS
+		localVarReturnValue *ComEpamReportportalBaseReportingOperationCompletionRS
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "LaunchAPIService.CreateClusters")
@@ -572,14 +572,14 @@ func (a *LaunchAPIService) CreateClustersExecute(r ApiCreateClustersRequest) (*O
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/launch/cluster"
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath := localBasePath + "/v1/{projectKey}/launch/cluster"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
-	if r.createClustersRQ == nil {
-		return localVarReturnValue, nil, reportError("createClustersRQ is required and must be specified")
+	if r.comEpamReportportalBaseModelLaunchClusterCreateClustersRQ == nil {
+		return localVarReturnValue, nil, reportError("comEpamReportportalBaseModelLaunchClusterCreateClustersRQ is required and must be specified")
 	}
 
 	// to determine the Content-Type header
@@ -600,7 +600,7 @@ func (a *LaunchAPIService) CreateClustersExecute(r ApiCreateClustersRequest) (*O
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
 	// body params
-	localVarPostBody = r.createClustersRQ
+	localVarPostBody = r.comEpamReportportalBaseModelLaunchClusterCreateClustersRQ
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -642,7 +642,7 @@ func (a *LaunchAPIService) CreateClustersExecute(r ApiCreateClustersRequest) (*O
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -653,7 +653,7 @@ func (a *LaunchAPIService) CreateClustersExecute(r ApiCreateClustersRequest) (*O
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -664,7 +664,7 @@ func (a *LaunchAPIService) CreateClustersExecute(r ApiCreateClustersRequest) (*O
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -690,13 +690,13 @@ func (a *LaunchAPIService) CreateClustersExecute(r ApiCreateClustersRequest) (*O
 }
 
 type ApiDeleteLaunchRequest struct {
-	ctx         context.Context
-	ApiService  *LaunchAPIService
-	launchId    int64
-	projectName string
+	ctx        context.Context
+	ApiService *LaunchAPIService
+	launchId   int64
+	projectKey string
 }
 
-func (r ApiDeleteLaunchRequest) Execute() (*OperationCompletionRS, *http.Response, error) {
+func (r ApiDeleteLaunchRequest) Execute() (*ComEpamReportportalBaseReportingOperationCompletionRS, *http.Response, error) {
 	return r.ApiService.DeleteLaunchExecute(r)
 }
 
@@ -705,27 +705,27 @@ DeleteLaunch Delete specified launch by ID
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param launchId
-	@param projectName
+	@param projectKey
 	@return ApiDeleteLaunchRequest
 */
-func (a *LaunchAPIService) DeleteLaunch(ctx context.Context, launchId int64, projectName string) ApiDeleteLaunchRequest {
+func (a *LaunchAPIService) DeleteLaunch(ctx context.Context, launchId int64, projectKey string) ApiDeleteLaunchRequest {
 	return ApiDeleteLaunchRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		launchId:    launchId,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		launchId:   launchId,
+		projectKey: projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return OperationCompletionRS
-func (a *LaunchAPIService) DeleteLaunchExecute(r ApiDeleteLaunchRequest) (*OperationCompletionRS, *http.Response, error) {
+//	@return ComEpamReportportalBaseReportingOperationCompletionRS
+func (a *LaunchAPIService) DeleteLaunchExecute(r ApiDeleteLaunchRequest) (*ComEpamReportportalBaseReportingOperationCompletionRS, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodDelete
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *OperationCompletionRS
+		localVarReturnValue *ComEpamReportportalBaseReportingOperationCompletionRS
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "LaunchAPIService.DeleteLaunch")
@@ -733,9 +733,9 @@ func (a *LaunchAPIService) DeleteLaunchExecute(r ApiDeleteLaunchRequest) (*Opera
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/launch/{launchId}"
+	localVarPath := localBasePath + "/v1/{projectKey}/launch/{launchId}"
 	localVarPath = strings.Replace(localVarPath, "{"+"launchId"+"}", url.PathEscape(parameterValueToString(r.launchId, "launchId")), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -799,7 +799,7 @@ func (a *LaunchAPIService) DeleteLaunchExecute(r ApiDeleteLaunchRequest) (*Opera
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -810,7 +810,7 @@ func (a *LaunchAPIService) DeleteLaunchExecute(r ApiDeleteLaunchRequest) (*Opera
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -821,7 +821,7 @@ func (a *LaunchAPIService) DeleteLaunchExecute(r ApiDeleteLaunchRequest) (*Opera
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -847,10 +847,10 @@ func (a *LaunchAPIService) DeleteLaunchExecute(r ApiDeleteLaunchRequest) (*Opera
 }
 
 type ApiDeleteLaunchesRequest struct {
-	ctx         context.Context
-	ApiService  *LaunchAPIService
-	ids         *[]int64
-	projectName string
+	ctx        context.Context
+	ApiService *LaunchAPIService
+	ids        *[]int64
+	projectKey string
 }
 
 func (r ApiDeleteLaunchesRequest) Ids(ids []int64) ApiDeleteLaunchesRequest {
@@ -858,7 +858,7 @@ func (r ApiDeleteLaunchesRequest) Ids(ids []int64) ApiDeleteLaunchesRequest {
 	return r
 }
 
-func (r ApiDeleteLaunchesRequest) Execute() (*DeleteBulkRS, *http.Response, error) {
+func (r ApiDeleteLaunchesRequest) Execute() (*ComEpamReportportalBaseModelDeleteBulkRS, *http.Response, error) {
 	return r.ApiService.DeleteLaunchesExecute(r)
 }
 
@@ -866,26 +866,26 @@ func (r ApiDeleteLaunchesRequest) Execute() (*DeleteBulkRS, *http.Response, erro
 DeleteLaunches Delete specified launches by ids
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param projectName
+	@param projectKey
 	@return ApiDeleteLaunchesRequest
 */
-func (a *LaunchAPIService) DeleteLaunches(ctx context.Context, projectName string) ApiDeleteLaunchesRequest {
+func (a *LaunchAPIService) DeleteLaunches(ctx context.Context, projectKey string) ApiDeleteLaunchesRequest {
 	return ApiDeleteLaunchesRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		projectKey: projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return DeleteBulkRS
-func (a *LaunchAPIService) DeleteLaunchesExecute(r ApiDeleteLaunchesRequest) (*DeleteBulkRS, *http.Response, error) {
+//	@return ComEpamReportportalBaseModelDeleteBulkRS
+func (a *LaunchAPIService) DeleteLaunchesExecute(r ApiDeleteLaunchesRequest) (*ComEpamReportportalBaseModelDeleteBulkRS, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodDelete
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *DeleteBulkRS
+		localVarReturnValue *ComEpamReportportalBaseModelDeleteBulkRS
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "LaunchAPIService.DeleteLaunches")
@@ -893,8 +893,8 @@ func (a *LaunchAPIService) DeleteLaunchesExecute(r ApiDeleteLaunchesRequest) (*D
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/launch"
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath := localBasePath + "/v1/{projectKey}/launch"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -972,7 +972,7 @@ func (a *LaunchAPIService) DeleteLaunchesExecute(r ApiDeleteLaunchesRequest) (*D
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -983,7 +983,7 @@ func (a *LaunchAPIService) DeleteLaunchesExecute(r ApiDeleteLaunchesRequest) (*D
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -994,7 +994,7 @@ func (a *LaunchAPIService) DeleteLaunchesExecute(r ApiDeleteLaunchesRequest) (*D
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1020,19 +1020,19 @@ func (a *LaunchAPIService) DeleteLaunchesExecute(r ApiDeleteLaunchesRequest) (*D
 }
 
 type ApiFinishLaunch1Request struct {
-	ctx               context.Context
-	ApiService        *LaunchAPIService
-	launchId          string
-	projectName       string
-	finishExecutionRQ *FinishExecutionRQ
+	ctx                                               context.Context
+	ApiService                                        *LaunchAPIService
+	launchId                                          string
+	projectKey                                        string
+	comEpamReportportalBaseReportingFinishExecutionRQ *ComEpamReportportalBaseReportingFinishExecutionRQ
 }
 
-func (r ApiFinishLaunch1Request) FinishExecutionRQ(finishExecutionRQ FinishExecutionRQ) ApiFinishLaunch1Request {
-	r.finishExecutionRQ = &finishExecutionRQ
+func (r ApiFinishLaunch1Request) ComEpamReportportalBaseReportingFinishExecutionRQ(comEpamReportportalBaseReportingFinishExecutionRQ ComEpamReportportalBaseReportingFinishExecutionRQ) ApiFinishLaunch1Request {
+	r.comEpamReportportalBaseReportingFinishExecutionRQ = &comEpamReportportalBaseReportingFinishExecutionRQ
 	return r
 }
 
-func (r ApiFinishLaunch1Request) Execute() (*FinishLaunchRS, *http.Response, error) {
+func (r ApiFinishLaunch1Request) Execute() (*ComEpamReportportalBaseModelLaunchFinishLaunchRS, *http.Response, error) {
 	return r.ApiService.FinishLaunch1Execute(r)
 }
 
@@ -1041,27 +1041,27 @@ FinishLaunch1 Finish launch for specified project
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param launchId
-	@param projectName
+	@param projectKey
 	@return ApiFinishLaunch1Request
 */
-func (a *LaunchAPIService) FinishLaunch1(ctx context.Context, launchId string, projectName string) ApiFinishLaunch1Request {
+func (a *LaunchAPIService) FinishLaunch1(ctx context.Context, launchId string, projectKey string) ApiFinishLaunch1Request {
 	return ApiFinishLaunch1Request{
-		ApiService:  a,
-		ctx:         ctx,
-		launchId:    launchId,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		launchId:   launchId,
+		projectKey: projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return FinishLaunchRS
-func (a *LaunchAPIService) FinishLaunch1Execute(r ApiFinishLaunch1Request) (*FinishLaunchRS, *http.Response, error) {
+//	@return ComEpamReportportalBaseModelLaunchFinishLaunchRS
+func (a *LaunchAPIService) FinishLaunch1Execute(r ApiFinishLaunch1Request) (*ComEpamReportportalBaseModelLaunchFinishLaunchRS, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPut
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *FinishLaunchRS
+		localVarReturnValue *ComEpamReportportalBaseModelLaunchFinishLaunchRS
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "LaunchAPIService.FinishLaunch1")
@@ -1069,15 +1069,15 @@ func (a *LaunchAPIService) FinishLaunch1Execute(r ApiFinishLaunch1Request) (*Fin
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/launch/{launchId}/finish"
+	localVarPath := localBasePath + "/v1/{projectKey}/launch/{launchId}/finish"
 	localVarPath = strings.Replace(localVarPath, "{"+"launchId"+"}", url.PathEscape(parameterValueToString(r.launchId, "launchId")), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
-	if r.finishExecutionRQ == nil {
-		return localVarReturnValue, nil, reportError("finishExecutionRQ is required and must be specified")
+	if r.comEpamReportportalBaseReportingFinishExecutionRQ == nil {
+		return localVarReturnValue, nil, reportError("comEpamReportportalBaseReportingFinishExecutionRQ is required and must be specified")
 	}
 
 	// to determine the Content-Type header
@@ -1098,7 +1098,7 @@ func (a *LaunchAPIService) FinishLaunch1Execute(r ApiFinishLaunch1Request) (*Fin
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
 	// body params
-	localVarPostBody = r.finishExecutionRQ
+	localVarPostBody = r.comEpamReportportalBaseReportingFinishExecutionRQ
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -1140,7 +1140,7 @@ func (a *LaunchAPIService) FinishLaunch1Execute(r ApiFinishLaunch1Request) (*Fin
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1151,7 +1151,7 @@ func (a *LaunchAPIService) FinishLaunch1Execute(r ApiFinishLaunch1Request) (*Fin
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1162,7 +1162,7 @@ func (a *LaunchAPIService) FinishLaunch1Execute(r ApiFinishLaunch1Request) (*Fin
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1188,19 +1188,19 @@ func (a *LaunchAPIService) FinishLaunch1Execute(r ApiFinishLaunch1Request) (*Fin
 }
 
 type ApiForceFinishLaunchRequest struct {
-	ctx               context.Context
-	ApiService        *LaunchAPIService
-	launchId          int64
-	projectName       string
-	finishExecutionRQ *FinishExecutionRQ
+	ctx                                               context.Context
+	ApiService                                        *LaunchAPIService
+	launchId                                          int64
+	projectKey                                        string
+	comEpamReportportalBaseReportingFinishExecutionRQ *ComEpamReportportalBaseReportingFinishExecutionRQ
 }
 
-func (r ApiForceFinishLaunchRequest) FinishExecutionRQ(finishExecutionRQ FinishExecutionRQ) ApiForceFinishLaunchRequest {
-	r.finishExecutionRQ = &finishExecutionRQ
+func (r ApiForceFinishLaunchRequest) ComEpamReportportalBaseReportingFinishExecutionRQ(comEpamReportportalBaseReportingFinishExecutionRQ ComEpamReportportalBaseReportingFinishExecutionRQ) ApiForceFinishLaunchRequest {
+	r.comEpamReportportalBaseReportingFinishExecutionRQ = &comEpamReportportalBaseReportingFinishExecutionRQ
 	return r
 }
 
-func (r ApiForceFinishLaunchRequest) Execute() (*OperationCompletionRS, *http.Response, error) {
+func (r ApiForceFinishLaunchRequest) Execute() (*ComEpamReportportalBaseReportingOperationCompletionRS, *http.Response, error) {
 	return r.ApiService.ForceFinishLaunchExecute(r)
 }
 
@@ -1209,27 +1209,27 @@ ForceFinishLaunch Force finish launch for specified project
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param launchId
-	@param projectName
+	@param projectKey
 	@return ApiForceFinishLaunchRequest
 */
-func (a *LaunchAPIService) ForceFinishLaunch(ctx context.Context, launchId int64, projectName string) ApiForceFinishLaunchRequest {
+func (a *LaunchAPIService) ForceFinishLaunch(ctx context.Context, launchId int64, projectKey string) ApiForceFinishLaunchRequest {
 	return ApiForceFinishLaunchRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		launchId:    launchId,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		launchId:   launchId,
+		projectKey: projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return OperationCompletionRS
-func (a *LaunchAPIService) ForceFinishLaunchExecute(r ApiForceFinishLaunchRequest) (*OperationCompletionRS, *http.Response, error) {
+//	@return ComEpamReportportalBaseReportingOperationCompletionRS
+func (a *LaunchAPIService) ForceFinishLaunchExecute(r ApiForceFinishLaunchRequest) (*ComEpamReportportalBaseReportingOperationCompletionRS, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPut
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *OperationCompletionRS
+		localVarReturnValue *ComEpamReportportalBaseReportingOperationCompletionRS
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "LaunchAPIService.ForceFinishLaunch")
@@ -1237,15 +1237,15 @@ func (a *LaunchAPIService) ForceFinishLaunchExecute(r ApiForceFinishLaunchReques
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/launch/{launchId}/stop"
+	localVarPath := localBasePath + "/v1/{projectKey}/launch/{launchId}/stop"
 	localVarPath = strings.Replace(localVarPath, "{"+"launchId"+"}", url.PathEscape(parameterValueToString(r.launchId, "launchId")), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
-	if r.finishExecutionRQ == nil {
-		return localVarReturnValue, nil, reportError("finishExecutionRQ is required and must be specified")
+	if r.comEpamReportportalBaseReportingFinishExecutionRQ == nil {
+		return localVarReturnValue, nil, reportError("comEpamReportportalBaseReportingFinishExecutionRQ is required and must be specified")
 	}
 
 	// to determine the Content-Type header
@@ -1266,7 +1266,7 @@ func (a *LaunchAPIService) ForceFinishLaunchExecute(r ApiForceFinishLaunchReques
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
 	// body params
-	localVarPostBody = r.finishExecutionRQ
+	localVarPostBody = r.comEpamReportportalBaseReportingFinishExecutionRQ
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -1308,7 +1308,7 @@ func (a *LaunchAPIService) ForceFinishLaunchExecute(r ApiForceFinishLaunchReques
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1319,7 +1319,7 @@ func (a *LaunchAPIService) ForceFinishLaunchExecute(r ApiForceFinishLaunchReques
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1330,7 +1330,7 @@ func (a *LaunchAPIService) ForceFinishLaunchExecute(r ApiForceFinishLaunchReques
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1358,7 +1358,7 @@ func (a *LaunchAPIService) ForceFinishLaunchExecute(r ApiForceFinishLaunchReques
 type ApiGetAllLaunchNamesRequest struct {
 	ctx           context.Context
 	ApiService    *LaunchAPIService
-	projectName   string
+	projectKey    string
 	filterCntName *string
 }
 
@@ -1375,14 +1375,14 @@ func (r ApiGetAllLaunchNamesRequest) Execute() ([]string, *http.Response, error)
 GetAllLaunchNames Get launch names of project
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param projectName
+	@param projectKey
 	@return ApiGetAllLaunchNamesRequest
 */
-func (a *LaunchAPIService) GetAllLaunchNames(ctx context.Context, projectName string) ApiGetAllLaunchNamesRequest {
+func (a *LaunchAPIService) GetAllLaunchNames(ctx context.Context, projectKey string) ApiGetAllLaunchNamesRequest {
 	return ApiGetAllLaunchNamesRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		projectKey: projectKey,
 	}
 }
 
@@ -1402,8 +1402,8 @@ func (a *LaunchAPIService) GetAllLaunchNamesExecute(r ApiGetAllLaunchNamesReques
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/launch/names"
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath := localBasePath + "/v1/{projectKey}/launch/names"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -1474,7 +1474,7 @@ func (a *LaunchAPIService) GetAllLaunchNamesExecute(r ApiGetAllLaunchNamesReques
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1485,7 +1485,7 @@ func (a *LaunchAPIService) GetAllLaunchNamesExecute(r ApiGetAllLaunchNamesReques
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1496,7 +1496,7 @@ func (a *LaunchAPIService) GetAllLaunchNamesExecute(r ApiGetAllLaunchNamesReques
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1525,7 +1525,7 @@ type ApiGetAllOwnersRequest struct {
 	ctx           context.Context
 	ApiService    *LaunchAPIService
 	filterCntUser *string
-	projectName   string
+	projectKey    string
 	mode          *string
 }
 
@@ -1547,14 +1547,14 @@ func (r ApiGetAllOwnersRequest) Execute() ([]string, *http.Response, error) {
 GetAllOwners Get all unique owners of project launches
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param projectName
+	@param projectKey
 	@return ApiGetAllOwnersRequest
 */
-func (a *LaunchAPIService) GetAllOwners(ctx context.Context, projectName string) ApiGetAllOwnersRequest {
+func (a *LaunchAPIService) GetAllOwners(ctx context.Context, projectKey string) ApiGetAllOwnersRequest {
 	return ApiGetAllOwnersRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		projectKey: projectKey,
 	}
 }
 
@@ -1574,8 +1574,8 @@ func (a *LaunchAPIService) GetAllOwnersExecute(r ApiGetAllOwnersRequest) ([]stri
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/launch/owners"
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath := localBasePath + "/v1/{projectKey}/launch/owners"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -1650,7 +1650,7 @@ func (a *LaunchAPIService) GetAllOwnersExecute(r ApiGetAllOwnersRequest) ([]stri
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1661,7 +1661,7 @@ func (a *LaunchAPIService) GetAllOwnersExecute(r ApiGetAllOwnersRequest) ([]stri
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1672,7 +1672,7 @@ func (a *LaunchAPIService) GetAllOwnersExecute(r ApiGetAllOwnersRequest) ([]stri
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1701,7 +1701,7 @@ type ApiGetAttributeKeysRequest struct {
 	ctx                   context.Context
 	ApiService            *LaunchAPIService
 	filterCntAttributeKey *string
-	projectName           string
+	projectKey            string
 }
 
 func (r ApiGetAttributeKeysRequest) FilterCntAttributeKey(filterCntAttributeKey string) ApiGetAttributeKeysRequest {
@@ -1717,14 +1717,14 @@ func (r ApiGetAttributeKeysRequest) Execute() ([]string, *http.Response, error) 
 GetAttributeKeys Get all unique attribute keys of project launches
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param projectName
+	@param projectKey
 	@return ApiGetAttributeKeysRequest
 */
-func (a *LaunchAPIService) GetAttributeKeys(ctx context.Context, projectName string) ApiGetAttributeKeysRequest {
+func (a *LaunchAPIService) GetAttributeKeys(ctx context.Context, projectKey string) ApiGetAttributeKeysRequest {
 	return ApiGetAttributeKeysRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		projectKey: projectKey,
 	}
 }
 
@@ -1744,8 +1744,8 @@ func (a *LaunchAPIService) GetAttributeKeysExecute(r ApiGetAttributeKeysRequest)
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/launch/attribute/keys"
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath := localBasePath + "/v1/{projectKey}/launch/attribute/keys"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -1813,7 +1813,7 @@ func (a *LaunchAPIService) GetAttributeKeysExecute(r ApiGetAttributeKeysRequest)
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1824,7 +1824,7 @@ func (a *LaunchAPIService) GetAttributeKeysExecute(r ApiGetAttributeKeysRequest)
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1835,7 +1835,7 @@ func (a *LaunchAPIService) GetAttributeKeysExecute(r ApiGetAttributeKeysRequest)
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1864,7 +1864,7 @@ type ApiGetAttributeValuesRequest struct {
 	ctx                     context.Context
 	ApiService              *LaunchAPIService
 	filterCntAttributeValue *string
-	projectName             string
+	projectKey              string
 	filterEqAttributeKey    *string
 }
 
@@ -1886,14 +1886,14 @@ func (r ApiGetAttributeValuesRequest) Execute() ([]string, *http.Response, error
 GetAttributeValues Get all unique attribute values of project launches
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param projectName
+	@param projectKey
 	@return ApiGetAttributeValuesRequest
 */
-func (a *LaunchAPIService) GetAttributeValues(ctx context.Context, projectName string) ApiGetAttributeValuesRequest {
+func (a *LaunchAPIService) GetAttributeValues(ctx context.Context, projectKey string) ApiGetAttributeValuesRequest {
 	return ApiGetAttributeValuesRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		projectKey: projectKey,
 	}
 }
 
@@ -1913,8 +1913,8 @@ func (a *LaunchAPIService) GetAttributeValuesExecute(r ApiGetAttributeValuesRequ
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/launch/attribute/values"
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath := localBasePath + "/v1/{projectKey}/launch/attribute/values"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -1985,7 +1985,7 @@ func (a *LaunchAPIService) GetAttributeValuesExecute(r ApiGetAttributeValuesRequ
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1996,7 +1996,7 @@ func (a *LaunchAPIService) GetAttributeValuesExecute(r ApiGetAttributeValuesRequ
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -2007,7 +2007,7 @@ func (a *LaunchAPIService) GetAttributeValuesExecute(r ApiGetAttributeValuesRequ
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -2033,13 +2033,13 @@ func (a *LaunchAPIService) GetAttributeValuesExecute(r ApiGetAttributeValuesRequ
 }
 
 type ApiGetClustersRequest struct {
-	ctx         context.Context
-	ApiService  *LaunchAPIService
-	launchId    string
-	projectName string
-	pagePage    *int32
-	pageSize    *int32
-	pageSort    *string
+	ctx        context.Context
+	ApiService *LaunchAPIService
+	launchId   string
+	projectKey string
+	pagePage   *int32
+	pageSize   *int32
+	pageSort   *string
 }
 
 // Results page you want to retrieve (0..N)
@@ -2060,7 +2060,7 @@ func (r ApiGetClustersRequest) PageSort(pageSort string) ApiGetClustersRequest {
 	return r
 }
 
-func (r ApiGetClustersRequest) Execute() (*PageClusterInfoResource, *http.Response, error) {
+func (r ApiGetClustersRequest) Execute() (*ComEpamReportportalBaseModelPageComEpamReportportalBaseInfrastructureModelLaunchClusterClusterInfoResource, *http.Response, error) {
 	return r.ApiService.GetClustersExecute(r)
 }
 
@@ -2069,27 +2069,27 @@ GetClusters Get all index clusters of the launch
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param launchId
-	@param projectName
+	@param projectKey
 	@return ApiGetClustersRequest
 */
-func (a *LaunchAPIService) GetClusters(ctx context.Context, launchId string, projectName string) ApiGetClustersRequest {
+func (a *LaunchAPIService) GetClusters(ctx context.Context, launchId string, projectKey string) ApiGetClustersRequest {
 	return ApiGetClustersRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		launchId:    launchId,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		launchId:   launchId,
+		projectKey: projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return PageClusterInfoResource
-func (a *LaunchAPIService) GetClustersExecute(r ApiGetClustersRequest) (*PageClusterInfoResource, *http.Response, error) {
+//	@return ComEpamReportportalBaseModelPageComEpamReportportalBaseInfrastructureModelLaunchClusterClusterInfoResource
+func (a *LaunchAPIService) GetClustersExecute(r ApiGetClustersRequest) (*ComEpamReportportalBaseModelPageComEpamReportportalBaseInfrastructureModelLaunchClusterClusterInfoResource, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodGet
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *PageClusterInfoResource
+		localVarReturnValue *ComEpamReportportalBaseModelPageComEpamReportportalBaseInfrastructureModelLaunchClusterClusterInfoResource
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "LaunchAPIService.GetClusters")
@@ -2097,9 +2097,9 @@ func (a *LaunchAPIService) GetClustersExecute(r ApiGetClustersRequest) (*PageClu
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/launch/cluster/{launchId}"
+	localVarPath := localBasePath + "/v1/{projectKey}/launch/cluster/{launchId}"
 	localVarPath = strings.Replace(localVarPath, "{"+"launchId"+"}", url.PathEscape(parameterValueToString(r.launchId, "launchId")), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -2172,7 +2172,7 @@ func (a *LaunchAPIService) GetClustersExecute(r ApiGetClustersRequest) (*PageClu
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -2183,7 +2183,7 @@ func (a *LaunchAPIService) GetClustersExecute(r ApiGetClustersRequest) (*PageClu
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -2194,7 +2194,7 @@ func (a *LaunchAPIService) GetClustersExecute(r ApiGetClustersRequest) (*PageClu
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -2222,7 +2222,7 @@ func (a *LaunchAPIService) GetClustersExecute(r ApiGetClustersRequest) (*PageClu
 type ApiGetDebugLaunchesRequest struct {
 	ctx                                         context.Context
 	ApiService                                  *LaunchAPIService
-	projectName                                 string
+	projectKey                                  string
 	filterEqHasRetries                          *bool
 	filterEqEndTime                             *string
 	filterEqLaunchType                          *string
@@ -2234,6 +2234,7 @@ type ApiGetDebugLaunchesRequest struct {
 	filterEqStatisticsdefectsproductBugpb001    *int32
 	filterEqStatisticsexecutionsfailed          *int32
 	filterEqStatisticsdefectstoInvestigateti001 *int32
+	filterEqTestPlanId                          *int32
 	filterEqUuid                                *string
 	filterEqStatisticsdefectssystemIssuesi001   *int32
 	filterEqStatus                              *string
@@ -2318,6 +2319,12 @@ func (r ApiGetDebugLaunchesRequest) FilterEqStatisticsexecutionsfailed(filterEqS
 // Filters by &#39;statistics$defects$to_investigate$ti001&#39;
 func (r ApiGetDebugLaunchesRequest) FilterEqStatisticsdefectstoInvestigateti001(filterEqStatisticsdefectstoInvestigateti001 int32) ApiGetDebugLaunchesRequest {
 	r.filterEqStatisticsdefectstoInvestigateti001 = &filterEqStatisticsdefectstoInvestigateti001
+	return r
+}
+
+// Filters by &#39;testPlanId&#39;
+func (r ApiGetDebugLaunchesRequest) FilterEqTestPlanId(filterEqTestPlanId int32) ApiGetDebugLaunchesRequest {
+	r.filterEqTestPlanId = &filterEqTestPlanId
 	return r
 }
 
@@ -2435,7 +2442,7 @@ func (r ApiGetDebugLaunchesRequest) PageSort(pageSort string) ApiGetDebugLaunche
 	return r
 }
 
-func (r ApiGetDebugLaunchesRequest) Execute() (*PageLaunchViewModel, *http.Response, error) {
+func (r ApiGetDebugLaunchesRequest) Execute() (*ComEpamReportportalBaseModelPageComEpamReportportalBaseModelLaunchLaunchViewModel, *http.Response, error) {
 	return r.ApiService.GetDebugLaunchesExecute(r)
 }
 
@@ -2443,26 +2450,26 @@ func (r ApiGetDebugLaunchesRequest) Execute() (*PageLaunchViewModel, *http.Respo
 GetDebugLaunches Get launches of specified project from DEBUG mode
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param projectName
+	@param projectKey
 	@return ApiGetDebugLaunchesRequest
 */
-func (a *LaunchAPIService) GetDebugLaunches(ctx context.Context, projectName string) ApiGetDebugLaunchesRequest {
+func (a *LaunchAPIService) GetDebugLaunches(ctx context.Context, projectKey string) ApiGetDebugLaunchesRequest {
 	return ApiGetDebugLaunchesRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		projectKey: projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return PageLaunchViewModel
-func (a *LaunchAPIService) GetDebugLaunchesExecute(r ApiGetDebugLaunchesRequest) (*PageLaunchViewModel, *http.Response, error) {
+//	@return ComEpamReportportalBaseModelPageComEpamReportportalBaseModelLaunchLaunchViewModel
+func (a *LaunchAPIService) GetDebugLaunchesExecute(r ApiGetDebugLaunchesRequest) (*ComEpamReportportalBaseModelPageComEpamReportportalBaseModelLaunchLaunchViewModel, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodGet
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *PageLaunchViewModel
+		localVarReturnValue *ComEpamReportportalBaseModelPageComEpamReportportalBaseModelLaunchLaunchViewModel
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "LaunchAPIService.GetDebugLaunches")
@@ -2470,8 +2477,8 @@ func (a *LaunchAPIService) GetDebugLaunchesExecute(r ApiGetDebugLaunchesRequest)
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/launch/mode"
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath := localBasePath + "/v1/{projectKey}/launch/mode"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -2509,6 +2516,9 @@ func (a *LaunchAPIService) GetDebugLaunchesExecute(r ApiGetDebugLaunchesRequest)
 	}
 	if r.filterEqStatisticsdefectstoInvestigateti001 != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.statistics$defects$to_investigate$ti001", r.filterEqStatisticsdefectstoInvestigateti001, "form", "")
+	}
+	if r.filterEqTestPlanId != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.testPlanId", r.filterEqTestPlanId, "form", "")
 	}
 	if r.filterEqUuid != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.uuid", r.filterEqUuid, "form", "")
@@ -2625,7 +2635,7 @@ func (a *LaunchAPIService) GetDebugLaunchesExecute(r ApiGetDebugLaunchesRequest)
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -2636,7 +2646,7 @@ func (a *LaunchAPIService) GetDebugLaunchesExecute(r ApiGetDebugLaunchesRequest)
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -2647,7 +2657,7 @@ func (a *LaunchAPIService) GetDebugLaunchesExecute(r ApiGetDebugLaunchesRequest)
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -2675,7 +2685,7 @@ func (a *LaunchAPIService) GetDebugLaunchesExecute(r ApiGetDebugLaunchesRequest)
 type ApiGetLatestLaunchesRequest struct {
 	ctx                                         context.Context
 	ApiService                                  *LaunchAPIService
-	projectName                                 string
+	projectKey                                  string
 	filterEqHasRetries                          *bool
 	filterEqEndTime                             *string
 	filterEqLaunchType                          *string
@@ -2687,6 +2697,7 @@ type ApiGetLatestLaunchesRequest struct {
 	filterEqStatisticsdefectsproductBugpb001    *int32
 	filterEqStatisticsexecutionsfailed          *int32
 	filterEqStatisticsdefectstoInvestigateti001 *int32
+	filterEqTestPlanId                          *int32
 	filterEqUuid                                *string
 	filterEqStatisticsdefectssystemIssuesi001   *int32
 	filterEqStatus                              *string
@@ -2771,6 +2782,12 @@ func (r ApiGetLatestLaunchesRequest) FilterEqStatisticsexecutionsfailed(filterEq
 // Filters by &#39;statistics$defects$to_investigate$ti001&#39;
 func (r ApiGetLatestLaunchesRequest) FilterEqStatisticsdefectstoInvestigateti001(filterEqStatisticsdefectstoInvestigateti001 int32) ApiGetLatestLaunchesRequest {
 	r.filterEqStatisticsdefectstoInvestigateti001 = &filterEqStatisticsdefectstoInvestigateti001
+	return r
+}
+
+// Filters by &#39;testPlanId&#39;
+func (r ApiGetLatestLaunchesRequest) FilterEqTestPlanId(filterEqTestPlanId int32) ApiGetLatestLaunchesRequest {
+	r.filterEqTestPlanId = &filterEqTestPlanId
 	return r
 }
 
@@ -2888,7 +2905,7 @@ func (r ApiGetLatestLaunchesRequest) PageSort(pageSort string) ApiGetLatestLaunc
 	return r
 }
 
-func (r ApiGetLatestLaunchesRequest) Execute() (*PageLaunchViewModel, *http.Response, error) {
+func (r ApiGetLatestLaunchesRequest) Execute() (*ComEpamReportportalBaseModelPageComEpamReportportalBaseModelLaunchLaunchViewModel, *http.Response, error) {
 	return r.ApiService.GetLatestLaunchesExecute(r)
 }
 
@@ -2896,26 +2913,26 @@ func (r ApiGetLatestLaunchesRequest) Execute() (*PageLaunchViewModel, *http.Resp
 GetLatestLaunches Get list of latest project launches by filter
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param projectName
+	@param projectKey
 	@return ApiGetLatestLaunchesRequest
 */
-func (a *LaunchAPIService) GetLatestLaunches(ctx context.Context, projectName string) ApiGetLatestLaunchesRequest {
+func (a *LaunchAPIService) GetLatestLaunches(ctx context.Context, projectKey string) ApiGetLatestLaunchesRequest {
 	return ApiGetLatestLaunchesRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		projectKey: projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return PageLaunchViewModel
-func (a *LaunchAPIService) GetLatestLaunchesExecute(r ApiGetLatestLaunchesRequest) (*PageLaunchViewModel, *http.Response, error) {
+//	@return ComEpamReportportalBaseModelPageComEpamReportportalBaseModelLaunchLaunchViewModel
+func (a *LaunchAPIService) GetLatestLaunchesExecute(r ApiGetLatestLaunchesRequest) (*ComEpamReportportalBaseModelPageComEpamReportportalBaseModelLaunchLaunchViewModel, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodGet
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *PageLaunchViewModel
+		localVarReturnValue *ComEpamReportportalBaseModelPageComEpamReportportalBaseModelLaunchLaunchViewModel
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "LaunchAPIService.GetLatestLaunches")
@@ -2923,8 +2940,8 @@ func (a *LaunchAPIService) GetLatestLaunchesExecute(r ApiGetLatestLaunchesReques
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/launch/latest"
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath := localBasePath + "/v1/{projectKey}/launch/latest"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -2962,6 +2979,9 @@ func (a *LaunchAPIService) GetLatestLaunchesExecute(r ApiGetLatestLaunchesReques
 	}
 	if r.filterEqStatisticsdefectstoInvestigateti001 != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.statistics$defects$to_investigate$ti001", r.filterEqStatisticsdefectstoInvestigateti001, "form", "")
+	}
+	if r.filterEqTestPlanId != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.testPlanId", r.filterEqTestPlanId, "form", "")
 	}
 	if r.filterEqUuid != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.uuid", r.filterEqUuid, "form", "")
@@ -3078,7 +3098,7 @@ func (a *LaunchAPIService) GetLatestLaunchesExecute(r ApiGetLatestLaunchesReques
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -3089,7 +3109,7 @@ func (a *LaunchAPIService) GetLatestLaunchesExecute(r ApiGetLatestLaunchesReques
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -3100,7 +3120,7 @@ func (a *LaunchAPIService) GetLatestLaunchesExecute(r ApiGetLatestLaunchesReques
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -3126,13 +3146,13 @@ func (a *LaunchAPIService) GetLatestLaunchesExecute(r ApiGetLatestLaunchesReques
 }
 
 type ApiGetLaunchRequest struct {
-	ctx         context.Context
-	ApiService  *LaunchAPIService
-	launchId    string
-	projectName string
+	ctx        context.Context
+	ApiService *LaunchAPIService
+	launchId   string
+	projectKey string
 }
 
-func (r ApiGetLaunchRequest) Execute() (*LaunchViewModel, *http.Response, error) {
+func (r ApiGetLaunchRequest) Execute() (*ComEpamReportportalBaseModelLaunchLaunchViewModel, *http.Response, error) {
 	return r.ApiService.GetLaunchExecute(r)
 }
 
@@ -3141,27 +3161,27 @@ GetLaunch Get specified launch by ID
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param launchId
-	@param projectName
+	@param projectKey
 	@return ApiGetLaunchRequest
 */
-func (a *LaunchAPIService) GetLaunch(ctx context.Context, launchId string, projectName string) ApiGetLaunchRequest {
+func (a *LaunchAPIService) GetLaunch(ctx context.Context, launchId string, projectKey string) ApiGetLaunchRequest {
 	return ApiGetLaunchRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		launchId:    launchId,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		launchId:   launchId,
+		projectKey: projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return LaunchViewModel
-func (a *LaunchAPIService) GetLaunchExecute(r ApiGetLaunchRequest) (*LaunchViewModel, *http.Response, error) {
+//	@return ComEpamReportportalBaseModelLaunchLaunchViewModel
+func (a *LaunchAPIService) GetLaunchExecute(r ApiGetLaunchRequest) (*ComEpamReportportalBaseModelLaunchLaunchViewModel, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodGet
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *LaunchViewModel
+		localVarReturnValue *ComEpamReportportalBaseModelLaunchLaunchViewModel
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "LaunchAPIService.GetLaunch")
@@ -3169,9 +3189,9 @@ func (a *LaunchAPIService) GetLaunchExecute(r ApiGetLaunchRequest) (*LaunchViewM
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/launch/{launchId}"
+	localVarPath := localBasePath + "/v1/{projectKey}/launch/{launchId}"
 	localVarPath = strings.Replace(localVarPath, "{"+"launchId"+"}", url.PathEscape(parameterValueToString(r.launchId, "launchId")), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -3235,7 +3255,7 @@ func (a *LaunchAPIService) GetLaunchExecute(r ApiGetLaunchRequest) (*LaunchViewM
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -3246,7 +3266,7 @@ func (a *LaunchAPIService) GetLaunchExecute(r ApiGetLaunchRequest) (*LaunchViewM
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -3257,7 +3277,7 @@ func (a *LaunchAPIService) GetLaunchExecute(r ApiGetLaunchRequest) (*LaunchViewM
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -3283,13 +3303,13 @@ func (a *LaunchAPIService) GetLaunchExecute(r ApiGetLaunchRequest) (*LaunchViewM
 }
 
 type ApiGetLaunchByUuidOldTimestampRequest struct {
-	ctx         context.Context
-	ApiService  *LaunchAPIService
-	launchId    string
-	projectName string
+	ctx        context.Context
+	ApiService *LaunchAPIService
+	launchId   string
+	projectKey string
 }
 
-func (r ApiGetLaunchByUuidOldTimestampRequest) Execute() (*LaunchResourceOld, *http.Response, error) {
+func (r ApiGetLaunchByUuidOldTimestampRequest) Execute() (*ComEpamReportportalBaseReportingLaunchResourceOld, *http.Response, error) {
 	return r.ApiService.GetLaunchByUuidOldTimestampExecute(r)
 }
 
@@ -3298,27 +3318,27 @@ GetLaunchByUuidOldTimestamp Get specified launch by UUID
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param launchId
-	@param projectName
+	@param projectKey
 	@return ApiGetLaunchByUuidOldTimestampRequest
 */
-func (a *LaunchAPIService) GetLaunchByUuidOldTimestamp(ctx context.Context, launchId string, projectName string) ApiGetLaunchByUuidOldTimestampRequest {
+func (a *LaunchAPIService) GetLaunchByUuidOldTimestamp(ctx context.Context, launchId string, projectKey string) ApiGetLaunchByUuidOldTimestampRequest {
 	return ApiGetLaunchByUuidOldTimestampRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		launchId:    launchId,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		launchId:   launchId,
+		projectKey: projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return LaunchResourceOld
-func (a *LaunchAPIService) GetLaunchByUuidOldTimestampExecute(r ApiGetLaunchByUuidOldTimestampRequest) (*LaunchResourceOld, *http.Response, error) {
+//	@return ComEpamReportportalBaseReportingLaunchResourceOld
+func (a *LaunchAPIService) GetLaunchByUuidOldTimestampExecute(r ApiGetLaunchByUuidOldTimestampRequest) (*ComEpamReportportalBaseReportingLaunchResourceOld, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodGet
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *LaunchResourceOld
+		localVarReturnValue *ComEpamReportportalBaseReportingLaunchResourceOld
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "LaunchAPIService.GetLaunchByUuidOldTimestamp")
@@ -3326,9 +3346,9 @@ func (a *LaunchAPIService) GetLaunchByUuidOldTimestampExecute(r ApiGetLaunchByUu
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/launch/uuid/{launchId}"
+	localVarPath := localBasePath + "/v1/{projectKey}/launch/uuid/{launchId}"
 	localVarPath = strings.Replace(localVarPath, "{"+"launchId"+"}", url.PathEscape(parameterValueToString(r.launchId, "launchId")), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -3392,7 +3412,7 @@ func (a *LaunchAPIService) GetLaunchByUuidOldTimestampExecute(r ApiGetLaunchByUu
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -3403,7 +3423,7 @@ func (a *LaunchAPIService) GetLaunchByUuidOldTimestampExecute(r ApiGetLaunchByUu
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -3414,7 +3434,7 @@ func (a *LaunchAPIService) GetLaunchByUuidOldTimestampExecute(r ApiGetLaunchByUu
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -3443,7 +3463,7 @@ type ApiGetLaunchReportRequest struct {
 	ctx                context.Context
 	ApiService         *LaunchAPIService
 	launchId           int64
-	projectName        string
+	projectKey         string
 	flatAttachments    *bool
 	includeAttachments *bool
 	view               *string
@@ -3475,15 +3495,15 @@ Only following formats are supported: pdf (by default), xls, html.
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param launchId
-	@param projectName
+	@param projectKey
 	@return ApiGetLaunchReportRequest
 */
-func (a *LaunchAPIService) GetLaunchReport(ctx context.Context, launchId int64, projectName string) ApiGetLaunchReportRequest {
+func (a *LaunchAPIService) GetLaunchReport(ctx context.Context, launchId int64, projectKey string) ApiGetLaunchReportRequest {
 	return ApiGetLaunchReportRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		launchId:    launchId,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		launchId:   launchId,
+		projectKey: projectKey,
 	}
 }
 
@@ -3500,9 +3520,9 @@ func (a *LaunchAPIService) GetLaunchReportExecute(r ApiGetLaunchReportRequest) (
 		return nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/launch/{launchId}/report"
+	localVarPath := localBasePath + "/v1/{projectKey}/launch/{launchId}/report"
 	localVarPath = strings.Replace(localVarPath, "{"+"launchId"+"}", url.PathEscape(parameterValueToString(r.launchId, "launchId")), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -3583,7 +3603,7 @@ func (a *LaunchAPIService) GetLaunchReportExecute(r ApiGetLaunchReportRequest) (
 			return localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -3594,7 +3614,7 @@ func (a *LaunchAPIService) GetLaunchReportExecute(r ApiGetLaunchReportRequest) (
 			return localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -3605,7 +3625,7 @@ func (a *LaunchAPIService) GetLaunchReportExecute(r ApiGetLaunchReportRequest) (
 			return localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -3624,7 +3644,7 @@ func (a *LaunchAPIService) GetLaunchReportExecute(r ApiGetLaunchReportRequest) (
 type ApiGetProjectLaunchesRequest struct {
 	ctx                                         context.Context
 	ApiService                                  *LaunchAPIService
-	projectName                                 string
+	projectKey                                  string
 	filterEqHasRetries                          *bool
 	filterEqEndTime                             *string
 	filterEqLaunchType                          *string
@@ -3636,6 +3656,7 @@ type ApiGetProjectLaunchesRequest struct {
 	filterEqStatisticsdefectsproductBugpb001    *int32
 	filterEqStatisticsexecutionsfailed          *int32
 	filterEqStatisticsdefectstoInvestigateti001 *int32
+	filterEqTestPlanId                          *int32
 	filterEqUuid                                *string
 	filterEqStatisticsdefectssystemIssuesi001   *int32
 	filterEqStatus                              *string
@@ -3720,6 +3741,12 @@ func (r ApiGetProjectLaunchesRequest) FilterEqStatisticsexecutionsfailed(filterE
 // Filters by &#39;statistics$defects$to_investigate$ti001&#39;
 func (r ApiGetProjectLaunchesRequest) FilterEqStatisticsdefectstoInvestigateti001(filterEqStatisticsdefectstoInvestigateti001 int32) ApiGetProjectLaunchesRequest {
 	r.filterEqStatisticsdefectstoInvestigateti001 = &filterEqStatisticsdefectstoInvestigateti001
+	return r
+}
+
+// Filters by &#39;testPlanId&#39;
+func (r ApiGetProjectLaunchesRequest) FilterEqTestPlanId(filterEqTestPlanId int32) ApiGetProjectLaunchesRequest {
+	r.filterEqTestPlanId = &filterEqTestPlanId
 	return r
 }
 
@@ -3837,7 +3864,7 @@ func (r ApiGetProjectLaunchesRequest) PageSort(pageSort string) ApiGetProjectLau
 	return r
 }
 
-func (r ApiGetProjectLaunchesRequest) Execute() (*PageLaunchViewModel, *http.Response, error) {
+func (r ApiGetProjectLaunchesRequest) Execute() (*ComEpamReportportalBaseModelPageComEpamReportportalBaseModelLaunchLaunchViewModel, *http.Response, error) {
 	return r.ApiService.GetProjectLaunchesExecute(r)
 }
 
@@ -3845,26 +3872,26 @@ func (r ApiGetProjectLaunchesRequest) Execute() (*PageLaunchViewModel, *http.Res
 GetProjectLaunches Get list of project launches by filter
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param projectName
+	@param projectKey
 	@return ApiGetProjectLaunchesRequest
 */
-func (a *LaunchAPIService) GetProjectLaunches(ctx context.Context, projectName string) ApiGetProjectLaunchesRequest {
+func (a *LaunchAPIService) GetProjectLaunches(ctx context.Context, projectKey string) ApiGetProjectLaunchesRequest {
 	return ApiGetProjectLaunchesRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		projectKey: projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return PageLaunchViewModel
-func (a *LaunchAPIService) GetProjectLaunchesExecute(r ApiGetProjectLaunchesRequest) (*PageLaunchViewModel, *http.Response, error) {
+//	@return ComEpamReportportalBaseModelPageComEpamReportportalBaseModelLaunchLaunchViewModel
+func (a *LaunchAPIService) GetProjectLaunchesExecute(r ApiGetProjectLaunchesRequest) (*ComEpamReportportalBaseModelPageComEpamReportportalBaseModelLaunchLaunchViewModel, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodGet
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *PageLaunchViewModel
+		localVarReturnValue *ComEpamReportportalBaseModelPageComEpamReportportalBaseModelLaunchLaunchViewModel
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "LaunchAPIService.GetProjectLaunches")
@@ -3872,8 +3899,8 @@ func (a *LaunchAPIService) GetProjectLaunchesExecute(r ApiGetProjectLaunchesRequ
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/launch"
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath := localBasePath + "/v1/{projectKey}/launch"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -3911,6 +3938,9 @@ func (a *LaunchAPIService) GetProjectLaunchesExecute(r ApiGetProjectLaunchesRequ
 	}
 	if r.filterEqStatisticsdefectstoInvestigateti001 != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.statistics$defects$to_investigate$ti001", r.filterEqStatisticsdefectstoInvestigateti001, "form", "")
+	}
+	if r.filterEqTestPlanId != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.testPlanId", r.filterEqTestPlanId, "form", "")
 	}
 	if r.filterEqUuid != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter.eq.uuid", r.filterEqUuid, "form", "")
@@ -4027,7 +4057,7 @@ func (a *LaunchAPIService) GetProjectLaunchesExecute(r ApiGetProjectLaunchesRequ
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -4038,7 +4068,7 @@ func (a *LaunchAPIService) GetProjectLaunchesExecute(r ApiGetProjectLaunchesRequ
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -4049,7 +4079,7 @@ func (a *LaunchAPIService) GetProjectLaunchesExecute(r ApiGetProjectLaunchesRequ
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -4075,10 +4105,10 @@ func (a *LaunchAPIService) GetProjectLaunchesExecute(r ApiGetProjectLaunchesRequ
 }
 
 type ApiGetStatusesRequest struct {
-	ctx         context.Context
-	ApiService  *LaunchAPIService
-	ids         *[]int64
-	projectName string
+	ctx        context.Context
+	ApiService *LaunchAPIService
+	ids        *[]int64
+	projectKey string
 }
 
 func (r ApiGetStatusesRequest) Ids(ids []int64) ApiGetStatusesRequest {
@@ -4094,14 +4124,14 @@ func (r ApiGetStatusesRequest) Execute() (map[string]string, *http.Response, err
 GetStatuses Get Statuses
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param projectName
+	@param projectKey
 	@return ApiGetStatusesRequest
 */
-func (a *LaunchAPIService) GetStatuses(ctx context.Context, projectName string) ApiGetStatusesRequest {
+func (a *LaunchAPIService) GetStatuses(ctx context.Context, projectKey string) ApiGetStatusesRequest {
 	return ApiGetStatusesRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		projectKey: projectKey,
 	}
 }
 
@@ -4121,8 +4151,8 @@ func (a *LaunchAPIService) GetStatusesExecute(r ApiGetStatusesRequest) (map[stri
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/launch/status"
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath := localBasePath + "/v1/{projectKey}/launch/status"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -4200,7 +4230,7 @@ func (a *LaunchAPIService) GetStatusesExecute(r ApiGetStatusesRequest) (map[stri
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -4211,7 +4241,7 @@ func (a *LaunchAPIService) GetStatusesExecute(r ApiGetStatusesRequest) (map[stri
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -4222,7 +4252,7 @@ func (a *LaunchAPIService) GetStatusesExecute(r ApiGetStatusesRequest) (map[stri
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -4248,18 +4278,18 @@ func (a *LaunchAPIService) GetStatusesExecute(r ApiGetStatusesRequest) (map[stri
 }
 
 type ApiMergeLaunchesOldUuid1Request struct {
-	ctx             context.Context
-	ApiService      *LaunchAPIService
-	projectName     string
-	mergeLaunchesRQ *MergeLaunchesRQ
+	ctx                                             context.Context
+	ApiService                                      *LaunchAPIService
+	projectKey                                      string
+	comEpamReportportalBaseReportingMergeLaunchesRQ *ComEpamReportportalBaseReportingMergeLaunchesRQ
 }
 
-func (r ApiMergeLaunchesOldUuid1Request) MergeLaunchesRQ(mergeLaunchesRQ MergeLaunchesRQ) ApiMergeLaunchesOldUuid1Request {
-	r.mergeLaunchesRQ = &mergeLaunchesRQ
+func (r ApiMergeLaunchesOldUuid1Request) ComEpamReportportalBaseReportingMergeLaunchesRQ(comEpamReportportalBaseReportingMergeLaunchesRQ ComEpamReportportalBaseReportingMergeLaunchesRQ) ApiMergeLaunchesOldUuid1Request {
+	r.comEpamReportportalBaseReportingMergeLaunchesRQ = &comEpamReportportalBaseReportingMergeLaunchesRQ
 	return r
 }
 
-func (r ApiMergeLaunchesOldUuid1Request) Execute() (*LaunchResourceOld, *http.Response, error) {
+func (r ApiMergeLaunchesOldUuid1Request) Execute() (*ComEpamReportportalBaseReportingLaunchResourceOld, *http.Response, error) {
 	return r.ApiService.MergeLaunchesOldUuid1Execute(r)
 }
 
@@ -4269,26 +4299,26 @@ MergeLaunchesOldUuid1 Merge set of specified launches in common one
 This operation merges a set of launches into a common one. The IDs of the launches to be merged should be provided in the 'launches' field of the request body.
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param projectName
+	@param projectKey
 	@return ApiMergeLaunchesOldUuid1Request
 */
-func (a *LaunchAPIService) MergeLaunchesOldUuid1(ctx context.Context, projectName string) ApiMergeLaunchesOldUuid1Request {
+func (a *LaunchAPIService) MergeLaunchesOldUuid1(ctx context.Context, projectKey string) ApiMergeLaunchesOldUuid1Request {
 	return ApiMergeLaunchesOldUuid1Request{
-		ApiService:  a,
-		ctx:         ctx,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		projectKey: projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return LaunchResourceOld
-func (a *LaunchAPIService) MergeLaunchesOldUuid1Execute(r ApiMergeLaunchesOldUuid1Request) (*LaunchResourceOld, *http.Response, error) {
+//	@return ComEpamReportportalBaseReportingLaunchResourceOld
+func (a *LaunchAPIService) MergeLaunchesOldUuid1Execute(r ApiMergeLaunchesOldUuid1Request) (*ComEpamReportportalBaseReportingLaunchResourceOld, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPost
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *LaunchResourceOld
+		localVarReturnValue *ComEpamReportportalBaseReportingLaunchResourceOld
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "LaunchAPIService.MergeLaunchesOldUuid1")
@@ -4296,14 +4326,14 @@ func (a *LaunchAPIService) MergeLaunchesOldUuid1Execute(r ApiMergeLaunchesOldUui
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/launch/merge"
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath := localBasePath + "/v1/{projectKey}/launch/merge"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
-	if r.mergeLaunchesRQ == nil {
-		return localVarReturnValue, nil, reportError("mergeLaunchesRQ is required and must be specified")
+	if r.comEpamReportportalBaseReportingMergeLaunchesRQ == nil {
+		return localVarReturnValue, nil, reportError("comEpamReportportalBaseReportingMergeLaunchesRQ is required and must be specified")
 	}
 
 	// to determine the Content-Type header
@@ -4324,7 +4354,7 @@ func (a *LaunchAPIService) MergeLaunchesOldUuid1Execute(r ApiMergeLaunchesOldUui
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
 	// body params
-	localVarPostBody = r.mergeLaunchesRQ
+	localVarPostBody = r.comEpamReportportalBaseReportingMergeLaunchesRQ
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -4366,7 +4396,7 @@ func (a *LaunchAPIService) MergeLaunchesOldUuid1Execute(r ApiMergeLaunchesOldUui
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -4377,7 +4407,7 @@ func (a *LaunchAPIService) MergeLaunchesOldUuid1Execute(r ApiMergeLaunchesOldUui
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -4388,7 +4418,7 @@ func (a *LaunchAPIService) MergeLaunchesOldUuid1Execute(r ApiMergeLaunchesOldUui
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -4414,18 +4444,18 @@ func (a *LaunchAPIService) MergeLaunchesOldUuid1Execute(r ApiMergeLaunchesOldUui
 }
 
 type ApiStartLaunch1Request struct {
-	ctx           context.Context
-	ApiService    *LaunchAPIService
-	projectName   string
-	startLaunchRQ *StartLaunchRQ
+	ctx                                           context.Context
+	ApiService                                    *LaunchAPIService
+	projectKey                                    string
+	comEpamReportportalBaseReportingStartLaunchRQ *ComEpamReportportalBaseReportingStartLaunchRQ
 }
 
-func (r ApiStartLaunch1Request) StartLaunchRQ(startLaunchRQ StartLaunchRQ) ApiStartLaunch1Request {
-	r.startLaunchRQ = &startLaunchRQ
+func (r ApiStartLaunch1Request) ComEpamReportportalBaseReportingStartLaunchRQ(comEpamReportportalBaseReportingStartLaunchRQ ComEpamReportportalBaseReportingStartLaunchRQ) ApiStartLaunch1Request {
+	r.comEpamReportportalBaseReportingStartLaunchRQ = &comEpamReportportalBaseReportingStartLaunchRQ
 	return r
 }
 
-func (r ApiStartLaunch1Request) Execute() (*StartLaunchRS, *http.Response, error) {
+func (r ApiStartLaunch1Request) Execute() (*ComEpamReportportalBaseReportingStartLaunchRS, *http.Response, error) {
 	return r.ApiService.StartLaunch1Execute(r)
 }
 
@@ -4433,26 +4463,26 @@ func (r ApiStartLaunch1Request) Execute() (*StartLaunchRS, *http.Response, error
 StartLaunch1 Starts launch for specified project
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param projectName
+	@param projectKey
 	@return ApiStartLaunch1Request
 */
-func (a *LaunchAPIService) StartLaunch1(ctx context.Context, projectName string) ApiStartLaunch1Request {
+func (a *LaunchAPIService) StartLaunch1(ctx context.Context, projectKey string) ApiStartLaunch1Request {
 	return ApiStartLaunch1Request{
-		ApiService:  a,
-		ctx:         ctx,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		projectKey: projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return StartLaunchRS
-func (a *LaunchAPIService) StartLaunch1Execute(r ApiStartLaunch1Request) (*StartLaunchRS, *http.Response, error) {
+//	@return ComEpamReportportalBaseReportingStartLaunchRS
+func (a *LaunchAPIService) StartLaunch1Execute(r ApiStartLaunch1Request) (*ComEpamReportportalBaseReportingStartLaunchRS, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPost
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *StartLaunchRS
+		localVarReturnValue *ComEpamReportportalBaseReportingStartLaunchRS
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "LaunchAPIService.StartLaunch1")
@@ -4460,14 +4490,14 @@ func (a *LaunchAPIService) StartLaunch1Execute(r ApiStartLaunch1Request) (*Start
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/launch"
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath := localBasePath + "/v1/{projectKey}/launch"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
-	if r.startLaunchRQ == nil {
-		return localVarReturnValue, nil, reportError("startLaunchRQ is required and must be specified")
+	if r.comEpamReportportalBaseReportingStartLaunchRQ == nil {
+		return localVarReturnValue, nil, reportError("comEpamReportportalBaseReportingStartLaunchRQ is required and must be specified")
 	}
 
 	// to determine the Content-Type header
@@ -4488,7 +4518,7 @@ func (a *LaunchAPIService) StartLaunch1Execute(r ApiStartLaunch1Request) (*Start
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
 	// body params
-	localVarPostBody = r.startLaunchRQ
+	localVarPostBody = r.comEpamReportportalBaseReportingStartLaunchRQ
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -4530,7 +4560,7 @@ func (a *LaunchAPIService) StartLaunch1Execute(r ApiStartLaunch1Request) (*Start
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -4541,7 +4571,7 @@ func (a *LaunchAPIService) StartLaunch1Execute(r ApiStartLaunch1Request) (*Start
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -4552,7 +4582,7 @@ func (a *LaunchAPIService) StartLaunch1Execute(r ApiStartLaunch1Request) (*Start
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -4578,18 +4608,18 @@ func (a *LaunchAPIService) StartLaunch1Execute(r ApiStartLaunch1Request) (*Start
 }
 
 type ApiStartLaunchAnalyzerRequest struct {
-	ctx             context.Context
-	ApiService      *LaunchAPIService
-	projectName     string
-	analyzeLaunchRQ *AnalyzeLaunchRQ
+	ctx                                               context.Context
+	ApiService                                        *LaunchAPIService
+	projectKey                                        string
+	comEpamReportportalBaseModelLaunchAnalyzeLaunchRQ *ComEpamReportportalBaseModelLaunchAnalyzeLaunchRQ
 }
 
-func (r ApiStartLaunchAnalyzerRequest) AnalyzeLaunchRQ(analyzeLaunchRQ AnalyzeLaunchRQ) ApiStartLaunchAnalyzerRequest {
-	r.analyzeLaunchRQ = &analyzeLaunchRQ
+func (r ApiStartLaunchAnalyzerRequest) ComEpamReportportalBaseModelLaunchAnalyzeLaunchRQ(comEpamReportportalBaseModelLaunchAnalyzeLaunchRQ ComEpamReportportalBaseModelLaunchAnalyzeLaunchRQ) ApiStartLaunchAnalyzerRequest {
+	r.comEpamReportportalBaseModelLaunchAnalyzeLaunchRQ = &comEpamReportportalBaseModelLaunchAnalyzeLaunchRQ
 	return r
 }
 
-func (r ApiStartLaunchAnalyzerRequest) Execute() (*OperationCompletionRS, *http.Response, error) {
+func (r ApiStartLaunchAnalyzerRequest) Execute() (*ComEpamReportportalBaseReportingOperationCompletionRS, *http.Response, error) {
 	return r.ApiService.StartLaunchAnalyzerExecute(r)
 }
 
@@ -4597,26 +4627,26 @@ func (r ApiStartLaunchAnalyzerRequest) Execute() (*OperationCompletionRS, *http.
 StartLaunchAnalyzer Start launch auto-analyzer on demand
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param projectName
+	@param projectKey
 	@return ApiStartLaunchAnalyzerRequest
 */
-func (a *LaunchAPIService) StartLaunchAnalyzer(ctx context.Context, projectName string) ApiStartLaunchAnalyzerRequest {
+func (a *LaunchAPIService) StartLaunchAnalyzer(ctx context.Context, projectKey string) ApiStartLaunchAnalyzerRequest {
 	return ApiStartLaunchAnalyzerRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		projectKey: projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return OperationCompletionRS
-func (a *LaunchAPIService) StartLaunchAnalyzerExecute(r ApiStartLaunchAnalyzerRequest) (*OperationCompletionRS, *http.Response, error) {
+//	@return ComEpamReportportalBaseReportingOperationCompletionRS
+func (a *LaunchAPIService) StartLaunchAnalyzerExecute(r ApiStartLaunchAnalyzerRequest) (*ComEpamReportportalBaseReportingOperationCompletionRS, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPost
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *OperationCompletionRS
+		localVarReturnValue *ComEpamReportportalBaseReportingOperationCompletionRS
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "LaunchAPIService.StartLaunchAnalyzer")
@@ -4624,14 +4654,14 @@ func (a *LaunchAPIService) StartLaunchAnalyzerExecute(r ApiStartLaunchAnalyzerRe
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/launch/analyze"
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath := localBasePath + "/v1/{projectKey}/launch/analyze"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
-	if r.analyzeLaunchRQ == nil {
-		return localVarReturnValue, nil, reportError("analyzeLaunchRQ is required and must be specified")
+	if r.comEpamReportportalBaseModelLaunchAnalyzeLaunchRQ == nil {
+		return localVarReturnValue, nil, reportError("comEpamReportportalBaseModelLaunchAnalyzeLaunchRQ is required and must be specified")
 	}
 
 	// to determine the Content-Type header
@@ -4652,7 +4682,7 @@ func (a *LaunchAPIService) StartLaunchAnalyzerExecute(r ApiStartLaunchAnalyzerRe
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
 	// body params
-	localVarPostBody = r.analyzeLaunchRQ
+	localVarPostBody = r.comEpamReportportalBaseModelLaunchAnalyzeLaunchRQ
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -4694,7 +4724,7 @@ func (a *LaunchAPIService) StartLaunchAnalyzerExecute(r ApiStartLaunchAnalyzerRe
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -4705,7 +4735,7 @@ func (a *LaunchAPIService) StartLaunchAnalyzerExecute(r ApiStartLaunchAnalyzerRe
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -4716,7 +4746,7 @@ func (a *LaunchAPIService) StartLaunchAnalyzerExecute(r ApiStartLaunchAnalyzerRe
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -4742,19 +4772,19 @@ func (a *LaunchAPIService) StartLaunchAnalyzerExecute(r ApiStartLaunchAnalyzerRe
 }
 
 type ApiUpdateLaunchRequest struct {
-	ctx            context.Context
-	ApiService     *LaunchAPIService
-	launchId       int64
-	projectName    string
-	updateLaunchRQ *UpdateLaunchRQ
+	ctx                                              context.Context
+	ApiService                                       *LaunchAPIService
+	launchId                                         int64
+	projectKey                                       string
+	comEpamReportportalBaseModelLaunchUpdateLaunchRQ *ComEpamReportportalBaseModelLaunchUpdateLaunchRQ
 }
 
-func (r ApiUpdateLaunchRequest) UpdateLaunchRQ(updateLaunchRQ UpdateLaunchRQ) ApiUpdateLaunchRequest {
-	r.updateLaunchRQ = &updateLaunchRQ
+func (r ApiUpdateLaunchRequest) ComEpamReportportalBaseModelLaunchUpdateLaunchRQ(comEpamReportportalBaseModelLaunchUpdateLaunchRQ ComEpamReportportalBaseModelLaunchUpdateLaunchRQ) ApiUpdateLaunchRequest {
+	r.comEpamReportportalBaseModelLaunchUpdateLaunchRQ = &comEpamReportportalBaseModelLaunchUpdateLaunchRQ
 	return r
 }
 
-func (r ApiUpdateLaunchRequest) Execute() (*OperationCompletionRS, *http.Response, error) {
+func (r ApiUpdateLaunchRequest) Execute() (*ComEpamReportportalBaseReportingOperationCompletionRS, *http.Response, error) {
 	return r.ApiService.UpdateLaunchExecute(r)
 }
 
@@ -4763,27 +4793,27 @@ UpdateLaunch Updates launch for specified project
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param launchId
-	@param projectName
+	@param projectKey
 	@return ApiUpdateLaunchRequest
 */
-func (a *LaunchAPIService) UpdateLaunch(ctx context.Context, launchId int64, projectName string) ApiUpdateLaunchRequest {
+func (a *LaunchAPIService) UpdateLaunch(ctx context.Context, launchId int64, projectKey string) ApiUpdateLaunchRequest {
 	return ApiUpdateLaunchRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		launchId:    launchId,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		launchId:   launchId,
+		projectKey: projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return OperationCompletionRS
-func (a *LaunchAPIService) UpdateLaunchExecute(r ApiUpdateLaunchRequest) (*OperationCompletionRS, *http.Response, error) {
+//	@return ComEpamReportportalBaseReportingOperationCompletionRS
+func (a *LaunchAPIService) UpdateLaunchExecute(r ApiUpdateLaunchRequest) (*ComEpamReportportalBaseReportingOperationCompletionRS, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPut
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *OperationCompletionRS
+		localVarReturnValue *ComEpamReportportalBaseReportingOperationCompletionRS
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "LaunchAPIService.UpdateLaunch")
@@ -4791,15 +4821,15 @@ func (a *LaunchAPIService) UpdateLaunchExecute(r ApiUpdateLaunchRequest) (*Opera
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/launch/{launchId}/update"
+	localVarPath := localBasePath + "/v1/{projectKey}/launch/{launchId}/update"
 	localVarPath = strings.Replace(localVarPath, "{"+"launchId"+"}", url.PathEscape(parameterValueToString(r.launchId, "launchId")), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
-	if r.updateLaunchRQ == nil {
-		return localVarReturnValue, nil, reportError("updateLaunchRQ is required and must be specified")
+	if r.comEpamReportportalBaseModelLaunchUpdateLaunchRQ == nil {
+		return localVarReturnValue, nil, reportError("comEpamReportportalBaseModelLaunchUpdateLaunchRQ is required and must be specified")
 	}
 
 	// to determine the Content-Type header
@@ -4820,7 +4850,7 @@ func (a *LaunchAPIService) UpdateLaunchExecute(r ApiUpdateLaunchRequest) (*Opera
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
 	// body params
-	localVarPostBody = r.updateLaunchRQ
+	localVarPostBody = r.comEpamReportportalBaseModelLaunchUpdateLaunchRQ
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -4862,7 +4892,7 @@ func (a *LaunchAPIService) UpdateLaunchExecute(r ApiUpdateLaunchRequest) (*Opera
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -4873,7 +4903,7 @@ func (a *LaunchAPIService) UpdateLaunchExecute(r ApiUpdateLaunchRequest) (*Opera
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -4884,7 +4914,7 @@ func (a *LaunchAPIService) UpdateLaunchExecute(r ApiUpdateLaunchRequest) (*Opera
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -4910,18 +4940,18 @@ func (a *LaunchAPIService) UpdateLaunchExecute(r ApiUpdateLaunchRequest) (*Opera
 }
 
 type ApiUpdateLaunchesRequest struct {
-	ctx                      context.Context
-	ApiService               *LaunchAPIService
-	projectName              string
-	bulkRQLongUpdateLaunchRQ *BulkRQLongUpdateLaunchRQ
+	ctx                                                                                            context.Context
+	ApiService                                                                                     *LaunchAPIService
+	projectKey                                                                                     string
+	comEpamReportportalBaseModelBulkRQJavaLangLongComEpamReportportalBaseModelLaunchUpdateLaunchRQ *ComEpamReportportalBaseModelBulkRQJavaLangLongComEpamReportportalBaseModelLaunchUpdateLaunchRQ
 }
 
-func (r ApiUpdateLaunchesRequest) BulkRQLongUpdateLaunchRQ(bulkRQLongUpdateLaunchRQ BulkRQLongUpdateLaunchRQ) ApiUpdateLaunchesRequest {
-	r.bulkRQLongUpdateLaunchRQ = &bulkRQLongUpdateLaunchRQ
+func (r ApiUpdateLaunchesRequest) ComEpamReportportalBaseModelBulkRQJavaLangLongComEpamReportportalBaseModelLaunchUpdateLaunchRQ(comEpamReportportalBaseModelBulkRQJavaLangLongComEpamReportportalBaseModelLaunchUpdateLaunchRQ ComEpamReportportalBaseModelBulkRQJavaLangLongComEpamReportportalBaseModelLaunchUpdateLaunchRQ) ApiUpdateLaunchesRequest {
+	r.comEpamReportportalBaseModelBulkRQJavaLangLongComEpamReportportalBaseModelLaunchUpdateLaunchRQ = &comEpamReportportalBaseModelBulkRQJavaLangLongComEpamReportportalBaseModelLaunchUpdateLaunchRQ
 	return r
 }
 
-func (r ApiUpdateLaunchesRequest) Execute() ([]OperationCompletionRS, *http.Response, error) {
+func (r ApiUpdateLaunchesRequest) Execute() ([]ComEpamReportportalBaseReportingOperationCompletionRS, *http.Response, error) {
 	return r.ApiService.UpdateLaunchesExecute(r)
 }
 
@@ -4929,26 +4959,26 @@ func (r ApiUpdateLaunchesRequest) Execute() ([]OperationCompletionRS, *http.Resp
 UpdateLaunches Updates launches for specified project
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param projectName
+	@param projectKey
 	@return ApiUpdateLaunchesRequest
 */
-func (a *LaunchAPIService) UpdateLaunches(ctx context.Context, projectName string) ApiUpdateLaunchesRequest {
+func (a *LaunchAPIService) UpdateLaunches(ctx context.Context, projectKey string) ApiUpdateLaunchesRequest {
 	return ApiUpdateLaunchesRequest{
-		ApiService:  a,
-		ctx:         ctx,
-		projectName: projectName,
+		ApiService: a,
+		ctx:        ctx,
+		projectKey: projectKey,
 	}
 }
 
 // Execute executes the request
 //
-//	@return []OperationCompletionRS
-func (a *LaunchAPIService) UpdateLaunchesExecute(r ApiUpdateLaunchesRequest) ([]OperationCompletionRS, *http.Response, error) {
+//	@return []ComEpamReportportalBaseReportingOperationCompletionRS
+func (a *LaunchAPIService) UpdateLaunchesExecute(r ApiUpdateLaunchesRequest) ([]ComEpamReportportalBaseReportingOperationCompletionRS, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPut
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue []OperationCompletionRS
+		localVarReturnValue []ComEpamReportportalBaseReportingOperationCompletionRS
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "LaunchAPIService.UpdateLaunches")
@@ -4956,14 +4986,14 @@ func (a *LaunchAPIService) UpdateLaunchesExecute(r ApiUpdateLaunchesRequest) ([]
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/{projectName}/launch/update"
-	localVarPath = strings.Replace(localVarPath, "{"+"projectName"+"}", url.PathEscape(parameterValueToString(r.projectName, "projectName")), -1)
+	localVarPath := localBasePath + "/v1/{projectKey}/launch/update"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", url.PathEscape(parameterValueToString(r.projectKey, "projectKey")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
-	if r.bulkRQLongUpdateLaunchRQ == nil {
-		return localVarReturnValue, nil, reportError("bulkRQLongUpdateLaunchRQ is required and must be specified")
+	if r.comEpamReportportalBaseModelBulkRQJavaLangLongComEpamReportportalBaseModelLaunchUpdateLaunchRQ == nil {
+		return localVarReturnValue, nil, reportError("comEpamReportportalBaseModelBulkRQJavaLangLongComEpamReportportalBaseModelLaunchUpdateLaunchRQ is required and must be specified")
 	}
 
 	// to determine the Content-Type header
@@ -4984,7 +5014,7 @@ func (a *LaunchAPIService) UpdateLaunchesExecute(r ApiUpdateLaunchesRequest) ([]
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
 	// body params
-	localVarPostBody = r.bulkRQLongUpdateLaunchRQ
+	localVarPostBody = r.comEpamReportportalBaseModelBulkRQJavaLangLongComEpamReportportalBaseModelLaunchUpdateLaunchRQ
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -5026,7 +5056,7 @@ func (a *LaunchAPIService) UpdateLaunchesExecute(r ApiUpdateLaunchesRequest) ([]
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -5037,7 +5067,7 @@ func (a *LaunchAPIService) UpdateLaunchesExecute(r ApiUpdateLaunchesRequest) ([]
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 403 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -5048,7 +5078,7 @@ func (a *LaunchAPIService) UpdateLaunchesExecute(r ApiUpdateLaunchesRequest) ([]
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v ErrorRS
+			var v ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()

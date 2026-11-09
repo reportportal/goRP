@@ -26,8 +26,9 @@ type (
 
 	// Launch types
 
-	LaunchResource     = ComEpamReportportalBaseReportingLaunchResource
-	PageLaunchResource = ComEpamReportportalBaseModelPageComEpamReportportalBaseReportingLaunchResource
+	LaunchResource      = ComEpamReportportalBaseReportingLaunchResource
+	LaunchViewModel     = ComEpamReportportalBaseModelLaunchLaunchViewModel
+	PageLaunchViewModel = ComEpamReportportalBaseModelPageComEpamReportportalBaseModelLaunchLaunchViewModel
 
 	// Filter types
 
@@ -49,9 +50,9 @@ type (
 	ItemAttributesRQ = ComEpamReportportalBaseReportingItemAttributesRQ
 )
 
-// NewPageLaunchResource is a constructor alias for backwards compatibility.
-func NewPageLaunchResource() *PageLaunchResource {
-	return NewComEpamReportportalBaseModelPageComEpamReportportalBaseReportingLaunchResource()
+// NewPageLaunchViewModel is a constructor alias for backwards compatibility.
+func NewPageLaunchViewModel() *PageLaunchViewModel {
+	return NewComEpamReportportalBaseModelPageComEpamReportportalBaseModelLaunchLaunchViewModel()
 }
 
 // MergeLaunchesRQ is a method alias on ApiMergeLaunchesOldUuidRequest (v2 async endpoint)

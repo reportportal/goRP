@@ -3,7 +3,7 @@ ReportPortal
 
 ReportPortal API documentation
 
-API version: 5.15.2
+API version: 6.0.0
 Contact: support@reportportal.io
 */
 
@@ -24,7 +24,7 @@ type GroupProjectInfo struct {
 	// Resource identifier.
 	Id *int64 `json:"id,omitempty"`
 	// Display name.
-	Name       *string `json:"name,omitempty" validate:"regexp=^[A-Za-z0-9.'_\\\\- ]+$"`
+	Name       *string `json:"name,omitempty" validate:"regexp=^[A-Za-z0-9.'_\\- ]+$"`
 	Permission *string `json:"permission,omitempty"`
 	// Timestamp of project adding to group.
 	AddedAt *time.Time `json:"added_at,omitempty"`

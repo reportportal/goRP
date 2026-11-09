@@ -71,9 +71,11 @@ tasks:
  # https://github.com/OpenAPITools/openapi-generator/blob/v7.21.0/modules/openapi-generator/src/main/resources/go/configuration.mustache#L106C4-L106C32
 
   generate-openapi-client:
-    deps: [ clean, create-output-dir ]
     desc: "Generate Go client from {{.MODIFIED_SPEC_PATH}} (refresh that file from {{.SPEC_PATH}} via task preprocess:schema)"
     cmds:
+      # Sequential on purpose: task deps run in parallel, and create-output-dir could run before clean removes the dir.
+      - task: clean
+      - task: create-output-dir
       - >-
         docker run --rm -v "{{.TASKFILE_DIR}}/{{.OUTPUT_DIR}}:/generated"
         -v "{{.TASKFILE_DIR}}/{{.MODIFIED_SPEC_PATH}}:/local/openapi.json" {{.OPENAPI_GENERATOR_IMAGE}} generate
@@ -81,6 +83,7 @@ tasks:
         --additional-properties=withGoCodegenComment=true,enumClassPrefix=true,onlyGenerateClient=true,withGoMod=false,withCustomMiddlewareFunction=true,useOneOfDiscriminatorLookup=true
         --git-repo-id gorp/v5/pkg/openapi --git-user-id reportportal
         --global-property modelDocs=false,apiDocs=false,apiTests=false
+      - go run "{{.TASKFILE_DIR}}/scripts/taskfs" copy "{{.TASKFILE_DIR}}/scripts/openapi-compat/compat.go.tmpl" "{{.TASKFILE_DIR}}/{{.OUTPUT_DIR}}/compat.go"
 
   # Default ReportPortal's OpenAPI schema needs to be preprocessed
   # due to incorrect map/dictionary type handling in the Golang OpenAPI generator

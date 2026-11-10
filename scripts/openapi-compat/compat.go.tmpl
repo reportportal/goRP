@@ -1,0 +1,71 @@
+package openapi
+
+// Short-name type aliases that preserve the previous public API surface.
+//
+// The openapi package is generated from a ReportPortal API spec that names
+// every schema by its fully-qualified Java class, which yields long Go type names.
+// Source of truth: scripts/openapi-compat/compat.go.tmpl — copied here by task generate-openapi-client.
+// Do not edit pkg/openapi/compat.go directly.
+// These aliases let existing code in the gorp layer continue to compile without changes.
+
+type (
+	// Reporting types
+
+	StartLaunchRQ       = ComEpamReportportalBaseReportingStartLaunchRQ
+	EntryCreatedAsyncRS = ComEpamReportportalBaseReportingEntryCreatedAsyncRS
+	FinishExecutionRQ   = ComEpamReportportalBaseReportingFinishExecutionRQ
+	FinishLaunchRS      = ComEpamReportportalBaseModelLaunchFinishLaunchRS
+
+	OperationCompletionRS = ComEpamReportportalBaseReportingOperationCompletionRS
+
+	StartTestItemRQ  = ComEpamReportportalBaseReportingStartTestItemRQ
+	FinishTestItemRQ = ComEpamReportportalBaseReportingFinishTestItemRQ
+
+	SaveLogRQ = ComEpamReportportalBaseReportingSaveLogRQ
+	File      = ComEpamReportportalBaseReportingSaveLogRQFile
+
+	// Launch types
+
+	LaunchResource      = ComEpamReportportalBaseReportingLaunchResource
+	LaunchViewModel     = ComEpamReportportalBaseModelLaunchLaunchViewModel
+	PageLaunchViewModel = ComEpamReportportalBaseModelPageComEpamReportportalBaseModelLaunchLaunchViewModel
+
+	// Filter types
+
+	UserFilterResource     = ComEpamReportportalBaseModelFilterUserFilterResource
+	PageUserFilterResource = ComEpamReportportalBaseModelPageComEpamReportportalBaseModelFilterUserFilterResource
+	UserFilterCondition    = ComEpamReportportalBaseModelFilterUserFilterCondition
+	Order                  = ComEpamReportportalBaseModelFilterOrder
+
+	// Metadata
+
+	PageMetadata = ComEpamReportportalBaseModelPagePageMetadata
+
+	// Merge
+
+	MergeLaunchesRQ = ComEpamReportportalBaseReportingMergeLaunchesRQ
+
+	// Attributes
+
+	ItemAttributesRQ = ComEpamReportportalBaseReportingItemAttributesRQ
+)
+
+// NewPageLaunchViewModel is a constructor alias for backwards compatibility.
+func NewPageLaunchViewModel() *PageLaunchViewModel {
+	return NewComEpamReportportalBaseModelPageComEpamReportportalBaseModelLaunchLaunchViewModel()
+}
+
+// MergeLaunchesRQ is a method alias on ApiMergeLaunchesOldUuidRequest (v2 async endpoint)
+// so callers can use the short name instead of ComEpamReportportalBaseReportingMergeLaunchesRQ.
+func (r ApiMergeLaunchesOldUuidRequest) MergeLaunchesRQ(
+	rq ComEpamReportportalBaseReportingMergeLaunchesRQ,
+) ApiMergeLaunchesOldUuidRequest {
+	return r.ComEpamReportportalBaseReportingMergeLaunchesRQ(rq)
+}
+
+// MergeLaunchesRQ is a method alias on ApiMergeLaunchesOldUuid1Request (v1 sync endpoint).
+func (r ApiMergeLaunchesOldUuid1Request) MergeLaunchesRQ(
+	rq ComEpamReportportalBaseReportingMergeLaunchesRQ,
+) ApiMergeLaunchesOldUuid1Request {
+	return r.ComEpamReportportalBaseReportingMergeLaunchesRQ(rq)
+}

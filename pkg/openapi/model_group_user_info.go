@@ -3,7 +3,7 @@ ReportPortal
 
 ReportPortal API documentation
 
-API version: 5.15.2
+API version: 6.0.0
 Contact: support@reportportal.io
 */
 
@@ -28,7 +28,7 @@ type GroupUserInfo struct {
 	// User email.
 	Email *string `json:"email,omitempty"`
 	// Display name.
-	FullName *string `json:"full_name,omitempty" validate:"regexp=^[A-Za-z0-9.'_\\\\- ]+$"`
+	FullName *string `json:"full_name,omitempty" validate:"regexp=^[A-Za-z0-9.'_\\- ]+$"`
 	// External user identifier.
 	ExternalId   *string `json:"external_id,omitempty"`
 	InstanceRole *string `json:"instance_role,omitempty"`

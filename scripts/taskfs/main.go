@@ -8,7 +8,7 @@ import (
 
 func main() {
 	if len(os.Args) < 3 {
-		fmt.Fprintln(os.Stderr, "usage: taskfs <mkdir|remove|exists|nonempty> <path>")
+		fmt.Fprintln(os.Stderr, "usage: taskfs <mkdir|remove|exists|nonempty|copy> <path> [dst]")
 		os.Exit(2)
 	}
 	op, path := os.Args[1], os.Args[2]
@@ -32,6 +32,24 @@ func main() {
 		st, err := os.Stat(path)
 		if err != nil || st.Size() == 0 {
 			fmt.Fprintf(os.Stderr, "taskfs nonempty: missing or empty file: %s\n", path)
+			os.Exit(1)
+		}
+	case "copy":
+		if len(os.Args) != 4 {
+			fmt.Fprintln(
+				os.Stderr,
+				"usage: taskfs <mkdir|remove|exists|nonempty|copy> <path> [dst]",
+			)
+			os.Exit(2)
+		}
+		dst := os.Args[3]
+		data, err := os.ReadFile(path)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			os.Exit(1)
+		}
+		if err := os.WriteFile(dst, data, 0o644); err != nil {
+			fmt.Fprintln(os.Stderr, err)
 			os.Exit(1)
 		}
 	default:

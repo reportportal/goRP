@@ -10,7 +10,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/urfave/cli/v3"
@@ -20,7 +19,14 @@ import (
 	"github.com/reportportal/goRP/v5/pkg/openapi"
 )
 
-const logsBatchSize = 10
+const (
+	logsBatchSize = 10
+	// maxLogBatchesInFlight limits concurrent log upload requests.
+	maxLogBatchesInFlight = 4
+
+	// scannerMaxLine bounds a single test2json line; output events can be larger than bufio's 64 KB default.
+	scannerMaxLine = 10 * 1024 * 1024
+)
 
 // test2json action values as defined by the Go testing/cmd/test2json package.
 const (
@@ -72,7 +78,7 @@ var (
 			&cli.BoolFlag{
 				Name:    "reportEmptyPkg",
 				Aliases: []string{"ep"},
-				Usage:   "Whether empty packages need to be reporter. Default is false",
+				Usage:   "Whether empty packages need to be reported. Default is false",
 				Sources: cli.EnvVars("REPORT_EMPTY_PKG"),
 				Value:   false,
 			},
@@ -112,11 +118,17 @@ func reportTest2Json(ctx context.Context, cmd *cli.Command) error {
 		return err
 	}
 	// check if we need to print launch UUID
-	if cmd.Bool("print-launch-uuid") {
-		_, _ = fmt.Fprintln(cmd.Writer, launchID)
+	if cmd.Bool("print-launch-uuid") && launchID != "" {
+		_, _ = fmt.Fprintf(cmd.Writer, "ReportPortal Launch UUID: %s\n", launchID)
 	}
 	// check if we need to check quality gate
 	if cmd.Bool("quality-gate-check") {
+		if launchID == "" {
+			return cli.Exit(
+				"quality gate check skipped: no launch was started, the input has no test events",
+				1,
+			)
+		}
 		qgErr := checkQualityGateInternal(ctx, launchID, cfg, cmd)
 		if qgErr != nil {
 			return qgErr
@@ -136,63 +148,121 @@ func reportLaunch(ctx context.Context, cfg *clientConfig, cmd *cli.Command) (str
 	attrArgs := cmd.StringSlice("attr")
 	rep := newReporter(ctx, input, rpClient, launchNameArg, reportEmptyPkgArg, attrArgs...)
 
-	errChan := make(chan error)
-	defer close(errChan)
-
-	wg := &sync.WaitGroup{}
-	wg.Add(1)
-
-	// start reporting in a separate goroutine
+	// start reporting in a separate goroutine.
+	// recvErr is written before done is closed, so it is safe to read once done is closed.
+	var recvErr error
+	done := make(chan struct{})
 	go func() {
-		defer wg.Done()
-		if recErr := rep.receive(); recErr != nil {
-			errChan <- recErr
-			return
-		}
+		defer close(done)
+		recvErr = rep.receive()
 	}()
-	// wait for report to complete
-	defer wg.Wait()
 
-	defer close(input)
+	readErr := feedEventsFrom(ctx, cmd, input, done)
+	close(input)
+	// wait for the reporter to flush logs and finish the launch
+	<-done
 
-	// decide where to read the input from
-	var reader io.Reader
+	// reporter errors take precedence: they are the reason the input might have been abandoned
+	if recvErr != nil {
+		slog.Error("input processing interrupted", "error", recvErr)
+		return "", recvErr
+	}
+	if readErr != nil {
+		return "", readErr
+	}
+	return rep.launchUUID, nil
+}
+
+// feedEventsFrom feeds the reporter from the --file argument, or from stdin if it is not set.
+func feedEventsFrom(
+	ctx context.Context,
+	cmd *cli.Command,
+	input chan<- *testEvent,
+	done <-chan struct{},
+) error {
 	if fileName := cmd.String("file"); fileName != "" {
-		f, fErr := os.Open(filepath.Clean(fileName))
-		if fErr != nil {
-			return "", fErr
+		f, err := os.Open(filepath.Clean(fileName))
+		if err != nil {
+			return err
 		}
 		defer func() {
 			if cErr := f.Close(); cErr != nil {
 				slog.Error(cErr.Error())
 			}
 		}()
-		reader = f
-	} else {
-		reader = os.Stdin
+		return feedEvents(ctx, f, input, done)
 	}
 
-	// read the input
-	scanner := bufio.NewScanner(reader)
-	for scanner.Scan() {
-		data := scanner.Text()
+	return feedEvents(ctx, os.Stdin, input, done)
+}
 
-		var ev testEvent
-		if err := json.Unmarshal([]byte(data), &ev); err != nil {
-			slog.Error(err.Error())
-			return "", err
-		}
+// feedEvents reads test2json events from r and sends them to the reporter.
+// It stops early when the reporter has exited (done is closed) or ctx is cancelled.
+func feedEvents(
+	ctx context.Context,
+	r io.Reader,
+	input chan<- *testEvent,
+	done <-chan struct{},
+) error {
+	events, scanErr := scanEvents(ctx, r)
+	for {
 		select {
-		case err := <-errChan:
-			slog.Error("input processing interrupted", "error", err)
-			return "", err
-		case input <- &ev: // send event to reporter
+		case <-ctx.Done():
+			return ctx.Err()
+		case <-done:
+			return nil
+		case ev, ok := <-events:
+			if !ok {
+				return <-scanErr
+			}
+			select {
+			case <-ctx.Done():
+				return ctx.Err()
+			case <-done:
+				return nil
+			case input <- ev: // send event to reporter
+			}
 		}
 	}
-	if err := scanner.Err(); err != nil {
-		return "", fmt.Errorf("reading input: %w", err)
-	}
-	return rep.launchUUID, nil
+}
+
+// scanEvents decodes test2json lines from r in a separate goroutine, so that a blocked read
+// (stdin without data) doesn't prevent the caller from reacting to cancellation.
+// The events channel is closed when r is exhausted or ctx is cancelled; the outcome is then
+// available from the error channel. A goroutine blocked in Read is abandoned until r is closed
+// or the process exits.
+func scanEvents(ctx context.Context, r io.Reader) (<-chan *testEvent, <-chan error) {
+	events := make(chan *testEvent)
+	result := make(chan error, 1)
+
+	go func() {
+		var err error
+		defer func() {
+			result <- err
+			close(events)
+		}()
+
+		scanner := bufio.NewScanner(r)
+		scanner.Buffer(make([]byte, 0, bufio.MaxScanTokenSize), scannerMaxLine)
+		for scanner.Scan() {
+			var ev testEvent
+			if jsonErr := json.Unmarshal(scanner.Bytes(), &ev); jsonErr != nil {
+				// build tools may interleave plain text with the JSON stream
+				slog.Warn("skipping non-JSON input line", "error", jsonErr)
+				continue
+			}
+			select {
+			case events <- &ev:
+			case <-ctx.Done():
+				return
+			}
+		}
+		if scanErr := scanner.Err(); scanErr != nil {
+			err = fmt.Errorf("reading input: %w", scanErr)
+		}
+	}()
+
+	return events, result
 }
 
 // testEvent represents a golang test event string
@@ -226,7 +296,7 @@ type reporter struct {
 	client           *gorppkg.ReportingClient
 	launchName       string
 	launchUUID       string
-	launchOnce       sync.Once
+	failed           bool
 	launchAttributes []openapi.ItemAttributesRQ
 	tests            map[string]string
 	suites           map[string]string
@@ -259,19 +329,21 @@ func newReporter(
 		launchAttributes[idx] = attribute
 	}
 
-	return &reporter{
+	r := &reporter{
 		ctx:              ctx,
 		input:            input,
 		launchName:       launchName,
 		launchAttributes: launchAttributes,
 		client:           client,
-		launchOnce:       sync.Once{},
 		tests:            map[string]string{},
 		suites:           map[string]string{},
 		logs:             []*openapi.SaveLogRQ{},
 		logsBatchSize:    logsBatchSize,
 		reportEmpty:      reportEmpty,
 	}
+	r.errGroup.SetLimit(maxLogBatchesInFlight)
+
+	return r
 }
 
 func (r *reporter) reportEvent(ev *testEvent) error {
@@ -296,23 +368,18 @@ func (r *reporter) reportEvent(ev *testEvent) error {
 func (r *reporter) receive() error {
 	prevEventTime := time.Now()
 	for ev := range r.input {
-		var err error
-		startTime := ev.Time
-
 		// start launch once
 		// when first event comes
-		r.launchOnce.Do(func() {
-			if err = r.startLaunch(startTime); err != nil {
+		if r.launchUUID == "" {
+			if err := r.startLaunch(ev.Time); err != nil {
 				slog.Error(err.Error())
+				return err
 			}
-		})
-		if err != nil {
-			return err
 		}
 
 		// report event to ReportPortal
-		err = r.reportEvent(ev)
-		if err != nil {
+		if err := r.reportEvent(ev); err != nil {
+			r.interrupt(prevEventTime)
 			return err
 		}
 
@@ -321,20 +388,49 @@ func (r *reporter) receive() error {
 		prevEventTime = ev.Time
 	}
 
+	// the input ended because we were cancelled, not because the test run is complete
+	if r.ctx.Err() != nil {
+		r.interrupt(prevEventTime)
+		return r.ctx.Err()
+	}
+
 	// make sure we flush all logs that are left
 	r.flushLogs(true)
 	// wait for all log batch goroutines and surface any failures
 	if err := r.errGroup.Wait(); err != nil {
+		r.interrupt(prevEventTime)
 		return fmt.Errorf("reporting logs: %w", err)
 	}
 
-	// finish launch of started
+	// finish launch if started
 	if r.launchUUID != "" {
-		if err := r.finishLaunch(gorppkg.Statuses.Passed, prevEventTime); err != nil {
+		status := gorppkg.Statuses.Passed
+		if r.failed {
+			status = gorppkg.Statuses.Failed
+		}
+		if err := r.finishLaunch(r.ctx, status, prevEventTime); err != nil {
 			return err
 		}
 	}
 	return nil
+}
+
+// interrupt makes a best-effort attempt to deliver buffered logs and to finish the launch as
+// INTERRUPTED, so it does not stay IN_PROGRESS forever after a mid-stream failure.
+func (r *reporter) interrupt(endTime time.Time) {
+	if r.launchUUID == "" {
+		return
+	}
+	// the original context may be the reason we are here
+	ctx := context.WithoutCancel(r.ctx)
+
+	r.flushLogs(true)
+	if err := r.errGroup.Wait(); err != nil {
+		slog.Warn("unable to report remaining logs", "error", err)
+	}
+	if err := r.finishLaunch(ctx, gorppkg.Statuses.Interrupted, endTime); err != nil {
+		slog.Warn("unable to finish interrupted launch", "error", err)
+	}
 }
 
 func (r *reporter) startSuite(ev *testEvent) (string, error) {
@@ -349,8 +445,12 @@ func (r *reporter) startSuite(ev *testEvent) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	r.suites[ev.Package] = *rs.Id
-	return *rs.Id, nil
+	id, err := entryID(rs)
+	if err != nil {
+		return "", err
+	}
+	r.suites[ev.Package] = id
+	return id, nil
 }
 
 func (r *reporter) startTest(ev *testEvent) error {
@@ -380,7 +480,11 @@ func (r *reporter) startTest(ev *testEvent) error {
 	if err != nil {
 		return err
 	}
-	r.tests[testID] = *rs.Id
+	id, err := entryID(rs)
+	if err != nil {
+		return err
+	}
+	r.tests[testID] = id
 	return nil
 }
 
@@ -408,28 +512,39 @@ func (r *reporter) log(ev *testEvent) {
 	if ev.Output == "" {
 		return
 	}
-	testName := r.getTestName(ev)
-	testUuid := r.tests[testName]
-
 	if shouldMergeOutput(ev) && len(r.logs) > 0 {
 		lastLog := r.logs[len(r.logs)-1]
-		lastLog.Message = openapi.PtrString(*lastLog.Message + "\n" + ev.Output)
+		lastLog.Message = openapi.PtrString(lastLog.GetMessage() + "\n" + ev.Output)
 		lastLog.Level = openapi.PtrString(gorppkg.LogLevelError)
 		return
 	}
 
 	rq := &openapi.SaveLogRQ{
-		ItemUuid:   openapi.PtrString(testUuid),
 		LaunchUuid: r.launchUUID,
 		Level:      openapi.PtrString(logLevelForOutputType(ev.OutputType)),
 		Time:       ev.Time,
 		Message:    openapi.PtrString(ev.Output),
 	}
+	if itemUUID := r.logItemUUID(ev); itemUUID != "" {
+		rq.ItemUuid = openapi.PtrString(itemUUID)
+	}
 	r.logs = append(r.logs, rq)
 	r.flushLogs(false)
 }
 
+// logItemUUID returns the test the event belongs to, or the package's suite for package-level output.
+// An empty result attaches the log to the launch itself.
+func (r *reporter) logItemUUID(ev *testEvent) string {
+	if ev.Test == "" {
+		return r.suites[ev.Package]
+	}
+	return r.tests[r.getTestName(ev)]
+}
+
 func (r *reporter) flushLogs(force bool) {
+	if len(r.logs) == 0 {
+		return
+	}
 	if force || (len(r.logs) >= r.logsBatchSize) {
 		batch := r.logs
 		r.errGroup.Go(func() error {
@@ -448,7 +563,6 @@ func (r *reporter) getTestName(ev *testEvent) string {
 }
 
 func (r *reporter) startLaunch(startTime time.Time) error {
-	var launch *openapi.EntryCreatedAsyncRS
 	launch, err := r.client.StartLaunch(r.ctx, &openapi.StartLaunchRQ{
 		Name:       r.launchName,
 		StartTime:  startTime,
@@ -458,12 +572,20 @@ func (r *reporter) startLaunch(startTime time.Time) error {
 	if err != nil {
 		return err
 	}
-	r.launchUUID = *launch.Id
-	return err
+	id, err := entryID(launch)
+	if err != nil {
+		return err
+	}
+	r.launchUUID = id
+	return nil
 }
 
-func (r *reporter) finishLaunch(status gorppkg.Status, endTime time.Time) error {
-	_, err := r.client.FinishLaunch(r.ctx, r.launchUUID, &openapi.FinishExecutionRQ{
+func (r *reporter) finishLaunch(
+	ctx context.Context,
+	status gorppkg.Status,
+	endTime time.Time,
+) error {
+	_, err := r.client.FinishLaunch(ctx, r.launchUUID, &openapi.FinishExecutionRQ{
 		Status:  status.Ptr(),
 		EndTime: endTime,
 	})
@@ -483,18 +605,22 @@ func (r *reporter) finishTest(ev *testEvent, status gorppkg.Status) error {
 }
 
 func (r *reporter) finish(ev *testEvent, status gorppkg.Status) error {
-	var err error
-	if ev.Test == "" {
-		err = r.finishSuite(ev, status)
-	} else {
-		err = r.finishTest(ev, status)
+	if status == gorppkg.Statuses.Failed {
+		r.failed = true
 	}
-	return err
+	if ev.Test == "" {
+		return r.finishSuite(ev, status)
+	}
+	return r.finishTest(ev, status)
 }
 
 func (r *reporter) finishSuite(ev *testEvent, status gorppkg.Status) error {
 	suiteID, found := r.suites[ev.Package]
 	if !found {
+		if !r.reportEmpty {
+			// the package had no tests, so no suite was started and there is nothing to finish
+			return nil
+		}
 		return fmt.Errorf("unable to find suiteID for package: %s", ev.Package)
 	}
 

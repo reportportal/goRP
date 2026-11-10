@@ -35,7 +35,7 @@ var (
 				Name:    "filter",
 				Aliases: []string{"f"},
 				Usage:   "Filter",
-				Sources: cli.EnvVars("Filter"),
+				Sources: cli.EnvVars("FILTER"),
 			},
 		},
 		Action: listLaunches,

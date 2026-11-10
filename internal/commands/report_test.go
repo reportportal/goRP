@@ -126,7 +126,7 @@ func TestCheckQualityGate_Timeout(t *testing.T) {
 	// Setup mock server that always returns IN_PROGRESS status
 	launchUUID := "launch123"
 	project := "testproject"
-	callCount := 0
+	var callCount atomic.Int32
 
 	_, cfg := setupMockServer(
 		t,
@@ -138,7 +138,7 @@ func TestCheckQualityGate_Timeout(t *testing.T) {
 				return
 			}
 
-			callCount++
+			callCount.Add(1)
 
 			// Always return IN PROGRESS
 			response := getDefaultLaunchResponse(launchUUID, "IN PROGRESS")
@@ -160,7 +160,7 @@ func TestCheckQualityGate_Timeout(t *testing.T) {
 	isTimeout := strings.Contains(errMsg, "timeout waiting for quality gate status") ||
 		strings.Contains(errMsg, "context deadline exceeded")
 	assert.True(t, isTimeout, "expected a timeout error, got: %s", errMsg)
-	assert.GreaterOrEqual(t, callCount, 1, "Expected at least 1 API call")
+	assert.GreaterOrEqual(t, callCount.Load(), int32(1), "Expected at least 1 API call")
 }
 
 func TestCheckQualityGate_FailedStatus(t *testing.T) {
@@ -216,15 +216,20 @@ func TestCheckQualityGate_MissingQualityGate(t *testing.T) {
 		},
 	)
 
-	// Create test command with required flags
-	cmd := createTestCommand(10*time.Second, 100*time.Millisecond)
+	// metadata may not be available right after the launch has finished, so it is retried until timeout
+	cmd := createTestCommand(300*time.Millisecond, 50*time.Millisecond)
 
 	// Act
 	err := checkQualityGateInternal(context.Background(), launchUUID, cfg, cmd)
 
 	// Assert
 	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "timeout waiting for quality gate status")
 	assert.Contains(t, err.Error(), "quality gate metadata not found")
+
+	var exitErr cli.ExitCoder
+	require.ErrorAs(t, err, &exitErr)
+	assert.Equal(t, 10, exitErr.ExitCode())
 }
 
 // getDefaultLaunchResponse creates a standard launch response with the specified quality gate status

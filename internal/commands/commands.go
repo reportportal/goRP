@@ -93,6 +93,14 @@ func initConfiguration(ctx context.Context, c *cli.Command) error {
 		return err
 	}
 
+	// truncate only now, so an aborted prompt does not wipe the existing config
+	//nolint:mnd // file permission
+	if err = f.Chmod(0o600); err != nil {
+		return cli.Exit(fmt.Sprintf("Cannot set config file permissions. %s", err), 1)
+	}
+	if err = f.Truncate(0); err != nil {
+		return cli.Exit(fmt.Sprintf("Cannot write config file. %s", err), 1)
+	}
 	err = json.NewEncoder(f).Encode(&clientConfig{
 		URL:     host.String(),
 		Project: project,

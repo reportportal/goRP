@@ -38,7 +38,7 @@
 
 ## Installation
 
-### Homebrew / go install (recommended)
+### go install (recommended)
 
 ```sh
 go install github.com/reportportal/goRP/v5@latest
@@ -51,12 +51,6 @@ curl -s https://api.github.com/repos/reportportal/goRP/releases/latest \
   | jq -r '.assets[] | select(.name | contains("tar.gz")) | .browser_download_url' \
   | grep "$(uname)_$(arch)" \
   | xargs curl -sL | tar zx -C .
-```
-
-### Docker
-
-```sh
-docker run --rm ghcr.io/reportportal/gorp:latest --help
 ```
 
 ---

@@ -197,7 +197,7 @@ func feedEventsFrom(
 }
 
 // feedEvents reads test2json events from r and sends them to the reporter.
-// It stops early when the reporter has exited (done is closed) or ctx is cancelled.
+// It stops early when the reporter has exited (done is closed) or ctx is canceled.
 func feedEvents(
 	ctx context.Context,
 	r io.Reader,
@@ -228,7 +228,7 @@ func feedEvents(
 
 // scanEvents decodes test2json lines from r in a separate goroutine, so that a blocked read
 // (stdin without data) doesn't prevent the caller from reacting to cancellation.
-// The events channel is closed when r is exhausted or ctx is cancelled; the outcome is then
+// The events channel is closed when r is exhausted or ctx is canceled; the outcome is then
 // available from the error channel. A goroutine blocked in Read is abandoned until r is closed
 // or the process exits.
 func scanEvents(ctx context.Context, r io.Reader) (<-chan *testEvent, <-chan error) {
@@ -388,7 +388,7 @@ func (r *reporter) receive() error {
 		prevEventTime = ev.Time
 	}
 
-	// the input ended because we were cancelled, not because the test run is complete
+	// the input ended because we were canceled, not because the test run is complete
 	if r.ctx.Err() != nil {
 		r.interrupt(prevEventTime)
 		return r.ctx.Err()

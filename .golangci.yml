@@ -1,9 +1,14 @@
 version: "2"
 linters:
+  # in addition to the default set
+  enable:
+    - lll
+    - misspell
   exclusions:
     rules:
       - linters:
           - errcheck
+          - lll # test2json fixtures are long JSON lines
         path: _test\.go
   settings:
     dupl:

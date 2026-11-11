@@ -254,9 +254,7 @@ func startLaunchStep(ctx context.Context, cfg *clientConfig, cmd *cli.Command) (
 		return "", err
 	}
 
-	_, _ = fmt.Fprintln(cmd.Writer, *rs.Id)
-
-	return *rs.Id, nil
+	return printEntryID(cmd, rs)
 }
 
 func startTestStep(ctx context.Context, cfg *clientConfig, cmd *cli.Command) (string, error) {
@@ -291,9 +289,7 @@ func startTestStep(ctx context.Context, cfg *clientConfig, cmd *cli.Command) (st
 		return "", err
 	}
 
-	_, _ = fmt.Fprintln(cmd.Writer, *rs.Id)
-
-	return *rs.Id, nil
+	return printEntryID(cmd, rs)
 }
 
 func reportLogStep(ctx context.Context, cfg *clientConfig, cmd *cli.Command) (string, error) {
@@ -324,9 +320,7 @@ func reportLogStep(ctx context.Context, cfg *clientConfig, cmd *cli.Command) (st
 		return "", err
 	}
 
-	_, _ = fmt.Fprintln(cmd.Writer, *rs.Id)
-
-	return *rs.Id, nil
+	return printEntryID(cmd, rs)
 }
 
 func reportLogWithFile(

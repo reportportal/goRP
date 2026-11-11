@@ -5,6 +5,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
+	"log/slog"
+	"net/http"
 	"os"
 	"regexp"
 	"time"
@@ -15,6 +18,8 @@ import (
 )
 
 const uuidParseRegex = `ReportPortal Launch UUID: ([a-fA-F\d]{8}-[a-fA-F\d]{4}-[a-fA-F\d]{4}-[a-fA-F\d]{4}-[a-fA-F\d]{12})`
+
+var uuidRegex = regexp.MustCompile(uuidParseRegex)
 
 // ReportPortal quality gate status values.
 const (
@@ -97,23 +102,12 @@ func checkQualityGate(ctx context.Context, cmd *cli.Command) error {
 				return sErr
 			}
 
-			uuidRegex := regexp.MustCompile(uuidParseRegex)
-			scanner := bufio.NewScanner(os.Stdin)
-			for scanner.Scan() {
-				data := scanner.Text()
-				found := uuidRegex.FindStringSubmatch(data)
-				if len(found) == 2 {
-					launchID = found[1]
-					break
-				}
-			}
-			if sErr := scanner.Err(); sErr != nil {
-				return fmt.Errorf("reading stdin: %w", sErr)
+			var fErr error
+			if launchID, fErr = findLaunchUUID(ctx, os.Stdin); fErr != nil {
+				return fErr
 			}
 		}
 	}
-	_, _ = fmt.Fprintln(cmd.Writer, launchID)
-
 	if launchID == "" {
 		return cli.Exit("launch uuid not found", 1)
 	}
@@ -138,15 +132,20 @@ func checkQualityGateInternal(ctx context.Context,
 	ctx, cancel := context.WithTimeout(ctx, qgTimeout)
 	defer cancel()
 
+	// checkF returns done=true once polling must stop: the quality gate is resolved
+	// (err is nil if it passed) or the request can never succeed.
+	// Otherwise (not done) a non-nil err is transient, e.g. the metadata is not yet
+	// available right after the launch has finished, and is retried until timeout.
 	checkF := func(ctx context.Context) (bool, error) {
-		launchObject, _, err := rpClient.LaunchAPI.GetLaunch(ctx, launchID, cfg.Project).Execute()
+		launchObject, resp, err := rpClient.LaunchAPI.GetLaunch(ctx, launchID, cfg.Project).
+			Execute()
 		if err != nil {
-			return true, err
+			return isPermanentHTTPStatus(resp), err
 		}
 
 		qg, ok := gorppkg.ParseQualityGate(launchObject.GetMetadata())
 		if !ok {
-			return true, errors.New("quality gate metadata not found")
+			return false, errors.New("quality gate metadata not found")
 		}
 		if qg.Status == qgStatusInProgress {
 			return false, nil
@@ -161,19 +160,29 @@ func checkQualityGateInternal(ctx context.Context,
 		ticker := time.NewTicker(qgCheckInterval)
 		defer ticker.Stop()
 
+		var lastErr error
 		for {
+			done, cErr := checkF(ctx)
+			if done {
+				return cErr
+			}
+			// an error caused by our own deadline would hide the real reason
+			if cErr != nil && ctx.Err() == nil {
+				slog.Warn("quality gate check failed, will retry", "error", cErr)
+				lastErr = cErr
+			}
+
 			select {
 			case <-ctx.Done():
-				return fmt.Errorf("timeout waiting for quality gate status")
+				if lastErr != nil {
+					return fmt.Errorf(
+						"timeout waiting for quality gate status: %w (last error: %w)",
+						ctx.Err(),
+						lastErr,
+					)
+				}
+				return fmt.Errorf("timeout waiting for quality gate status: %w", ctx.Err())
 			case <-ticker.C:
-				ok, cErr := checkF(ctx)
-				if cErr != nil {
-					return cErr
-				}
-				if !ok {
-					continue
-				}
-				return nil
 			}
 		}
 	}
@@ -181,4 +190,49 @@ func checkQualityGateInternal(ctx context.Context,
 		return cli.Exit(fmt.Errorf("quality gate check error: %w", pErr), 10)
 	}
 	return nil
+}
+
+// isPermanentHTTPStatus reports whether retrying a request that got this response is pointless:
+// a client error (wrong API key, project or launch) other than the retryable 408 and 429.
+func isPermanentHTTPStatus(resp *http.Response) bool {
+	if resp == nil {
+		return false
+	}
+	code := resp.StatusCode
+
+	return code >= http.StatusBadRequest && code < http.StatusInternalServerError &&
+		code != http.StatusRequestTimeout && code != http.StatusTooManyRequests
+}
+
+// findLaunchUUID scans r for the line printed by `--print-launch-uuid` and returns the UUID, or an
+// empty string if there is none. A blocked read is abandoned (until r is closed or the process
+// exits) when ctx is cancelled.
+func findLaunchUUID(ctx context.Context, r io.Reader) (string, error) {
+	type result struct {
+		id  string
+		err error
+	}
+	resCh := make(chan result, 1)
+
+	go func() {
+		scanner := bufio.NewScanner(r)
+		for scanner.Scan() {
+			if found := uuidRegex.FindStringSubmatch(scanner.Text()); len(found) == 2 {
+				resCh <- result{id: found[1]}
+				return
+			}
+		}
+		if err := scanner.Err(); err != nil {
+			resCh <- result{err: fmt.Errorf("reading stdin: %w", err)}
+			return
+		}
+		resCh <- result{}
+	}()
+
+	select {
+	case <-ctx.Done():
+		return "", ctx.Err()
+	case res := <-resCh:
+		return res.id, res.err
+	}
 }

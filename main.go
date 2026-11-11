@@ -6,7 +6,9 @@ import (
 	"log"
 	"log/slog"
 	"os"
+	"os/signal"
 	"strings"
+	"syscall"
 
 	"github.com/urfave/cli/v3"
 
@@ -75,7 +77,7 @@ func main() {
 			},
 			&cli.StringFlag{
 				Name:  "log-level",
-				Usage: "Logging level" + slog.LevelKey,
+				Usage: "Logging level (debug, info, warn, error)",
 				Value: "debug",
 			},
 		},
@@ -87,7 +89,16 @@ func main() {
 			log.Fatalf("error: %v", r)
 		}
 	}()
-	if err := root.Run(context.Background(), os.Args); err != nil {
+
+	// cancel the context on Ctrl-C/SIGTERM so in-flight work can wind down (e.g. finish the launch)
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+	go func() {
+		<-ctx.Done()
+		stop() // restore default behavior, so a second Ctrl-C terminates immediately
+	}()
+
+	if err := root.Run(ctx, os.Args); err != nil {
 		//nolint:gocritic
 		log.Fatal(err.Error())
 	}

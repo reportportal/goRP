@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"strings"
 	"time"
 
 	"github.com/urfave/cli/v3"
@@ -29,30 +28,23 @@ var (
 				Name:  "description",
 				Usage: "Launch description",
 			},
-			&cli.StringSliceFlag{
-				Name:    "attr",
-				Aliases: []string{"a"},
-				Usage:   "Launch attribute with format 'key:value'. Omitting ':' tags the launch with just the value.",
-			},
+			attrFlag(
+				"Launch attribute with format 'key:value'. Omitting ':' tags the launch with just the value.",
+			),
 			&cli.StringFlag{
 				Name:  "mode",
 				Usage: "Launch mode: DEFAULT or DEBUG",
 				Value: "DEFAULT",
 			},
 		},
-		Action: startLaunchAction,
+		Action: withConfig(startLaunchStep),
 	}
 
 	startTestCommand = &cli.Command{
 		Name:  "start-test",
 		Usage: "Start a test item and print its UUID to stdout",
 		Flags: []cli.Flag{
-			&cli.StringFlag{
-				Name:     "launch-uuid",
-				Usage:    "Launch UUID",
-				Sources:  cli.EnvVars("LAUNCH_UUID"),
-				Required: true,
-			},
+			launchUUIDFlag(),
 			&cli.StringFlag{
 				Name:     "name",
 				Aliases:  []string{"n"},
@@ -78,30 +70,17 @@ var (
 				Name:  "code-ref",
 				Usage: "Code reference (e.g. package/TestName)",
 			},
-			&cli.StringSliceFlag{
-				Name:    "attr",
-				Aliases: []string{"a"},
-				Usage:   "Test item attribute with format 'key:value'",
-			},
+			attrFlag("Test item attribute with format 'key:value'"),
 		},
-		Action: startTestAction,
+		Action: withConfig(startTestStep),
 	}
 
 	reportLogCommand = &cli.Command{
 		Name:  "log",
 		Usage: "Report a log entry, optionally with a file attachment",
 		Flags: []cli.Flag{
-			&cli.StringFlag{
-				Name:     "launch-uuid",
-				Usage:    "Launch UUID",
-				Sources:  cli.EnvVars("LAUNCH_UUID"),
-				Required: true,
-			},
-			&cli.StringFlag{
-				Name:    "item-uuid",
-				Usage:   "Test item UUID",
-				Sources: cli.EnvVars("ITEM_UUID"),
-			},
+			launchUUIDFlag(),
+			itemUUIDFlag(false),
 			&cli.StringFlag{
 				Name:     "message",
 				Aliases:  []string{"m"},
@@ -119,115 +98,38 @@ var (
 				Usage:   "Path to a file to attach to the log entry",
 			},
 		},
-		Action: reportLogAction,
+		Action: withConfig(reportLogStep),
 	}
 
 	finishTestCommand = &cli.Command{
 		Name:  "finish-test",
 		Usage: "Finish a test item",
 		Flags: []cli.Flag{
-			&cli.StringFlag{
-				Name:     "launch-uuid",
-				Usage:    "Launch UUID",
-				Sources:  cli.EnvVars("LAUNCH_UUID"),
-				Required: true,
-			},
-			&cli.StringFlag{
-				Name:     "item-uuid",
-				Usage:    "Test item UUID",
-				Sources:  cli.EnvVars("ITEM_UUID"),
-				Required: true,
-			},
-			&cli.StringFlag{
-				Name:  "status",
-				Usage: "Test item status: PASSED, FAILED, SKIPPED, etc.",
-			},
+			launchUUIDFlag(),
+			itemUUIDFlag(true),
+			statusFlag("Test item status: PASSED, FAILED, SKIPPED, etc."),
 		},
-		Action: finishTestAction,
+		Action: withConfig(adaptNoResult(finishTestStep)),
 	}
 
 	finishLaunchCommand = &cli.Command{
 		Name:  "finish-launch",
 		Usage: "Finish a launch",
 		Flags: []cli.Flag{
-			&cli.StringFlag{
-				Name:     "launch-uuid",
-				Usage:    "Launch UUID",
-				Sources:  cli.EnvVars("LAUNCH_UUID"),
-				Required: true,
-			},
-			&cli.StringFlag{
-				Name:  "status",
-				Usage: "Launch status: PASSED, FAILED, STOPPED, etc.",
-			},
+			launchUUIDFlag(),
+			statusFlag("Launch status: PASSED, FAILED, STOPPED, etc."),
 		},
-		Action: finishLaunchAction,
+		Action: withConfig(adaptNoResult(finishLaunchStep)),
 	}
 )
 
-func parseAttributes(attrArgs []string) []openapi.ItemAttributesRQ {
-	if len(attrArgs) == 0 {
-		return nil
+// adaptNoResult lets steps that only return an error be used with withConfig.
+func adaptNoResult(
+	step func(ctx context.Context, cfg *clientConfig, cmd *cli.Command) error,
+) stepFunc[struct{}] {
+	return func(ctx context.Context, cfg *clientConfig, cmd *cli.Command) (struct{}, error) {
+		return struct{}{}, step(ctx, cfg, cmd)
 	}
-	attrs := make([]openapi.ItemAttributesRQ, len(attrArgs))
-	for i, raw := range attrArgs {
-		attr := openapi.ItemAttributesRQ{System: openapi.PtrBool(false)}
-		if key, value, ok := strings.Cut(raw, ":"); ok {
-			attr.SetKey(key)
-			attr.SetValue(value)
-		} else {
-			attr.SetValue(raw)
-		}
-		attrs[i] = attr
-	}
-	return attrs
-}
-
-// ---------------------------------------------------------------------------
-// CLI action wrappers — extract config from flags, delegate to step functions
-// ---------------------------------------------------------------------------
-
-func startLaunchAction(ctx context.Context, cmd *cli.Command) error {
-	cfg, err := getConfig(cmd)
-	if err != nil {
-		return err
-	}
-	_, err = startLaunchStep(ctx, cfg, cmd)
-	return err
-}
-
-func startTestAction(ctx context.Context, cmd *cli.Command) error {
-	cfg, err := getConfig(cmd)
-	if err != nil {
-		return err
-	}
-	_, err = startTestStep(ctx, cfg, cmd)
-	return err
-}
-
-func reportLogAction(ctx context.Context, cmd *cli.Command) error {
-	cfg, err := getConfig(cmd)
-	if err != nil {
-		return err
-	}
-	_, err = reportLogStep(ctx, cfg, cmd)
-	return err
-}
-
-func finishTestAction(ctx context.Context, cmd *cli.Command) error {
-	cfg, err := getConfig(cmd)
-	if err != nil {
-		return err
-	}
-	return finishTestStep(ctx, cfg, cmd)
-}
-
-func finishLaunchAction(ctx context.Context, cmd *cli.Command) error {
-	cfg, err := getConfig(cmd)
-	if err != nil {
-		return err
-	}
-	return finishLaunchStep(ctx, cfg, cmd)
 }
 
 // ---------------------------------------------------------------------------

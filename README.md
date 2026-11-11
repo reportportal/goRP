@@ -108,8 +108,8 @@ These flags apply to every command.
 |------|-------|---------|-------------|
 | `--api-key` | `-u` | `GORP_API_KEY` | ReportPortal API key (user token) |
 | `--project` | `-p` | `GORP_PROJECT` | ReportPortal project name |
-| `--host` | | | ReportPortal server URL |
-| `--log-level` | | | Log verbosity: `debug`, `info`, `warn`, `error` (default: `debug`) |
+| `--host` | | `GORP_HOST` | ReportPortal server URL |
+| `--log-level` | | | Log verbosity: `debug`, `info`, `warn`, `error` (default: `info`) |
 
 ---
 
@@ -486,6 +486,7 @@ all, err := client.GetAllLaunchesByFilterString(ctx, "my_project",
 |----------|----------------|-------------|
 | `GORP_API_KEY` | `--api-key` | ReportPortal API key |
 | `GORP_PROJECT` | `--project` | ReportPortal project name |
+| `GORP_HOST` | `--host` | ReportPortal server URL |
 | `LAUNCH_NAME` | `--launchName` | Launch name for `report test2json` |
 | `FILE` | `--file` | Input file for `report test2json` |
 | `REPORT_EMPTY_PKG` | `--reportEmptyPkg` | Report packages with no tests |

@@ -66,13 +66,13 @@ gorp
 Settings are read from three sources (lowest → highest precedence):
 
 1. Config file `~/.gorp` (JSON: `host`, `project`, `api_key`) — created by `gorp init`
-2. Environment variables (`GORP_API_KEY`, `GORP_PROJECT`, plus per-command vars like `LAUNCH_UUID`, `ITEM_UUID`)
+2. Environment variables (`GORP_API_KEY`, `GORP_PROJECT`, `GORP_HOST`, plus per-command vars like `LAUNCH_UUID`, `ITEM_UUID`)
 3. CLI flags (`--host`, `--api-key`, `--project`, plus per-command flags)
 
-`GORP_UUID` and `--uuid`/`-u` are deprecated aliases for `GORP_API_KEY`/`--api-key`; a deprecation
-warning is logged when they're used (see `main.go`'s `Before` hook).
+`GORP_UUID` and `--uuid` are deprecated aliases for `GORP_API_KEY`/`--api-key`; a deprecation
+warning is logged when they're used (see `main.go`'s `Before` hook). `-u` is a regular short alias of `--api-key`.
 
-Global flag `--log-level` (default `debug`) controls `slog` verbosity; it is *not* validated
+Global flag `--log-level` (default `info`; source locations are logged only at `debug`) controls `slog` verbosity; it is *not* validated
 against a fixed enum — pass any value `slog.Level.UnmarshalText` accepts (`debug`, `info`, `warn`, `error`).
 
 ## Commands

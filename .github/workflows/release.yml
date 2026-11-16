@@ -32,7 +32,9 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version-file: go.mod
+          go-version: '1.27' # Keep in sync with the `go` directive in go.mod.
+          # release binaries should carry the latest standard library security fixes
+          check-latest: true
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v6
         with:

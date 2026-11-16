@@ -17,7 +17,10 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
         with:
-          go-version-file: go.mod
+          # govulncheck reports standard library vulnerabilities fixed in later patch releases,
+          # so use the newest patch of the Go version in go.mod, not exactly go.mod's x.y.0.
+          go-version: '1.27' # Keep in sync with the `go` directive in go.mod.
+          check-latest: true
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v8
         with:
@@ -26,7 +29,7 @@ jobs:
       - name: go.mod and go.sum are tidy
         run: go mod tidy -diff
       - name: govulncheck
-        run: go run golang.org/x/vuln/cmd/govulncheck@v1.1.4 ./...
+        run: go run golang.org/x/vuln/cmd/govulncheck@v1.9.0 ./...
 
   build:
     strategy:

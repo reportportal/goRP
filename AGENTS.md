@@ -81,6 +81,7 @@ against a fixed enum — pass any value `slog.Level.UnmarshalText` accepts (`deb
 |------|---------|
 | Build binary → `bin/gorp` | `task build` |
 | Run tests (with coverage) | `task test` |
+| End-to-end tests against a real ReportPortal (not run by CI) | `task e2e` (see below) |
 | Lint (Docker, golangci-lint v2.15.0) | `task lint` |
 | Format (Docker) | `task fmt` |
 | Regenerate OpenAPI client | `task generate-openapi-client` (runs `preprocess:schema` first, then swaps the result into `pkg/openapi/` only on success) |
@@ -91,6 +92,15 @@ against a fixed enum — pass any value `slog.Level.UnmarshalText` accepts (`deb
 Upstream snapshot: `reportportal-api-docs.json` (from [https://demo.reportportal.io/api/v1/api-docs](https://demo.reportportal.io/api/v1/api-docs)). `task preprocess:schema` applies `scripts/openapi-preprocess.jq` to it and writes the result to `openapi-modified.json` (git-ignored, derived), which is the input for codegen.
 
 `task` is the task runner ([Taskfile.yml](Taskfile.yml)). Install it with `go install github.com/go-task/task/v3/cmd/task@latest` or via your package manager. `task lint`/`task fmt` run golangci-lint inside Docker (`golangci/golangci-lint:v2.15.0`) — no local install required, but Docker must be running. Podman works too: put a `docker` symlink to `podman` first on `PATH` — the Taskfile calls `docker` by name. File tasks use plain `mkdir`/`rm`/`cp`/`mv`/`test`; on Windows run Task from WSL/Git Bash or set `TASK_CORE_UTILS=1` (Task's built-in coreutils).
+
+### End-to-end tests (`e2e/`)
+
+Every file in `e2e/` has the `e2e` build tag, so `go test ./...` and CI never compile or run them. `task e2e`
+(or `go test -tags e2e -count=1 -v ./e2e/...`) builds the `gorp` binary, runs it against the ReportPortal from
+`~/.gorp` (overridable with `GORP_HOST`, `GORP_PROJECT`, `GORP_API_KEY`) and verifies the result through the API.
+Use a **sandbox project**: the tests write real launches named `gorp-e2e-…` and delete them afterwards (leftovers of
+crashed runs are swept at the start of the next run). Reporting is asynchronous, so assertions poll for up to 90 s.
+The suite skips itself when no credentials are configured.
 
 ## Code conventions
 
@@ -132,5 +142,6 @@ Before considering a change done:
 
 1. `go build ./...` and `go vet ./...`
 2. `task test` (or `go test -cover ./...` if Docker/Task aren't available)
-3. `task lint` (or `golangci-lint run ./...` if you have it installed locally with the pinned config)
-4. For anything touching `report test2json` / `internal/commands/report.go`: generate real `go test -json` output from the installed Go toolchain and diff its shape against the `testEvent` struct and `report_log_test.go` fixtures rather than relying on release notes alone — Go's JSON stream format is a better source of truth than prose docs.
+3. `task e2e` when the change affects what is sent to ReportPortal (needs credentials, writes to the configured project)
+4. `task lint` (or `golangci-lint run ./...` if you have it installed locally with the pinned config)
+5. For anything touching `report test2json` / `internal/commands/report.go`: generate real `go test -json` output from the installed Go toolchain and diff its shape against the `testEvent` struct and `report_log_test.go` fixtures rather than relying on release notes alone — Go's JSON stream format is a better source of truth than prose docs.

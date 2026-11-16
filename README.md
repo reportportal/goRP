@@ -59,7 +59,7 @@ curl -s https://api.github.com/repos/reportportal/goRP/releases/latest \
 
 goRP reads connection settings from three sources, in order of increasing precedence:
 
-1. **Config file** — `~/.gorp` (JSON)
+1. **Config file** — `~/.gorp` (JSON), or the file given with `--config` / `GORP_CONFIG`
 2. **Environment variables**
 3. **CLI flags**
 
@@ -106,6 +106,7 @@ These flags apply to every command.
 
 | Flag | Short | Env var | Description |
 |------|-------|---------|-------------|
+| `--config` | | `GORP_CONFIG` | Configuration file to use instead of `~/.gorp`. It must exist; there is no fallback to `~/.gorp` |
 | `--api-key` | `-u` | `GORP_API_KEY` | ReportPortal API key (user token) |
 | `--project` | `-p` | `GORP_PROJECT` | ReportPortal project name |
 | `--host` | | `GORP_HOST` | ReportPortal server URL |
@@ -115,7 +116,7 @@ These flags apply to every command.
 
 ### init
 
-Interactively create or replace `~/.gorp`.
+Interactively create or replace `~/.gorp` (or the file given with `--config`).
 
 ```sh
 gorp init

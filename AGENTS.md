@@ -10,7 +10,7 @@ A Go CLI tool (`gorp`) and library (`pkg/gorp`) for [ReportPortal](https://repor
 
 | Path | Role |
 |------|------|
-| `main.go` | Binary entry point; global flags (`--api-key`, `--project`, `--host`, `--log-level`) and command wiring |
+| `main.go` | Binary entry point; global flags (`--config`, `--api-key`, `--project`, `--host`, `--log-level`) and command wiring |
 | `internal/commands/` | CLI command implementations (see below) |
 | `pkg/gorp/` | Hand-written public library (see below) |
 | `pkg/openapi/` | **Generated** OpenAPI client — never edit manually |
@@ -27,7 +27,7 @@ A Go CLI tool (`gorp`) and library (`pkg/gorp`) for [ReportPortal](https://repor
 | `report.go` | `report test2json` pipeline (test2json event stream → RP); `reporter`/`testEvent` types |
 | `report_steps.go` | Atomic report commands: `start-launch`, `start-test`, `log`, `finish-test`, `finish-launch` |
 | `quality_gate.go` | `quality-gate check` (polls launch metadata until QG resolves) |
-| `util.go` | Shared CLI helpers (`~/.gorp` config path, validation, stdin checks) |
+| `util.go` | Shared CLI helpers (config file path, validation, stdin checks) |
 
 ### `pkg/gorp/`
 
@@ -65,7 +65,7 @@ gorp
 
 Settings are read from three sources (lowest → highest precedence):
 
-1. Config file `~/.gorp` (JSON: `host`, `project`, `api_key`) — created by `gorp init`
+1. Config file `~/.gorp` (JSON: `host`, `project`, `api_key`) — created by `gorp init`; `--config`/`GORP_CONFIG` selects another file instead (it must exist, no fallback to `~/.gorp`)
 2. Environment variables (`GORP_API_KEY`, `GORP_PROJECT`, `GORP_HOST`, plus per-command vars like `LAUNCH_UUID`, `ITEM_UUID`)
 3. CLI flags (`--host`, `--api-key`, `--project`, plus per-command flags)
 
@@ -97,7 +97,8 @@ Upstream snapshot: `reportportal-api-docs.json` (from [https://demo.reportportal
 
 Every file in `e2e/` has the `e2e` build tag, so `go test ./...` and CI never compile or run them. `task e2e`
 (or `go test -tags e2e -count=1 -v ./e2e/...`) builds the `gorp` binary, runs it against the ReportPortal from
-`~/.gorp` (overridable with `GORP_HOST`, `GORP_PROJECT`, `GORP_API_KEY`) and verifies the result through the API.
+`.gorp` in the repository root (git-ignored, same JSON as `~/.gorp`; `GORP_CONFIG` selects another file;
+`GORP_HOST`/`GORP_PROJECT`/`GORP_API_KEY` override single fields; `~/.gorp` is never used) and verifies the result through the API.
 Use a **sandbox project**: the tests write real launches named `gorp-e2e-…` and delete them afterwards (leftovers of
 crashed runs are swept at the start of the next run). Reporting is asynchronous, so assertions poll for up to 90 s.
 The suite skips itself when no credentials are configured.

@@ -7,8 +7,9 @@
 //
 //	go test -tags e2e -count=1 -v ./e2e/...
 //
-// Credentials are resolved like gorp itself does: ~/.gorp, overridden by GORP_HOST, GORP_PROJECT
-// and GORP_API_KEY. Every test creates launches with a unique name and deletes them afterwards.
+// Credentials come from `.gorp` in the repository root (git-ignored; same JSON as ~/.gorp), or from the
+// file named by GORP_CONFIG, overridden by GORP_HOST, GORP_PROJECT and GORP_API_KEY. ~/.gorp is not
+// used. Every test creates launches with a unique name and deletes them afterwards.
 // Use a sandbox project: the tests write real data.
 package e2e
 
@@ -135,14 +136,47 @@ func run(m *testing.M) int {
 	return m.Run()
 }
 
-// resolveConfig resolves the connection settings the same way the CLI does (file, then env).
+// configPath is the gorp configuration file the tests use: GORP_CONFIG, or `.gorp` in the repository
+// root. ~/.gorp is deliberately not used, so the tests never run with the everyday credentials.
+func configPath() string {
+	if path := os.Getenv("GORP_CONFIG"); path != "" {
+		abs, err := filepath.Abs(path)
+		if err != nil {
+			return path
+		}
+
+		return abs
+	}
+	dir, err := os.Getwd()
+	if err != nil {
+		return ".gorp"
+	}
+	for {
+		if _, err := os.Stat(filepath.Join(dir, "go.mod")); err == nil {
+			return filepath.Join(dir, ".gorp")
+		}
+		parent := filepath.Dir(dir)
+		if parent == dir {
+			return ".gorp"
+		}
+		dir = parent
+	}
+}
+
+func fileExists(path string) bool {
+	_, err := os.Stat(path)
+
+	return err == nil
+}
+
+// resolveConfig resolves the connection settings the way the CLI does: the configuration file
+// (see configPath), overridden by GORP_HOST, GORP_PROJECT and GORP_API_KEY.
 func resolveConfig() (rpConfig, error) {
 	var cfg rpConfig
-	if home, err := os.UserHomeDir(); err == nil {
-		if data, rErr := os.ReadFile(filepath.Join(home, ".gorp")); rErr == nil {
-			if err := json.Unmarshal(data, &cfg); err != nil {
-				return cfg, fmt.Errorf("~/.gorp is not valid JSON: %w", err)
-			}
+	path := configPath()
+	if data, err := os.ReadFile(path); err == nil {
+		if err := json.Unmarshal(data, &cfg); err != nil {
+			return cfg, fmt.Errorf("%s is not valid JSON: %w", path, err)
 		}
 	}
 	for env, dst := range map[string]*string{
@@ -153,8 +187,10 @@ func resolveConfig() (rpConfig, error) {
 		}
 	}
 	if cfg.Host == "" || cfg.Project == "" || cfg.ApiKey == "" {
-		return cfg, errors.New(
-			"no ReportPortal credentials: run `gorp init` or set GORP_HOST, GORP_PROJECT and GORP_API_KEY",
+		return cfg, fmt.Errorf(
+			"no ReportPortal credentials: create %s (same JSON as ~/.gorp: host, project, api_key), "+
+				"point GORP_CONFIG at another file, or set GORP_HOST, GORP_PROJECT and GORP_API_KEY",
+			path,
 		)
 	}
 
@@ -277,6 +313,11 @@ func (r result) String() string {
 // command prepares the gorp binary; the connection settings come from the default configuration.
 func command(ctx context.Context, args ...string) (*exec.Cmd, *bytes.Buffer, *bytes.Buffer) {
 	cmd := exec.CommandContext(ctx, gorpBinary, args...)
+	// the binary must read the same file as the test helpers
+	cmd.Env = os.Environ()
+	if path := configPath(); fileExists(path) {
+		cmd.Env = append(cmd.Env, "GORP_CONFIG="+path)
+	}
 	var stdout, stderr bytes.Buffer
 	cmd.Stdout, cmd.Stderr = &stdout, &stderr
 

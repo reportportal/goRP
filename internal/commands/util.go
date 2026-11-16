@@ -14,10 +14,11 @@ import (
 )
 
 var (
-	errHostNotSet    = errors.New("host is not set")
-	errProjectNotSet = errors.New("project is not set")
-	errApiKeyNotSet  = errors.New("api key is not set")
-	errNoEntryID     = errors.New("response does not contain an entry id")
+	errHostNotSet     = errors.New("host is not set")
+	errProjectNotSet  = errors.New("project is not set")
+	errApiKeyNotSet   = errors.New("api key is not set")
+	errNoEntryID      = errors.New("response does not contain an entry id")
+	errConfigNotFound = errors.New("config file not found")
 )
 
 // entryID returns the ID of a created entry or an error if the server did not return one.
@@ -96,13 +97,18 @@ func answerYes(answer string) bool {
 	return lower == "y" || lower == "yes"
 }
 
-func configFilePresent() bool {
-	_, err := os.Stat(getConfigFile())
+func configFilePresent(path string) bool {
+	_, err := os.Stat(path)
 
 	return !os.IsNotExist(err)
 }
 
-func getConfigFile() string {
+// configFilePath returns the configuration file: the one from --config / GORP_CONFIG, or ~/.gorp.
+func configFilePath(c *cli.Command) string {
+	if path := c.String("config"); path != "" {
+		return path
+	}
+
 	return filepath.Join(getHomeDir(), ".gorp")
 }
 

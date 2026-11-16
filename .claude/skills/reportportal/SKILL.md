@@ -17,7 +17,7 @@ description: >-
 
 Connection settings come from three sources (highest precedence last):
 
-1. Config file `~/.gorp` (JSON: `host`, `project`, `api_key`) — created by `gorp init`
+1. Config file `~/.gorp` (JSON: `host`, `project`, `api_key`) — created by `gorp init`; `--config <file>` / `GORP_CONFIG` selects another file instead (it must exist, no fallback)
 2. Environment variables: `GORP_API_KEY`, `GORP_PROJECT`, `GORP_HOST` (plus per-command env vars documented below)
 3. CLI flags: `--host`, `--api-key`/`-u` (alias `--uuid`, deprecated), `--project`/`-p`
 
@@ -25,6 +25,7 @@ Global flags (set on the root `gorp` command, before the subcommand):
 
 | Flag | Alias | Env | Default | Description |
 |------|-------|-----|---------|-------------|
+| `--config` | | `GORP_CONFIG` | `~/.gorp` | Configuration file to use instead of `~/.gorp` |
 | `--api-key` | `-u`, `--uuid` (deprecated) | `GORP_API_KEY`, `GORP_UUID` (deprecated) | | API Key (user token) |
 | `--project` | `-p` | `GORP_PROJECT` | | ReportPortal project name |
 | `--host` | | `GORP_HOST` | | ReportPortal server URL |

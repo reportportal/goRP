@@ -303,12 +303,24 @@ func (c *ReportingClient) SaveLogMultipart(
 		rq.SetMultipartField("file", fileName, contentType, reader)
 	}
 
-	var rs openapi.EntryCreatedAsyncRS
+	// With attachments the server answers with a batch: {"responses":[{"id":"..."}]}.
+	// The generated response type is not embedded on purpose: its custom UnmarshalJSON would be
+	// promoted and swallow the "responses" field.
+	var rs struct {
+		ID        *string `json:"id"`
+		Responses []struct {
+			ID *string `json:"id"`
+		} `json:"responses"`
+	}
 	_, err = rq.
 		SetResult(&rs).
 		Post("/api/v2/{project}/log")
 	if err != nil {
 		return nil, fmt.Errorf("unable to send log: %w", err)
 	}
-	return &rs, err
+	if rs.ID == nil && len(rs.Responses) > 0 {
+		rs.ID = rs.Responses[0].ID
+	}
+
+	return &openapi.EntryCreatedAsyncRS{Id: rs.ID}, nil
 }

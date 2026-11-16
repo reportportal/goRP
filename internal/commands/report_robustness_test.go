@@ -28,6 +28,7 @@ type recordingServer struct {
 	logCalls      int
 	logBodies     []string
 	launchFinish  []string // request bodies of launch finish calls
+	itemFinishes  []string // "<path> <body>" of item finish calls, in order
 	failLogSaving bool
 	onItemStart   func() // optional hook; the handler then blocks until the client gives up
 }
@@ -75,7 +76,10 @@ func newRecordingServer(t *testing.T, project string, failLogSaving bool) *recor
 		}
 		reply(w, map[string]string{"id": "test-1"})
 	})
-	mux.HandleFunc("PUT "+prefix+"/item/", func(w http.ResponseWriter, _ *http.Request) {
+	mux.HandleFunc("PUT "+prefix+"/item/", func(w http.ResponseWriter, r *http.Request) {
+		rs.mu.Lock()
+		rs.itemFinishes = append(rs.itemFinishes, r.URL.Path+" "+readBody(r))
+		rs.mu.Unlock()
 		reply(w, map[string]string{"message": "finished"})
 	})
 	mux.HandleFunc("POST "+prefix+"/log", func(w http.ResponseWriter, r *http.Request) {
@@ -449,5 +453,32 @@ func TestReportLaunch_CancelledContextInterruptsLaunch(t *testing.T) {
 	srv.mu.Lock()
 	defer srv.mu.Unlock()
 	require.Len(t, srv.launchFinish, 1, "a canceled run must not leave the launch IN_PROGRESS")
+	assert.Contains(t, srv.launchFinish[0], `"status":"INTERRUPTED"`)
+}
+
+func TestReportLaunch_InterruptFinishesOpenItemsBeforeLaunch(t *testing.T) {
+	t.Parallel()
+
+	project := "testproj"
+	srv := newRecordingServer(t, project, true) // saving logs fails after the input has ended
+	// the test and its suite are started, but the stream ends before they are finished
+	file := writeEvents(t, []string{
+		`{"time":"2025-01-01T00:00:00Z","action":"run","package":"p","test":"TestA"}`,
+		`{"time":"2025-01-01T00:00:01Z","action":"output","package":"p","test":"TestA","output":"x\n"}`,
+	})
+
+	cfg := &clientConfig{URL: srv.URL, Project: project, ApiKey: "tok"}
+	_, err := reportLaunch(t.Context(), cfg, reportCmd(file, "launch", false))
+	require.Error(t, err)
+
+	srv.mu.Lock()
+	defer srv.mu.Unlock()
+	require.Len(t, srv.itemFinishes, 2, "both running items must be finished")
+	assert.Contains(t, srv.itemFinishes[0], "/item/test-1", "the innermost item goes first")
+	assert.Contains(t, srv.itemFinishes[1], "/item/suite-1")
+	for _, f := range srv.itemFinishes {
+		assert.Contains(t, f, `"status":"INTERRUPTED"`)
+	}
+	require.Len(t, srv.launchFinish, 1)
 	assert.Contains(t, srv.launchFinish[0], `"status":"INTERRUPTED"`)
 }

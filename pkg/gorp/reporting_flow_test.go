@@ -361,3 +361,65 @@ func TestGetLaunchesByFilterName_UnknownFilter(t *testing.T) {
 
 	require.ErrorContains(t, err, "no filter nope found")
 }
+
+func TestSaveLogMultipart_BatchResponse(t *testing.T) {
+	t.Parallel()
+
+	// with attachments the server answers with a batch instead of a single entry
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusCreated)
+		_, _ = w.Write([]byte(`{"responses":[{"id":"batch-log-id"}]}`))
+	}))
+	t.Cleanup(srv.Close)
+	client := NewReportingClient(srv.URL, "prj", WithApiKeyAuth(t.Context(), "key"))
+
+	rs, err := client.SaveLogMultipart(
+		t.Context(),
+		[]*openapi.SaveLogRQ{
+			{
+				Message: openapi.PtrString("m"),
+				Time:    time.Now(),
+				File:    &openapi.File{Name: openapi.PtrString("a.txt")},
+			},
+		},
+		[]Multipart{
+			&ReaderMultipart{
+				FileName:    "a.txt",
+				ContentType: "text/plain",
+				Reader:      strings.NewReader("x"),
+			},
+		},
+	)
+
+	require.NoError(t, err)
+	assert.Equal(t, "batch-log-id", rs.GetId())
+}
+
+func TestMergeLaunches_ServerSendsEpochTimestamps(t *testing.T) {
+	t.Parallel()
+
+	var gotBody string
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		assert.Equal(t, "/api/v2/prj/launch/merge", r.URL.Path)
+		body, _ := io.ReadAll(r.Body)
+		gotBody = string(body)
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write(
+			[]byte(
+				`{"id":42,"uuid":"u-42","name":"merged","number":1,"startTime":1794824541063,"endTime":1794824541885}`,
+			),
+		)
+	}))
+	t.Cleanup(srv.Close)
+	u, _ := url.Parse(srv.URL)
+	client := NewClient(u, WithApiKeyAuth(t.Context(), "key"))
+
+	merged, err := client.MergeLaunches(t.Context(), "prj", &openapi.MergeLaunchesRQ{
+		Name: "merged", MergeType: string(MergeTypes.Basic), Launches: []int64{1, 2},
+	})
+
+	require.NoError(t, err)
+	assert.Equal(t, MergedLaunch{ID: 42, UUID: "u-42", Name: "merged"}, *merged)
+	assert.Contains(t, gotBody, `"launches":[1,2]`)
+}

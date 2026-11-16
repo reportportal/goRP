@@ -40,3 +40,6 @@ data/
 openapi*.json
 ## Task cache
 .task/
+
+## Local gorp configuration (credentials, used by `task e2e`)
+.gorp

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"slices"
 	"strings"
 	"time"
 
@@ -61,12 +62,14 @@ type testEvent struct {
 }
 
 type reporter struct {
-	ctx              context.Context
-	input            <-chan *testEvent
-	client           *gorppkg.ReportingClient
-	launchName       string
-	launchUUID       string
-	failed           bool
+	ctx        context.Context
+	input      <-chan *testEvent
+	client     *gorppkg.ReportingClient
+	launchName string
+	launchUUID string
+	failed     bool
+	// openItems are the started, not yet finished items (suites and tests) in start order
+	openItems        []string
 	launchAttributes []openapi.ItemAttributesRQ
 	tests            map[string]string
 	suites           map[string]string
@@ -183,6 +186,14 @@ func (r *reporter) interrupt(endTime time.Time) {
 	if err := r.errGroup.Wait(); err != nil {
 		slog.Warn("unable to report remaining logs", "error", err)
 	}
+	// ReportPortal calculates the status of a launch that still has running items on its own (FAILED),
+	// so finish them first, innermost first, to keep the INTERRUPTED status of the launch.
+	for len(r.openItems) > 0 {
+		id := r.openItems[len(r.openItems)-1]
+		if err := r.finishItem(ctx, id, endTime, gorppkg.Statuses.Interrupted); err != nil {
+			slog.Warn("unable to finish interrupted item", "item", id, "error", err)
+		}
+	}
 	if err := r.finishLaunch(ctx, gorppkg.Statuses.Interrupted, endTime); err != nil {
 		slog.Warn("unable to finish interrupted launch", "error", err)
 	}
@@ -205,6 +216,7 @@ func (r *reporter) startSuite(ev *testEvent) (string, error) {
 		return "", err
 	}
 	r.suites[ev.Package] = id
+	r.openItems = append(r.openItems, id)
 	return id, nil
 }
 
@@ -240,6 +252,7 @@ func (r *reporter) startTest(ev *testEvent) error {
 		return err
 	}
 	r.tests[testID] = id
+	r.openItems = append(r.openItems, id)
 	return nil
 }
 
@@ -351,11 +364,25 @@ func (r *reporter) finishTest(ev *testEvent, status gorppkg.Status) error {
 	testName := r.getTestName(ev)
 	testID := r.tests[testName]
 
-	_, err := r.client.FinishTest(r.ctx, testID, &openapi.FinishTestItemRQ{
-		EndTime:    ev.Time,
+	return r.finishItem(r.ctx, testID, ev.Time, status)
+}
+
+// finishItem finishes a suite or a test. The item is not open anymore even if the request fails:
+// it must not be retried as interrupted.
+func (r *reporter) finishItem(
+	ctx context.Context,
+	id string,
+	endTime time.Time,
+	status gorppkg.Status,
+) error {
+	r.openItems = slices.DeleteFunc(r.openItems, func(open string) bool { return open == id })
+
+	_, err := r.client.FinishTest(ctx, id, &openapi.FinishTestItemRQ{
+		EndTime:    endTime,
 		Status:     status.Ptr(),
 		LaunchUuid: r.launchUUID,
 	})
+
 	return err
 }
 
@@ -379,10 +406,5 @@ func (r *reporter) finishSuite(ev *testEvent, status gorppkg.Status) error {
 		return fmt.Errorf("unable to find suiteID for package: %s", ev.Package)
 	}
 
-	_, err := r.client.FinishTest(r.ctx, suiteID, &openapi.FinishTestItemRQ{
-		EndTime:    ev.Time,
-		Status:     status.Ptr(),
-		LaunchUuid: r.launchUUID,
-	})
-	return err
+	return r.finishItem(r.ctx, suiteID, ev.Time, status)
 }

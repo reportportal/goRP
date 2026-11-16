@@ -78,3 +78,34 @@ func (c *launchClient) GetLaunchesByFilterName(
 		Get(baseUrlLaunch)
 	return &launches, err
 }
+
+// MergedLaunch is the part of the merge response the client needs.
+type MergedLaunch struct {
+	ID   int64  `json:"id"`
+	UUID string `json:"uuid"`
+	Name string `json:"name"`
+}
+
+// MergeLaunches merges launches into a new one.
+//
+// The response is decoded into a minimal type on purpose: the server sends timestamps of the merged
+// launch as epoch milliseconds, which the generated launch model (RFC3339 times) can't decode, so
+// the generated MergeLaunchesOldUuid call reports an error although the merge succeeded.
+func (c *launchClient) MergeLaunches(
+	ctx context.Context,
+	project string,
+	rq *openapi.MergeLaunchesRQ,
+) (*MergedLaunch, error) {
+	var merged MergedLaunch
+	_, err := c.http.R().
+		SetContext(ctx).
+		SetPathParam("project", project).
+		SetBody(rq).
+		SetResult(&merged).
+		Post("/api/v2/{project}/launch/merge")
+	if err != nil {
+		return nil, err
+	}
+
+	return &merged, nil
+}

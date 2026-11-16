@@ -60,6 +60,11 @@ func main() {
 		},
 		Flags: []cli.Flag{
 			&cli.StringFlag{
+				Name:    "config",
+				Usage:   "Configuration file (default: ~/.gorp)",
+				Sources: cli.EnvVars("GORP_CONFIG"),
+			},
+			&cli.StringFlag{
 				Name:    "api-key",
 				Aliases: []string{"u", "uuid"},
 				Usage:   "API Key (user token)",

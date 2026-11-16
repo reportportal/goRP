@@ -150,3 +150,100 @@ func TestBuildClientFromConfig_InvalidURL(t *testing.T) {
 
 	assert.Error(t, err)
 }
+
+func TestGetConfig_ConfigFlagReplacesHomeFile(t *testing.T) {
+	home := t.TempDir()
+	t.Setenv("HOME", home)
+	writeConfigFile(
+		t,
+		home,
+		clientConfig{ApiKey: "home-key", Project: "home-project", URL: "http://home"},
+	)
+
+	otherDir := t.TempDir()
+	other := filepath.Join(otherDir, "custom.json")
+	require.NoError(t, os.WriteFile(
+		other,
+		[]byte(
+			`{"api_key":"custom-key","project":"custom-project","host":"http://custom"}`,
+		),
+		0o600,
+	))
+	cmd := &cli.Command{Flags: []cli.Flag{&cli.StringFlag{Name: "config", Value: other}}}
+
+	cfg, err := getConfig(cmd)
+
+	require.NoError(t, err)
+	assert.Equal(
+		t,
+		clientConfig{ApiKey: "custom-key", Project: "custom-project", URL: "http://custom"},
+		*cfg,
+		"nothing may leak from ~/.gorp when --config is given",
+	)
+}
+
+func TestGetConfig_ConfigFlagIsStillOverriddenByOtherFlags(t *testing.T) {
+	t.Setenv("HOME", t.TempDir())
+	other := filepath.Join(t.TempDir(), "custom.json")
+	require.NoError(t, os.WriteFile(
+		other,
+		[]byte(
+			`{"api_key":"custom-key","project":"custom-project","host":"http://custom"}`,
+		),
+		0o600,
+	))
+	cmd := &cli.Command{Flags: []cli.Flag{
+		&cli.StringFlag{Name: "config", Value: other},
+		&cli.StringFlag{Name: "project", Value: "flag-project"},
+	}}
+
+	cfg, err := getConfig(cmd)
+
+	require.NoError(t, err)
+	assert.Equal(t, "flag-project", cfg.Project)
+	assert.Equal(t, "custom-key", cfg.ApiKey)
+}
+
+func TestGetConfig_ConfigFlagToMissingFileFails(t *testing.T) {
+	home := t.TempDir()
+	t.Setenv("HOME", home)
+	// valid credentials in ~/.gorp must not be used as a fallback
+	writeConfigFile(
+		t,
+		home,
+		clientConfig{ApiKey: "home-key", Project: "home-project", URL: "http://home"},
+	)
+	cmd := &cli.Command{Flags: []cli.Flag{
+		&cli.StringFlag{Name: "config", Value: filepath.Join(t.TempDir(), "nope.json")},
+	}}
+
+	_, err := getConfig(cmd)
+
+	require.ErrorIs(t, err, errConfigNotFound)
+}
+
+func TestConfigFlag_ReadFromEnvironment(t *testing.T) {
+	t.Setenv("HOME", t.TempDir())
+	custom := filepath.Join(t.TempDir(), "custom.json")
+	require.NoError(t, os.WriteFile(custom,
+		[]byte(`{"api_key":"env-key","project":"env-project","host":"http://env"}`), 0o600))
+	t.Setenv("GORP_CONFIG", custom)
+
+	var got *clientConfig
+	root := &cli.Command{
+		Name:  "gorp",
+		Flags: []cli.Flag{&cli.StringFlag{Name: "config", Sources: cli.EnvVars("GORP_CONFIG")}},
+		Commands: []*cli.Command{{
+			Name: "sub",
+			Action: func(_ context.Context, cmd *cli.Command) error {
+				var err error
+				got, err = getConfig(cmd)
+
+				return err
+			},
+		}},
+	}
+
+	require.NoError(t, root.Run(t.Context(), []string{"gorp", "sub"}))
+	assert.Equal(t, "env-key", got.ApiKey)
+}

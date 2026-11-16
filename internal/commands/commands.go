@@ -40,7 +40,8 @@ var (
 )
 
 func initConfiguration(ctx context.Context, c *cli.Command) error {
-	if configFilePresent() {
+	configFile := configFilePath(c)
+	if configFilePresent(configFile) {
 		prompt := promptui.Prompt{
 			Label: "GoRP is already configured. Replace existing configuration?",
 		}
@@ -55,7 +56,7 @@ func initConfiguration(ctx context.Context, c *cli.Command) error {
 	}
 
 	//nolint:mnd // file permission
-	f, err := os.OpenFile(getConfigFile(), os.O_CREATE|os.O_WRONLY, 0o600)
+	f, err := os.OpenFile(configFile, os.O_CREATE|os.O_WRONLY, 0o600)
 	if err != nil {
 		return cli.Exit(fmt.Sprintf("Cannot open config file, %s", err), 1)
 	}
@@ -118,8 +119,13 @@ func initConfiguration(ctx context.Context, c *cli.Command) error {
 
 func getConfig(c *cli.Command) (*clientConfig, error) {
 	cfg := &clientConfig{}
-	if configFilePresent() {
-		f, err := os.Open(getConfigFile())
+	configFile := configFilePath(c)
+	// a file named explicitly must exist: silently ignoring it would use other credentials than intended
+	if c.String("config") != "" && !configFilePresent(configFile) {
+		return nil, fmt.Errorf("%w: %s", errConfigNotFound, configFile)
+	}
+	if configFilePresent(configFile) {
+		f, err := os.Open(configFile)
 		if err != nil {
 			return nil, err
 		}

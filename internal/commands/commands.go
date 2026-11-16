@@ -27,7 +27,7 @@ var (
 	// RootCommand is CLI entry point
 	RootCommand = []*cli.Command{
 		initCommand,
-		launchCommand,
+		newLaunchCommand(),
 		reportCommand,
 		qualityGateCommand,
 	}
@@ -79,6 +79,7 @@ func initConfiguration(ctx context.Context, c *cli.Command) error {
 
 	prompt = promptui.Prompt{
 		Label: "Api Key",
+		Mask:  '*',
 	}
 	apiKey, err := prompt.Run()
 	if err != nil {

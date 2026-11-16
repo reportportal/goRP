@@ -153,7 +153,7 @@ func TestCheckQualityGate_Timeout(t *testing.T) {
 	// Act
 	err := checkQualityGateInternal(context.Background(), launchUUID, cfg, cmd)
 
-	// Assert: either the ticker loop detected ctx.Done(), or the HTTP call itself was cancelled.
+	// Assert: either the ticker loop detected ctx.Done(), or the HTTP call itself was canceled.
 	// Both outcomes are valid representations of the quality gate check timing out.
 	assert.Error(t, err)
 	errMsg := err.Error()

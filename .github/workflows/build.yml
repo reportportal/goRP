@@ -11,27 +11,46 @@ on:
       - develop
 
 jobs:
-  build:
+  lint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Setup Go
-        uses: actions/setup-go@v5
+      - uses: actions/setup-go@v5
         with:
+          # govulncheck reports standard library vulnerabilities fixed in later patch releases,
+          # so use the newest patch of the Go version in go.mod, not exactly go.mod's x.y.0.
           go-version: '1.27' # Keep in sync with the `go` directive in go.mod.
-      - name: Install Task
-        uses: arduino/setup-task@v2
+          check-latest: true
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v8
         with:
           # Keep in sync with the golangci-lint version pinned in Taskfile.yml (GOLANG_CI var).
           version: v2.15.0
-          # Optional: show only new issues if it's a pull request. The default value is `false`.
-          only-new-issues: false
-      # Run build of the application
-      - name: Run build
-        run: task build
+      - name: go.mod and go.sum are tidy
+        run: go mod tidy -diff
+      - name: govulncheck
+        run: go run golang.org/x/vuln/cmd/govulncheck@v1.9.0 ./...
 
-      # Run testing on the code
-      - name: Run testing
-        run: task test
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    # Windows support of the test suite is not established yet: report, but don't block.
+    continue-on-error: ${{ matrix.os == 'windows-latest' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - name: Install Task
+        uses: arduino/setup-task@v2
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build
+        run: task build
+      - name: Vet
+        run: go vet ./...
+      - name: Test
+        run: go test -race -cover ./...

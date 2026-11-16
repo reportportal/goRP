@@ -1,25 +1,37 @@
 version: '3'
 
 vars:
-  # Use Go instead of Unix `date` so Task works on Windows (see scripts/builddate.go).
-  BUILD_DATE:
-    sh: go run "{{.TASKFILE_DIR}}/scripts/builddate.go"
+  # Computed by Task's template engine, so no `date` binary is needed (works on Windows too).
+  BUILD_DATE: '{{now | date "2006-01-02T15:04:05Z07:00"}}'
+  # Not named VERSION: that one is the user-supplied input of the `tag` task.
+  BUILD_VERSION:
+    sh: git describe --tags --always --dirty 2>/dev/null || echo dev
   GO: go
   BINARY_DIR: bin
-  BUILD_INFO_LDFLAGS: -ldflags "-w -extldflags '"-static"' -X main.date={{.BUILD_DATE}} -X main.version={{.VERSION}}"
+  BUILD_INFO_LDFLAGS: -ldflags "-w -X main.date={{.BUILD_DATE}} -X main.version={{.BUILD_VERSION}}"
   GOLANG_CI: docker run --rm -v "{{.TASKFILE_DIR}}:/app" -w /app golangci/golangci-lint:v2.15.0 golangci-lint
   OUTPUT_DIR: "pkg/openapi"
-  CLIENT_FILE: "{{.OUTPUT_DIR}}/client.go"
+  # Codegen output is written here first and swapped into OUTPUT_DIR only on success.
+  GENERATED_DIR: "build/openapi"
   # Canonical spec: JSON from https://beta.epmrpp.reportportal.io/api/api-docs (ReportPortal 26.1, service-api 6.0.0)
   SPEC_PATH: "reportportal-api-docs.json"
   MODIFIED_SPEC_PATH: "openapi-modified.json"
   OPENAPI_GENERATOR_IMAGE: "openapitools/openapi-generator-cli:v7.25.0"
+  JQ_IMAGE: "ghcr.io/jqlang/jq:1.8.1"
+
+# The file tasks below use plain mkdir/rm/cp/mv/test. On Windows run Task from WSL/Git Bash, or set
+# TASK_CORE_UTILS=1 to use the coreutils built into Task.
 
 tasks:
   test:
     desc: Run Go tests with coverage
     cmds:
       - "{{.GO}} test -cover ./..."
+
+  vet:
+    desc: Run go vet
+    cmds:
+      - "{{.GO}} vet ./..."
 
   lint:
     desc: Run golangci-lint
@@ -48,44 +60,38 @@ tasks:
   release:
     desc: Run goreleaser to create a release
     cmds:
-      - go run "{{.TASKFILE_DIR}}/scripts/taskfs" remove dist
-      - goreleaser release
-
-  create-output-dir:
-    desc: "Create output directory if it doesn't exist"
-    cmds:
-      - go run "{{.TASKFILE_DIR}}/scripts/taskfs" mkdir "{{.OUTPUT_DIR}}"
-    status:
-      - go run "{{.TASKFILE_DIR}}/scripts/taskfs" exists "{{.OUTPUT_DIR}}"
+      - goreleaser release --clean
 
   clean:
-    desc: "Remove binary, build, and generated OpenAPI client output"
+    desc: "Remove binary and build output (the generated OpenAPI client in {{.OUTPUT_DIR}} is kept, use generate-openapi-client)"
     cmds:
-      - go run "{{.TASKFILE_DIR}}/scripts/taskfs" remove "{{.OUTPUT_DIR}}"
-      - go run "{{.TASKFILE_DIR}}/scripts/taskfs" remove "{{.BINARY_DIR}}"
-      - go run "{{.TASKFILE_DIR}}/scripts/taskfs" remove build
+      - rm -rf "{{.BINARY_DIR}}" build dist
 
  # Generate OpenAPI client code from the ReportPortal's OpenAPI schema
  # Note that not all additional properties are properly documented in the OpenAPI generator documentation
  # For instance, the `withCustomMiddlewareFunction` property is not documented, but can be found here:
- # https://github.com/OpenAPITools/openapi-generator/blob/v7.21.0/modules/openapi-generator/src/main/resources/go/configuration.mustache#L106C4-L106C32
+ # https://github.com/OpenAPITools/openapi-generator/blob/v7.25.0/modules/openapi-generator/src/main/resources/go/configuration.mustache#L106C4-L106C32
 
   generate-openapi-client:
-    desc: "Generate Go client from {{.MODIFIED_SPEC_PATH}} (refresh that file from {{.SPEC_PATH}} via task preprocess:schema)"
+    desc: "Generate Go client from {{.SPEC_PATH}} (preprocessed into {{.MODIFIED_SPEC_PATH}})"
     cmds:
-      # Sequential on purpose: task deps run in parallel, and create-output-dir could run before clean removes the dir.
-      - task: clean
-      - task: create-output-dir
+      # Always derive the input from the committed spec: the preprocessed file is git-ignored.
+      - task: preprocess:schema
+      - rm -rf "{{.GENERATED_DIR}}"
+      - mkdir -p "{{.GENERATED_DIR}}"
       - >-
-        docker run --rm -v "{{.TASKFILE_DIR}}/{{.OUTPUT_DIR}}:/generated"
+        docker run --rm -v "{{.TASKFILE_DIR}}/{{.GENERATED_DIR}}:/generated"
         -v "{{.TASKFILE_DIR}}/{{.MODIFIED_SPEC_PATH}}:/local/openapi.json" {{.OPENAPI_GENERATOR_IMAGE}} generate
         -i /local/openapi.json -g go -o /generated --package-name openapi
         --additional-properties=withGoCodegenComment=true,enumClassPrefix=true,onlyGenerateClient=true,withGoMod=false,withCustomMiddlewareFunction=true,useOneOfDiscriminatorLookup=true
         --git-repo-id gorp/v5/pkg/openapi --git-user-id reportportal
         --global-property modelDocs=false,apiDocs=false,apiTests=false
-      - go run "{{.TASKFILE_DIR}}/scripts/taskfs" copy "{{.TASKFILE_DIR}}/scripts/openapi-compat/compat.go.tmpl" "{{.TASKFILE_DIR}}/{{.OUTPUT_DIR}}/compat.go"
+      - cp scripts/openapi-compat/compat.go.tmpl "{{.GENERATED_DIR}}/compat.go"
+      # Swap only after generation succeeded, so a failed run doesn't delete the committed client.
+      - rm -rf "{{.OUTPUT_DIR}}"
+      - mv "{{.GENERATED_DIR}}" "{{.OUTPUT_DIR}}"
 
-  # Default ReportPortal's OpenAPI schema needs to be preprocessed
+ # Default ReportPortal's OpenAPI schema needs to be preprocessed
   # due to incorrect map/dictionary type handling in the Golang OpenAPI generator
   # For the Java code containing type Map<String, Object> the following OpenAPI schema is generated:
   # {
@@ -110,7 +116,14 @@ tasks:
   #  }
   # This allows the Go OpenAPI generator to create a map[string]interface{} type which accepts any JSON object
   preprocess:schema:
-    desc: Normalize spec to JSON (yq), then JQ walk to fix Map<String,Object> types for Go codegen
+    desc: Apply the JQ filter that fixes Map<String,Object> types (and more) for Go codegen
+    sources:
+      - "{{.SPEC_PATH}}"
+      - scripts/openapi-preprocess.jq
+    generates:
+      - "{{.MODIFIED_SPEC_PATH}}"
     cmds:
-      - go run "{{.TASKFILE_DIR}}/scripts/taskfs" nonempty "{{.TASKFILE_DIR}}/{{.SPEC_PATH}}"
-      - go run "{{.TASKFILE_DIR}}/scripts/preprocess" "{{.TASKFILE_DIR}}" "{{.SPEC_PATH}}" "{{.TASKFILE_DIR}}/{{.MODIFIED_SPEC_PATH}}"
+      - test -s "{{.SPEC_PATH}}"
+      - >-
+        docker run --rm -i -v "{{.TASKFILE_DIR}}/scripts:/scripts:ro" {{.JQ_IMAGE}}
+        -f /scripts/openapi-preprocess.jq < "{{.SPEC_PATH}}" > "{{.MODIFIED_SPEC_PATH}}"

@@ -38,7 +38,7 @@
 
 ## Installation
 
-### Homebrew / go install (recommended)
+### go install (recommended)
 
 ```sh
 go install github.com/reportportal/goRP/v5@latest
@@ -51,12 +51,6 @@ curl -s https://api.github.com/repos/reportportal/goRP/releases/latest \
   | jq -r '.assets[] | select(.name | contains("tar.gz")) | .browser_download_url' \
   | grep "$(uname)_$(arch)" \
   | xargs curl -sL | tar zx -C .
-```
-
-### Docker
-
-```sh
-docker run --rm ghcr.io/reportportal/gorp:latest --help
 ```
 
 ---
@@ -114,8 +108,8 @@ These flags apply to every command.
 |------|-------|---------|-------------|
 | `--api-key` | `-u` | `GORP_API_KEY` | ReportPortal API key (user token) |
 | `--project` | `-p` | `GORP_PROJECT` | ReportPortal project name |
-| `--host` | | | ReportPortal server URL |
-| `--log-level` | | | Log verbosity: `debug`, `info`, `warn`, `error` (default: `debug`) |
+| `--host` | | `GORP_HOST` | ReportPortal server URL |
+| `--log-level` | | | Log verbosity: `debug`, `info`, `warn`, `error` (default: `info`) |
 
 ---
 
@@ -492,6 +486,7 @@ all, err := client.GetAllLaunchesByFilterString(ctx, "my_project",
 |----------|----------------|-------------|
 | `GORP_API_KEY` | `--api-key` | ReportPortal API key |
 | `GORP_PROJECT` | `--project` | ReportPortal project name |
+| `GORP_HOST` | `--host` | ReportPortal server URL |
 | `LAUNCH_NAME` | `--launchName` | Launch name for `report test2json` |
 | `FILE` | `--file` | Input file for `report test2json` |
 | `REPORT_EMPTY_PKG` | `--reportEmptyPkg` | Report packages with no tests |

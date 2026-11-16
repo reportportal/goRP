@@ -35,8 +35,9 @@ func main() {
 			}
 			slog.SetDefault(slog.New(
 				slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{
-					Level:     level,
-					AddSource: true,
+					Level: level,
+					// source locations are only useful when debugging
+					AddSource: level <= slog.LevelDebug,
 				}),
 			))
 
@@ -72,13 +73,14 @@ func main() {
 			},
 
 			&cli.StringFlag{
-				Name:  "host",
-				Usage: "ReportPortal Server Name",
+				Name:    "host",
+				Usage:   "ReportPortal Server Name",
+				Sources: cli.EnvVars("GORP_HOST"),
 			},
 			&cli.StringFlag{
 				Name:  "log-level",
 				Usage: "Logging level (debug, info, warn, error)",
-				Value: "debug",
+				Value: "info",
 			},
 		},
 		Commands: rp.RootCommand,

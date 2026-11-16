@@ -206,7 +206,7 @@ func isPermanentHTTPStatus(resp *http.Response) bool {
 
 // findLaunchUUID scans r for the line printed by `--print-launch-uuid` and returns the UUID, or an
 // empty string if there is none. A blocked read is abandoned (until r is closed or the process
-// exits) when ctx is cancelled.
+// exits) when ctx is canceled.
 func findLaunchUUID(ctx context.Context, r io.Reader) (string, error) {
 	type result struct {
 		id  string

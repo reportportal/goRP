@@ -363,7 +363,7 @@ func TestFeedEvents_CancelUnblocksStalledInput(t *testing.T) {
 	case err := <-errCh:
 		require.ErrorIs(t, err, context.Canceled)
 	case <-time.After(5 * time.Second):
-		t.Fatal("feedEvents is stuck in a blocked read after the context was cancelled")
+		t.Fatal("feedEvents is stuck in a blocked read after the context was canceled")
 	}
 }
 
@@ -448,6 +448,6 @@ func TestReportLaunch_CancelledContextInterruptsLaunch(t *testing.T) {
 
 	srv.mu.Lock()
 	defer srv.mu.Unlock()
-	require.Len(t, srv.launchFinish, 1, "a cancelled run must not leave the launch IN_PROGRESS")
+	require.Len(t, srv.launchFinish, 1, "a canceled run must not leave the launch IN_PROGRESS")
 	assert.Contains(t, srv.launchFinish[0], `"status":"INTERRUPTED"`)
 }

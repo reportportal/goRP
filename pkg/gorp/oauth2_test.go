@@ -248,7 +248,7 @@ func TestPasswordGrantTokenSource_Token_ContextCancellation(t *testing.T) {
 	}))
 	defer server.Close()
 
-	// Create a context that will be cancelled
+	// Create a context that will be canceled
 	ctx, cancel := context.WithCancel(context.Background())
 	cancel() // Cancel immediately
 

@@ -3,17 +3,26 @@ name: Release
 
 on:
   push:
-    # run only against tags
+    # run only against version tags
     tags:
-      - "*"
+      - "v*"
 
 permissions:
   contents: write
-  # packages: write
-  # issues: write
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - run: go vet ./...
+      - run: go test -race ./...
+
   goreleaser:
+    needs: test
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -23,18 +32,15 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: stable
-      # More assembly might be required: Docker logins, GPG, etc.
-      # It all depends on your needs.
+          go-version: '1.27' # Keep in sync with the `go` directive in go.mod.
+          # release binaries should carry the latest standard library security fixes
+          check-latest: true
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v6
         with:
-          # either 'goreleaser' (default) or 'goreleaser-pro'
           distribution: goreleaser
-          # 'latest', 'nightly', or a semver
-          version: latest
+          # pin to a major to avoid breaking changes in the release tooling
+          version: "~> v2"
           args: release --clean
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # Your GoReleaser Pro key, if you are using the 'goreleaser-pro' distribution
-          # GORELEASER_KEY: ${{ secrets.GORELEASER_KEY }}

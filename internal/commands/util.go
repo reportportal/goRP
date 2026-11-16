@@ -40,6 +40,27 @@ func printEntryID(cmd *cli.Command, rs *openapi.EntryCreatedAsyncRS) (string, er
 	return id, nil
 }
 
+// parseAttributes converts 'key:value' arguments to attributes. An argument without ':' becomes
+// an attribute with just the value.
+func parseAttributes(attrArgs []string) []openapi.ItemAttributesRQ {
+	if len(attrArgs) == 0 {
+		return nil
+	}
+	attrs := make([]openapi.ItemAttributesRQ, len(attrArgs))
+	for i, raw := range attrArgs {
+		attr := openapi.ItemAttributesRQ{System: openapi.PtrBool(false)}
+		if key, value, ok := strings.Cut(raw, ":"); ok {
+			attr.SetKey(key)
+			attr.SetValue(value)
+		} else {
+			attr.SetValue(raw)
+		}
+		attrs[i] = attr
+	}
+
+	return attrs
+}
+
 func checkStdinEmpty() error {
 	fi, statErr := os.Stdin.Stat()
 	if statErr != nil {

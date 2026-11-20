@@ -11,6 +11,16 @@
 - **CLI (`gorp`)** — manage launches, report `go test` results, and enforce quality gates from the terminal or CI.
 - **Go library (`pkg/gorp`)** — integrate ReportPortal reporting directly into your Go applications.
 
+## Quick start
+
+```sh
+gorp init                                              # host, API key, project -> ~/.gorp
+go test -json ./... | gorp report test2json \
+  --print-launch-uuid --quality-gate-check             # report the run, then enforce the quality gate
+```
+
+Exit code `10` means the quality gate failed; see [Exit Codes](#exit-codes).
+
 ---
 
 ## Table of Contents

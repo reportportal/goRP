@@ -227,10 +227,7 @@ func deleteLaunch(ctx context.Context, client *gorp.Client, cfg rpConfig, id int
 			u, _ := url.Parse(cfg.Host)
 			stopper := gorp.NewReportingClient(strings.TrimRight(u.String(), "/"), cfg.Project,
 				gorp.WithApiKeyAuth(ctx, cfg.ApiKey))
-			// (ReportingClient.StopLaunch can't be used: the endpoint it calls doesn't exist)
-			if _, sErr := stopper.FinishLaunch(ctx, launch.Uuid, &openapi.FinishExecutionRQ{
-				EndTime: time.Now(), Status: gorp.Statuses.Stopped.Ptr(),
-			}); sErr != nil {
+			if _, sErr := stopper.StopLaunch(ctx, launch.Uuid); sErr != nil {
 				return fmt.Errorf("finishing launch %d: %w", id, sErr)
 			}
 		case resp != nil && resp.StatusCode == http.StatusNotAcceptable:

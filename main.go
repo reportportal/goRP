@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
 	"log/slog"
 	"os"
 	"os/signal"
@@ -22,7 +21,7 @@ var (
 
 func main() {
 	root := cli.Command{
-		Name:                  "goRP",
+		Name:                  "gorp",
 		Usage:                 "ReportPortal CLI Client",
 		EnableShellCompletion: true,
 		Version:               fmt.Sprintf("%s (%s)", version, date),
@@ -93,7 +92,8 @@ func main() {
 
 	defer func() {
 		if r := recover(); r != nil {
-			log.Fatalf("error: %v", r)
+			slog.Error(fmt.Sprintf("panic: %v", r))
+			os.Exit(1)
 		}
 	}()
 
@@ -106,7 +106,8 @@ func main() {
 	}()
 
 	if err := root.Run(ctx, os.Args); err != nil {
-		//nolint:gocritic
-		log.Fatal(err.Error())
+		slog.Error(err.Error())
+		//nolint:gocritic // exitAfterDefer: stop() only restores signal handling
+		os.Exit(1)
 	}
 }

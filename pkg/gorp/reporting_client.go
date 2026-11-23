@@ -100,26 +100,16 @@ func (c *ReportingClient) finishLaunch(
 	return &rs, err
 }
 
-// StopLaunch forces finishing launch
+// StopLaunch finishes the launch with the STOPPED status. ReportPortal has no separate v2 stop endpoint,
+// so this is FinishLaunch with Statuses.Stopped, which also lets a launch that still has running items be deleted.
 func (c *ReportingClient) StopLaunch(
 	ctx context.Context,
 	id string,
-) (*openapi.OperationCompletionRS, error) {
-	var rs openapi.OperationCompletionRS
-	_, err := c.http.R().
-		SetContext(ctx).
-		SetPathParams(map[string]string{
-			"project":  c.project,
-			"launchId": id,
-		}).
-		SetBody(&openapi.FinishExecutionRQ{
-			EndTime: time.Now(),
-			Status:  openapi.PtrString(string(Statuses.Stopped)),
-		}).
-		SetResult(&rs).
-		Put("/api/v2/{project}/launch/{launchId}/stop")
-
-	return &rs, err
+) (*openapi.FinishLaunchRS, error) {
+	return c.finishLaunch(ctx, id, &openapi.FinishExecutionRQ{
+		EndTime: time.Now(),
+		Status:  openapi.PtrString(string(Statuses.Stopped)),
+	})
 }
 
 // StartTest starts new test in RP

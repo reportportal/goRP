@@ -110,7 +110,7 @@ func TestReportingClient_RequestShapes(t *testing.T) {
 				return err
 			},
 			wantMethod: http.MethodPut,
-			wantPath:   "/api/v2/prj/launch/L1/stop",
+			wantPath:   "/api/v2/prj/launch/L1/finish",
 			wantBody:   `"status":"STOPPED"`,
 		},
 		{

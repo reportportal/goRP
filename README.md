@@ -11,6 +11,16 @@
 - **CLI (`gorp`)** — manage launches, report `go test` results, and enforce quality gates from the terminal or CI.
 - **Go library (`pkg/gorp`)** — integrate ReportPortal reporting directly into your Go applications.
 
+## Quick start
+
+```sh
+gorp init                                              # host, API key, project -> ~/.gorp
+go test -json ./... | gorp report test2json \
+  --print-launch-uuid --quality-gate-check             # report the run, then enforce the quality gate
+```
+
+Exit code `10` means the quality gate failed; see [Exit Codes](#exit-codes).
+
 ---
 
 ## Table of Contents
@@ -33,18 +43,24 @@
 5. [Go Library](#go-library)
 6. [Environment Variables](#environment-variables)
 7. [Exit Codes](#exit-codes)
+8. [Compatibility](#compatibility)
+9. [Development](#development)
 
 ---
 
 ## Installation
 
-### go install (recommended)
+### go install
 
 ```sh
 go install github.com/reportportal/goRP/v5@latest
 ```
 
-### Pre-built binary — latest release
+> `go install` names the binary after the module (`goRP`), while this README and the release archives use `gorp`.
+> On a case-sensitive filesystem (Linux) either call `goRP` or add a link:
+> `ln -s "$(go env GOPATH)/bin/goRP" "$(go env GOPATH)/bin/gorp"`.
+
+### Pre-built binary — latest release (installs as `gorp`)
 
 ```sh
 curl -s https://api.github.com/repos/reportportal/goRP/releases/latest \
@@ -71,7 +87,8 @@ Run `gorp init` for a guided setup that writes `~/.gorp`:
 gorp init
 ```
 
-You will be prompted for the ReportPortal host, your API key, and the default project.
+You will be prompted for the ReportPortal host, your API key (input is hidden), and the default project.
+The file is written with mode `0600`.
 
 ### Config file format
 
@@ -84,6 +101,20 @@ You will be prompted for the ReportPortal host, your API key, and the default pr
   "api_key": "your_api_key_here"
 }
 ```
+
+### Multiple environments
+
+`--config` / `GORP_CONFIG` selects a different file *instead of* `~/.gorp` (it must exist; there is no fallback):
+
+```sh
+GORP_CONFIG=./staging.gorp gorp launch list
+gorp --config ./staging.gorp launch list
+```
+
+### Organizations
+
+ReportPortal 26.x introduced organizations, but you do **not** need to configure one. Reporting, launch listing,
+merging and quality-gate calls are addressed by project name only, so `host`, `project` and `api_key` are all that is needed.
 
 ### CLI flags (ad-hoc / override)
 
@@ -144,7 +175,7 @@ gorp launch list --filter "filter.eq.name=smoke&filter.eq.status=FAILED"
 | Flag | Short | Env var | Description |
 |------|-------|---------|-------------|
 | `--filter-name` | `--fn` | `FILTER_NAME` | Saved filter name |
-| `--filter` | `-f` | `FILTER` | Raw RP filter query string |
+| `--filter` | `-f` | `FILTER` | Raw RP filter query string. Repeatable; parts are joined with `&` |
 
 ---
 
@@ -170,6 +201,8 @@ gorp launch merge --filter "filter.eq.name=smoke" --name "Merged smoke"
 | `--filter-name` | `--fn` | `FILTER_NAME` | Saved filter name to select launches |
 | `--name` | `-n` | `MERGE_LAUNCH_NAME` | **Required.** Name of the resulting launch |
 | `--type` | `-t` | `MERGE_TYPE` | Merge strategy: `DEEP` (default) or `BASIC` |
+
+Exactly one of `--ids`, `--filter` or `--filter-name` must be given. The ID of the merged launch is printed to stdout.
 
 ---
 
@@ -208,6 +241,10 @@ go test -json ./... | gorp report test2json --quality-gate-check
 | `--quality-gate-check` | `--qgc` | `QUALITY_GATE_CHECK` | `false` | Poll for quality gate result after reporting; exits `10` on failure |
 | `--quality-gate-timeout` | `--qgt` | `QUALITY_GATE_TIMEOUT` | `1m` | Maximum time to wait for quality gate |
 | `--quality-gate-check-interval` | `--qgci` | `QUALITY_GATE_CHECK_INTERVAL` | `3s` | How often to poll for quality gate status |
+
+The launch finishes as `FAILED` if any test or package failed, otherwise `PASSED`. If the run is interrupted
+(Ctrl-C, `SIGTERM`) or the input stream breaks midway, items that are still running are finished as `INTERRUPTED`,
+followed by the launch, so nothing is left `IN_PROGRESS`. A second Ctrl-C terminates immediately.
 
 ---
 
@@ -349,6 +386,7 @@ Exits with code `10` if the quality gate status is not `PASSED`. See [Exit Codes
     GORP_PROJECT: my_project
   run: |
     go install github.com/reportportal/goRP/v5@latest
+    ln -s "$(go env GOPATH)/bin/goRP" "$(go env GOPATH)/bin/gorp"
     go test -json ./... | gorp report test2json \
       --host https://reportportal.example.com \
       --launchName "${{ github.workflow }} / ${{ github.ref_name }}" \
@@ -409,7 +447,7 @@ func report(ctx context.Context) error {
     if err != nil {
         return err
     }
-    launchUUID := *launch.Id
+    launchUUID := launch.GetId()
 
     // Start a test item
     test, err := client.StartTest(ctx, &openapi.StartTestItemRQ{
@@ -435,7 +473,7 @@ func report(ctx context.Context) error {
     }
 
     // Finish the test item
-    _, err = client.FinishTest(ctx, *test.Id, &openapi.FinishTestItemRQ{
+    _, err = client.FinishTest(ctx, test.GetId(), &openapi.FinishTestItemRQ{
         LaunchUuid: launchUUID,
         Status:     gorp.Statuses.Passed.Ptr(),
         EndTime:    time.Now(),
@@ -488,6 +526,7 @@ all, err := client.GetAllLaunchesByFilterString(ctx, "my_project",
 | `GORP_API_KEY` | `--api-key` | ReportPortal API key |
 | `GORP_PROJECT` | `--project` | ReportPortal project name |
 | `GORP_HOST` | `--host` | ReportPortal server URL |
+| `GORP_CONFIG` | `--config` | Configuration file to use instead of `~/.gorp` |
 | `LAUNCH_NAME` | `--launchName` | Launch name for `report test2json` |
 | `FILE` | `--file` | Input file for `report test2json` |
 | `REPORT_EMPTY_PKG` | `--reportEmptyPkg` | Report packages with no tests |
@@ -497,6 +536,7 @@ all, err := client.GetAllLaunchesByFilterString(ctx, "my_project",
 | `LAUNCH_UUID` | `--launch-uuid` | Launch UUID for report step commands and `quality-gate check` |
 | `ITEM_UUID` | `--item-uuid` | Test item UUID for `report log` and `report finish-test` |
 | `PARENT_UUID` | `--parent-uuid` | Parent item UUID for `report start-test` |
+| `FILTER` | `--filter` | Raw filter for `launch list` |
 | `FILTER_NAME` | `--filter-name` | Saved filter name for launch queries |
 | `MERGE_LAUNCH_IDS` | `--ids` | Comma-separated launch IDs for merge |
 | `MERGE_LAUNCH_FILTER` | `--filter` | Raw filter for launch merge |
@@ -518,3 +558,18 @@ all, err := client.GetAllLaunchesByFilterString(ctx, "my_project",
 ## Compatibility
 
 This version of the client targets ReportPortal **26.1+** (organizations API, TMS). For older ReportPortal versions use goRP **v5.2.x**.
+
+---
+
+## Development
+
+```sh
+task build      # bin/gorp
+task test       # unit tests with coverage
+task lint       # golangci-lint (Docker)
+task e2e        # end-to-end tests against a real ReportPortal, not run by CI
+```
+
+`task e2e` reads credentials from a git-ignored `.gorp` file in the repository root (same JSON as `~/.gorp`) and
+writes temporary `gorp-e2e-…` launches to the configured project, so point it at a sandbox project.
+See [AGENTS.md](AGENTS.md) for the project layout, conventions and how to regenerate the OpenAPI client.

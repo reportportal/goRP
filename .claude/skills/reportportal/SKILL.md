@@ -356,7 +356,7 @@ Key `ReportingClient` methods (all take `ctx context.Context` first; `*Raw` vari
 |--------|---------|
 | `StartLaunch` / `StartLaunchRaw` | Start a launch |
 | `FinishLaunch` / `FinishLaunchRaw` | Finish a launch |
-| `StopLaunch` | Force-stop a launch (`Statuses.Stopped`, `EndTime: time.Now()`) |
+| `StopLaunch` | Finish a launch as `STOPPED` (same v2 finish call, `EndTime: time.Now()`) |
 | `StartTest` / `StartTestRaw` | Start a root-level test item |
 | `StartChildTest` / `StartChildTestRaw` | Start a nested item under a parent UUID |
 | `FinishTest` / `FinishTestRaw` | Finish a test item (works for suites too) |

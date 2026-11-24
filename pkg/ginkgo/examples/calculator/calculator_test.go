@@ -9,12 +9,11 @@ import (
 )
 
 var _ = Describe("Calculator", func() {
-
 	// ─── 1. P0 — addition with By() steps and INFO logs ───────────────────────
 
 	Describe("Addition", func() {
 		It("adds two numbers step by step",
-			Label(rpagent.Priority(0), rpagent.TestReference("CALC-TC-001")),
+			Label(rpagent.Priority(0), rpagent.TestReference("CALC-TC-001"), "smoke", "math"),
 			func() {
 				By("adding two positive numbers")
 				rpagent.Log("INFO", "input: 2 + 3")

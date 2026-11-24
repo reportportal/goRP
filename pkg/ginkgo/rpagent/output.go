@@ -21,8 +21,8 @@ const (
 	maxCapturedOutputBytes = 1 << 20
 )
 
-// ansiEscape matches ANSI CSI sequences (colours, cursor movement). Libraries that log
-// through GinkgoWriter often colour their output; ReportPortal would show the raw codes.
+// ansiEscape matches ANSI CSI sequences (colors, cursor movement). Libraries that log
+// through GinkgoWriter often color their output; ReportPortal would show the raw codes.
 var ansiEscape = regexp.MustCompile("\x1b\\[[0-9;?]*[ -/]*[@-~]")
 
 func stripANSI(s string) string { return ansiEscape.ReplaceAllString(s, "") }

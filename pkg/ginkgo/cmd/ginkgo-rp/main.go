@@ -75,7 +75,7 @@ func run() int {
 	sessionID := fmt.Sprintf("%d-%s", time.Now().Unix(), uuid.New().String())
 
 	if err := rpagent.InitializeRPLogger(); err != nil {
-		fmt.Fprintf(os.Stderr, "WARNING: could not initialise rp-agent.log: %v\n", err)
+		fmt.Fprintf(os.Stderr, "WARNING: could not initialize rp-agent.log: %v\n", err)
 	}
 	defer rpagent.CloseRPLogger()
 	defer cleanup(sessionID)
@@ -198,7 +198,7 @@ func run() int {
 			fmt.Printf("\n  WARNING: %v\n  Continuing with available results...\n", err)
 		}
 
-		fmt.Printf("\n  Step 2: Collecting and analysing test results...\n\n")
+		fmt.Printf("\n  Step 2: Collecting and analyzing test results...\n\n")
 
 		if err := aggregateAndFinalizeLaunch(exitCode != 0, sessionID); err != nil {
 			fmt.Fprintf(os.Stderr, "ERROR: failed to aggregate and finalize launch: %v\n", err)
@@ -796,7 +796,7 @@ func aggregateAndFinalizeLaunch(hasSuiteFailures bool, sessionID string) error {
 		default:
 			fmt.Fprintf(
 				os.Stderr,
-				"WARNING: unrecognised status %q for %s\n",
+				"WARNING: unrecognized status %q for %s\n",
 				status.Status,
 				status.SpecName,
 			)
@@ -1114,12 +1114,12 @@ func detectTypo(arg string) (bool, string) {
 		"-he":   "Did you mean: ginkgo-rp --help",
 		"--hel": "Did you mean: ginkgo-rp --help",
 		"hlep":  "Did you mean: ginkgo-rp help",
-		"halp":  "Did you mean: ginkgo-rp help",
+		"halp":  "Did you mean: ginkgo-rp help", //nolint:misspell // deliberate typo that users make
 		// version variants
 		"--v":       "Did you mean: ginkgo-rp --version  (or -v for verbose ginkgo output)",
 		"--ver":     "Did you mean: ginkgo-rp --version",
-		"--versoin": "Did you mean: ginkgo-rp --version",
-		"verison":   "Did you mean: ginkgo-rp version",
+		"--versoin": "Did you mean: ginkgo-rp --version", //nolint:misspell // deliberate typo that users make
+		"verison":   "Did you mean: ginkgo-rp version",   //nolint:misspell // deliberate typo that users make
 		"vesrion":   "Did you mean: ginkgo-rp version",
 	}
 	if suggestion, ok := typos[arg]; ok {

@@ -73,7 +73,8 @@ func discoverSuites(targetPath string, recursive bool) ([]DiscoveredSuite, error
 		s, ok := suiteAt(root)
 		if !ok {
 			return nil, fmt.Errorf(
-				"no Ginkgo suite (a *_test.go file calling RunSpecs) found in %s\n  Hint: use -r to scan subdirectories, or pass an explicit suite path",
+				"no Ginkgo suite (a *_test.go file calling RunSpecs) found in %s\n"+
+					"  Hint: use -r to scan subdirectories, or pass an explicit suite path",
 				root,
 			)
 		}

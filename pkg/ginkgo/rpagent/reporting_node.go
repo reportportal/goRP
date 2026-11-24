@@ -53,7 +53,7 @@ type SpecHierarchyIDs struct {
 	ChildStepStatuses []gorp.Status
 }
 
-// init eagerly initialises the agent in every Ginkgo worker process.
+// init eagerly initializes the agent in every Ginkgo worker process.
 // If RP_SESSION_ID is not set the agent is inactive (plain Ginkgo mode).
 func init() {
 	sessionID := os.Getenv("RP_SESSION_ID")
@@ -62,7 +62,7 @@ func init() {
 	}
 
 	pid := os.Getpid()
-	LogVerboseOperation(fmt.Sprintf("initialising agent (PID %d)", pid))
+	LogVerboseOperation(fmt.Sprintf("initializing agent (PID %d)", pid))
 
 	var err error
 	coordinator, err = NewLaunchCoordinator(sessionID)
@@ -93,7 +93,7 @@ func init() {
 	}
 
 	if initErr := InitializeRPLogger(); initErr != nil {
-		log.Printf("WARNING: could not initialise rp-agent.log: %v", initErr)
+		log.Printf("WARNING: could not initialize rp-agent.log: %v", initErr)
 	}
 
 	globalClient = NewReportingClient(
@@ -337,7 +337,7 @@ func startSpecHierarchy(
 	refID string,
 ) SpecHierarchyIDs {
 	if globalClient == nil || globalLaunchID == "" || globalSuiteID == "" || coordinator == nil {
-		log.Printf("CRITICAL: global agent state not initialised")
+		log.Printf("CRITICAL: global agent state not initialized")
 		return SpecHierarchyIDs{}
 	}
 	ccm := coordinator.NewContainerCacheManager()

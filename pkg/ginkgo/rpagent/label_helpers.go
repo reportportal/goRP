@@ -37,15 +37,15 @@ func TestReference(refID string) string {
 	if refID == "" {
 		return "rp.ref:unset"
 	}
-	// Sanitise characters Ginkgo rejects in labels (&|!,()/). Replace with _.
-	sanitised := strings.Map(func(r rune) rune {
+	// Sanitize characters Ginkgo rejects in labels (&|!,()/). Replace with _.
+	sanitized := strings.Map(func(r rune) rune {
 		switch r {
 		case '&', '|', '!', ',', '(', ')', '/':
 			return '_'
 		}
 		return r
 	}, refID)
-	return fmt.Sprintf("%s%s", LabelRefIDPrefix, sanitised)
+	return fmt.Sprintf("%s%s", LabelRefIDPrefix, sanitized)
 }
 
 // Log sends a structured log entry to ReportPortal for the currently running test.

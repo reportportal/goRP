@@ -9,7 +9,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/onsi/ginkgo/v2 v2.26.0
 	github.com/onsi/gomega v1.38.2
-	github.com/reportportal/goRP/v5 v5.0.0
+	github.com/reportportal/goRP/v5 v5.2.2
 )
 
 require (
@@ -29,6 +29,3 @@ require (
 	golang.org/x/tools v0.45.0 // indirect
 	resty.dev/v3 v3.0.0-rc.2 // indirect
 )
-
-// Local development: resolve goRP from this repository checkout.
-replace github.com/reportportal/goRP/v5 => ../..

@@ -4,8 +4,8 @@ import (
 	"context"
 	"crypto/sha256"
 	"encoding/json"
+	"errors"
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -23,7 +23,7 @@ const (
 	ReportIndexPattern       = "rp_report_index_%s.json"
 	FinalStatusFilePattern   = "rp_status_%s.json"
 	ProcessReportFilePattern = "rp_status_%s_%d.json"
-	ContainerCachePattern    = "rp_containers_%s_%s.json"
+	ContainerCachePattern    = "rp_cache_%s_%x" // session ID, then the SHA-256 of the cache key
 )
 
 // inMemoryContainerCache is a per-process L1 cache to avoid redundant file reads.
@@ -51,6 +51,14 @@ type SharedSpecStatus struct {
 	TestReferenceId string `json:"testReferenceId,omitempty"`
 	FailureMessage  string `json:"failureMessage,omitempty"`
 	FailureLocation string `json:"failureLocation,omitempty"`
+	// ContainerIDs are the ReportPortal IDs of the spec's Describe/Context items, outermost
+	// first. The wrapper uses them to finish those items once every worker is done.
+	ContainerIDs []string `json:"containerIDs,omitempty"`
+	// EndTime is when the spec really ended.
+	EndTime time.Time `json:"endTime,omitempty"`
+	// Fixture marks a failed BeforeSuite/AfterSuite rather than a spec: it fails its suite
+	// and the launch, but is not a test, so it stays out of the test counts.
+	Fixture bool `json:"fixture,omitempty"`
 }
 
 // LaunchCoordinator manages temp files used to coordinate the wrapper and Ginkgo workers.
@@ -60,10 +68,11 @@ type LaunchCoordinator struct {
 	stateFile       string
 }
 
-// NewLaunchCoordinator creates a coordinator for the given session ID.
-func NewLaunchCoordinator(sessionID string) *LaunchCoordinator {
+// NewLaunchCoordinator creates a coordinator for the given session ID. It returns an
+// error rather than exiting: reporting must never kill the test process.
+func NewLaunchCoordinator(sessionID string) (*LaunchCoordinator, error) {
 	if sessionID == "" {
-		log.Fatal("FATAL: NewLaunchCoordinator called without a sessionID")
+		return nil, errors.New("a session ID is required to coordinate a launch")
 	}
 	return &LaunchCoordinator{
 		reportIndexFile: filepath.Join(os.TempDir(), fmt.Sprintf(ReportIndexPattern, sessionID)),
@@ -72,7 +81,7 @@ func NewLaunchCoordinator(sessionID string) *LaunchCoordinator {
 			fmt.Sprintf(FinalStatusFilePattern, sessionID),
 		),
 		stateFile: filepath.Join(os.TempDir(), fmt.Sprintf(StateFilePattern, sessionID)),
-	}
+	}, nil
 }
 
 // LoadAgentState reads the state file written by the wrapper process.
@@ -156,6 +165,9 @@ func (lc *LaunchCoordinator) GetAggregatedStatus() (*ExecutionStats, error) {
 
 	result := &ExecutionStats{}
 	for _, spec := range statuses {
+		if spec.Fixture {
+			continue
+		}
 		result.OverallStatus.Total++
 		switch {
 		case strings.ToLower(spec.Status) == "passed":
@@ -192,7 +204,10 @@ func FinalizeLaunch(forceFailed bool) error {
 		return fmt.Errorf("RP_SESSION_ID is not set")
 	}
 
-	lc := NewLaunchCoordinator(sessionID)
+	lc, err := NewLaunchCoordinator(sessionID)
+	if err != nil {
+		return err
+	}
 	state, err := lc.LoadAgentState()
 	if err != nil {
 		return fmt.Errorf("could not load agent state: %w", err)
@@ -272,22 +287,12 @@ func waitForFileWithRetry(path string, maxRetries int, sleep time.Duration) (str
 // ContainerCacheManager manages the shared Describe/Context container cache
 // using a two-tier strategy: L1 in-memory (sync.Map) + L2 file-per-key.
 type ContainerCacheManager struct {
-	cacheFile string
-	lockPath  string
+	sessionID string
 }
 
 // NewContainerCacheManager creates a ContainerCacheManager for the current suite.
 func (lc *LaunchCoordinator) NewContainerCacheManager() *ContainerCacheManager {
-	sessionID := os.Getenv("RP_SESSION_ID")
-	suiteName := getCurrentSuiteName()
-	cacheFile := filepath.Join(
-		os.TempDir(),
-		fmt.Sprintf(ContainerCachePattern, sessionID, suiteName),
-	)
-	return &ContainerCacheManager{
-		cacheFile: cacheFile,
-		lockPath:  cacheFile + ".lock",
-	}
+	return &ContainerCacheManager{sessionID: os.Getenv("RP_SESSION_ID")}
 }
 
 // GetOrCreate returns the cached container ID for key, creating it via createFunc if absent.
@@ -307,9 +312,13 @@ func (ccm *ContainerCacheManager) GetOrCreate(
 		return val.(string), nil
 	}
 
-	// L2: content-addressable file per key
+	// L2: one file per key. The session ID is part of the name so the wrapper can remove
+	// exactly this run's files, and no other run's, once all workers have finished.
 	hash := sha256.Sum256([]byte(key))
-	cacheFilePath := filepath.Join(os.TempDir(), fmt.Sprintf("rp_cache_%x", hash))
+	cacheFilePath := filepath.Join(
+		os.TempDir(),
+		fmt.Sprintf(ContainerCachePattern, ccm.sessionID, hash),
+	)
 
 	if data, err := os.ReadFile(cacheFilePath); err == nil && len(data) > 0 {
 		id := string(data)

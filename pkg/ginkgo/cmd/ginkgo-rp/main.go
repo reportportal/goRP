@@ -139,7 +139,8 @@ func run() int {
 		return 1
 	}
 
-	args := buildGinkgoArgs(os.Args[1:])
+	cwd, _ := os.Getwd()
+	args := buildGinkgoArgs(os.Args[1:], agentSkipPackages(cwd))
 	passthrough := len(os.Args) > 1 && passthroughSubcommands[os.Args[1]]
 
 	if finalize {
@@ -234,7 +235,10 @@ func main() {
 // a fatal error after StartLaunch has already been called. This prevents the
 // launch from staying IN_PROGRESS indefinitely in ReportPortal.
 func abortLaunch(sessionID, launchID string) {
-	coordinator := rpagent.NewLaunchCoordinator(sessionID)
+	coordinator, err := rpagent.NewLaunchCoordinator(sessionID)
+	if err != nil {
+		return
+	}
 	state, err := coordinator.LoadAgentState()
 	if err != nil {
 		return
@@ -264,17 +268,17 @@ func cleanup(sessionID string) {
 		fmt.Sprintf("rp_status_%s_*.json", sessionID),
 		fmt.Sprintf("rp_done_%s_*.flag", sessionID),
 		fmt.Sprintf("rp_suites_%s.json", sessionID),
-		fmt.Sprintf("rp_containers_%s_*.json", sessionID),
 	} {
 		matches, _ := filepath.Glob(filepath.Join(tempDir, pattern))
 		for _, m := range matches {
 			_ = os.Remove(m)
 		}
 	}
-	// Attachment dirs and L2 cache files include the session ID in their names
-	// (set by InitializeAttachments and GetOrCreate).
+	// The agent puts the session ID into these names (InitializeAttachments and
+	// ContainerCacheManager.GetOrCreate), so the patterns are exact: they match this run's
+	// attachment directories and container cache files (and their .lock/.tmp leftovers).
 	for _, pattern := range []string{
-		fmt.Sprintf("rp-agent-attachments-*%s*", sessionID),
+		fmt.Sprintf("rp-agent-attachments-%s-*", sessionID),
 		fmt.Sprintf("rp_cache_%s_*", sessionID),
 	} {
 		matches, _ := filepath.Glob(filepath.Join(tempDir, pattern))
@@ -380,19 +384,26 @@ var passthroughSubcommands = map[string]bool{
 // buildGinkgoArgs rewrites os.Args[1:] for the ginkgo child process:
 //   - For test-running subcommands: merges rpagent into --skip-package
 //   - For utility subcommands (outline, bootstrap, etc.): passes args unchanged
-func buildGinkgoArgs(args []string) []string {
+func buildGinkgoArgs(args, skip []string) []string {
 	// Utility subcommands: pass through unchanged — they don't accept --skip-package.
 	if len(args) > 0 && passthroughSubcommands[args[0]] {
 		return args
 	}
 
-	// If the user already excluded rp-agent, just pass args through as-is.
-	if hasSkipPackageValue(args, "rpagent") {
+	// Only add what the user has not already excluded.
+	var missing []string
+	for _, tok := range skip {
+		if !hasSkipPackageValue(args, tok) {
+			missing = append(missing, tok)
+		}
+	}
+	if len(missing) == 0 {
 		return args
 	}
+	extra := strings.Join(missing, ",")
 
 	// Separate flags from package paths. Ginkgo requires all flags before paths.
-	// We reconstruct: [flags...] [--skip-package=rpagent] [paths...]
+	// We reconstruct: [flags...] [--skip-package=...] [paths...]
 	var flagArgs, pathArgs []string
 	injected := false
 	i := 0
@@ -400,10 +411,10 @@ func buildGinkgoArgs(args []string) []string {
 		arg := args[i]
 		if strings.HasPrefix(arg, "--skip-package=") {
 			val := strings.TrimPrefix(arg, "--skip-package=")
-			flagArgs = append(flagArgs, "--skip-package="+val+",rpagent")
+			flagArgs = append(flagArgs, "--skip-package="+val+","+extra)
 			injected = true
 		} else if arg == "--skip-package" && i+1 < len(args) {
-			flagArgs = append(flagArgs, "--skip-package="+args[i+1]+",rpagent")
+			flagArgs = append(flagArgs, "--skip-package="+args[i+1]+","+extra)
 			injected = true
 			i++
 		} else if isPackagePath(arg) {
@@ -418,9 +429,45 @@ func buildGinkgoArgs(args []string) []string {
 		i++
 	}
 	if !injected {
-		flagArgs = append(flagArgs, "--skip-package=rpagent")
+		flagArgs = append(flagArgs, "--skip-package="+extra)
 	}
 	return append(flagArgs, pathArgs...)
+}
+
+// agentSkipPackages returns the --skip-package filters needed to keep Ginkgo from
+// running this agent's own rpagent package as a test suite. That only matters when
+// the agent's source is inside the tree being scanned (developing the agent itself);
+// for every other project it returns nothing, so no user package is ever skipped.
+//
+// Ginkgo matches a filter with strings.Contains against the suite path relative to the
+// working directory ("./rpagent"), so the filter is the full relative path of our
+// package, never the bare word "rpagent".
+func agentSkipPackages(cwd string) []string {
+	if mod, ok := modulePath(filepath.Join(cwd, "go.mod")); ok &&
+		mod == "github.com/reportportal/goRP/pkg/ginkgo" {
+		return []string{"./rpagent"} // running from the agent's own module root
+	}
+	if fi, err := os.Stat(
+		filepath.Join(cwd, "pkg", "ginkgo", "rpagent"),
+	); err == nil &&
+		fi.IsDir() {
+		return []string{"./pkg/ginkgo/rpagent"} // running from the goRP repo root
+	}
+	return nil
+}
+
+// modulePath returns the module path declared in a go.mod file.
+func modulePath(goMod string) (string, bool) {
+	data, err := os.ReadFile(goMod)
+	if err != nil {
+		return "", false
+	}
+	for _, line := range strings.Split(string(data), "\n") {
+		if rest, ok := strings.CutPrefix(strings.TrimSpace(line), "module "); ok {
+			return strings.Trim(strings.TrimSpace(rest), `"`), true
+		}
+	}
+	return "", false
 }
 
 // isPackagePath reports whether arg looks like a package path rather than a flag.
@@ -545,12 +592,18 @@ func createRPLaunchAndSaveState(
 	fmt.Printf("  Scanning for test suites...\n")
 
 	var suites []DiscoveredSuite
+	seen := map[string]bool{}
 	for _, tp := range targetPaths {
 		found, err := discoverSuites(tp, hasRecursive)
 		if err != nil {
 			return "", nil, fmt.Errorf("failed to discover suites in %s: %w", tp, err)
 		}
-		suites = append(suites, found...)
+		for _, f := range found {
+			if !seen[f.Directory] { // overlapping targets (e.g. "." and "./a")
+				seen[f.Directory] = true
+				suites = append(suites, f)
+			}
+		}
 	}
 	if len(suites) == 0 {
 		return "", nil, fmt.Errorf("no Ginkgo suites found in %s", strings.Join(targetPaths, ", "))
@@ -561,12 +614,23 @@ func createRPLaunchAndSaveState(
 		Uuid:      uuid.NewString(),
 		Name:      config.LaunchName,
 		StartTime: time.Now(),
-		Mode:      ptr(string(gorp.LaunchModes.Default)),
+		Mode:      ptr(config.Mode),
+	}
+	if config.Description != "" {
+		launchRQ.Description = ptr(config.Description)
+	}
+	for _, a := range config.Attributes {
+		attr := openapi.ItemAttributesRQ{Value: a.Value}
+		if a.Key != "" {
+			attr.Key = ptr(a.Key)
+		}
+		launchRQ.Attributes = append(launchRQ.Attributes, attr)
 	}
 
 	fmt.Printf("  Launch Configuration:\n")
 	fmt.Printf("    - Name:    %s\n", config.LaunchName)
 	fmt.Printf("    - Project: %s\n", config.Project)
+	fmt.Printf("    - Mode:    %s\n", config.Mode)
 	fmt.Printf("\n  Creating launch...\n")
 
 	launchRS, err := client.StartLaunch(context.Background(), launchRQ)
@@ -654,7 +718,10 @@ func aggregateAndFinalizeLaunch(hasSuiteFailures bool, sessionID string) error {
 		return fmt.Errorf("RP_SESSION_ID not set")
 	}
 
-	coordinator := rpagent.NewLaunchCoordinator(sessionID)
+	coordinator, err := rpagent.NewLaunchCoordinator(sessionID)
+	if err != nil {
+		return err
+	}
 
 	resultPattern := filepath.Join(os.TempDir(), fmt.Sprintf("rp_status_%s_*.json", sessionID))
 	reportFilePaths, err := filepath.Glob(resultPattern)
@@ -702,12 +769,15 @@ func aggregateAndFinalizeLaunch(hasSuiteFailures bool, sessionID string) error {
 	fmt.Printf(
 		"================================================================================\n\n",
 	)
-	fmt.Printf("  Total Tests Executed: %d\n\n", len(allStatuses))
+	// Failed BeforeSuite/AfterSuite nodes fail the suite and launch but are not tests: keep
+	// them out of the counts and list them separately.
+	specs, fixtures := splitFixtureResults(allStatuses)
+	fmt.Printf("  Total Tests Executed: %d\n\n", len(specs))
 
 	passed, failed, interrupted, skipped := 0, 0, 0, 0
 	priorityStats := make(map[int]map[string]int)
 
-	for _, status := range allStatuses {
+	for _, status := range specs {
 		norm := strings.ToLower(status.Status)
 		var cat string
 		switch norm {
@@ -757,7 +827,7 @@ func aggregateAndFinalizeLaunch(hasSuiteFailures bool, sessionID string) error {
 		fmt.Printf(
 			"--------------------------------------------------------------------------------\n\n",
 		)
-		for _, status := range allStatuses {
+		for _, status := range specs {
 			norm := strings.ToLower(status.Status)
 			if norm == "failed" || norm == "panicked" || norm == "interrupted" ||
 				norm == "aborted" ||
@@ -775,22 +845,43 @@ func aggregateAndFinalizeLaunch(hasSuiteFailures bool, sessionID string) error {
 		}
 	}
 
-	fmt.Printf("  Overall Status:\n")
-	if !hasSuiteFailures && totalFailed == 0 && passed == 0 && skipped > 0 {
+	if len(fixtures) > 0 {
 		fmt.Printf(
-			"    RESULT: ALL TESTS SKIPPED (check --focus / --label-filter — no specs matched)\n\n",
+			"--------------------------------------------------------------------------------\n",
 		)
-	} else if !hasSuiteFailures && totalFailed == 0 {
-		fmt.Printf("    RESULT: ALL TESTS PASSED\n\n")
-	} else if hasSuiteFailures && totalFailed == 0 {
-		fmt.Printf("    RESULT: SUITE SETUP FAILED (no tests executed)\n\n")
-		fmt.Printf("  Common causes:\n")
-		fmt.Printf("    1. Panic or error in Describe/Context bodies\n")
-		fmt.Printf("    2. BeforeSuite / AfterSuite failures\n")
-		fmt.Printf("    3. Priority() called outside an It block\n\n")
+		fmt.Printf(
+			"                    SUITE SETUP / TEARDOWN FAILURES                             \n",
+		)
+		fmt.Printf(
+			"--------------------------------------------------------------------------------\n\n",
+		)
+		for _, f := range fixtures {
+			fmt.Printf("  %s\n", f.SpecName)
+			fmt.Printf("    Suite:    %s\n", f.SuiteName)
+			if f.FailureLocation != "" {
+				fmt.Printf("    Location: %s\n", f.FailureLocation)
+			}
+			if f.FailureMessage != "" {
+				fmt.Printf("    Message:  %s\n", f.FailureMessage)
+			}
+			fmt.Printf("\n")
+		}
+	}
+
+	fmt.Printf("  Overall Status:\n")
+	resultLines, forceFailed := overallResult(
+		hasSuiteFailures,
+		totalFailed,
+		passed,
+		skipped,
+		len(fixtures),
+	)
+	for _, line := range resultLines {
+		fmt.Println(line)
+	}
+	fmt.Println()
+	if forceFailed {
 		totalFailed = 1 // force launch to be marked failed
-	} else {
-		fmt.Printf("    RESULT: TESTS FAILED\n\n")
 	}
 
 	if len(priorityStats) > 1 {
@@ -841,7 +932,10 @@ func finishSuitesFromResults(
 		return fmt.Errorf("failed to load suite cache: %w", err)
 	}
 
-	coordinator := rpagent.NewLaunchCoordinator(sessionID)
+	coordinator, err := rpagent.NewLaunchCoordinator(sessionID)
+	if err != nil {
+		return err
+	}
 	agentState, err := coordinator.LoadAgentState()
 	if err != nil {
 		return fmt.Errorf("failed to load agent state: %w", err)
@@ -873,20 +967,40 @@ func finishSuitesFromResults(
 	fmt.Printf(
 		"--------------------------------------------------------------------------------\n\n",
 	)
+
+	// Containers (Describe/Context) are shared by all specs and workers beneath them, so
+	// they can only be finished here. Left alone, ReportPortal closes them when the launch
+	// finishes: every container then ends at the launch's finish time with a status it
+	// guesses (it marks a container whose only spec was skipped as FAILED).
+	suiteIDs := make(map[string]bool, len(suiteCache.Suites))
+	for _, id := range suiteCache.Suites {
+		suiteIDs[id] = true
+	}
+	finishContainers(
+		client,
+		agentState.LaunchID,
+		rpagent.AggregateContainers(allStatuses, suiteIDs),
+	)
+
 	fmt.Printf("  Finishing %d suite(s)...\n\n", len(suiteCache.Suites))
 
 	for suiteDir, suiteID := range suiteCache.Suites {
 		results := suiteResults[suiteDir]
 		suiteStatus := gorp.Statuses.Passed
 
+		// Test gap: needs a mock RP server; covered by the real-RP sanity run.
+		notRunNote := ""
 		if len(results) == 0 {
-			// A suite with zero results could be:
-			//   a) a compile error / crash (hasSuiteFailures) → mark FAILED
-			//   b) all specs were filtered by --focus → mark PASSED (not a failure)
+			// Nothing was reported: the package never ran (earlier suite failed without
+			// --keep-going, compile error, crash) or every spec was filtered out.
+			// Never report that as FAILED or PASSED; it is simply not run.
+			suiteStatus = gorp.Statuses.Skipped
+			notRunNote = "Not run: no specs were reported for this suite " +
+				"(an earlier suite failed, the package did not compile, or all specs were filtered out)."
 			if hasSuiteFailures {
-				suiteStatus = gorp.Statuses.Failed
+				notRunNote += " Use --keep-going to run remaining suites after a failure."
 			}
-			fmt.Printf("  Suite: %s — %s (0 tests)\n", filepath.Base(suiteDir), suiteStatus)
+			fmt.Printf("  Suite: %s — %s (not run)\n", filepath.Base(suiteDir), suiteStatus)
 		} else {
 			for _, r := range results {
 				norm := strings.ToLower(r.Status)
@@ -897,16 +1011,33 @@ func finishSuitesFromResults(
 					break
 				}
 			}
+			specs, _ := splitFixtureResults(results)
 			fmt.Printf(
 				"  Suite: %s — %s (%d tests)\n",
 				filepath.Base(suiteDir),
 				suiteStatus,
-				len(results),
+				len(specs),
 			)
 		}
 
+		// A suite ends when its last spec did, not when this wrapper got around to it.
+		suiteEnd := rpagent.LatestEnd(results)
+		if suiteEnd.IsZero() {
+			suiteEnd = time.Now()
+		}
+		if notRunNote != "" {
+			if _, lerr := client.SaveLog(context.Background(), &openapi.SaveLogRQ{
+				ItemUuid:   ptr(suiteID),
+				LaunchUuid: agentState.LaunchID,
+				Level:      ptr("INFO"),
+				Time:       suiteEnd,
+				Message:    ptr(notRunNote),
+			}); lerr != nil {
+				fmt.Printf("  WARNING: failed to log not-run note for %s: %v\n", suiteID, lerr)
+			}
+		}
 		_, err := client.FinishTest(context.Background(), suiteID, &openapi.FinishTestItemRQ{
-			EndTime:    time.Now(),
+			EndTime:    suiteEnd,
 			Status:     ptr(string(suiteStatus)),
 			LaunchUuid: agentState.LaunchID,
 		})
@@ -1211,4 +1342,86 @@ func showConfigHelp() {
 		"  RP_LOCK_RETRY_SLEEP_MS (default 200) — ms between polls; max wait = COUNT × SLEEP_MS = 10 s",
 	)
 	fmt.Println()
+}
+
+// finishContainers finishes Describe/Context items, deepest first (ReportPortal does not
+// let an item finish before its children), each with the status and end time aggregated
+// from its specs.
+func finishContainers(
+	client *gorp.ReportingClient,
+	launchID string,
+	containers []rpagent.ContainerResult,
+) {
+	if len(containers) == 0 {
+		return
+	}
+	fmt.Printf("  Finishing %d container(s)...\n", len(containers))
+	for _, c := range containers {
+		end := c.End
+		if end.IsZero() {
+			end = time.Now()
+		}
+		_, err := client.FinishTest(context.Background(), c.ID, &openapi.FinishTestItemRQ{
+			EndTime:    end,
+			Status:     ptr(string(c.Status)),
+			LaunchUuid: launchID,
+		})
+		if err != nil {
+			fmt.Printf("  WARNING: failed to finish container %s: %v\n", c.ID, err)
+		}
+	}
+	fmt.Printf("\n")
+}
+
+// splitFixtureResults separates failed BeforeSuite/AfterSuite records from spec results.
+func splitFixtureResults(
+	all []rpagent.SharedSpecStatus,
+) (specs, fixtures []rpagent.SharedSpecStatus) {
+	for _, r := range all {
+		if r.Fixture {
+			fixtures = append(fixtures, r)
+		} else {
+			specs = append(specs, r)
+		}
+	}
+	return specs, fixtures
+}
+
+// overallResult describes the run's outcome as the lines to print under "Overall Status",
+// and whether the launch must be marked failed regardless of the spec results.
+// specsFailed counts failed specs only; fixtureFailures counts failed BeforeSuite/AfterSuite
+// nodes. hasSuiteFailures is true when ginkgo exited non-zero.
+func overallResult(
+	hasSuiteFailures bool,
+	specsFailed, passed, skipped, fixtureFailures int,
+) (lines []string, forceFailed bool) {
+	switch {
+	case specsFailed > 0:
+		return []string{"    RESULT: TESTS FAILED"}, false
+	case fixtureFailures > 0 && passed+skipped == 0:
+		return []string{"    RESULT: SUITE SETUP FAILED (no tests executed)"}, true
+	case fixtureFailures > 0:
+		return []string{
+			fmt.Sprintf(
+				"    RESULT: SUITE SETUP OR TEARDOWN FAILED (%d tests ran)",
+				passed+skipped,
+			),
+		}, true
+	case !hasSuiteFailures && passed == 0 && skipped > 0:
+		return []string{
+			"    RESULT: ALL TESTS SKIPPED (check --focus / --label-filter — no specs matched)",
+		}, false
+	case !hasSuiteFailures:
+		return []string{"    RESULT: ALL TESTS PASSED"}, false
+	default:
+		// ginkgo failed but reported nothing: a compile error or a crash before any spec.
+		return []string{
+			"    RESULT: SUITE SETUP FAILED (no tests executed)",
+			"",
+			"  Common causes:",
+			"    1. Panic or error in Describe/Context bodies",
+			"    2. A compile error in the test package",
+			"    3. Priority() called outside an It block",
+		}, true
+	}
 }

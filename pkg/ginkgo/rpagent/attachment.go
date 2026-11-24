@@ -2,6 +2,7 @@ package rpagent
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -42,9 +43,19 @@ func InitializeAttachments() {
 	if tempAttachmentDir != "" {
 		return
 	}
-	dir, err := os.MkdirTemp("", "rp-agent-attachments-*")
+	// The session ID is part of the name so the wrapper can remove this run's directories,
+	// and only this run's, after every worker has finished. Workers cannot all do it
+	// themselves: ReportAfterSuite runs on one process only.
+	prefix := "rp-agent-attachments-"
+	if sessionID := os.Getenv("RP_SESSION_ID"); sessionID != "" {
+		prefix += sessionID + "-"
+	}
+	dir, err := os.MkdirTemp("", prefix+"*")
 	if err != nil {
-		log.Fatalf("CRITICAL: failed to create temp directory for attachments: %v", err)
+		// Reporting must never kill the test process. Without a directory, AddAttachment
+		// reports an attachment error entry instead of uploading the file.
+		log.Printf("WARNING: could not create the attachment temp directory: %v", err)
+		return
 	}
 	tempAttachmentDir = dir
 	LogVerboseOperation(fmt.Sprintf("attachment temp dir: %s", tempAttachmentDir))
@@ -162,6 +173,9 @@ func copyToTempLocation(originalPath string) (string, error) {
 	tempDir := tempAttachmentDir
 	if attachmentConfig.TempDir != "" {
 		tempDir = attachmentConfig.TempDir
+	}
+	if tempDir == "" {
+		return "", errors.New("the attachment temp directory is unavailable")
 	}
 
 	ext := filepath.Ext(originalPath)

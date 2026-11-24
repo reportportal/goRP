@@ -59,6 +59,14 @@ func retry(attempts int, baseDelay time.Duration, f func() error) error {
 	return fmt.Errorf("after %d attempts, last error: %w", attempts, err)
 }
 
+// orNow returns t, or the current time when t is the zero value.
+func orNow(t time.Time) time.Time {
+	if t.IsZero() {
+		return time.Now()
+	}
+	return t
+}
+
 func boolPtr(b bool) *bool            { return &b }
 func strPtr(s string) *string         { return &s }
 func statusPtr(s gorp.Status) *string { return strPtr(string(s)) }
@@ -103,136 +111,100 @@ func (tl *TestListener) FinishSuite(name string, status gorp.Status, id string) 
 	}
 }
 
-// StartTest starts a test item (no retry-ID variant).
-func (tl *TestListener) StartTest(
-	name, parentUUID string,
-	priority *int,
-	parameters []*Parameter,
-	itemType gorp.TestItemType,
-) string {
-	return tl.startItem(name, parentUUID, priority, parameters, itemType, "")
+// StartItem describes a test item to start in ReportPortal.
+type StartItem struct {
+	Name       string
+	ParentID   string // empty for a top-level item
+	Priority   *int
+	Parameters []*Parameter
+	Type       gorp.TestItemType
+	RefID      string // external test reference, sent as an attribute
+	// Labels are Ginkgo labels, sent as bare-tag attributes (rp.* control labels excluded).
+	Labels []string
+	// NoStats excludes the item from launch statistics. Set it for By() child steps.
+	NoStats bool
+	// StartTime is when the item actually started. Zero means now.
+	StartTime time.Time
+	// Identity holds the run-independent testCaseId, codeRef and uniqueId source.
+	Identity ItemIdentity
 }
 
-// StartTestWithReferenceId starts a test item with an external reference ID.
-func (tl *TestListener) StartTestWithReferenceId(
-	name, parentUUID string,
-	priority *int,
-	parameters []*Parameter,
-	itemType gorp.TestItemType,
-	refID string,
-) string {
-	return tl.startItem(name, parentUUID, priority, parameters, itemType, refID)
-}
-
-// StartTestWithStats starts a test item with an explicit hasStats flag.
-// Pass false for By() child steps so RP does not count them in launch totals.
-func (tl *TestListener) StartTestWithStats(
-	name, parentUUID string,
-	priority *int,
-	parameters []*Parameter,
-	itemType gorp.TestItemType,
-	hasStats bool,
-) string {
-	return tl.startItemWithStats(name, parentUUID, priority, parameters, itemType, "", hasStats)
-}
-
-func (tl *TestListener) startItem(
-	name, parentUUID string,
-	priority *int,
-	parameters []*Parameter,
-	itemType gorp.TestItemType,
-	refID string,
-) string {
-	return tl.startItemWithStats(name, parentUUID, priority, parameters, itemType, refID, true)
-}
-
-func (tl *TestListener) startItemWithStats(
-	name, parentUUID string,
-	priority *int,
-	parameters []*Parameter,
-	itemType gorp.TestItemType,
-	refID string,
-	hasStats bool,
-) string {
-	// Generate a stable client UUID for this start request so that retries are
-	// idempotent: if the server created the item but the response was lost, a
-	// retry with the same UUID is deduplicated by RP instead of creating a
-	// duplicate item.
+// Start starts a test item and returns its ReportPortal ID, or "" on failure.
+func (tl *TestListener) Start(item StartItem) string {
+	// The item's own UUID is generated once per start request and reused across
+	// retries: if the server created the item but the response was lost, the retry
+	// is deduplicated by RP instead of creating a duplicate. It is intentionally
+	// random per launch; test matching across launches uses Identity instead.
 	clientUUID := uuid.New()
-
-	// Build a stable identity key from the full item path (parentUUID + name)
-	// so that distinct items with the same leaf name don't share a testCaseId.
-	testCaseKey := name
-	if parentUUID != "" {
-		testCaseKey = parentUUID + "/" + name
-	}
 
 	rq := &openapi.StartTestItemRQ{
 		Uuid:       clientUUID.String(),
-		Name:       name,
-		StartTime:  time.Now(),
+		Name:       item.Name,
+		StartTime:  orNow(item.StartTime),
 		LaunchUuid: tl.launchUuid,
-		HasStats:   boolPtr(hasStats),
-		UniqueId:   strPtr(clientUUID.String()),
-		CodeRef:    strPtr(testCaseKey),
-		TestCaseId: strPtr(testCaseKey),
-		Type:       string(itemType),
-		Parameters: toParameterResources(parameters),
+		HasStats:   boolPtr(!item.NoStats),
+		Type:       string(item.Type),
+		Parameters: toParameterResources(item.Parameters),
+	}
+	if item.Identity.TestCaseID != "" {
+		rq.TestCaseId = strPtr(item.Identity.TestCaseID)
+		rq.UniqueId = strPtr(item.Identity.uniqueID())
+	}
+	if item.Identity.CodeRef != "" {
+		rq.CodeRef = strPtr(item.Identity.CodeRef)
 	}
 
-	if priority != nil {
+	if item.Priority != nil {
 		// RP UI reads priority from attributes.
 		rq.Attributes = append(rq.Attributes, openapi.ItemAttributesRQ{
 			Key:   strPtr("priority"),
-			Value: fmt.Sprintf("P%d", *priority),
+			Value: fmt.Sprintf("P%d", *item.Priority),
 		})
 	}
 
-	if refID != "" {
+	if item.RefID != "" {
 		// RP UI reads testReferenceId from attributes.
 		rq.Attributes = append(rq.Attributes, openapi.ItemAttributesRQ{
 			Key:   strPtr("testReferenceId"),
-			Value: refID,
+			Value: item.RefID,
 		})
 	}
 
-	if itemType == gorp.TestItemTypes.Suite {
-		rq.CodeRef = nil
-		if refID == "" {
-			rq.TestCaseId = nil
-		}
+	for _, l := range item.Labels {
+		rq.Attributes = append(rq.Attributes, openapi.ItemAttributesRQ{Value: l})
 	}
 
 	var rs *openapi.EntryCreatedAsyncRS
 	err := retry(3, 200*time.Millisecond, func() error {
 		var e error
-		if parentUUID != "" {
-			rs, e = tl.client.StartChildTest(context.Background(), parentUUID, rq)
+		if item.ParentID != "" {
+			rs, e = tl.client.StartChildTest(context.Background(), item.ParentID, rq)
 		} else {
 			rs, e = tl.client.StartTest(context.Background(), rq)
 		}
 		return e
 	})
 	if err != nil {
-		log.Printf("WARNING: failed to start test %q after retries: %v", name, err)
+		log.Printf("WARNING: failed to start test %q after retries: %v", item.Name, err)
 		return ""
 	}
 	if rs == nil || rs.Id == nil {
-		log.Printf("WARNING: start test %q returned no item ID", name)
+		log.Printf("WARNING: start test %q returned no item ID", item.Name)
 		return ""
 	}
 	return *rs.Id
 }
 
-// FinishTestWithPriority finishes a test item.
-func (tl *TestListener) FinishTestWithPriority(name string, status gorp.Status, id string, _ *int) {
+// FinishTest finishes a test item. end is when the item actually finished; zero means now.
+func (tl *TestListener) FinishTest(name string, status gorp.Status, id string, end time.Time) {
 	if id == "" {
 		log.Printf("no test ID for %q, skipping finish", name)
 		return
 	}
+	end = orNow(end)
 	err := retry(3, 200*time.Millisecond, func() error {
 		_, e := tl.client.FinishTest(context.Background(), id, &openapi.FinishTestItemRQ{
-			EndTime:    time.Now(),
+			EndTime:    end,
 			Status:     statusPtr(status),
 			LaunchUuid: tl.launchUuid,
 		})
@@ -243,14 +215,16 @@ func (tl *TestListener) FinishTestWithPriority(name string, status gorp.Status, 
 	}
 }
 
-// SendLog sends a log entry to the given test item.
-func (tl *TestListener) SendLog(itemID, level, message string) error {
+// SendLog sends a log entry to the given test item. at is when the entry was
+// really emitted; zero means now.
+func (tl *TestListener) SendLog(itemID, level, message string, at time.Time) error {
+	at = orNow(at)
 	return retry(3, 200*time.Millisecond, func() error {
 		_, e := tl.client.SaveLog(context.Background(), &openapi.SaveLogRQ{
 			ItemUuid:   strPtr(itemID),
 			LaunchUuid: tl.launchUuid,
 			Level:      strPtr(level),
-			Time:       time.Now(),
+			Time:       at,
 			Message:    strPtr(message),
 		})
 		return e
@@ -260,7 +234,9 @@ func (tl *TestListener) SendLog(itemID, level, message string) error {
 // SendAttachmentLog streams a file to ReportPortal as a multipart log attachment.
 func (tl *TestListener) SendAttachmentLog(
 	itemID, level, message, filePath, originalFilename string,
+	at time.Time,
 ) error {
+	at = orNow(at)
 	file, err := os.Open(filePath)
 	if err != nil {
 		errMsg := fmt.Sprintf(
@@ -270,7 +246,7 @@ func (tl *TestListener) SendAttachmentLog(
 			message,
 		)
 		log.Printf("ERROR: %s", errMsg)
-		return tl.SendLog(itemID, gorp.LogLevelError, errMsg)
+		return tl.SendLog(itemID, gorp.LogLevelError, errMsg, at)
 	}
 	defer func() { _ = file.Close() }()
 
@@ -280,6 +256,7 @@ func (tl *TestListener) SendAttachmentLog(
 			itemID,
 			gorp.LogLevelError,
 			fmt.Sprintf("failed to stat attachment %s: %v", originalFilename, err),
+			at,
 		)
 	}
 
@@ -292,6 +269,7 @@ func (tl *TestListener) SendAttachmentLog(
 			itemID,
 			gorp.LogLevelError,
 			fmt.Sprintf("failed to seek attachment %s: %v", originalFilename, err),
+			at,
 		)
 	}
 
@@ -308,7 +286,7 @@ func (tl *TestListener) SendAttachmentLog(
 		ItemUuid:   strPtr(itemID),
 		LaunchUuid: tl.launchUuid,
 		Level:      strPtr(level),
-		Time:       time.Now(),
+		Time:       at,
 		Message:    strPtr(message),
 		File:       &openapi.File{Name: strPtr(originalFilename)},
 	}
@@ -335,6 +313,7 @@ func (tl *TestListener) SendAttachmentLog(
 			itemID,
 			level,
 			fmt.Sprintf("%s\n[attachment %s could not be uploaded]", message, originalFilename),
+			at,
 		)
 	}
 

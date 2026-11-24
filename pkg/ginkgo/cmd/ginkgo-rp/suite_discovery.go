@@ -5,184 +5,102 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"regexp"
 	"strings"
+
+	"github.com/reportportal/goRP/pkg/ginkgo/rpagent"
 )
 
 // DiscoveredSuite represents a Ginkgo test suite found in the filesystem.
 type DiscoveredSuite struct {
-	Directory    string // Absolute path to the suite directory
-	RelativePath string // Relative to project root
+	Directory    string // Absolute, symlink-resolved path to the suite directory
+	RelativePath string // Relative to the working directory
 	Name         string // From RunSpecs(t, "Suite Name")
-	FilePath     string // Path to *_suite_test.go file
+	FilePath     string // The *_test.go file that calls RunSpecs
 }
 
-var runSpecsPattern = regexp.MustCompile(`RunSpecs\s*\([^,]+,\s*"([^"]+)"`)
-
-// validateAndCleanPath sanitizes a user-provided path to prevent path traversal.
-func validateAndCleanPath(userPath, workingDir string) (string, error) {
+// resolveDir returns the absolute, symlink-resolved path of an existing
+// directory. Symlinks are resolved because the worker looks its suite up by
+// its own resolved working directory.
+func resolveDir(userPath string) (string, error) {
 	if userPath == "" {
 		return "", errors.New("empty path provided")
 	}
-	cleanedPath := filepath.Clean(userPath)
-	var absPath string
-	if filepath.IsAbs(cleanedPath) {
-		absPath = cleanedPath
-	} else {
-		absPath = filepath.Join(workingDir, cleanedPath)
-	}
-	relPath, err := filepath.Rel(workingDir, absPath)
+	abs, err := filepath.Abs(userPath)
 	if err != nil {
 		return "", fmt.Errorf("invalid path: %w", err)
 	}
-	if strings.HasPrefix(relPath, ".."+string(filepath.Separator)) || relPath == ".." {
-		return "", fmt.Errorf("path traversal detected: %s escapes project root", userPath)
-	}
-	info, err := os.Stat(absPath)
+	info, err := os.Stat(abs)
 	if err != nil {
-		if os.IsNotExist(err) {
-			return "", fmt.Errorf("path does not exist: %s", absPath)
-		}
 		return "", fmt.Errorf("cannot access path: %w", err)
 	}
 	if !info.IsDir() {
-		return "", fmt.Errorf("path is not a directory: %s", absPath)
+		return "", fmt.Errorf("path is not a directory: %s", abs)
 	}
-	return absPath, nil
+	if resolved, rerr := filepath.EvalSymlinks(abs); rerr == nil {
+		abs = resolved
+	}
+	return abs, nil
 }
 
-// validateFilePath ensures filePath is within allowedDir and is a regular file.
-func validateFilePath(filePath, allowedDir string) error {
-	cleanedFile := filepath.Clean(filePath)
-	cleanedDir := filepath.Clean(allowedDir)
-	relPath, err := filepath.Rel(cleanedDir, cleanedFile)
-	if err != nil {
-		return fmt.Errorf("invalid file path: %w", err)
-	}
-	if strings.HasPrefix(relPath, ".."+string(filepath.Separator)) || relPath == ".." {
-		return fmt.Errorf("path traversal detected: %s is outside %s", filePath, allowedDir)
-	}
-	info, err := os.Stat(cleanedFile)
-	if err != nil {
-		if os.IsNotExist(err) {
-			return fmt.Errorf("file does not exist: %s", cleanedFile)
-		}
-		return fmt.Errorf("cannot access file: %w", err)
-	}
-	if info.IsDir() {
-		return fmt.Errorf("path is a directory, not a file: %s", cleanedFile)
-	}
-	return nil
-}
-
-// discoverSuites finds all Ginkgo test suites under targetPath.
-// When recursive is false only the target directory itself is checked.
+// discoverSuites finds all Ginkgo suites under targetPath. A suite is any
+// directory with a *_test.go file that calls RunSpecs, as in Ginkgo itself.
 func discoverSuites(targetPath string, recursive bool) ([]DiscoveredSuite, error) {
-	projectRoot, err := os.Getwd()
+	cwd, err := os.Getwd()
 	if err != nil {
 		return nil, fmt.Errorf("failed to get working directory: %w", err)
 	}
-	absTargetPath, err := validateAndCleanPath(targetPath, projectRoot)
+	root, err := resolveDir(targetPath)
 	if err != nil {
 		return nil, fmt.Errorf("invalid target path: %w", err)
 	}
+	if resolvedCwd, rerr := filepath.EvalSymlinks(cwd); rerr == nil {
+		cwd = resolvedCwd
+	}
 
-	var suites []DiscoveredSuite
+	suiteAt := func(dir string) (DiscoveredSuite, bool) {
+		file, name, ok := rpagent.FindSuite(dir)
+		if !ok {
+			return DiscoveredSuite{}, false
+		}
+		rel, rerr := filepath.Rel(cwd, dir)
+		if rerr != nil {
+			rel = dir
+		}
+		return DiscoveredSuite{Directory: dir, RelativePath: rel, Name: name, FilePath: file}, true
+	}
 
-	if recursive {
-		err = filepath.Walk(absTargetPath, func(path string, info os.FileInfo, err error) error {
-			if err != nil {
-				return err
-			}
-			if !info.IsDir() {
-				return nil
-			}
-			base := filepath.Base(path)
-			// Mirror Ginkgo's own directory skip rules.
-			if base == "vendor" || strings.HasPrefix(base, ".") || strings.HasPrefix(base, "_") {
-				return filepath.SkipDir
-			}
-			suiteFile, ferr := findSuiteTestFile(path)
-			if ferr != nil || suiteFile == "" {
-				return nil
-			}
-			suiteName, _ := parseSuiteNameFromFile(suiteFile)
-			if suiteName == "" {
-				suiteName = filepath.Base(path)
-			}
-			relPath, _ := filepath.Rel(projectRoot, path)
-			suites = append(suites, DiscoveredSuite{
-				Directory:    path,
-				RelativePath: relPath,
-				Name:         suiteName,
-				FilePath:     suiteFile,
-			})
-			return nil
-		})
-		if err != nil {
-			return nil, fmt.Errorf("failed to walk directory tree: %w", err)
-		}
-	} else {
-		suiteFile, err := findSuiteTestFile(absTargetPath)
-		if err != nil {
-			return nil, fmt.Errorf("failed to find suite file in %s: %w", absTargetPath, err)
-		}
-		if suiteFile == "" {
+	if !recursive {
+		s, ok := suiteAt(root)
+		if !ok {
 			return nil, fmt.Errorf(
-				"no *_suite_test.go file found in %s\n  Hint: use -r to scan subdirectories, or pass an explicit suite path (e.g. ginkgo-rp calculator/)",
-				absTargetPath,
+				"no Ginkgo suite (a *_test.go file calling RunSpecs) found in %s\n  Hint: use -r to scan subdirectories, or pass an explicit suite path",
+				root,
 			)
 		}
-		suiteName, _ := parseSuiteNameFromFile(suiteFile)
-		if suiteName == "" {
-			suiteName = filepath.Base(absTargetPath)
+		return []DiscoveredSuite{s}, nil
+	}
+
+	var suites []DiscoveredSuite
+	err = filepath.WalkDir(root, func(path string, d os.DirEntry, werr error) error {
+		if werr != nil {
+			return werr
 		}
-		relPath, _ := filepath.Rel(projectRoot, absTargetPath)
-		suites = append(suites, DiscoveredSuite{
-			Directory:    absTargetPath,
-			RelativePath: relPath,
-			Name:         suiteName,
-			FilePath:     suiteFile,
-		})
+		if !d.IsDir() {
+			return nil
+		}
+		base := d.Name()
+		// Mirror Ginkgo's own directory skip rules (never skip the root itself).
+		if path != root &&
+			(base == "vendor" || base == "testdata" || strings.HasPrefix(base, ".") || strings.HasPrefix(base, "_")) {
+			return filepath.SkipDir
+		}
+		if s, ok := suiteAt(path); ok {
+			suites = append(suites, s)
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to walk directory tree: %w", err)
 	}
 	return suites, nil
-}
-
-// findSuiteTestFile returns the path to the *_suite_test.go file in directory,
-// or empty string if none is found.
-func findSuiteTestFile(directory string) (string, error) {
-	entries, err := os.ReadDir(directory)
-	if err != nil {
-		return "", fmt.Errorf("failed to read directory %s: %w", directory, err)
-	}
-	for _, entry := range entries {
-		if entry.IsDir() {
-			continue
-		}
-		name := entry.Name()
-		if strings.HasSuffix(name, "_suite_test.go") {
-			return filepath.Join(directory, name), nil
-		}
-	}
-	return "", nil
-}
-
-// parseSuiteNameFromFile extracts the suite name from RunSpecs(t, "Suite Name").
-func parseSuiteNameFromFile(filePath string) (string, error) {
-	if err := validateFilePath(filePath, filepath.Dir(filePath)); err != nil {
-		return "", fmt.Errorf("file validation failed: %w", err)
-	}
-	content, err := os.ReadFile(filePath)
-	if err != nil {
-		return "", fmt.Errorf("failed to read file %s: %w", filePath, err)
-	}
-	matches := runSpecsPattern.FindStringSubmatch(string(content))
-	if len(matches) < 2 {
-		return "", fmt.Errorf("could not find RunSpecs pattern in %s", filePath)
-	}
-	suiteName := strings.TrimSpace(matches[1])
-	if suiteName == "" {
-		return "", fmt.Errorf("empty suite name in %s", filePath)
-	}
-	return suiteName, nil
 }

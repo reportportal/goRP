@@ -1,17 +1,16 @@
 package rpagent
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
 	"os"
 	"os/signal"
 	"path/filepath"
-	"regexp"
 	"strconv"
 	"strings"
 	"sync"
 	"syscall"
+	"time"
 
 	"github.com/onsi/ginkgo/v2"
 	"github.com/onsi/ginkgo/v2/types"
@@ -41,11 +40,17 @@ var (
 
 // SpecHierarchyIDs holds the ReportPortal IDs created for one spec's hierarchy.
 type SpecHierarchyIDs struct {
-	StepID         string
+	StepID    string
+	Identity  ItemIdentity // run-independent identity of the spec item
+	StartTime time.Time    // when the spec item was started in ReportPortal
+
 	ContainerIDs   []string
 	ContainerNames []string
 	ChildStepIDs   []string
 	ChildStepNames []string
+	ChildStepEnds  []time.Time
+
+	ChildStepStatuses []gorp.Status
 }
 
 // init eagerly initialises the agent in every Ginkgo worker process.
@@ -59,10 +64,12 @@ func init() {
 	pid := os.Getpid()
 	LogVerboseOperation(fmt.Sprintf("initialising agent (PID %d)", pid))
 
-	InitializeAttachments()
-
-	coordinator = NewLaunchCoordinator(sessionID)
 	var err error
+	coordinator, err = NewLaunchCoordinator(sessionID)
+	if err != nil {
+		log.Printf("WARNING (PID %d): %v, staying dormant", pid, err)
+		return
+	}
 	agentState, err = coordinator.LoadAgentState()
 	if err != nil {
 		// State file missing means the wrapper did not write it (e.g. --dry-run).
@@ -115,7 +122,8 @@ func init() {
 	suiteID, suiteErr := GetSuiteIDForDirectory(sessionID, resolvedWd)
 	if suiteErr != nil {
 		log.Printf(
-			"WARNING (PID %d): could not get suite ID for %s, staying dormant: %v",
+			"ERROR (PID %d): this package (%s) was not registered by ginkgo-rp, so its specs "+
+				"will NOT be reported to ReportPortal (tests still run): %v",
 			pid,
 			resolvedWd,
 			suiteErr,
@@ -164,7 +172,7 @@ func init() {
 
 		priority := ExtractPriorityFromReportEntry(spec)
 		refID := ExtractTestReferenceIdFromReportEntry(spec)
-		finishSpecHierarchy(spec, priority)
+		ids := finishSpecHierarchy(spec)
 
 		wd, _ := os.Getwd()
 		status := SharedSpecStatus{
@@ -174,6 +182,8 @@ func init() {
 			Status:          spec.State.String(),
 			Priority:        priority,
 			TestReferenceId: refID,
+			ContainerIDs:    ids.ContainerIDs,
+			EndTime:         spec.EndTime,
 		}
 		if spec.Failure.Message != "" {
 			status.FailureMessage = spec.Failure.Message
@@ -184,38 +194,7 @@ func init() {
 			)
 		}
 
-		if agentState != nil {
-			pid := os.Getpid()
-			sessionID := os.Getenv("RP_SESSION_ID")
-			if sessionID == "" {
-				return
-			}
-			file := filepath.Join(
-				os.TempDir(),
-				fmt.Sprintf(ProcessReportFilePattern, agentState.SessionID, pid),
-			)
-
-			resultsMutex.Lock()
-			defer resultsMutex.Unlock()
-
-			f, err := os.OpenFile(file, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o600)
-			if err != nil {
-				log.Printf("ERROR: could not open status file: %v", err)
-				return
-			}
-
-			data, err := json.Marshal(status)
-			if err != nil {
-				_ = f.Close()
-				log.Printf("ERROR: could not marshal spec status: %v", err)
-				return
-			}
-			if _, werr := f.WriteString(string(data) + "\n"); werr != nil {
-				log.Printf("ERROR: could not write spec status: %v", werr)
-			}
-			_ = f.Sync()
-			_ = f.Close()
-		}
+		appendSpecStatus(status)
 	})
 
 	ginkgo.ReportAfterSuite("ReportPortal Final Flush", func(report types.Report) {
@@ -223,6 +202,7 @@ func init() {
 			return
 		}
 		pid := os.Getpid()
+		reportSuiteFixtureFailures(report)
 		CleanupAttachments()
 		if agentState != nil {
 			flagPath := filepath.Join(
@@ -281,18 +261,18 @@ func setupExitHandlers() {
 				activeHierarchies.Delete(item.key)
 				if globalListener != nil {
 					for i, childID := range item.ids.ChildStepIDs {
-						globalListener.FinishTestWithPriority(
+						globalListener.FinishTest(
 							item.ids.ChildStepNames[i],
 							gorp.Statuses.Interrupted,
 							childID,
-							nil,
+							time.Now(),
 						)
 					}
-					globalListener.FinishTestWithPriority(
+					globalListener.FinishTest(
 						"interrupted",
 						gorp.Statuses.Interrupted,
 						item.ids.StepID,
-						nil,
+						time.Now(),
 					)
 					// Do NOT finish containers here — they are shared across specs;
 					// the wrapper finishes them in Phase 3.
@@ -340,10 +320,13 @@ func LoadRPConfig() (*Config, error) {
 		}
 		dir = parent
 	}
+	// No file (typical in CI): the environment alone may be enough.
+	if cfg, envErr := ConfigFromEnv(); envErr == nil {
+		return cfg, nil
+	}
 	return nil, fmt.Errorf(
-		"reportportal.properties not found (searched %d levels up from %s)",
+		"reportportal.properties not found (searched %d levels up) and RP_ENDPOINT/RP_PROJECT/RP_API_KEY are not all set",
 		maxDepth,
-		dir,
 	)
 }
 
@@ -374,58 +357,89 @@ func startSpecHierarchy(
 // byStep pairs a By() child item ID with its timeline order so logs can be
 // routed to the correct child based on when they were emitted.
 type byStep struct {
-	id    string
-	name  string
-	order int // TimelineLocation.Order of the ByStart event (monotonically increasing)
+	id     string
+	name   string
+	order  int // TimelineLocation.Order of the ByStart event (monotonically increasing)
+	end    time.Time
+	status gorp.Status
 }
 
-func finishSpecHierarchy(spec types.SpecReport, priority int) {
+func finishSpecHierarchy(spec types.SpecReport) SpecHierarchyIDs {
 	if globalClient == nil || globalListener == nil {
-		return
+		return SpecHierarchyIDs{}
 	}
 	val, ok := activeHierarchies.LoadAndDelete(spec.FullText())
 	if !ok {
 		log.Printf("WARNING: no active hierarchy for: %s", spec.FullText())
-		return
+		return SpecHierarchyIDs{}
 	}
 	ids := val.(SpecHierarchyIDs)
 
-	bySteps := extractAndCreateBySteps(spec, ids)
+	// Everything below is stamped with the times Ginkgo recorded while the spec ran,
+	// clamped into the spec item's own window, not with the time we upload it.
+	win := specWindow(ids.StartTime, spec.EndTime)
+	plans := planBySteps(spec.SpecEvents, win)
+	bySteps := extractAndCreateBySteps(spec, ids, win, plans)
 
-	// Rebuild ids.ChildStepIDs/Names from bySteps for finishHierarchy.
+	// Rebuild ids.ChildStep* from bySteps for finishHierarchy.
 	for _, b := range bySteps {
 		ids.ChildStepIDs = append(ids.ChildStepIDs, b.id)
 		ids.ChildStepNames = append(ids.ChildStepNames, b.name)
+		ids.ChildStepEnds = append(ids.ChildStepEnds, b.end)
+		ids.ChildStepStatuses = append(ids.ChildStepStatuses, b.status)
 	}
 
-	processLogsWithByRouting(spec, ids.StepID, bySteps)
-	processAttachmentsWithByRouting(spec, ids.StepID, bySteps)
-	finishHierarchy(spec, ids, priority)
+	processLogsWithByRouting(spec, ids.StepID, bySteps, win)
+	processCapturedOutput(spec, ids.StepID, bySteps, plans, win)
+	processAttachmentsWithByRouting(spec, ids.StepID, bySteps, win)
+
+	// The failure message belongs on the step that was running when it happened, so it
+	// shows right under the red step; with no step running it stays on the spec item.
+	failureTarget, failureWin := ids.StepID, win
+	order, hasFailure := failureOrder(spec)
+	if i := runningStep(plans, order, hasFailure); i >= 0 && bySteps[i].id != "" {
+		failureTarget = bySteps[i].id
+		failureWin = timeWindow{start: plans[i].start, end: plans[i].end}
+	}
+	finishHierarchy(spec, ids, win, failureTarget, failureWin)
+	return ids
 }
 
 // extractAndCreateBySteps creates a child STEP item in RP for each By()
 // statement and returns them with their timeline order for log routing.
-func extractAndCreateBySteps(spec types.SpecReport, ids SpecHierarchyIDs) []byStep {
-	var steps []byStep
-	for _, event := range spec.SpecEvents {
-		if event.SpecEventType != types.SpecEventByStart {
-			continue
-		}
-		if event.Message == "" {
-			continue
-		}
-		childID := globalListener.StartTestWithStats(
-			event.Message,
-			ids.StepID,
-			nil,
-			nil,
-			gorp.TestItemTypes.Step,
-			false,
-		)
+// failureOrder returns the timeline order at which the spec failed, and whether the spec
+// recorded a failure at all (a failed assertion, a skip, an interrupt).
+func failureOrder(spec types.SpecReport) (order int, ok bool) {
+	return spec.Failure.TimelineLocation.Order,
+		spec.Failure.Message != "" || spec.Failure.TimelineLocation.Order != 0
+}
+
+func extractAndCreateBySteps(
+	spec types.SpecReport,
+	ids SpecHierarchyIDs,
+	win timeWindow,
+	plans []stepPlan,
+) []byStep {
+	order, hasFailure := failureOrder(spec)
+	statuses := stepStatuses(plans, MapGinkgoStateToStatus(spec.State.String()), order, hasFailure)
+	steps := make([]byStep, 0, len(plans))
+	occurrences := make(map[string]int)
+	for i, plan := range plans {
+		occurrences[plan.name]++
+		childID := globalListener.Start(StartItem{
+			Name:      plan.name,
+			ParentID:  ids.StepID,
+			Type:      gorp.TestItemTypes.Step,
+			NoStats:   true,
+			StartTime: plan.start,
+			Identity:  stepIdentity(ids.Identity, plan.name, occurrences[plan.name]),
+		})
 		steps = append(steps, byStep{
-			id:    childID,
-			name:  event.Message,
-			order: event.TimelineLocation.Order,
+			id:     childID,
+			name:   plan.name,
+			order:  plan.order,
+			end:    plan.end,
+			status: statuses[i],
 		})
 	}
 	return steps
@@ -444,18 +458,48 @@ func targetIDForOrder(order int, fallback string, steps []byStep) string {
 	return target
 }
 
+// failureLog builds the log for the message Ginkgo recorded when a spec did not pass.
+// Ginkgo stores Skip("reason") as a failure internally, but a skip is not an error: it is
+// reported as an informational "SKIPPED" entry, not as an ERROR "TEST FAILED".
+func failureLog(spec types.SpecReport, status gorp.Status) (level, msg string) {
+	where := fmt.Sprintf("%s:%d", spec.Failure.Location.FileName, spec.Failure.Location.LineNumber)
+	if status == gorp.Statuses.Skipped {
+		return gorp.LogLevelInfo, fmt.Sprintf(
+			"SKIPPED\n\nLocation: %s\n\nReason:\n%s",
+			where,
+			spec.Failure.Message,
+		)
+	}
+	return gorp.LogLevelError, fmt.Sprintf(
+		"TEST FAILED\n\nLocation: %s\n\nFailure:\n%s",
+		where,
+		spec.Failure.Message,
+	)
+}
+
 // finishHierarchy closes the It step and its By() children.
 // Containers (Describe/Context) are NOT finished here — they are shared across
 // specs and parallel workers. The wrapper finishes them in Phase 3 via
 // finishSuitesFromResults, after all workers have completed.
-func finishHierarchy(spec types.SpecReport, ids SpecHierarchyIDs, priority int) {
+func finishHierarchy(
+	spec types.SpecReport,
+	ids SpecHierarchyIDs,
+	win timeWindow,
+	failureTarget string,
+	failureWin timeWindow,
+) {
 	status := MapGinkgoStateToStatus(spec.State.String())
 
 	if spec.Failure.Message != "" {
-		msg := fmt.Sprintf("TEST FAILED\n\nLocation: %s:%d\n\nFailure:\n%s",
-			spec.Failure.Location.FileName, spec.Failure.Location.LineNumber, spec.Failure.Message)
-		if ids.StepID != "" {
-			if err := globalListener.SendLog(ids.StepID, gorp.LogLevelError, msg); err != nil {
+		level, msg := failureLog(spec, status)
+		if failureTarget != "" {
+			failedAt := failureWin.clamp(spec.Failure.TimelineLocation.Time)
+			if err := globalListener.SendLog(
+				failureTarget,
+				level,
+				msg,
+				failedAt,
+			); err != nil {
 				log.Printf("WARNING: failed to send failure log for %s: %v", spec.LeafNodeText, err)
 			}
 		}
@@ -465,15 +509,25 @@ func finishHierarchy(spec types.SpecReport, ids SpecHierarchyIDs, priority int) 
 		if childID == "" {
 			continue
 		}
-		globalListener.FinishTestWithPriority(ids.ChildStepNames[i], status, childID, nil)
+		globalListener.FinishTest(
+			ids.ChildStepNames[i],
+			ids.ChildStepStatuses[i],
+			childID,
+			ids.ChildStepEnds[i],
+		)
 	}
 	if ids.StepID != "" {
-		globalListener.FinishTestWithPriority(spec.LeafNodeText, status, ids.StepID, &priority)
+		globalListener.FinishTest(spec.LeafNodeText, status, ids.StepID, win.end)
 	}
 	// Containers are intentionally not finished here. See function comment.
 }
 
-func processLogsWithByRouting(spec types.SpecReport, stepID string, steps []byStep) {
+func processLogsWithByRouting(
+	spec types.SpecReport,
+	stepID string,
+	steps []byStep,
+	win timeWindow,
+) {
 	for _, entry := range spec.ReportEntries {
 		// Log() calls ginkgo.AddReportEntry(name) with no extra args, so the payload
 		// is in entry.Name, not entry.Value.
@@ -506,14 +560,24 @@ func processLogsWithByRouting(spec types.SpecReport, stepID string, steps []bySt
 			target = stepID // fall back to It step if By() child start failed
 		}
 		if target != "" {
-			if err := globalListener.SendLog(target, rpLevel, parts[2]); err != nil {
+			if err := globalListener.SendLog(
+				target,
+				rpLevel,
+				parts[2],
+				win.clamp(entry.Time),
+			); err != nil {
 				log.Printf("WARNING: failed to send log to ReportPortal: %v", err)
 			}
 		}
 	}
 }
 
-func processAttachmentsWithByRouting(spec types.SpecReport, stepID string, steps []byStep) {
+func processAttachmentsWithByRouting(
+	spec types.SpecReport,
+	stepID string,
+	steps []byStep,
+	win timeWindow,
+) {
 	for _, entry := range spec.ReportEntries {
 		v := fmt.Sprintf("%v", entry.Value)
 		target := targetIDForOrder(entry.TimelineLocation.Order, stepID, steps)
@@ -533,6 +597,7 @@ func processAttachmentsWithByRouting(spec types.SpecReport, stepID string, steps
 					message,
 					tmpPath,
 					origName,
+					win.clamp(entry.Time),
 				)
 			}
 		} else if strings.HasPrefix(v, attachmentErrorPrefix) {
@@ -542,7 +607,8 @@ func processAttachmentsWithByRouting(spec types.SpecReport, stepID string, steps
 					target,
 					gorp.LogLevelError,
 					fmt.Sprintf("Attachment error: %s", raw),
-				) //nolint:errcheck
+					win.clamp(entry.Time),
+				)
 			}
 		}
 	}
@@ -560,10 +626,23 @@ func convertToGinkgoSpec(spec types.SpecReport) GinkgoSpecReport {
 		)
 	}
 
+	containerLocs := make([]CodeLoc, 0, len(spec.ContainerHierarchyLocations))
+	for _, l := range spec.ContainerHierarchyLocations {
+		containerLocs = append(
+			containerLocs,
+			CodeLoc{FileName: l.FileName, LineNumber: l.LineNumber},
+		)
+	}
+
 	gs := GinkgoSpecReport{
-		ContainerHierarchyTexts:    spec.ContainerHierarchyTexts,
-		ContainerHierarchyLabels:   spec.ContainerHierarchyLabels,
-		LeafNodeText:               spec.LeafNodeText,
+		ContainerHierarchyTexts:  spec.ContainerHierarchyTexts,
+		ContainerHierarchyLabels: spec.ContainerHierarchyLabels,
+		ContainerHierarchyLocs:   containerLocs,
+		LeafNodeText:             spec.LeafNodeText,
+		LeafNodeLoc: CodeLoc{
+			FileName:   spec.LeafNodeLocation.FileName,
+			LineNumber: spec.LeafNodeLocation.LineNumber,
+		},
 		FullText:                   spec.FullText(),
 		State:                      spec.State.String(),
 		CapturedStdOutErr:          spec.CapturedStdOutErr,
@@ -600,45 +679,10 @@ func getCurrentSuiteName() string {
 		cachedSuiteName = "Unknown Suite"
 		return cachedSuiteName
 	}
-	suiteName := filepath.Base(wd)
-
-	entries, err := os.ReadDir(wd)
-	if err != nil {
-		cachedSuiteName = suiteName
-		return cachedSuiteName
+	if _, name, ok := FindSuite(wd); ok {
+		cachedSuiteName = name
+	} else {
+		cachedSuiteName = filepath.Base(wd)
 	}
-
-	re := regexp.MustCompile(`RunSpecs\s*\([^,]+,\s*"([^"]+)"`)
-	for _, entry := range entries {
-		name := entry.Name()
-		if !strings.HasSuffix(name, "_suite_test.go") {
-			continue
-		}
-		// Path-traversal guard
-		if strings.Contains(name, "..") || strings.ContainsAny(name, "/\\") {
-			continue
-		}
-		fullPath := filepath.Join(wd, name)
-		absPath, err := filepath.Abs(fullPath)
-		if err != nil {
-			continue
-		}
-		absWd, err := filepath.Abs(wd)
-		if err != nil {
-			continue
-		}
-		if !strings.HasPrefix(absPath, absWd) {
-			continue
-		}
-		content, err := os.ReadFile(fullPath)
-		if err != nil {
-			continue
-		}
-		if m := re.FindSubmatch(content); len(m) > 1 {
-			cachedSuiteName = string(m[1])
-			return cachedSuiteName
-		}
-	}
-	cachedSuiteName = suiteName
 	return cachedSuiteName
 }

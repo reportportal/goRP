@@ -33,3 +33,8 @@ changelog:
 env_files:
   # use only one or release will fail!
   github_token: ~/.goreleaser/github
+
+release:
+  # Make re-runs (e.g. local `task release` after the CI job, or a CI retry) idempotent:
+  # existing assets with the same name are replaced instead of failing with 422 already_exists.
+  replace_existing_artifacts: true

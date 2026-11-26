@@ -93,7 +93,7 @@ func ProcessSpecWithHierarchyAndReturnIDs(
 	// are clamped to start no earlier than this, as ReportPortal requires children to
 	// start after their parent.
 	start := time.Now()
-	stepID := listener.Start(StartItem{
+	template := StartItem{
 		Name:       spec.LeafNodeText,
 		ParentID:   parentID,
 		Priority:   spec.Priority,
@@ -103,9 +103,11 @@ func ProcessSpecWithHierarchyAndReturnIDs(
 		Labels:     tagLabels(spec.Labels),
 		StartTime:  start,
 		Identity:   identity,
-	})
+	}
+	stepID := listener.Start(template)
 
 	return SpecHierarchyIDs{
+		Template:       template,
 		StepID:         stepID,
 		StartTime:      start,
 		Identity:       identity,

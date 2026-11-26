@@ -155,9 +155,7 @@ func TestFinishSpecHierarchyUsesGinkgoTimeline(t *testing.T) {
 		defer mu.Unlock()
 		switch {
 		case r.Method == http.MethodPost && strings.HasSuffix(r.URL.Path, "/log"):
-			var rq openapi.SaveLogRQ
-			_ = json.NewDecoder(r.Body).Decode(&rq)
-			logs = append(logs, rq)
+			logs = append(logs, decodeLogRQs(t, r)...)
 			writeJSON(w, `{}`)
 		case r.Method == http.MethodPost:
 			var rq openapi.StartTestItemRQ

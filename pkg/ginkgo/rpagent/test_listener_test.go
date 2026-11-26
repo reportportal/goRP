@@ -1,11 +1,17 @@
 package rpagent
 
 import (
+	"context"
 	"encoding/json"
+	"errors"
+	"fmt"
+	"io"
+	"net"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"sync/atomic"
+	"syscall"
 	"testing"
 	"time"
 
@@ -16,6 +22,28 @@ import (
 func writeJSON(w http.ResponseWriter, body string) {
 	w.Header().Set("Content-Type", "application/json")
 	_, _ = w.Write([]byte(body))
+}
+
+// decodeLogRQs reads the logs of a POST .../log request: a single JSON log, or the
+// multipart batch the agent sends per spec.
+func decodeLogRQs(t *testing.T, r *http.Request) []openapi.SaveLogRQ {
+	t.Helper()
+	if strings.HasPrefix(r.Header.Get("Content-Type"), "multipart/") {
+		if err := r.ParseMultipartForm(32 << 20); err != nil {
+			t.Errorf("parse batch: %v", err)
+			return nil
+		}
+		var batch []openapi.SaveLogRQ
+		for _, v := range r.MultipartForm.Value["json_request_part"] {
+			if err := json.Unmarshal([]byte(v), &batch); err != nil {
+				t.Errorf("decode batch: %v", err)
+			}
+		}
+		return batch
+	}
+	var one openapi.SaveLogRQ
+	_ = json.NewDecoder(r.Body).Decode(&one)
+	return []openapi.SaveLogRQ{one}
 }
 
 func newTestListener(t *testing.T, h http.HandlerFunc) *TestListener {
@@ -276,5 +304,81 @@ func TestStartUsesGivenStartTime(t *testing.T) {
 	tl.Start(StartItem{Name: "n", Type: gorp.TestItemTypes.Step, StartTime: at})
 	if !got.StartTime.Equal(at) {
 		t.Errorf("start time = %v, want %v", got.StartTime, at)
+	}
+}
+
+type timeoutErr struct{}
+
+func (timeoutErr) Error() string   { return "i/o timeout" }
+func (timeoutErr) Timeout() bool   { return true }
+func (timeoutErr) Temporary() bool { return false }
+
+func TestIsRetriableError(t *testing.T) {
+	tests := []struct {
+		name string
+		err  error
+		want bool
+	}{
+		{"nil", nil, false},
+		{"500", &gorp.HTTPError{StatusCode: 500}, true},
+		{"429", &gorp.HTTPError{StatusCode: 429}, true},
+		{"404", &gorp.HTTPError{StatusCode: 404}, false},
+		{"400", &gorp.HTTPError{StatusCode: 400}, false},
+		{"wrapped 503", fmt.Errorf("x: %w", &gorp.HTTPError{StatusCode: 503}), true},
+		{"EOF", io.EOF, true},
+		{"unexpected EOF", fmt.Errorf("read: %w", io.ErrUnexpectedEOF), true},
+		{"refused", &net.OpError{Op: "dial", Err: syscall.ECONNREFUSED}, true},
+		{"reset", fmt.Errorf("x: %w", syscall.ECONNRESET), true},
+		{"dns", &net.DNSError{Err: "no such host", Name: "rp"}, true},
+		{"net timeout", timeoutErr{}, true},
+		{"deadline", context.DeadlineExceeded, true},
+		{"canceled", context.Canceled, false},
+		// Only typed errors count: a message that merely contains "timeout" must not.
+		{"plain text", errors.New("timeout while thinking"), false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := isRetriableError(tt.err); got != tt.want {
+				t.Errorf("isRetriableError(%v) = %v, want %v", tt.err, got, tt.want)
+			}
+		})
+	}
+}
+
+func TestStartRetryOfSendsRetryFlags(t *testing.T) {
+	var got map[string]any
+	tl := newTestListener(t, func(w http.ResponseWriter, r *http.Request) {
+		_ = json.NewDecoder(r.Body).Decode(&got)
+		writeJSON(w, `{"id":"x"}`)
+	})
+	tl.Start(StartItem{Name: "s", Type: gorp.TestItemTypes.Step, RetryOf: "prev-id"})
+	if got["retry"] != true || got["retryOf"] != "prev-id" {
+		t.Errorf("retry fields = %v / %v, want true / prev-id", got["retry"], got["retryOf"])
+	}
+}
+
+func TestFlushLogsBatchesAndSplitsBySize(t *testing.T) {
+	var requests, total int
+	ids := map[string]bool{}
+	tl := newTestListener(t, func(w http.ResponseWriter, r *http.Request) {
+		requests++
+		for _, l := range decodeLogRQs(t, r) {
+			total++
+			ids[*l.Uuid] = true
+		}
+		writeJSON(w, `{}`)
+	})
+	for i := 0; i < maxBatchLogs+5; i++ {
+		tl.QueueLog("item", "INFO", "m", time.Time{})
+	}
+	if err := tl.FlushLogs(); err != nil {
+		t.Fatal(err)
+	}
+	if requests != 2 || total != maxBatchLogs+5 || len(ids) != total {
+		t.Errorf("requests=%d logs=%d unique=%d, want 2 requests, %d unique logs",
+			requests, total, len(ids), maxBatchLogs+5)
+	}
+	if err := tl.FlushLogs(); err != nil || requests != 2 {
+		t.Errorf("flushing an empty queue must send nothing (requests=%d, err=%v)", requests, err)
 	}
 }

@@ -40,6 +40,7 @@ var (
 
 // SpecHierarchyIDs holds the ReportPortal IDs created for one spec's hierarchy.
 type SpecHierarchyIDs struct {
+	Template  StartItem // how the spec item was started; reused to start retry attempts
 	StepID    string
 	Identity  ItemIdentity // run-independent identity of the spec item
 	StartTime time.Time    // when the spec item was started in ReportPortal
@@ -165,6 +166,12 @@ func init() {
 		}
 	})
 
+	ginkgo.JustAfterEach(func() {
+		if isInitialized && os.Getenv("RP_SESSION_ID") != "" {
+			recordAttemptFailure(ginkgo.CurrentSpecReport())
+		}
+	})
+
 	ginkgo.ReportAfterEach(func(spec types.SpecReport) {
 		if !isInitialized || os.Getenv("RP_SESSION_ID") == "" {
 			return
@@ -203,6 +210,7 @@ func init() {
 		}
 		pid := os.Getpid()
 		reportSuiteFixtureFailures(report)
+		finishOpenHierarchies()
 		CleanupAttachments()
 		if agentState != nil {
 			flagPath := filepath.Join(
@@ -217,12 +225,14 @@ func init() {
 	})
 }
 
-// setupExitHandlers installs a signal handler that marks in-flight RP items as INTERRUPTED.
-// It does NOT call os.Exit — Ginkgo's own signal handling runs AfterEach/AfterSuite normally,
-// and those hooks deliver interrupted specs to ReportAfterEach with State=interrupted.
-// We only need to write the done-flag and close the logger here.
+// setupExitHandlers installs a signal handler that only writes the done-flag and closes
+// the logger. It does NOT finish items and does NOT call os.Exit: Ginkgo's own interrupt
+// handling delivers the running spec to ReportAfterEach (State=interrupted), which needs
+// the spec's data intact in activeHierarchies. Anything still open after the suite is
+// finished by finishOpenHierarchies in ReportAfterSuite.
 func setupExitHandlers() {
 	exitHandlerOnce.Do(func() {
+		state := agentState // read now: the goroutine below must not touch the global
 		ch := make(chan os.Signal, 1)
 		// Do NOT catch SIGQUIT — that delivers Go's goroutine dump.
 		signal.Notify(ch, os.Interrupt, syscall.SIGTERM)
@@ -237,52 +247,10 @@ func setupExitHandlers() {
 				),
 			)
 
-			// Finish any items that are still open. We do this before Ginkgo's
-			// own AfterEach runs so RP does not show "In Progress" items if the
-			// process is killed rather than interrupted gracefully.
-			//
-			// We snapshot the map first, then delete entries, to avoid a race
-			// with the concurrent ReportAfterEach path.
-			var snapshot []struct {
-				key string
-				ids SpecHierarchyIDs
-			}
-			activeHierarchies.Range(func(key, val any) bool {
-				ids, ok := val.(SpecHierarchyIDs)
-				if ok {
-					snapshot = append(snapshot, struct {
-						key string
-						ids SpecHierarchyIDs
-					}{key.(string), ids})
-				}
-				return true
-			})
-			for _, item := range snapshot {
-				activeHierarchies.Delete(item.key)
-				if globalListener != nil {
-					for i, childID := range item.ids.ChildStepIDs {
-						globalListener.FinishTest(
-							item.ids.ChildStepNames[i],
-							gorp.Statuses.Interrupted,
-							childID,
-							time.Now(),
-						)
-					}
-					globalListener.FinishTest(
-						"interrupted",
-						gorp.Statuses.Interrupted,
-						item.ids.StepID,
-						time.Now(),
-					)
-					// Do NOT finish containers here — they are shared across specs;
-					// the wrapper finishes them in Phase 3.
-				}
-			}
-
-			if agentState != nil {
+			if state != nil {
 				flagPath := filepath.Join(
 					os.TempDir(),
-					fmt.Sprintf("rp_done_%s_%d.flag", agentState.SessionID, pid),
+					fmt.Sprintf("rp_done_%s_%d.flag", state.SessionID, pid),
 				)
 				if f, err := os.Create(flagPath); err == nil {
 					_ = f.Close()
@@ -294,25 +262,35 @@ func setupExitHandlers() {
 	})
 }
 
-// LoadRPConfig walks up from cwd looking for reportportal.properties.
-// The search depth defaults to 10 levels and can be overridden by setting
-// the RP_PROPERTIES_DEPTH environment variable to any positive integer.
-func LoadRPConfig() (*Config, error) {
-	maxDepth := 10
+// ConfigFileEnv names the environment variable through which the wrapper tells workers
+// which properties file it used. Workers run in their own package directory, which may be
+// outside the wrapper's tree, so searching upwards from there would not find it.
+const ConfigFileEnv = "RP_CONFIG_FILE"
+
+// ConfigFilePath finds the properties file: the path in RP_CONFIG_FILE if set and present,
+// otherwise the nearest reportportal.properties walking up from the working directory.
+// The search depth defaults to 10 levels and can be overridden with RP_PROPERTIES_DEPTH.
+func ConfigFilePath() (path string, searchedLevels int, ok bool) {
+	if p := os.Getenv(ConfigFileEnv); p != "" {
+		if _, err := os.Stat(p); err == nil {
+			return p, 0, true
+		}
+		log.Printf("WARNING: %s=%q does not exist, searching upwards instead", ConfigFileEnv, p)
+	}
+	searchedLevels = 10
 	if v := os.Getenv("RP_PROPERTIES_DEPTH"); v != "" {
 		if n, err := strconv.Atoi(v); err == nil && n > 0 {
-			maxDepth = n
+			searchedLevels = n
 		}
 	}
-
 	dir, err := os.Getwd()
 	if err != nil {
-		return nil, err
+		return "", searchedLevels, false
 	}
-	for i := 0; i < maxDepth; i++ {
+	for i := 0; i < searchedLevels; i++ {
 		p := filepath.Join(dir, "reportportal.properties")
 		if _, err := os.Stat(p); err == nil {
-			return LoadConfig(p)
+			return p, searchedLevels, true
 		}
 		parent := filepath.Dir(dir)
 		if parent == dir {
@@ -320,13 +298,23 @@ func LoadRPConfig() (*Config, error) {
 		}
 		dir = parent
 	}
+	return "", searchedLevels, false
+}
+
+// LoadRPConfig loads the configuration from the properties file found by ConfigFilePath,
+// with environment variables taking precedence, or from the environment alone.
+func LoadRPConfig() (*Config, error) {
+	path, levels, ok := ConfigFilePath()
+	if ok {
+		return LoadConfig(path)
+	}
 	// No file (typical in CI): the environment alone may be enough.
 	if cfg, envErr := ConfigFromEnv(); envErr == nil {
 		return cfg, nil
 	}
 	return nil, fmt.Errorf(
 		"reportportal.properties not found (searched %d levels up) and RP_ENDPOINT/RP_PROJECT/RP_API_KEY are not all set",
-		maxDepth,
+		levels,
 	)
 }
 
@@ -375,6 +363,36 @@ func finishSpecHierarchy(spec types.SpecReport) SpecHierarchyIDs {
 	}
 	ids := val.(SpecHierarchyIDs)
 
+	// A spec Ginkgo ran several times (FlakeAttempts, MustPassRepeatedly) becomes one RP
+	// item per attempt, each a retry of the previous one.
+	attempts := splitAttempts(spec, takeAttemptFailures(spec))
+	if len(attempts) == 1 {
+		return reportAttempt(spec, ids)
+	}
+	var final SpecHierarchyIDs
+	prevID := ""
+	for k, attempt := range attempts {
+		cur := ids
+		if k > 0 {
+			item := ids.Template
+			item.StartTime = attempt.StartTime
+			item.RetryOf = prevID
+			cur.StepID = globalListener.Start(item)
+			cur.StartTime = attempt.StartTime
+			cur.ChildStepIDs, cur.ChildStepNames, cur.ChildStepEnds, cur.ChildStepStatuses = nil, nil, nil, nil
+		}
+		if cur.StepID != "" {
+			note := fmt.Sprintf("Attempt %d of %d", k+1, len(attempts))
+			globalListener.QueueLog(cur.StepID, gorp.LogLevelInfo, note, cur.StartTime)
+		}
+		final = reportAttempt(attempt, cur)
+		prevID = final.StepID
+	}
+	return final
+}
+
+// reportAttempt reports one run of a spec onto the already started item ids.StepID.
+func reportAttempt(spec types.SpecReport, ids SpecHierarchyIDs) SpecHierarchyIDs {
 	// Everything below is stamped with the times Ginkgo recorded while the spec ran,
 	// clamped into the spec item's own window, not with the time we upload it.
 	win := specWindow(ids.StartTime, spec.EndTime)
@@ -494,15 +512,12 @@ func finishHierarchy(
 		level, msg := failureLog(spec, status)
 		if failureTarget != "" {
 			failedAt := failureWin.clamp(spec.Failure.TimelineLocation.Time)
-			if err := globalListener.SendLog(
-				failureTarget,
-				level,
-				msg,
-				failedAt,
-			); err != nil {
-				log.Printf("WARNING: failed to send failure log for %s: %v", spec.LeafNodeText, err)
-			}
+			globalListener.QueueLog(failureTarget, level, msg, failedAt)
 		}
+	}
+	// Every log of this spec goes out in one batch, before its items are finished.
+	if err := globalListener.FlushLogs(); err != nil {
+		log.Printf("WARNING: failed to send logs for %s: %v", spec.LeafNodeText, err)
 	}
 
 	for i, childID := range ids.ChildStepIDs {
@@ -560,14 +575,7 @@ func processLogsWithByRouting(
 			target = stepID // fall back to It step if By() child start failed
 		}
 		if target != "" {
-			if err := globalListener.SendLog(
-				target,
-				rpLevel,
-				parts[2],
-				win.clamp(entry.Time),
-			); err != nil {
-				log.Printf("WARNING: failed to send log to ReportPortal: %v", err)
-			}
+			globalListener.QueueLog(target, rpLevel, parts[2], win.clamp(entry.Time))
 		}
 	}
 }
@@ -603,7 +611,7 @@ func processAttachmentsWithByRouting(
 		} else if strings.HasPrefix(v, attachmentErrorPrefix) {
 			raw := strings.TrimPrefix(v, attachmentErrorPrefix)
 			if target != "" {
-				_ = globalListener.SendLog(
+				globalListener.QueueLog(
 					target,
 					gorp.LogLevelError,
 					fmt.Sprintf("Attachment error: %s", raw),
@@ -679,10 +687,30 @@ func getCurrentSuiteName() string {
 		cachedSuiteName = "Unknown Suite"
 		return cachedSuiteName
 	}
-	if _, name, ok := FindSuite(wd); ok {
+	if _, name, ok := FindSuite(wd, BuildTagsOfThisBinary()); ok {
 		cachedSuiteName = name
 	} else {
 		cachedSuiteName = filepath.Base(wd)
 	}
 	return cachedSuiteName
+}
+
+// finishOpenHierarchies finishes every spec item that never reached ReportAfterEach
+// (for example when the process is interrupted before Ginkgo reports the spec), so RP
+// does not keep them In Progress.
+func finishOpenHierarchies() {
+	activeHierarchies.Range(func(key, val any) bool {
+		activeHierarchies.Delete(key)
+		ids, ok := val.(SpecHierarchyIDs)
+		if !ok || globalListener == nil {
+			return true
+		}
+		for i, childID := range ids.ChildStepIDs {
+			globalListener.FinishTest(
+				ids.ChildStepNames[i], gorp.Statuses.Interrupted, childID, time.Now(),
+			)
+		}
+		globalListener.FinishTest("interrupted", gorp.Statuses.Interrupted, ids.StepID, time.Now())
+		return true
+	})
 }

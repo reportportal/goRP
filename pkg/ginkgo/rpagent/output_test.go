@@ -1,7 +1,6 @@
 package rpagent
 
 import (
-	"encoding/json"
 	"net/http"
 	"strings"
 	"sync"
@@ -10,8 +9,6 @@ import (
 	"unicode/utf8"
 
 	"github.com/onsi/ginkgo/v2/types"
-
-	"github.com/reportportal/goRP/v5/pkg/openapi"
 )
 
 func TestStripANSI(t *testing.T) {
@@ -171,9 +168,9 @@ func outputHarness(t *testing.T) func() []sentLog {
 		defer mu.Unlock()
 		switch {
 		case r.Method == http.MethodPost && strings.HasSuffix(r.URL.Path, "/log"):
-			var rq openapi.SaveLogRQ
-			_ = json.NewDecoder(r.Body).Decode(&rq)
-			logs = append(logs, sentLog{*rq.ItemUuid, *rq.Level, *rq.Message, rq.Time})
+			for _, rq := range decodeLogRQs(t, r) {
+				logs = append(logs, sentLog{*rq.ItemUuid, *rq.Level, *rq.Message, rq.Time})
+			}
 			writeJSON(w, `{}`)
 		case r.Method == http.MethodPost:
 			seq++

@@ -1,7 +1,6 @@
 package rpagent
 
 import (
-	"log"
 	"regexp"
 	"strconv"
 	"strings"
@@ -167,16 +166,11 @@ func sendOutput(
 		budget -= len(kept)
 
 		for _, chunk := range splitLogText(kept, maxLogChunkBytes) {
-			if err := globalListener.SendLog(target, level, chunk, win.clamp(seg.at)); err != nil {
-				log.Printf("WARNING: failed to send %s output to ReportPortal: %v", stream, err)
-				return
-			}
+			globalListener.QueueLog(target, level, chunk, win.clamp(seg.at))
 		}
 	}
 	if omitted > 0 && noteTarget != "" {
 		note := "[" + stream + " output truncated: " + strconv.Itoa(omitted) + " bytes omitted]"
-		if err := globalListener.SendLog(noteTarget, logLevelWarn, note, win.end); err != nil {
-			log.Printf("WARNING: failed to send truncation notice to ReportPortal: %v", err)
-		}
+		globalListener.QueueLog(noteTarget, logLevelWarn, note, win.end)
 	}
 }

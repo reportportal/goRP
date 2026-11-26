@@ -4,11 +4,15 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
 	"log"
 	"math/rand"
+	"net"
 	"net/http"
 	"os"
 	"strings"
+	"sync"
+	"syscall"
 	"time"
 
 	"github.com/google/uuid"
@@ -17,9 +21,9 @@ import (
 	"github.com/reportportal/goRP/v5/pkg/openapi"
 )
 
-// isRetriableError reports whether an error warrants a retry.
-// Retries on: network errors, HTTP 5xx, HTTP 429.
-// Does NOT retry on: 4xx client errors (except 429).
+// isRetriableError reports whether an error is a transient failure worth retrying:
+// HTTP 5xx and 429, timeouts, connection refused/reset, DNS failures, and a connection
+// that closed mid-response. Everything else (4xx, cancellation, bad requests) is final.
 func isRetriableError(err error) bool {
 	if err == nil {
 		return false
@@ -28,13 +32,21 @@ func isRetriableError(err error) bool {
 	if errors.As(err, &httpErr) {
 		return httpErr.StatusCode >= 500 || httpErr.StatusCode == 429
 	}
-	s := err.Error()
-	return strings.Contains(s, "connection refused") ||
-		strings.Contains(s, "connection reset") ||
-		strings.Contains(s, "timeout") ||
-		strings.Contains(s, "EOF") ||
-		strings.Contains(s, "no such host") ||
-		strings.Contains(s, "network is unreachable")
+	if errors.Is(err, context.Canceled) {
+		return false
+	}
+	if errors.Is(err, context.DeadlineExceeded) ||
+		errors.Is(err, io.EOF) || errors.Is(err, io.ErrUnexpectedEOF) ||
+		errors.Is(err, syscall.ECONNREFUSED) || errors.Is(err, syscall.ECONNRESET) ||
+		errors.Is(err, syscall.ECONNABORTED) || errors.Is(err, syscall.EPIPE) {
+		return true
+	}
+	var dnsErr *net.DNSError
+	if errors.As(err, &dnsErr) {
+		return true
+	}
+	var netErr net.Error
+	return errors.As(err, &netErr) && netErr.Timeout()
 }
 
 // retry runs f up to attempts times with exponential backoff + jitter.
@@ -88,6 +100,9 @@ type TestListener struct {
 	client     *gorp.ReportingClient
 	launchUuid string
 	launchName string
+
+	mu      sync.Mutex
+	pending []*openapi.SaveLogRQ // queued by QueueLog, sent by FlushLogs
 }
 
 // NewTestListener creates a TestListener.
@@ -127,6 +142,10 @@ type StartItem struct {
 	StartTime time.Time
 	// Identity holds the run-independent testCaseId, codeRef and uniqueId source.
 	Identity ItemIdentity
+	// RetryOf is the ID of the previous attempt of the same spec. Setting it makes this
+	// item a ReportPortal retry: the earlier attempts are folded under the last one and
+	// only the last counts in the launch statistics.
+	RetryOf string
 }
 
 // Start starts a test item and returns its ReportPortal ID, or "" on failure.
@@ -139,15 +158,19 @@ func (tl *TestListener) Start(item StartItem) string {
 
 	rq := &openapi.StartTestItemRQ{
 		Uuid:       clientUUID.String(),
-		Name:       item.Name,
+		Name:       boundedName(item.Name),
 		StartTime:  orNow(item.StartTime),
 		LaunchUuid: tl.launchUuid,
 		HasStats:   boolPtr(!item.NoStats),
 		Type:       string(item.Type),
 		Parameters: toParameterResources(item.Parameters),
 	}
+	if item.RetryOf != "" {
+		rq.Retry = boolPtr(true)
+		rq.RetryOf = strPtr(item.RetryOf)
+	}
 	if item.Identity.TestCaseID != "" {
-		rq.TestCaseId = strPtr(item.Identity.TestCaseID)
+		rq.TestCaseId = strPtr(boundedID(item.Identity.TestCaseID))
 		rq.UniqueId = strPtr(item.Identity.uniqueID())
 	}
 	if item.Identity.CodeRef != "" {
@@ -229,6 +252,59 @@ func (tl *TestListener) SendLog(itemID, level, message string, at time.Time) err
 		})
 		return e
 	})
+}
+
+// maxBatchLogs and maxBatchBytes bound one batch request.
+const (
+	maxBatchLogs  = 200
+	maxBatchBytes = 2 << 20
+)
+
+// QueueLog adds a log to the pending batch. Nothing is sent until FlushLogs.
+func (tl *TestListener) QueueLog(itemID, level, message string, at time.Time) {
+	tl.mu.Lock()
+	defer tl.mu.Unlock()
+	tl.pending = append(tl.pending, &openapi.SaveLogRQ{
+		// A fixed UUID per log lets ReportPortal drop a duplicate if a retried batch
+		// was in fact already stored.
+		Uuid:       strPtr(uuid.NewString()),
+		ItemUuid:   strPtr(itemID),
+		LaunchUuid: tl.launchUuid,
+		Level:      strPtr(level),
+		Time:       orNow(at),
+		Message:    strPtr(message),
+	})
+}
+
+// FlushLogs sends the queued logs, in as few batch requests as the size limits allow.
+// Logs that could not be sent are dropped after the retries, and the error returned.
+func (tl *TestListener) FlushLogs() error {
+	tl.mu.Lock()
+	logs := tl.pending
+	tl.pending = nil
+	tl.mu.Unlock()
+
+	var firstErr error
+	for len(logs) > 0 {
+		n, size := 0, 0
+		for n < len(logs) && n < maxBatchLogs {
+			size += len(*logs[n].Message)
+			if n > 0 && size > maxBatchBytes {
+				break
+			}
+			n++
+		}
+		batch := logs[:n]
+		logs = logs[n:]
+		err := retry(3, 200*time.Millisecond, func() error {
+			_, e := tl.client.SaveLogs(context.Background(), batch...)
+			return e
+		})
+		if err != nil && firstErr == nil {
+			firstErr = err
+		}
+	}
+	return firstErr
 }
 
 // SendAttachmentLog streams a file to ReportPortal as a multipart log attachment.

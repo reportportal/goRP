@@ -119,18 +119,6 @@ func TestAgentSkipPackages(t *testing.T) {
 	}
 }
 
-func TestIsPackagePath(t *testing.T) {
-	cases := map[string]bool{
-		"./...": true, "...": true, "./pkg/auth": true, "../x": true, "calculator/": true,
-		"--keep-going": false, "-r": false, "calculator": false,
-	}
-	for in, want := range cases {
-		if got := isPackagePath(in); got != want {
-			t.Errorf("isPackagePath(%q) = %v, want %v", in, got, want)
-		}
-	}
-}
-
 func TestDetectTypo(t *testing.T) {
 	if ok, hint := detectTypo("--h"); !ok || hint == "" {
 		t.Errorf("--h should be flagged with a suggestion")

@@ -56,5 +56,9 @@ func TestReference(refID string) string {
 //	rpagent.Log("INFO", "Starting token validation")
 //	rpagent.Log("ERROR", "Unexpected response: "+body)
 func Log(level, message string) {
-	ginkgo.AddReportEntry(fmt.Sprintf("RP_LOG#%s#%s#%s", "rp_log", level, message))
+	// Never: the entry is only a carrier for the agent, so keep it out of Ginkgo's console output.
+	ginkgo.AddReportEntry(
+		fmt.Sprintf("RP_LOG#%s#%s#%s", "rp_log", level, message),
+		ginkgo.ReportEntryVisibilityNever,
+	)
 }

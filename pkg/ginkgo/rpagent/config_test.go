@@ -73,3 +73,58 @@ func TestTagLabels(t *testing.T) {
 		t.Fatalf("got %v", got)
 	}
 }
+
+func TestConfigFileEnvWinsOverSearch(t *testing.T) {
+	clearRPEnv(t)
+	// The properties file lives in a tree the working directory is not under.
+	cfgDir := t.TempDir()
+	f := filepath.Join(cfgDir, "reportportal.properties")
+	body := "rp.endpoint=http://fromfile\nrp.project=p\nrp.api.key=k\n"
+	if err := os.WriteFile(f, []byte(body), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	t.Chdir(t.TempDir())
+
+	if _, err := LoadRPConfig(); err == nil {
+		t.Fatal("no file upwards and no env: want an error")
+	}
+	t.Setenv(ConfigFileEnv, f)
+	c, err := LoadRPConfig()
+	if err != nil || c.Endpoint != "http://fromfile" {
+		t.Fatalf("with %s set: got %+v, %v", ConfigFileEnv, c, err)
+	}
+}
+
+func TestConfigFileWalksUpAndHonoursDepth(t *testing.T) {
+	clearRPEnv(t)
+	root := t.TempDir()
+	body := "rp.endpoint=e\nrp.project=p\nrp.api.key=k\n"
+	if err := os.WriteFile(
+		filepath.Join(root, "reportportal.properties"),
+		[]byte(body),
+		0o600,
+	); err != nil {
+		t.Fatal(err)
+	}
+	deep := filepath.Join(root, "a", "b", "c")
+	if err := os.MkdirAll(deep, 0o700); err != nil {
+		t.Fatal(err)
+	}
+	t.Chdir(deep)
+	if _, err := LoadRPConfig(); err != nil {
+		t.Fatalf("file three levels up should be found: %v", err)
+	}
+	t.Setenv("RP_PROPERTIES_DEPTH", "2")
+	if _, err := LoadRPConfig(); err == nil {
+		t.Fatal("depth 2 must not reach a file three levels up")
+	}
+}
+
+func TestConfigFileEnvPointingNowhereFallsBack(t *testing.T) {
+	clearRPEnv(t)
+	t.Setenv(ConfigFileEnv, filepath.Join(t.TempDir(), "missing.properties"))
+	t.Chdir(t.TempDir())
+	if _, err := LoadRPConfig(); err == nil {
+		t.Fatal("a missing file and no env settings must be an error, not a panic")
+	}
+}

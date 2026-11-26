@@ -42,14 +42,34 @@ func resolveDir(userPath string) (string, error) {
 	return abs, nil
 }
 
-// discoverSuites finds all Ginkgo suites under targetPath. A suite is any
-// directory with a *_test.go file that calls RunSpecs, as in Ginkgo itself.
-func discoverSuites(targetPath string, recursive bool) ([]DiscoveredSuite, error) {
+// discoverOpts carries the parts of the command line that decide which packages Ginkgo
+// would run, so discovery lists the same suites and not packages Ginkgo will skip.
+type discoverOpts struct {
+	Tags         []string // --tags, which decide which test files are compiled
+	SkipPackages []string // --skip-package filters, matched as Ginkgo matches them
+}
+
+// ginkgoPath renders dir the way Ginkgo names a suite path ("./calculator"), because
+// --skip-package filters are matched against that form.
+func ginkgoPath(cwd, dir string) string {
+	rel, err := filepath.Rel(cwd, dir)
+	if err != nil {
+		return dir
+	}
+	if !strings.HasPrefix(rel, ".") {
+		rel = "." + string(filepath.Separator) + rel
+	}
+	return rel
+}
+
+// discoverSuites finds the Ginkgo suites under t. A suite is a package with a test file
+// that imports Ginkgo and that is compiled for the given tags, as in Ginkgo itself.
+func discoverSuites(t target, opts discoverOpts) ([]DiscoveredSuite, error) {
 	cwd, err := os.Getwd()
 	if err != nil {
 		return nil, fmt.Errorf("failed to get working directory: %w", err)
 	}
-	root, err := resolveDir(targetPath)
+	root, err := resolveDir(t.Dir)
 	if err != nil {
 		return nil, fmt.Errorf("invalid target path: %w", err)
 	}
@@ -57,8 +77,20 @@ func discoverSuites(targetPath string, recursive bool) ([]DiscoveredSuite, error
 		cwd = resolvedCwd
 	}
 
+	skipped := func(dir string) bool {
+		p := ginkgoPath(cwd, dir)
+		for _, f := range opts.SkipPackages {
+			if f != "" && strings.Contains(p, f) {
+				return true
+			}
+		}
+		return false
+	}
 	suiteAt := func(dir string) (DiscoveredSuite, bool) {
-		file, name, ok := rpagent.FindSuite(dir)
+		if skipped(dir) {
+			return DiscoveredSuite{}, false
+		}
+		file, name, ok := rpagent.FindSuite(dir, opts.Tags)
 		if !ok {
 			return DiscoveredSuite{}, false
 		}
@@ -69,12 +101,12 @@ func discoverSuites(targetPath string, recursive bool) ([]DiscoveredSuite, error
 		return DiscoveredSuite{Directory: dir, RelativePath: rel, Name: name, FilePath: file}, true
 	}
 
-	if !recursive {
+	if !t.Recursive {
 		s, ok := suiteAt(root)
 		if !ok {
 			return nil, fmt.Errorf(
-				"no Ginkgo suite (a *_test.go file calling RunSpecs) found in %s\n"+
-					"  Hint: use -r to scan subdirectories, or pass an explicit suite path",
+				"no Ginkgo suite found in %s (needs a test file importing Ginkgo, "+
+					"compiled for the given --tags, in a package not excluded by --skip-package)",
 				root,
 			)
 		}

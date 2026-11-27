@@ -1,0 +1,7 @@
+{"ImportPath":"example.com/buildfail/brokentest [example.com/buildfail/brokentest.test]","Action":"build-output","Output":"# example.com/buildfail/brokentest [example.com/buildfail/brokentest.test]\n"}
+{"ImportPath":"example.com/buildfail/brokentest [example.com/buildfail/brokentest.test]","Action":"build-output","Output":"brokentest/add_test.go:6:18: undefined: three\n"}
+{"ImportPath":"example.com/buildfail/brokentest [example.com/buildfail/brokentest.test]","Action":"build-output","Output":"brokentest/add_test.go:9:6: declared and not used: unused\n"}
+{"ImportPath":"example.com/buildfail/brokentest [example.com/buildfail/brokentest.test]","Action":"build-fail"}
+{"Time":"2026-11-27T17:38:27.714835-05:00","Action":"start","Package":"example.com/buildfail/brokentest"}
+{"Time":"2026-11-27T17:38:27.715014-05:00","Action":"output","Package":"example.com/buildfail/brokentest","Output":"FAIL\texample.com/buildfail/brokentest [build failed]\n","OutputType":"frame"}
+{"Time":"2026-11-27T17:38:27.715034-05:00","Action":"fail","Package":"example.com/buildfail/brokentest","Elapsed":0,"FailedBuild":"example.com/buildfail/brokentest [example.com/buildfail/brokentest.test]"}

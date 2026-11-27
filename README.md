@@ -257,6 +257,13 @@ The launch finishes as `FAILED` if any test or package failed, otherwise `PASSED
 (Ctrl-C, `SIGTERM`) or the input stream breaks midway, items that are still running are finished as `INTERRUPTED`,
 followed by the launch, so nothing is left `IN_PROGRESS`. A second Ctrl-C terminates immediately.
 
+**Build failures.** A package that does not compile (or fails `go vet`) runs no test. With Go 1.24 or later,
+`go test -json` puts the compiler output into the stream; the package is then reported as a `FAILED` suite with
+that output as one `ERROR` log, and the launch is `FAILED`. A broken dependency fails every package that imports
+it, each with the same log. Such a suite has no test items, so it does not show up in the launch's
+total/passed/failed numbers. With older Go versions the build output goes to stderr, which gorp does not see: the
+suite is reported as `FAILED` without the log.
+
 **Reruns.** `--rerun` reports into the latest launch with the same `--launchName`, `--rerun-of <uuid>`
 into that launch whatever its name. ReportPortal then updates the tests that are reported again, adds the new
 ones and finishes the launch with the new status. If there is no launch to rerun, the server answers 404 and the

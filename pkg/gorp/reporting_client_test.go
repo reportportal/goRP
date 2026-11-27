@@ -2,6 +2,7 @@ package gorp
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -24,7 +25,16 @@ func TestSaveLog(t *testing.T) {
 		assert.Equal(t, "/api/v2/prj/log", r.URL.Path)
 		assert.Equal(t, http.MethodPost, r.Method)
 
-		response := `{"id": "log123"}`
+		// A single log is sent as a one-entry multipart batch, not as the JSON body deprecated in 6.x.
+		assert.Contains(t, r.Header.Get("Content-Type"), "multipart/form-data")
+		part := r.FormValue("json_request_part")
+		var logs []map[string]any
+		if assert.NoError(t, json.Unmarshal([]byte(part), &logs)) && assert.Len(t, logs, 1) {
+			assert.Equal(t, "Test log message", logs[0]["message"])
+			assert.Equal(t, "item123", logs[0]["itemUuid"])
+		}
+
+		response := `{"responses": [{"id": "log123"}]}`
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusCreated)
 		_, _ = w.Write([]byte(response))

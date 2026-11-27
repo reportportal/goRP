@@ -92,6 +92,7 @@ func test2jsonCmd(host, file string, extra ...cli.Flag) (*cli.Command, *bytes.Bu
 		&cli.StringFlag{Name: "launchName", Value: "launch"},
 		&cli.BoolFlag{Name: "reportEmptyPkg"},
 		&cli.StringSliceFlag{Name: "attr"},
+		&cli.BoolFlag{Name: "skipped-issue", Value: true},
 		&cli.BoolFlag{Name: "print-launch-uuid", Value: true},
 	)
 

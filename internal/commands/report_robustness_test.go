@@ -131,7 +131,7 @@ func TestReportLaunch_LogFailureDoesNotHangAndInterruptsLaunch(t *testing.T) {
 
 	errCh := make(chan error, 1)
 	go func() {
-		_, err := reportLaunch(t.Context(), cfg, cmd)
+		_, _, err := reportLaunch(t.Context(), cfg, cmd)
 		errCh <- err
 	}()
 
@@ -165,7 +165,7 @@ func TestReportLaunch_LargeAndMalformedLines(t *testing.T) {
 	})
 
 	cfg := &clientConfig{URL: srv.URL, Project: project, ApiKey: "tok"}
-	launchID, err := reportLaunch(t.Context(), cfg, reportCmd(file, "launch", false))
+	launchID, _, err := reportLaunch(t.Context(), cfg, reportCmd(file, "launch", false))
 
 	require.NoError(t, err)
 	assert.Equal(t, "launch-uuid-1", launchID)
@@ -188,7 +188,7 @@ func TestReportLaunch_NoEmptyLogBatch(t *testing.T) {
 	})
 
 	cfg := &clientConfig{URL: srv.URL, Project: project, ApiKey: "tok"}
-	_, err := reportLaunch(t.Context(), cfg, reportCmd(file, "launch", false))
+	_, _, err := reportLaunch(t.Context(), cfg, reportCmd(file, "launch", false))
 
 	require.NoError(t, err)
 	srv.mu.Lock()
@@ -220,7 +220,7 @@ func TestReportLaunch_LaunchStatusFollowsResults(t *testing.T) {
 			})
 
 			cfg := &clientConfig{URL: srv.URL, Project: project, ApiKey: "tok"}
-			_, err := reportLaunch(t.Context(), cfg, reportCmd(file, "launch", false))
+			_, _, err := reportLaunch(t.Context(), cfg, reportCmd(file, "launch", false))
 
 			require.NoError(t, err)
 			srv.mu.Lock()
@@ -244,7 +244,7 @@ func TestReportLaunch_PackageWithoutTestsIsSkipped(t *testing.T) {
 	})
 
 	cfg := &clientConfig{URL: srv.URL, Project: project, ApiKey: "tok"}
-	_, err := reportLaunch(t.Context(), cfg, reportCmd(file, "launch", false))
+	_, _, err := reportLaunch(t.Context(), cfg, reportCmd(file, "launch", false))
 
 	require.NoError(t, err)
 	srv.mu.Lock()
@@ -447,7 +447,7 @@ func TestReportLaunch_CancelledContextInterruptsLaunch(t *testing.T) {
 	srv.onItemStart = cancel
 
 	cfg := &clientConfig{URL: srv.URL, Project: project, ApiKey: "tok"}
-	_, err := reportLaunch(ctx, cfg, reportCmd(file, "launch", false))
+	_, _, err := reportLaunch(ctx, cfg, reportCmd(file, "launch", false))
 	require.Error(t, err)
 
 	srv.mu.Lock()
@@ -468,7 +468,7 @@ func TestReportLaunch_InterruptFinishesOpenItemsBeforeLaunch(t *testing.T) {
 	})
 
 	cfg := &clientConfig{URL: srv.URL, Project: project, ApiKey: "tok"}
-	_, err := reportLaunch(t.Context(), cfg, reportCmd(file, "launch", false))
+	_, _, err := reportLaunch(t.Context(), cfg, reportCmd(file, "launch", false))
 	require.Error(t, err)
 
 	srv.mu.Lock()

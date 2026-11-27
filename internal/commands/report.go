@@ -9,9 +9,13 @@ import (
 	"log/slog"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/urfave/cli/v3"
 )
+
+// agentName identifies gorp in the "agent" system attribute of the launches it reports.
+const agentName = "gorp"
 
 // scannerMaxLine bounds a single test2json line; output events can be larger than bufio's 64 KB default.
 const scannerMaxLine = 10 * 1024 * 1024
@@ -58,8 +62,15 @@ var (
 				"Launch attribute with format 'key:value'. Omitting a ':' separator will tag the launch with the value.",
 			),
 			&cli.BoolFlag{
+				Name: "skipped-issue",
+				Usage: "Whether skipped tests are 'To Investigate' (true, ReportPortal's default) " +
+					"or 'No Defect' (false)",
+				Sources: cli.EnvVars("SKIPPED_ISSUE"),
+				Value:   true,
+			},
+			&cli.BoolFlag{
 				Name:  "print-launch-uuid",
-				Usage: "Print launch UUID to console",
+				Usage: "Print launch UUID and link to console",
 				Value: false,
 			},
 			&cli.BoolFlag{
@@ -83,13 +94,16 @@ func reportTest2Json(ctx context.Context, cmd *cli.Command) error {
 	}
 
 	// start reporting of the launch
-	launchID, err := reportLaunch(ctx, cfg, cmd)
+	launchID, launchLink, err := reportLaunch(ctx, cfg, cmd)
 	if err != nil {
 		return err
 	}
-	// check if we need to print launch UUID
+	// check if we need to print launch UUID (and the link, if the server returned one)
 	if cmd.Bool("print-launch-uuid") && launchID != "" {
 		_, _ = fmt.Fprintf(cmd.Writer, "ReportPortal Launch UUID: %s\n", launchID)
+		if launchLink != "" {
+			_, _ = fmt.Fprintf(cmd.Writer, "ReportPortal Launch: %s\n", launchLink)
+		}
 	}
 	// check if we need to check quality gate
 	if cmd.Bool("quality-gate-check") {
@@ -108,15 +122,22 @@ func reportTest2Json(ctx context.Context, cmd *cli.Command) error {
 	return nil
 }
 
-func reportLaunch(ctx context.Context, cfg *clientConfig, cmd *cli.Command) (string, error) {
+// reportLaunch reports the test2json input as a launch and returns its UUID and UI link.
+func reportLaunch(
+	ctx context.Context,
+	cfg *clientConfig,
+	cmd *cli.Command,
+) (string, string, error) {
 	rpClient := buildReportingClient(ctx, cfg)
 
 	input := make(chan *testEvent)
 
-	launchNameArg := cmd.String("launchName")
-	reportEmptyPkgArg := cmd.Bool("reportEmptyPkg")
-	attrArgs := cmd.StringSlice("attr")
-	rep := newReporter(ctx, input, rpClient, launchNameArg, reportEmptyPkgArg, attrArgs...)
+	rep := newReporter(ctx, input, rpClient, cmd.String("launchName"), reporterOptions{
+		reportEmpty:  cmd.Bool("reportEmptyPkg"),
+		skippedIssue: cmd.Bool("skipped-issue"),
+		agentVersion: agentVersion(cmd),
+		attributes:   cmd.StringSlice("attr"),
+	})
 
 	// start reporting in a separate goroutine.
 	// recvErr is written before done is closed, so it is safe to read once done is closed.
@@ -135,12 +156,20 @@ func reportLaunch(ctx context.Context, cfg *clientConfig, cmd *cli.Command) (str
 	// reporter errors take precedence: they are the reason the input might have been abandoned
 	if recvErr != nil {
 		slog.Error("input processing interrupted", "error", recvErr)
-		return "", recvErr
+		return "", "", recvErr
 	}
 	if readErr != nil {
-		return "", readErr
+		return "", "", readErr
 	}
-	return rep.launchUUID, nil
+	return rep.launchUUID, rep.launchLink, nil
+}
+
+// agentVersion is gorp's version as set on the root command ("1.2.3 (date)"), without the date.
+func agentVersion(cmd *cli.Command) string {
+	if fields := strings.Fields(cmd.Root().Version); len(fields) > 0 {
+		return fields[0]
+	}
+	return "dev"
 }
 
 // feedEventsFrom feeds the reporter from the --file argument, or from stdin if it is not set.

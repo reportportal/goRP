@@ -238,10 +238,19 @@ go test -json ./... | gorp report test2json --quality-gate-check
 | `--launchName` | `-ln` | `LAUNCH_NAME` | `"gorp launch"` | Launch name |
 | `--reportEmptyPkg` | `-ep` | `REPORT_EMPTY_PKG` | `false` | Report packages with no test files as a launch item |
 | `--attr` | `-a` | | | Launch attribute `key:value` or `value` (repeatable) |
-| `--print-launch-uuid` | | | `false` | Print the launch UUID after reporting completes |
+| `--skipped-issue` | | `SKIPPED_ISSUE` | `true` | Skipped tests are "To Investigate" (`true`) or "No Defect" (`false`) |
+| `--print-launch-uuid` | | | `false` | Print the launch UUID and link after reporting completes |
 | `--quality-gate-check` | `-qgc` | `QUALITY_GATE_CHECK` | `false` | Poll the quality gate after reporting; exits **10** on non-`PASSED` status |
 | `--quality-gate-timeout` | `-qgt` | `QUALITY_GATE_TIMEOUT` | `1m` | Shared with `quality-gate check` |
 | `--quality-gate-check-interval` | `-qgci` | `QUALITY_GATE_CHECK_INTERVAL` | `3s` | Shared with `quality-gate check` |
+
+### Reported hierarchy
+
+Each package is a `SUITE`, each test a `STEP`, and each subtest (`t.Run`) a `STEP` nested under its
+parent test. ReportPortal counts executions only for `STEP` items without children, so every test case is
+counted once (a test with subtests is not counted itself). `t.Skip` tests are `SKIPPED`; they are
+"To Investigate" unless `--skipped-issue=false`. The launch gets the system attributes `agent`, `os`, `go`
+and `skippedIssue`. With `--print-launch-uuid` the launch link is printed as well (`ReportPortal Launch: <url>`).
 
 ### Go 1.27+ output handling
 
@@ -257,7 +266,7 @@ field: `"frame"` (test framing like `=== RUN`/`--- FAIL:`), `"error"` (first chu
   so older Go toolchains still work.
 
 No flags are needed to enable this — it's automatic based on whether the incoming stream has
-`OutputType` set. See `internal/commands/report.go` (`logLevelForOutputType`, `shouldMergeOutput`)
+`OutputType` set. See `internal/commands/reporter.go` (`logLevelForOutputType`, `shouldMergeOutput`)
 and `internal/commands/report_log_test.go` for the exact behavior and test fixtures.
 
 ---

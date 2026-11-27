@@ -94,6 +94,7 @@ func test2jsonCmd(host, file string, extra ...cli.Flag) (*cli.Command, *bytes.Bu
 		&cli.StringSliceFlag{Name: "attr"},
 		&cli.BoolFlag{Name: "skipped-issue", Value: true},
 		&cli.BoolFlag{Name: "print-launch-uuid", Value: true},
+		&cli.BoolFlag{Name: "retries", Value: true},
 	)
 
 	return &cli.Command{Flags: append(flags, extra...), Writer: &out}, &out

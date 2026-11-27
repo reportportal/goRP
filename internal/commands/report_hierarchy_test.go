@@ -25,10 +25,13 @@ type recordedItem struct {
 // hierarchyServer is a ReportPortal fake that gives every started item its own ID and records the
 // requests, so tests can check the reported hierarchy and request bodies.
 type hierarchyServer struct {
-	mu          sync.Mutex
-	items       []recordedItem
-	finishes    map[string]map[string]any // item ID -> finish body
-	launchStart map[string]any
+	mu       sync.Mutex
+	items    []recordedItem
+	finishes map[string]map[string]any // item ID -> finish body
+	// finishStatuses are the statuses an item was finished with, in order (a reused item is finished
+	// more than once)
+	finishStatuses map[string][]string
+	launchStart    map[string]any
 	// launchFinish is the body of the launch finish request
 	launchFinish map[string]any
 	// logs are the reported log entries, in the order the batches arrived
@@ -37,7 +40,10 @@ type hierarchyServer struct {
 
 func newHierarchyServer(t *testing.T, project string) (*hierarchyServer, *httptest.Server) {
 	t.Helper()
-	rec := &hierarchyServer{finishes: map[string]map[string]any{}}
+	rec := &hierarchyServer{
+		finishes:       map[string]map[string]any{},
+		finishStatuses: map[string][]string{},
+	}
 	decode := func(r *http.Request) map[string]any {
 		var body map[string]any
 		require.NoError(t, json.NewDecoder(r.Body).Decode(&body))
@@ -85,6 +91,11 @@ func newHierarchyServer(t *testing.T, project string) (*hierarchyServer, *httpte
 			body := decode(r)
 			rec.mu.Lock()
 			rec.finishes[r.PathValue("id")] = body
+			status, _ := body["status"].(string)
+			rec.finishStatuses[r.PathValue("id")] = append(
+				rec.finishStatuses[r.PathValue("id")],
+				status,
+			)
 			rec.mu.Unlock()
 			reply(w, map[string]string{"message": "finished"})
 		},

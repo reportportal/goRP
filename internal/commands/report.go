@@ -101,6 +101,14 @@ var (
 				Value:   true,
 			},
 			&cli.BoolFlag{
+				Name: "retries",
+				Usage: "Report a test that runs again in the same input (go test -count=N, gotestsum --rerun-fails) " +
+					"as a retry of its previous run: only the last run is counted. " +
+					"With false every run is a test item of its own",
+				Sources: cli.EnvVars("REPORT_RETRIES"),
+				Value:   true,
+			},
+			&cli.BoolFlag{
 				Name:  "print-launch-uuid",
 				Usage: "Print launch UUID and link to console",
 				Value: false,
@@ -192,6 +200,8 @@ func reportLaunch(
 		rerun:        cmd.Bool("rerun"),
 		rerunOf:      cmd.String("rerun-of"),
 		joined:       joined,
+		// a command without the flag (tests) reports every run on its own, as before the flag existed
+		retries: cmd.Bool("retries"),
 	})
 
 	// start reporting in a separate goroutine.

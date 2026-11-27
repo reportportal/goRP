@@ -51,6 +51,11 @@ type (
 		Status  string `json:"status"`
 		CodeRef string `json:"codeRef"`
 		Parent  int64  `json:"parent"`
+		// Retries are the earlier runs of the item; they are not listed as items themselves
+		Retries []struct {
+			ID     int64  `json:"id"`
+			Status string `json:"status"`
+		} `json:"retries"`
 	}
 	logEntry struct {
 		Message       string          `json:"message"`

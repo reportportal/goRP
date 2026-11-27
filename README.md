@@ -538,6 +538,33 @@ Errors of the generated client (`client.LaunchAPI…`) also unwrap to `*openapi.
 `openapi.APIClient` yourself, set `Configuration.ResponseMiddleware = gorp.OpenAPIErrorMiddleware`
 to get the same errors.
 
+The generated client has one response middleware slot, and `gorp.NewClient` puts
+`gorp.OpenAPIErrorMiddleware` there. Assigning your own middleware replaces it. To keep both, chain them:
+
+```go
+cfg := client.APIClient.GetConfig()
+cfg.ResponseMiddleware = gorp.ChainResponseMiddleware(
+    func(resp *http.Response, body []byte) error { // yours first: it sees failed responses too
+        slog.Debug("ReportPortal response", "status", resp.StatusCode, "url", resp.Request.URL.Path)
+        return nil
+    },
+    gorp.OpenAPIErrorMiddleware,
+)
+```
+
+The middlewares run in the given order and the first error is returned. Set it before the first request.
+
+A successful response with an HTML page (`Content-Type: text/html`) is an error on both clients,
+`errors.Is(err, gorp.ErrNotAPIResponse)`: the host or path points to the UI, a login page or another server.
+The generated client's operations that return files or reports instead of JSON (`GetLaunchReport`,
+`GetFile`, `DownloadAttachment`, exports, …) are exempt.
+
+With `gorp.WithPasswordOwnerGrantAuth`, a rejected token request is an `*gorp.HTTPError` as well: the
+request is the token endpoint, and the fields are filled from what it answered: `ErrorCode` and `Message`
+for a ReportPortal error body (ReportPortal 6: `4003`, `You do not have enough permissions. Bad credentials`),
+`OAuthError` and `Message` for an OAuth one (`invalid_grant`, `Bad credentials`). The same error also
+matches `*oauth2.RetrieveError` with `errors.As`.
+
 ### Authentication
 
 | Helper | Description |

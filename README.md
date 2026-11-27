@@ -533,6 +533,12 @@ client := gorp.NewReportingClient(host, project, gorp.WithApiKeyAuth(ctx, apiKey
 | Option | Description |
 |--------|-------------|
 | `gorp.WithResponseMiddleware(fn)` | Called with every response and its body, before the client's own error handling. Middlewares are chained in the order they were added; the first error stops the chain |
+| `gorp.WithRetry(gorp.RetryPolicy{MaxRetries: 3})` | Repeats requests that failed with a network error, 5xx (except 501) or 429, with exponential backoff and jitter; honors `Retry-After` up to `MaxWait`. Off by default |
+
+With `WithRetry`, only requests that are safe to repeat are retried: GET, PUT (finish) and DELETE, and the
+start of a launch or a test item, which gets a client-generated UUID so that the server stores it once.
+A start with `rerun` and a raw start without `"uuid"` are sent once. Logs are never retried: the server
+doesn't deduplicate them, a repeated batch would show up twice. Other 4xx responses are never retried.
 
 `gorp.ParseLaunchMode`, `gorp.ParseItemType` and `gorp.ParseStatus` convert user input (any case) to the
 typed values and report an unknown value with an error wrapping `gorp.ErrUnknownValue`.

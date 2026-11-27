@@ -12,6 +12,7 @@ import (
 	"strings"
 	"unicode/utf8"
 
+	"golang.org/x/oauth2"
 	"resty.dev/v3"
 
 	"github.com/reportportal/goRP/v5/pkg/openapi"
@@ -44,7 +45,8 @@ const (
 
 // HTTPError is the error both clients return for a failed API call: the Resty-based [Client] and
 // [ReportingClient] methods and every operation of the embedded generated [openapi.APIClient].
-// Retrieve it with [errors.As].
+// A failed token request of [WithPasswordOwnerGrantAuth] is reported the same way, with the token
+// endpoint as the request. Retrieve it with [errors.As].
 //
 // Only StatusCode and Response are always set. The other fields depend on what the server sent:
 // ReportPortal's own error body fills ErrorCode and Message, an authentication failure fills
@@ -110,8 +112,9 @@ func (e *HTTPError) Error() string {
 	return sb.String()
 }
 
-// Unwrap returns the [*openapi.GenericOpenAPIError] with the same status and body
-// when the error comes from the generated client, nil otherwise.
+// Unwrap returns the [*openapi.GenericOpenAPIError] with the same status and body when the error
+// comes from the generated client, the [*oauth2.RetrieveError] when a token request failed,
+// nil otherwise.
 func (e *HTTPError) Unwrap() error {
 	return e.cause
 }
@@ -160,7 +163,8 @@ func OpenAPIErrorMiddleware(resp *http.Response, body []byte) error {
 }
 
 func defaultHTTPErrorHandler(_ *resty.Client, rs *resty.Response) error {
-	if !rs.IsStatusFailure() && (!rs.IsStatusSuccess() || !isHTML(rs.Header())) {
+	notAPI := rs.IsStatusSuccess() && isHTML(rs.Header())
+	if !rs.IsStatusFailure() && !notAPI {
 		return nil
 	}
 	if rs.RawResponse == nil {
@@ -170,7 +174,36 @@ func defaultHTTPErrorHandler(_ *resty.Client, rs *resty.Response) error {
 			Response:   string(rs.Bytes()),
 		}
 	}
+	if notAPI {
+		return newNotAPIError(rs.RawResponse, rs.Bytes())
+	}
 	httpErr, _ := newHTTPError(rs.RawResponse, rs.Bytes())
+
+	return httpErr
+}
+
+// newTokenError reports a failed token request in the shape of a failed API call.
+// The original error stays reachable through [HTTPError.Unwrap].
+func newTokenError(retrieveErr *oauth2.RetrieveError) error {
+	if retrieveErr.Response == nil {
+		return retrieveErr
+	}
+	httpErr, _ := newHTTPError(retrieveErr.Response, retrieveErr.Body)
+	// The oauth2 package also reads bodies that are not JSON (form-encoded)
+	if httpErr.OAuthError == "" && httpErr.Message == "" {
+		httpErr.OAuthError = retrieveErr.ErrorCode
+		httpErr.Message = retrieveErr.ErrorDescription
+	}
+	httpErr.cause = retrieveErr
+
+	return httpErr
+}
+
+// newNotAPIError is the error for a successful response that has an HTML page instead of JSON.
+func newNotAPIError(resp *http.Response, body []byte) *HTTPError {
+	httpErr := baseHTTPError(resp, body)
+	httpErr.notAPI = true
+	httpErr.hint = hintNotAPI
 
 	return httpErr
 }
@@ -192,12 +225,8 @@ type errorBody struct {
 
 var wwwAuthenticateParam = regexp.MustCompile(`\b(error|error_description)="([^"]*)"`)
 
-// newHTTPError builds the error for a response of any shape. It never fails: what can't be parsed
-// stays available in Response. The second result is the ReportPortal error model, if the body is one.
-func newHTTPError(
-	resp *http.Response,
-	body []byte,
-) (*HTTPError, *openapi.ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS) {
+// baseHTTPError fills in what does not depend on the body: the status and the request.
+func baseHTTPError(resp *http.Response, body []byte) *HTTPError {
 	httpErr := &HTTPError{
 		StatusCode: resp.StatusCode,
 		Status:     resp.Status,
@@ -213,12 +242,16 @@ func newHTTPError(
 		}
 	}
 
-	if resp.StatusCode < http.StatusMultipleChoices {
-		httpErr.notAPI = true
-		httpErr.hint = hintNotAPI
+	return httpErr
+}
 
-		return httpErr, nil
-	}
+// newHTTPError builds the error for a response of any shape. It never fails: what can't be parsed
+// stays available in Response. The second result is the ReportPortal error model, if the body is one.
+func newHTTPError(
+	resp *http.Response,
+	body []byte,
+) (*HTTPError, *openapi.ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS) {
+	httpErr := baseHTTPError(resp, body)
 
 	trimmed := bytes.TrimSpace(body)
 	if len(trimmed) == 0 {

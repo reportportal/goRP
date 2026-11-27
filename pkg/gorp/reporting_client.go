@@ -221,14 +221,9 @@ func (c *ReportingClient) SaveLog(
 	ctx context.Context,
 	log *openapi.SaveLogRQ,
 ) (*openapi.EntryCreatedAsyncRS, error) {
-	var rs openapi.EntryCreatedAsyncRS
-	_, err := c.http.R().
-		SetContext(ctx).
-		SetPathParam("project", c.project).
-		SetBody(log).
-		SetResult(&rs).
-		Post("/api/v2/{project}/log")
-	return &rs, err
+	// A single log is sent as a one-entry multipart batch: a plain JSON body on /log is deprecated
+	// in ReportPortal 6.x, while the multipart form works on every server version.
+	return c.SaveLogMultipart(ctx, []*openapi.SaveLogRQ{log}, nil)
 }
 
 // SaveLogs saves logs as batch request

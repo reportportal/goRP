@@ -8,6 +8,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/reportportal/goRP/v5/pkg/openapi"
 )
 
 // test2json stream of a package with a passing and a failing test (Go 1.27 OutputType annotations).
@@ -86,6 +88,67 @@ func TestReportTest2JSON_PassingRunPassesLaunch(t *testing.T) {
 
 	launch := e.findLaunch(t, name, finished)
 	assert.Equal(t, "PASSED", launch.GetStatus())
+}
+
+// ReportPortal counts executions only for STEP items without children, so this checks the launch
+// statistics themselves: subtests are nested under their parent test, the parent is not counted, and a
+// skipped test is SKIPPED.
+func TestReportTest2JSON_StatisticsSubtestsAndSkip(t *testing.T) {
+	e := newEnv(t)
+	name := uniqueName(t)
+	input := writeFile(t, "events.jsonl", strings.Join([]string{
+		`{"Time":"2026-01-01T10:00:00Z","Action":"run","Package":"example.com/e2e","Test":"TestPass"}`,
+		`{"Time":"2026-01-01T10:00:01Z","Action":"pass","Package":"example.com/e2e","Test":"TestPass"}`,
+		`{"Time":"2026-01-01T10:00:01Z","Action":"run","Package":"example.com/e2e","Test":"TestSkip"}`,
+		`{"Time":"2026-01-01T10:00:02Z","Action":"skip","Package":"example.com/e2e","Test":"TestSkip"}`,
+		`{"Time":"2026-01-01T10:00:02Z","Action":"run","Package":"example.com/e2e","Test":"TestTable"}`,
+		`{"Time":"2026-01-01T10:00:02Z","Action":"run","Package":"example.com/e2e","Test":"TestTable/ok"}`,
+		`{"Time":"2026-01-01T10:00:03Z","Action":"pass","Package":"example.com/e2e","Test":"TestTable/ok"}`,
+		`{"Time":"2026-01-01T10:00:03Z","Action":"run","Package":"example.com/e2e","Test":"TestTable/bad"}`,
+		`{"Time":"2026-01-01T10:00:04Z","Action":"fail","Package":"example.com/e2e","Test":"TestTable/bad"}`,
+		`{"Time":"2026-01-01T10:00:04Z","Action":"fail","Package":"example.com/e2e","Test":"TestTable"}`,
+		`{"Time":"2026-01-01T10:00:05Z","Action":"fail","Package":"example.com/e2e"}`,
+	}, "\n")+"\n")
+
+	res := runGorp(
+		t,
+		"report",
+		"test2json",
+		"--file",
+		input,
+		"--launchName",
+		name,
+		"--print-launch-uuid",
+	).
+		requireOK(t)
+	assert.Contains(t, res.stdout, "ReportPortal Launch: ", "the launch link is printed")
+
+	launch := e.findLaunch(t, name, func(l *openapi.LaunchViewModel) bool {
+		return finished(l) && l.GetStatistics().Executions != nil
+	})
+	executions := *launch.GetStatistics().Executions
+	assert.Equal(
+		t,
+		int32(4),
+		executions["total"],
+		"TestPass, TestSkip and two subtests; TestTable itself is not counted",
+	)
+	assert.Equal(t, int32(2), executions["passed"])
+	assert.Equal(t, int32(1), executions["failed"])
+	assert.Equal(t, int32(1), executions["skipped"])
+
+	items := e.items(t, launch.Id, 6) // the suite, three tests and two subtests
+	assert.Equal(t, "SKIPPED", items["TestSkip"].Status)
+	assert.Equal(
+		t,
+		items["TestTable"].ID,
+		items["ok"].Parent,
+		"subtests belong to their parent test",
+	)
+	assert.Equal(t, items["TestTable"].ID, items["bad"].Parent)
+	for _, n := range []string{"TestPass", "TestSkip", "TestTable", "ok", "bad"} {
+		assert.Equal(t, "STEP", items[n].Type, n)
+	}
 }
 
 // The atomic commands are what shell-based integrations use: each prints the ID it created.

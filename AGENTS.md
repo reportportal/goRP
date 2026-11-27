@@ -24,7 +24,8 @@ A Go CLI tool (`gorp`) and library (`pkg/gorp`) for [ReportPortal](https://repor
 |------|----------|
 | `commands.go` | `init`, config loading (`~/.gorp`), client builders (`buildClient`, `buildReportingClient`) |
 | `launch.go` | `launch list`, `launch merge` |
-| `report.go` | `report test2json` pipeline (test2json event stream → RP); `reporter`/`testEvent` types |
+| `report.go` | `report test2json` command: flags, input scanning, feeding events to the reporter |
+| `reporter.go` | `reporter`/`testEvent` types: test2json events → launch, `SUITE` per package, `STEP` per test, subtests nested under their parent |
 | `report_steps.go` | Atomic report commands: `start-launch`, `start-test`, `log`, `finish-test`, `finish-launch` |
 | `quality_gate.go` | `quality-gate check` (polls launch metadata until QG resolves) |
 | `util.go` | Shared CLI helpers (config file path, validation, stdin checks) |
@@ -39,6 +40,7 @@ A Go CLI tool (`gorp`) and library (`pkg/gorp`) for [ReportPortal](https://repor
 | `filters.go` | User-filter lookup for launch queries |
 | `oauth2.go` | Password-grant token source, `WithPasswordOwnerGrantAuth` |
 | `quality_gate.go` | `ParseQualityGate` from launch metadata |
+| `attributes.go` | `SystemAttributes` (agent/os/go), `SkippedIssueAttribute`, `NotIssue` |
 | `multipart.go` | `Multipart` interface + `FileMultipart`/`ReaderMultipart` |
 | `model_api.go`, `model_enums.go` | Hand-written request/response types, `Statuses`, `TestItemTypes`, `LaunchModes`, log levels |
 
@@ -121,7 +123,9 @@ The suite skips itself when no credentials are configured.
 - Quality gate polling uses a ticker (`time.NewTicker`) — the channel must be selected on, never `default`. The caller's `ctx` must be forwarded into each poll iteration. A failed/non-PASSED quality gate exits with **exit code 10** (`cli.Exit(..., 10)` in `quality_gate.go`); this is depended on by CI pipelines — do not change it casually.
 - Log batch goroutines inside the `test2json` reporter are managed with `errgroup.Group` (not `sync.WaitGroup`). Errors surface at `errGroup.Wait()` in `receive()`.
 - `pkg/openapi/` is regenerated from `openapi-modified.json`. `openapi-modified.json` is a git-ignored derived file: never edit it, change `reportportal-api-docs.json` or `scripts/openapi-preprocess.jq` instead.
-- `report test2json` parses `go test -json` output (see `internal/commands/report.go`'s `testEvent` struct). As of **Go 1.27**, `test2json` annotates `"action":"output"` events with an `OutputType` field (`"frame"`, `"error"`, `"error-continue"`, or blank) and `"action":"fail"` events with `FailedBuild` when the failure was a build failure. The repo's `testEvent` struct captures both fields; `logLevelForOutputType` promotes `error`/`error-continue` output to `ERROR`-level RP logs, and `shouldMergeOutput` merges `error-continue` (or, for pre-1.27 streams with no `OutputType`, tab-indented) chunks into the previous log entry. `FailedBuild` is parsed but not currently acted on. See `report.go` and `report_log_test.go` for the full logic and test coverage. **Note:** despite the pre-existing fields (`time`, `action`, etc.) being tagged with lowercase `json:"..."` names while `OutputType`/`FailedBuild` use exact-case tags, `encoding/json.Unmarshal`'s case-insensitive fallback makes both work correctly against the real (PascalCase) `go test -json` wire format — this is a cosmetic inconsistency, not a bug.
+- `report test2json` parses `go test -json` output (see `internal/commands/reporter.go`'s `testEvent` struct). As of **Go 1.27**, `test2json` annotates `"action":"output"` events with an `OutputType` field (`"frame"`, `"error"`, `"error-continue"`, or blank) and `"action":"fail"` events with `FailedBuild` when the failure was a build failure. The repo's `testEvent` struct captures both fields; `logLevelForOutputType` promotes `error`/`error-continue` output to `ERROR`-level RP logs, and `shouldMergeOutput` merges `error-continue` (or, for pre-1.27 streams with no `OutputType`, tab-indented) chunks into the previous log entry. `FailedBuild` is parsed but not currently acted on. See `reporter.go` and `report_log_test.go` for the full logic and test coverage. **Note:** despite the pre-existing fields (`time`, `action`, etc.) being tagged with lowercase `json:"..."` names while `OutputType`/`FailedBuild` use exact-case tags, `encoding/json.Unmarshal`'s case-insensitive fallback makes both work correctly against the real (PascalCase) `go test -json` wire format — this is a cosmetic inconsistency, not a bug.
+- `report test2json` reports tests as `STEP` items (subtests nested under their parent `STEP`), not `TEST`: ReportPortal counts execution statistics and assigns "To Investigate" only for `STEP` items without children. Don't switch them back to `TEST`.
+- `ReportingClient.SaveLog` sends a one-entry multipart batch: a plain JSON body on `/log` is deprecated in ReportPortal 6.x.
 - `Statuses.Canceled` (Go identifier, American spelling) serializes to the string `"CANCELLED"` (British spelling, matching the ReportPortal API) — don't "fix" the string value to match the identifier.
 - Generated types use long fully-qualified names (`ComEpamReportportal...`); short names (`StartLaunchRQ`, `PageMetadata`, …) are type aliases kept for backward compatibility in `scripts/openapi-compat/compat.go.tmpl`, which `task generate-openapi-client` copies to `pkg/openapi/compat.go`. If a regenerated spec renames a type, `go build` fails in `compat.go` — fix the template. An alias must point to the type with the same meaning, not just one that compiles: e.g. `LaunchResource` is the reporting model, while launch list/get endpoints return `LaunchViewModel` / `PageLaunchViewModel`.
 
@@ -145,4 +149,4 @@ Before considering a change done:
 2. `task test` (or `go test -cover ./...` if Docker/Task aren't available)
 3. `task e2e` when the change affects what is sent to ReportPortal (needs credentials, writes to the configured project)
 4. `task lint` (or `golangci-lint run ./...` if you have it installed locally with the pinned config)
-5. For anything touching `report test2json` / `internal/commands/report.go`: generate real `go test -json` output from the installed Go toolchain and diff its shape against the `testEvent` struct and `report_log_test.go` fixtures rather than relying on release notes alone — Go's JSON stream format is a better source of truth than prose docs.
+5. For anything touching `report test2json` / `internal/commands/report.go` / `reporter.go`: generate real `go test -json` output from the installed Go toolchain and diff its shape against the `testEvent` struct and `report_log_test.go` fixtures rather than relying on release notes alone — Go's JSON stream format is a better source of truth than prose docs.

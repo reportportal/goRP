@@ -27,6 +27,9 @@ const (
 	testActionOutput = "output"
 	testActionPass   = "pass"
 	testActionFail   = "fail"
+	testActionSkip   = "skip"
+	testActionPause  = "pause"
+	testActionCont   = "cont"
 )
 
 // test2json OutputType values (Go 1.27+); see cmd/test2json documentation.
@@ -72,11 +75,28 @@ type reporter struct {
 	openItems        []string
 	launchAttributes []openapi.ItemAttributesRQ
 	tests            map[string]string
-	suites           map[string]string
-	logs             []*openapi.SaveLogRQ
-	logsBatchSize    int
-	errGroup         errgroup.Group
-	reportEmpty      bool
+	// paused are the tests that called t.Parallel() and wait for their turn; they cannot have subtests
+	// started while paused, so a test named like them ("a/b" next to a paused "a") is not their child
+	paused map[string]bool
+	// parents maps a started test to its parent test ("" when its parent is the package suite)
+	parents       map[string]string
+	suites        map[string]string
+	logs          []*openapi.SaveLogRQ
+	logsBatchSize int
+	errGroup      errgroup.Group
+	reportEmpty   bool
+	// skippedIssue keeps skipped tests "To Investigate" (true, ReportPortal's default) or marks them "No Defect"
+	skippedIssue bool
+	// launchLink is the UI link of the finished launch, as returned by ReportPortal
+	launchLink string
+}
+
+// reporterOptions are the optional settings of the test2json reporter.
+type reporterOptions struct {
+	reportEmpty  bool
+	skippedIssue bool
+	agentVersion string
+	attributes   []string
 }
 
 func newReporter(
@@ -84,20 +104,25 @@ func newReporter(
 	input <-chan *testEvent,
 	client *gorppkg.ReportingClient,
 	launchName string,
-	reportEmpty bool,
-	launchAttrArgs ...string,
+	opts reporterOptions,
 ) *reporter {
+	attributes := parseAttributes(opts.attributes)
+	attributes = append(attributes, gorppkg.SystemAttributes(agentName, opts.agentVersion)...)
+	attributes = append(attributes, gorppkg.SkippedIssueAttribute(opts.skippedIssue))
 	r := &reporter{
 		ctx:              ctx,
 		input:            input,
 		launchName:       launchName,
-		launchAttributes: parseAttributes(launchAttrArgs),
+		launchAttributes: attributes,
 		client:           client,
 		tests:            map[string]string{},
+		paused:           map[string]bool{},
+		parents:          map[string]string{},
 		suites:           map[string]string{},
 		logs:             []*openapi.SaveLogRQ{},
 		logsBatchSize:    logsBatchSize,
-		reportEmpty:      reportEmpty,
+		reportEmpty:      opts.reportEmpty,
+		skippedIssue:     opts.skippedIssue,
 	}
 	r.errGroup.SetLimit(maxLogBatchesInFlight)
 
@@ -119,6 +144,12 @@ func (r *reporter) reportEvent(ev *testEvent) error {
 		err = r.finish(ev, gorppkg.Statuses.Passed)
 	case testActionFail:
 		err = r.finish(ev, gorppkg.Statuses.Failed)
+	case testActionSkip:
+		err = r.finish(ev, gorppkg.Statuses.Skipped)
+	case testActionPause:
+		r.paused[r.getTestName(ev)] = true
+	case testActionCont:
+		delete(r.paused, r.getTestName(ev))
 	}
 	return err
 }
@@ -220,28 +251,37 @@ func (r *reporter) startSuite(ev *testEvent) (string, error) {
 	return id, nil
 }
 
+// startTest starts a test as a STEP: ReportPortal counts executions (total, passed, failed, skipped)
+// only for STEP items without children, and only those get "To Investigate". A subtest is started
+// as a child of its parent test, so the parent stops being counted once it has subtests and every
+// test case is counted exactly once.
 func (r *reporter) startTest(ev *testEvent) error {
 	testID := r.getTestName(ev)
-	suiteID, found := r.suites[ev.Package]
-	if !found {
-		if r.reportEmpty {
-			return fmt.Errorf("unable to find suiteID for package: %s", ev.Package)
+	parentTest, name := r.parentOf(ev)
+	parentID := r.tests[parentTest]
+	if parentTest == "" {
+		suiteID, found := r.suites[ev.Package]
+		if !found {
+			if r.reportEmpty {
+				return fmt.Errorf("unable to find suiteID for package: %s", ev.Package)
+			}
+			var err error
+			suiteID, err = r.startSuite(ev)
+			if err != nil {
+				return err
+			}
 		}
-		var err error
-		suiteID, err = r.startSuite(ev)
-		if err != nil {
-			return err
-		}
+		parentID = suiteID
 	}
-	rs, err := r.client.StartChildTest(r.ctx, suiteID, &openapi.StartTestItemRQ{
-		Name:       ev.Test,
+	rs, err := r.client.StartChildTest(r.ctx, parentID, &openapi.StartTestItemRQ{
+		Name:       name,
 		StartTime:  ev.Time,
 		LaunchUuid: r.launchUUID,
 		HasStats:   openapi.PtrBool(true),
 		UniqueId:   openapi.PtrString(testID),
 		CodeRef:    openapi.PtrString(testID),
 		TestCaseId: openapi.PtrString(testID),
-		Type:       string(gorppkg.TestItemTypes.Test),
+		Type:       string(gorppkg.TestItemTypes.Step),
 		Retry:      openapi.PtrBool(false),
 	})
 	if err != nil {
@@ -252,8 +292,61 @@ func (r *reporter) startTest(ev *testEvent) error {
 		return err
 	}
 	r.tests[testID] = id
+	r.parents[testID] = parentTest
 	r.openItems = append(r.openItems, id)
 	return nil
+}
+
+// parentOf finds the running test that ev is a subtest of and returns its name (package-qualified, as
+// in r.tests) together with the name of ev relative to it ("TestA/b/c" under "TestA/b" is "c"). For a
+// top-level test, or when no running parent is found, the parent is empty and the name is the full
+// test name.
+//
+// Subtest names may contain "/" themselves, so every running test whose name is a prefix of ev's is a
+// candidate. A test that already finished or is paused in t.Parallel() cannot be the parent:
+// t.Run("c/d") after a finished t.Run("c") is a sibling of "c". Neither can a test that has a running
+// subtest: it is blocked in t.Run, or its body has returned and its parallel subtests run. Of the
+// remaining candidates the longest wins.
+//
+// test2json cannot always tell more: with parallel siblings "a" and "a/b" both running, "a/b/c" is
+// either t.Run("b/c") of "a" or t.Run("c") of "a/b", and the stream is the same for both. The
+// longest prefix picks "a/b". When that is wrong, the test is shown under its sibling, but every
+// test case is still counted exactly once; any other choice would count one test case too many.
+func (r *reporter) parentOf(ev *testEvent) (string, string) {
+	var candidates []int // indexes of "/" in ev.Test that end the name of a candidate, longest first
+	for i := strings.LastIndex(ev.Test, "/"); i > 0; i = strings.LastIndex(ev.Test[:i], "/") {
+		if r.isRunning(ev.Package + "/" + ev.Test[:i]) {
+			candidates = append(candidates, i)
+		}
+	}
+	if len(candidates) == 0 {
+		return "", ev.Test
+	}
+	parent := candidates[0]
+	for _, i := range candidates {
+		if !r.hasRunningSubtest(ev.Package + "/" + ev.Test[:i]) {
+			parent = i
+			break
+		}
+	}
+	// when every candidate has a running subtest (t.Run called from a goroutine), the longest one stays
+	return ev.Package + "/" + ev.Test[:parent], ev.Test[parent+1:]
+}
+
+// isRunning reports whether the test is started, not finished and not paused in t.Parallel().
+func (r *reporter) isRunning(test string) bool {
+	id, ok := r.tests[test]
+	return ok && !r.paused[test] && slices.Contains(r.openItems, id)
+}
+
+// hasRunningSubtest reports whether one of the test's direct subtests is running.
+func (r *reporter) hasRunningSubtest(test string) bool {
+	for child, parent := range r.parents {
+		if parent == test && r.isRunning(child) {
+			return true
+		}
+	}
+	return false
 }
 
 func logLevelForOutputType(outputType string) string {
@@ -353,10 +446,13 @@ func (r *reporter) finishLaunch(
 	status gorppkg.Status,
 	endTime time.Time,
 ) error {
-	_, err := r.client.FinishLaunch(ctx, r.launchUUID, &openapi.FinishExecutionRQ{
+	rs, err := r.client.FinishLaunch(ctx, r.launchUUID, &openapi.FinishExecutionRQ{
 		Status:  status.Ptr(),
 		EndTime: endTime,
 	})
+	if err == nil && rs != nil {
+		r.launchLink = rs.GetLink()
+	}
 	return err
 }
 
@@ -364,7 +460,15 @@ func (r *reporter) finishTest(ev *testEvent, status gorppkg.Status) error {
 	testName := r.getTestName(ev)
 	testID := r.tests[testName]
 
-	return r.finishItem(r.ctx, testID, ev.Time, status)
+	rq := &openapi.FinishTestItemRQ{
+		EndTime:    ev.Time,
+		Status:     status.Ptr(),
+		LaunchUuid: r.launchUUID,
+	}
+	if status == gorppkg.Statuses.Skipped && !r.skippedIssue {
+		rq.Issue = gorppkg.NotIssue()
+	}
+	return r.finishItemRQ(r.ctx, testID, rq)
 }
 
 // finishItem finishes a suite or a test. The item is not open anymore even if the request fails:
@@ -375,13 +479,21 @@ func (r *reporter) finishItem(
 	endTime time.Time,
 	status gorppkg.Status,
 ) error {
-	r.openItems = slices.DeleteFunc(r.openItems, func(open string) bool { return open == id })
-
-	_, err := r.client.FinishTest(ctx, id, &openapi.FinishTestItemRQ{
+	return r.finishItemRQ(ctx, id, &openapi.FinishTestItemRQ{
 		EndTime:    endTime,
 		Status:     status.Ptr(),
 		LaunchUuid: r.launchUUID,
 	})
+}
+
+func (r *reporter) finishItemRQ(
+	ctx context.Context,
+	id string,
+	rq *openapi.FinishTestItemRQ,
+) error {
+	r.openItems = slices.DeleteFunc(r.openItems, func(open string) bool { return open == id })
+
+	_, err := r.client.FinishTest(ctx, id, rq)
 
 	return err
 }
@@ -399,8 +511,9 @@ func (r *reporter) finish(ev *testEvent, status gorppkg.Status) error {
 func (r *reporter) finishSuite(ev *testEvent, status gorppkg.Status) error {
 	suiteID, found := r.suites[ev.Package]
 	if !found {
-		if !r.reportEmpty {
-			// the package had no tests, so no suite was started and there is nothing to finish
+		// the package had no tests (or, for "skip", no test files), so no suite was started and
+		// there is nothing to finish
+		if !r.reportEmpty || status == gorppkg.Statuses.Skipped {
 			return nil
 		}
 		return fmt.Errorf("unable to find suiteID for package: %s", ev.Package)

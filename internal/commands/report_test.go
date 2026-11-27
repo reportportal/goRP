@@ -337,6 +337,7 @@ func reportCmd(filePath, launchName string, reportEmpty bool) *cli.Command {
 		&cli.StringFlag{Name: "launchName", Value: launchName},
 		&cli.BoolFlag{Name: "reportEmptyPkg", Value: reportEmpty},
 		&cli.StringSliceFlag{Name: "attr"},
+		&cli.BoolFlag{Name: "skipped-issue", Value: true},
 	}
 	return cmd
 }
@@ -364,7 +365,7 @@ func TestReportLaunch_SingleTest(t *testing.T) {
 	cfg := &clientConfig{URL: srv.URL, Project: project, ApiKey: "tok"}
 	cmd := reportCmd(f.Name(), "my-launch", false)
 
-	launchID, err := reportLaunch(context.Background(), cfg, cmd)
+	launchID, _, err := reportLaunch(context.Background(), cfg, cmd)
 
 	require.NoError(t, err)
 	assert.Equal(t, "launch-uuid-1", launchID)
@@ -398,7 +399,7 @@ func TestReportLaunch_MultipleTests(t *testing.T) {
 	cfg := &clientConfig{URL: srv.URL, Project: project, ApiKey: "tok"}
 	cmd := reportCmd(f.Name(), "multi-launch", false)
 
-	launchID, err := reportLaunch(context.Background(), cfg, cmd)
+	launchID, _, err := reportLaunch(context.Background(), cfg, cmd)
 
 	require.NoError(t, err)
 	assert.Equal(t, "launch-uuid-1", launchID)
@@ -423,7 +424,7 @@ func TestReportLaunch_EmptyInput(t *testing.T) {
 	cfg := &clientConfig{URL: srv.URL, Project: project, ApiKey: "tok"}
 	cmd := reportCmd(f.Name(), "empty-launch", false)
 
-	launchID, err := reportLaunch(context.Background(), cfg, cmd)
+	launchID, _, err := reportLaunch(context.Background(), cfg, cmd)
 
 	// No events — no launch was started, launchUUID stays empty.
 	require.NoError(t, err)
@@ -483,7 +484,7 @@ func TestReportLaunch_OutputTypeErrorLevels(t *testing.T) {
 	cfg := &clientConfig{URL: srv.URL, Project: project, ApiKey: "tok"}
 	cmd := reportCmd(f.Name(), "outputtype-launch", false)
 
-	_, err = reportLaunch(context.Background(), cfg, cmd)
+	_, _, err = reportLaunch(context.Background(), cfg, cmd)
 	require.NoError(t, err)
 	require.NotEmpty(t, logBodies)
 

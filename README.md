@@ -236,11 +236,17 @@ go test -json ./... | gorp report test2json --quality-gate-check
 | `--file` | `-f` | `FILE` | stdin | Input file (test2json format). Reads stdin if omitted. |
 | `--launchName` | `--ln` | `LAUNCH_NAME` | `gorp launch` | Launch name in ReportPortal |
 | `--attr` | `-a` | | | Launch attribute, format `key:value` or `value`. Repeatable. |
-| `--reportEmptyPkg` | `--ep` | `REPORT_EMPTY_PKG` | `false` | Report packages with no test cases |
-| `--print-launch-uuid` | | | `false` | Print `ReportPortal Launch UUID: <uuid>` to stdout after reporting |
+| `--reportEmptyPkg` | `--ep` | `REPORT_EMPTY_PKG` | `false` | Report packages with no test files |
+| `--skipped-issue` | | `SKIPPED_ISSUE` | `true` | Whether skipped tests are "To Investigate" (`true`, ReportPortal's default) or "No Defect" (`false`) |
+| `--print-launch-uuid` | | | `false` | Print `ReportPortal Launch UUID: <uuid>` and `ReportPortal Launch: <url>` to stdout after reporting |
 | `--quality-gate-check` | `--qgc` | `QUALITY_GATE_CHECK` | `false` | Poll for quality gate result after reporting; exits `10` on failure |
 | `--quality-gate-timeout` | `--qgt` | `QUALITY_GATE_TIMEOUT` | `1m` | Maximum time to wait for quality gate |
 | `--quality-gate-check-interval` | `--qgci` | `QUALITY_GATE_CHECK_INTERVAL` | `3s` | How often to poll for quality gate status |
+
+Each package is a `SUITE`. Each test is a `STEP`, and a subtest (`t.Run`) is a `STEP` nested under its parent test,
+so ReportPortal counts every test case once: a test with subtests is not counted itself. Tests skipped with
+`t.Skip` are reported as `SKIPPED`. The launch carries the system attributes `agent` (`gorp|<version>`), `os`, `go`
+and `skippedIssue`. With `--print-launch-uuid`, the launch link is printed too, as `ReportPortal Launch: <url>`.
 
 The launch finishes as `FAILED` if any test or package failed, otherwise `PASSED`. If the run is interrupted
 (Ctrl-C, `SIGTERM`) or the input stream breaks midway, items that are still running are finished as `INTERRUPTED`,
@@ -530,6 +536,7 @@ all, err := client.GetAllLaunchesByFilterString(ctx, "my_project",
 | `LAUNCH_NAME` | `--launchName` | Launch name for `report test2json` |
 | `FILE` | `--file` | Input file for `report test2json` |
 | `REPORT_EMPTY_PKG` | `--reportEmptyPkg` | Report packages with no tests |
+| `SKIPPED_ISSUE` | `--skipped-issue` | Skipped tests are "To Investigate" (`true`) or "No Defect" (`false`) |
 | `QUALITY_GATE_CHECK` | `--quality-gate-check` | Enable quality gate check after report |
 | `QUALITY_GATE_TIMEOUT` | `--quality-gate-timeout` | Quality gate poll timeout (e.g. `2m`) |
 | `QUALITY_GATE_CHECK_INTERVAL` | `--quality-gate-check-interval` | Quality gate poll interval (e.g. `5s`) |

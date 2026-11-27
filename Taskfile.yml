@@ -13,7 +13,9 @@ vars:
   OUTPUT_DIR: "pkg/openapi"
   # Codegen output is written here first and swapped into OUTPUT_DIR only on success.
   GENERATED_DIR: "build/openapi"
-  # Canonical spec: JSON from https://beta.epmrpp.reportportal.io/api/api-docs (ReportPortal 26.1, service-api 6.0.0)
+  # Canonical spec: JSON from <host>/api/api-docs of ReportPortal 26.1 (service-api 6.0.0). The committed snapshot was taken
+  # from https://beta.epmrpp.reportportal.io/api/api-docs (internal host); https://demo.reportportal.io/api/api-docs is the
+  # public source and serves the same document, except for the randomly generated `example` values.
   SPEC_PATH: "reportportal-api-docs.json"
   MODIFIED_SPEC_PATH: "openapi-modified.json"
   OPENAPI_GENERATOR_IMAGE: "openapitools/openapi-generator-cli:v7.25.0"
@@ -84,6 +86,8 @@ tasks:
       - task: preprocess:schema
       - rm -rf "{{.GENERATED_DIR}}"
       - mkdir -p "{{.GENERATED_DIR}}"
+      # The output directory is always fresh, so the ignore list has to be put there on every run.
+      - cp scripts/openapi-generator-ignore "{{.GENERATED_DIR}}/.openapi-generator-ignore"
       - >-
         docker run --rm -v "{{.TASKFILE_DIR}}/{{.GENERATED_DIR}}:/generated"
         -v "{{.TASKFILE_DIR}}/{{.MODIFIED_SPEC_PATH}}:/local/openapi.json" {{.OPENAPI_GENERATOR_IMAGE}} generate
@@ -92,7 +96,10 @@ tasks:
         --git-repo-id gorp/v5/pkg/openapi --git-user-id reportportal
         --global-property modelDocs=false,apiDocs=false,apiTests=false
       - cp scripts/openapi-compat/compat.go.tmpl "{{.GENERATED_DIR}}/compat.go"
-      # Swap only after generation succeeded, so a failed run doesn't delete the committed client.
+      # The generator does not format its output, the committed client is gofmt-formatted. golangci-lint formatters
+      # skip generated files, so plain gofmt is the whole formatting of this package.
+      - gofmt -w "{{.GENERATED_DIR}}"
+      # Swap only after generation and formatting succeeded, so a failed run doesn't delete the committed client.
       - rm -rf "{{.OUTPUT_DIR}}"
       - mv "{{.GENERATED_DIR}}" "{{.OUTPUT_DIR}}"
 

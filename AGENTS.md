@@ -14,7 +14,7 @@ A Go CLI tool (`gorp`) and library (`pkg/gorp`) for [ReportPortal](https://repor
 | `internal/commands/` | CLI command implementations (see below) |
 | `pkg/gorp/` | Hand-written public library (see below) |
 | `pkg/openapi/` | **Generated** OpenAPI client — never edit manually |
-| `scripts/` | OpenAPI spec preprocessing filter (`openapi-preprocess.jq`, run through the `jq` Docker image), short-name type aliases template (`openapi-compat/`) |
+| `scripts/` | OpenAPI spec preprocessing filter (`openapi-preprocess.jq`, run through the `jq` Docker image), generator ignore list (`openapi-generator-ignore`), short-name type aliases template (`openapi-compat/`) |
 | `Taskfile.yml` | Task runner for build, test, lint, fmt, OpenAPI codegen |
 | `.claude/skills/reportportal/` | Skill for CLI/library reporting workflows (`start-launch`, `test2json`, quality gates, etc.). `.cursor/skills/reportportal/SKILL.md` symlinks to it — same file, don't edit both |
 
@@ -84,12 +84,14 @@ against a fixed enum — pass any value `slog.Level.UnmarshalText` accepts (`deb
 | End-to-end tests against a real ReportPortal (not run by CI) | `task e2e` (see below) |
 | Lint (Docker, golangci-lint v2.15.0) | `task lint` |
 | Format (Docker) | `task fmt` |
-| Regenerate OpenAPI client | `task generate-openapi-client` (runs `preprocess:schema` first, then swaps the result into `pkg/openapi/` only on success) |
-| Refresh spec from upstream, then regenerate | Replace `reportportal-api-docs.json`, then `task generate-openapi-client` |
+| Regenerate OpenAPI client | `task generate-openapi-client` (runs `preprocess:schema` first, formats the output with `gofmt`, then swaps the result into `pkg/openapi/` only on success) |
+| Refresh spec from upstream, then regenerate | Replace `reportportal-api-docs.json` with `<host>/api/api-docs`, then `task generate-openapi-client` |
 | Create release tag | `task tag VERSION=x.y.z` |
 | Goreleaser release | `task release` |
 
-Upstream snapshot: `reportportal-api-docs.json` (from [https://demo.reportportal.io/api/v1/api-docs](https://demo.reportportal.io/api/v1/api-docs)). `task preprocess:schema` applies `scripts/openapi-preprocess.jq` to it and writes the result to `openapi-modified.json` (git-ignored, derived), which is the input for codegen.
+Upstream snapshot: `reportportal-api-docs.json`, the `/api/api-docs` document of ReportPortal 26.1 (service-api 6.0.0). It was taken from `https://beta.epmrpp.reportportal.io/api/api-docs`, an internal host; the public source is [https://demo.reportportal.io/api/api-docs](https://demo.reportportal.io/api/api-docs), which serves the same document except for the `example` values (they are random and differ between downloads, so a refresh changes them even when the API did not change). `task preprocess:schema` applies `scripts/openapi-preprocess.jq` to it and writes the result to `openapi-modified.json` (git-ignored, derived), which is the input for codegen.
+
+`task generate-openapi-client` generates into `build/openapi`, formats it with plain `gofmt` (golangci-lint formatters skip generated files, so that is all the formatting `pkg/openapi` gets) and only then replaces `pkg/openapi`, so a regeneration does not show formatting-only changes. Files the generator should not write are listed in `scripts/openapi-generator-ignore` (the Task copies it into the output directory as `.openapi-generator-ignore`).
 
 `task` is the task runner ([Taskfile.yml](Taskfile.yml)). Install it with `go install github.com/go-task/task/v3/cmd/task@latest` or via your package manager. `task lint`/`task fmt` run golangci-lint inside Docker (`golangci/golangci-lint:v2.15.0`) — no local install required, but Docker must be running. Podman works too: put a `docker` symlink to `podman` first on `PATH` — the Taskfile calls `docker` by name. File tasks use plain `mkdir`/`rm`/`cp`/`mv`/`test`; on Windows run Task from WSL/Git Bash or set `TASK_CORE_UTILS=1` (Task's built-in coreutils).
 

@@ -258,6 +258,13 @@ counted once (a test with subtests is not counted itself). `t.Skip` tests are `S
 "To Investigate" unless `--skipped-issue=false`. The launch gets the system attributes `agent`, `os`, `go`
 and `skippedIssue`. With `--print-launch-uuid` the launch link is printed as well (`ReportPortal Launch: <url>`).
 
+### Parameters
+
+A subtest named `key=value` gets the pair as a test item parameter (`size=64`; several pairs separated by `/` or
+`,`), plus the parameters of the subtests it is nested in. Keys are letters, digits, `.` and `-` (no `_`: Go
+turns spaces into underscores, so `fails_when_n=1` is a sentence); a value must be non-empty and without `=`.
+`testCaseId`, `uniqueId` and `codeRef` stay the full test name.
+
 ### Repeated runs (retries)
 
 With `go test -count=N` or `gotestsum --rerun-fails --jsonfile` a test runs several times in one stream. Each

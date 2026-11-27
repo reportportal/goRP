@@ -258,6 +258,13 @@ The launch finishes as `FAILED` if any test or package failed, otherwise `PASSED
 (Ctrl-C, `SIGTERM`) or the input stream breaks midway, items that are still running are finished as `INTERRUPTED`,
 followed by the launch, so nothing is left `IN_PROGRESS`. A second Ctrl-C terminates immediately.
 
+**Parameters.** A subtest whose name is `key=value` (the naming convention of Go's table tests and benchmarks)
+gets that pair as a ReportPortal parameter: `t.Run("size=64", …)` → `size=64`. Several pairs in one name can be
+separated by `/` or `,` (`size=64/align=8`, `tls=true,http2=false`), and a subtest also gets the parameters of the
+subtests it is nested in. Only names that consist of such pairs count: `fails_when_n=1` (a sentence; Go turns
+spaces into underscores, so keys with `_` are not accepted), `expr=a=b` or `k=` give no parameter. The test case
+ID is not affected: it stays the full test name.
+
 **Build failures.** A package that does not compile (or fails `go vet`) runs no test. With Go 1.24 or later,
 `go test -json` puts the compiler output into the stream; the package is then reported as a `FAILED` suite with
 that output as one `ERROR` log, and the launch is `FAILED`. A broken dependency fails every package that imports

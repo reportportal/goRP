@@ -128,6 +128,9 @@ type reporter struct {
 	joined *gorppkg.LaunchInfo
 	// started is set once the first event has been seen
 	started bool
+	// parameters are the parameters of the started tests: those of their own name ("size=64") and
+	// those of the tests they are subtests of
+	parameters map[string][]testParameter
 	// retries reports a test that runs again as a retry of its previous run, see startTest
 	retries bool
 	// containers are the tests that had subtests in one of their runs
@@ -181,6 +184,7 @@ func newReporter(
 		buildOutput:      map[string][]string{},
 		retries:          opts.retries,
 		containers:       map[string]bool{},
+		parameters:       map[string][]testParameter{},
 		failedTests:      map[testKey]bool{},
 		failedPackages:   map[string]bool{},
 		logs:             []*openapi.SaveLogRQ{},
@@ -456,6 +460,13 @@ func (r *reporter) startTest(ev *testEvent) error {
 	} else {
 		r.containers[parentTest] = true
 	}
+	// A subtest named "key=value" is a case of a table test: the pair is reported as a parameter. A
+	// subtest runs with the parameters of its parents too. The test case ID stays the full name.
+	parameters := slices.Concat(r.parameters[parentTest], subtestParameters(name))
+	if parentTest == "" {
+		parameters = nil // the name of a top-level test is a function name
+	}
+	r.parameters[testID] = parameters
 	rq := &openapi.StartTestItemRQ{
 		Name:       name,
 		StartTime:  ev.Time,
@@ -466,6 +477,7 @@ func (r *reporter) startTest(ev *testEvent) error {
 		TestCaseId: openapi.PtrString(testID),
 		Type:       string(gorppkg.TestItemTypes.Step),
 		Retry:      openapi.PtrBool(false),
+		Parameters: parameters,
 	}
 	// a previous run that is still open is not a previous run: the name is not unique in the stream
 	if previous, seen := r.tests[testID]; seen && r.retries &&

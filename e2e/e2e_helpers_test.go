@@ -45,12 +45,17 @@ import (
 // its response is not decodable.
 type (
 	testItem struct {
-		ID      int64  `json:"id"`
-		Name    string `json:"name"`
-		Type    string `json:"type"`
-		Status  string `json:"status"`
-		CodeRef string `json:"codeRef"`
-		Parent  int64  `json:"parent"`
+		ID         int64  `json:"id"`
+		Name       string `json:"name"`
+		Type       string `json:"type"`
+		Status     string `json:"status"`
+		CodeRef    string `json:"codeRef"`
+		Parent     int64  `json:"parent"`
+		TestCaseID string `json:"testCaseId"`
+		Parameters []struct {
+			Key   string `json:"key"`
+			Value string `json:"value"`
+		} `json:"parameters"`
 		// Retries are the earlier runs of the item; they are not listed as items themselves
 		Retries []struct {
 			ID     int64  `json:"id"`

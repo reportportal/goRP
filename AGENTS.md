@@ -40,6 +40,7 @@ A Go CLI tool (`gorp`) and library (`pkg/gorp`) for [ReportPortal](https://repor
 | `oauth2.go` | Password-grant token source, `WithPasswordOwnerGrantAuth` |
 | `quality_gate.go` | `ParseQualityGate` from launch metadata |
 | `multipart.go` | `Multipart` interface + `FileMultipart`/`ReaderMultipart` |
+| `limits.go` | Server limits (`MaxItemNameLength`, …), `Truncate`, `TruncateAttributes`, `BoundedID` — all in UTF-16 code units |
 | `model_api.go`, `model_enums.go` | Hand-written request/response types, `Statuses`, `TestItemTypes`, `LaunchModes`, log levels |
 
 ### CLI command tree

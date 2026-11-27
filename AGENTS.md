@@ -34,6 +34,7 @@ A Go CLI tool (`gorp`) and library (`pkg/gorp`) for [ReportPortal](https://repor
 | File | Contents |
 |------|----------|
 | `client.go` | `Client` — embeds generated OpenAPI client + launch helpers; `ClientOption`, `WithApiKeyAuth` |
+| `options.go` | `Option` (variadic settings of `NewClient`/`NewReportingClient`), `WithResponseMiddleware` |
 | `reporting_client.go` | `ReportingClient` — v2 reporting API (launches, test items, logs) via Resty |
 | `launches.go` | Launch list/merge helpers (Resty, `/api/v1/…`) |
 | `filters.go` | User-filter lookup for launch queries |
@@ -41,6 +42,7 @@ A Go CLI tool (`gorp`) and library (`pkg/gorp`) for [ReportPortal](https://repor
 | `quality_gate.go` | `ParseQualityGate` from launch metadata |
 | `multipart.go` | `Multipart` interface + `FileMultipart`/`ReaderMultipart` |
 | `model_api.go`, `model_enums.go` | Hand-written request/response types, `Statuses`, `TestItemTypes`, `LaunchModes`, log levels |
+| `model_parse.go` | `ParseLaunchMode`, `ParseItemType`, `ParseStatus` |
 
 ### CLI command tree
 

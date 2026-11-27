@@ -19,16 +19,18 @@ type ReportingClient struct {
 }
 
 // NewReportingClient creates new instance of ReportingClient
-// host - server hostname
+// host - URL of the server
 // project - name of the project
-// apiKey - User Token (see user profile page)
-func NewReportingClient(host, project string, clientOption ClientOption) *ReportingClient {
-	http := resty.NewWithClient(clientOption()).
-		SetBaseURL(host).
-		AddResponseMiddleware(defaultHTTPErrorHandler)
+// clientOption - authentication, see [WithApiKeyAuth] and [WithPasswordOwnerGrantAuth]
+// opts - optional settings, see [Option]
+func NewReportingClient(
+	host, project string,
+	clientOption ClientOption,
+	opts ...Option,
+) *ReportingClient {
 	return &ReportingClient{
 		project: project,
-		http:    http,
+		http:    newClientOptions(opts).newResty(clientOption(), host),
 	}
 }
 

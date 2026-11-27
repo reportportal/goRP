@@ -336,6 +336,82 @@ func TestOpenAPIErrorMiddlewareLeavesSuccessAlone(t *testing.T) {
 	assert.NotErrorAs(t, err, &httpErr)
 }
 
+func TestChainResponseMiddleware(t *testing.T) {
+	t.Parallel()
+
+	errFirst := errors.New("first")
+	resp := &http.Response{StatusCode: http.StatusOK}
+	body := []byte("body")
+
+	var calls []string
+	record := func(name string, err error) openapi.ResponseMiddlewareFunction {
+		return func(gotResp *http.Response, gotBody []byte) error {
+			assert.Same(t, resp, gotResp)
+			assert.Equal(t, body, gotBody)
+			calls = append(calls, name)
+
+			return err
+		}
+	}
+
+	require.NoError(t, ChainResponseMiddleware()(resp, body))
+	require.NoError(
+		t,
+		ChainResponseMiddleware(nil, record("a", nil), nil, record("b", nil))(resp, body),
+	)
+	assert.Equal(t, []string{"a", "b"}, calls)
+
+	calls = nil
+	err := ChainResponseMiddleware(
+		record("a", nil),
+		record("b", errFirst),
+		record("c", errors.New("second")),
+	)(
+		resp,
+		body,
+	)
+	require.ErrorIs(t, err, errFirst)
+	assert.Equal(t, []string{"a", "b"}, calls)
+}
+
+// A middleware of the user's own, chained before OpenAPIErrorMiddleware, sees every response
+// and the call still fails with an HTTPError. Assigned alone, it replaces the error handling.
+func TestUserResponseMiddlewareWithOpenAPIErrorMiddleware(t *testing.T) {
+	t.Parallel()
+
+	srv := errorResponse{
+		status: http.StatusNotFound,
+		header: map[string]string{"Content-Type": "application/json"},
+		body:   `{"errorCode":4041,"message":"Launch '1' not found. Did you use correct Launch ID?"}`,
+	}.serve(t)
+	u, err := url.Parse(srv.URL)
+	require.NoError(t, err)
+
+	var seen []int
+	mine := func(resp *http.Response, _ []byte) error {
+		seen = append(seen, resp.StatusCode)
+
+		return nil
+	}
+
+	client := NewClient(u, WithApiKeyAuth(t.Context(), "key"))
+	client.GetConfig().ResponseMiddleware = ChainResponseMiddleware(mine, OpenAPIErrorMiddleware)
+	_, _, err = client.LaunchAPI.GetLaunch(t.Context(), "1", "prj").Execute()
+
+	var httpErr *HTTPError
+	require.ErrorAs(t, err, &httpErr)
+	assert.EqualValues(t, 4041, httpErr.ErrorCode)
+	assert.Equal(t, []int{http.StatusNotFound}, seen)
+
+	client = NewClient(u, WithApiKeyAuth(t.Context(), "key"))
+	client.GetConfig().ResponseMiddleware = mine
+	_, _, err = client.LaunchAPI.GetLaunch(t.Context(), "1", "prj").Execute()
+
+	require.Error(t, err)
+	assert.NotErrorAs(t, err, &httpErr)
+	assert.Equal(t, []int{http.StatusNotFound, http.StatusNotFound}, seen)
+}
+
 func TestHTTPErrorText(t *testing.T) {
 	t.Parallel()
 

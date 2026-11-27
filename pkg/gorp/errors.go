@@ -140,7 +140,8 @@ func (e *HTTPError) Is(target error) bool {
 // specification declares the status for the operation or not.
 //
 // Set it as ResponseMiddleware of the [openapi.Configuration] of a client you build yourself.
-// The returned error unwraps to [*openapi.GenericOpenAPIError].
+// To run a middleware of your own as well, combine them with [ChainResponseMiddleware]: assigning
+// ResponseMiddleware replaces this one. The returned error unwraps to [*openapi.GenericOpenAPIError].
 func OpenAPIErrorMiddleware(resp *http.Response, body []byte) error {
 	if resp == nil {
 		return nil
@@ -160,6 +161,31 @@ func OpenAPIErrorMiddleware(resp *http.Response, body []byte) error {
 	httpErr.cause = openapi.NewGenericOpenAPIError(httpErr.Status, body, model)
 
 	return httpErr
+}
+
+// ChainResponseMiddleware combines several response middlewares of the generated client into one,
+// for the single ResponseMiddleware slot of [openapi.Configuration]. They run in the given order
+// and the first error is returned, the remaining ones are not called. Nil entries are skipped.
+//
+// Put your own middleware before [OpenAPIErrorMiddleware] to see failed responses as well:
+//
+//	cfg := client.APIClient.GetConfig()
+//	cfg.ResponseMiddleware = gorp.ChainResponseMiddleware(mine, gorp.OpenAPIErrorMiddleware)
+func ChainResponseMiddleware(
+	middlewares ...openapi.ResponseMiddlewareFunction,
+) openapi.ResponseMiddlewareFunction {
+	return func(resp *http.Response, body []byte) error {
+		for _, middleware := range middlewares {
+			if middleware == nil {
+				continue
+			}
+			if err := middleware(resp, body); err != nil {
+				return err
+			}
+		}
+
+		return nil
+	}
 }
 
 func defaultHTTPErrorHandler(_ *resty.Client, rs *resty.Response) error {

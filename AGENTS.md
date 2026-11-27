@@ -36,6 +36,7 @@ A Go CLI tool (`gorp`) and library (`pkg/gorp`) for [ReportPortal](https://repor
 | `client.go` | `Client` — embeds generated OpenAPI client + launch helpers; `ClientOption`, `WithApiKeyAuth` |
 | `reporting_client.go` | `ReportingClient` — v2 reporting API (launches, test items, logs) via Resty |
 | `launches.go` | Launch list/merge helpers (Resty, `/api/v1/…`) |
+| `errors.go` | `HTTPError` (status, ReportPortal error code and message, OAuth error, raw body), sentinels `ErrUnauthorized`/`ErrForbidden`/`ErrNotFound`/`ErrNotAPIResponse`, `OpenAPIErrorMiddleware`, the Resty error handler |
 | `filters.go` | User-filter lookup for launch queries |
 | `oauth2.go` | Password-grant token source, `WithPasswordOwnerGrantAuth` |
 | `quality_gate.go` | `ParseQualityGate` from launch metadata |
@@ -118,6 +119,7 @@ The suite skips itself when no credentials are configured.
 ## Key design decisions
 
 - `pkg/openapi/` uses **`net/http`**; `pkg/gorp/` uses **Resty v3**. Both share the same `*http.Client` built from an OAuth2 transport (API key via `oauth2.StaticTokenSource`, or password-grant via `WithPasswordOwnerGrantAuth`).
+- Every failed API call, through either client, returns a `*gorp.HTTPError` built by `newHTTPError` (`pkg/gorp/errors.go`). The generated client gets it through `Configuration.ResponseMiddleware` (`OpenAPIErrorMiddleware`, set in `newAPIClient`), which runs before the generated per-status decoding, so that decoding is never reached for a failed response; the error unwraps to `*openapi.GenericOpenAPIError` (built with `openapi.NewGenericOpenAPIError` from the compat template). The body parser must never fail: unknown shapes fall back to the trimmed raw body. A 2xx `text/html` response is an error only on the Resty clients — the generated client has operations that legitimately return HTML/files (`GetLaunchReport`, `GetFile`, …).
 - Quality gate polling uses a ticker (`time.NewTicker`) — the channel must be selected on, never `default`. The caller's `ctx` must be forwarded into each poll iteration. A failed/non-PASSED quality gate exits with **exit code 10** (`cli.Exit(..., 10)` in `quality_gate.go`); this is depended on by CI pipelines — do not change it casually.
 - Log batch goroutines inside the `test2json` reporter are managed with `errgroup.Group` (not `sync.WaitGroup`). Errors surface at `errGroup.Wait()` in `receive()`.
 - `pkg/openapi/` is regenerated from `openapi-modified.json`. `openapi-modified.json` is a git-ignored derived file: never edit it, change `reportportal-api-docs.json` or `scripts/openapi-preprocess.jq` instead.

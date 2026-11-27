@@ -510,6 +510,34 @@ all, err := client.GetAllLaunchesByFilterString(ctx, "my_project",
     "filter.eq.name=smoke&filter.eq.status=FAILED")
 ```
 
+### Errors
+
+A failed API call returns a `*gorp.HTTPError`, whichever client made it. Its text has the request,
+the HTTP status and the server's explanation, e.g.
+`GET https://reportportal.example.com/api/v1/my_project/launch/42: 404 Not Found: Launch '42' not found. Did you use correct Launch ID? (error code 4041)`.
+
+```go
+_, _, err := client.LaunchAPI.GetLaunch(ctx, "42", "my_project").Execute()
+
+if errors.Is(err, gorp.ErrNotFound) { // also ErrUnauthorized, ErrForbidden, ErrNotAPIResponse
+    // no such launch
+}
+
+var httpErr *gorp.HTTPError
+if errors.As(err, &httpErr) {
+    // httpErr.StatusCode  404
+    // httpErr.ErrorCode   4041, the ReportPortal error code (0 if the body has none)
+    // httpErr.Message     the server's message, or the OAuth error_description for a 401
+    // httpErr.OAuthError  e.g. "invalid_token" for a rejected API key
+    // httpErr.Response    the raw response body
+}
+```
+
+Errors of the generated client (`client.LaunchAPI…`) also unwrap to `*openapi.GenericOpenAPIError`
+(`errors.As`), with the same `Body()` and, for a ReportPortal error body, `Model()`. If you build an
+`openapi.APIClient` yourself, set `Configuration.ResponseMiddleware = gorp.OpenAPIErrorMiddleware`
+to get the same errors.
+
 ### Authentication
 
 | Helper | Description |

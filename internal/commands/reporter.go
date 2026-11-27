@@ -2,6 +2,7 @@ package commands
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log/slog"
 	"slices"
@@ -64,6 +65,15 @@ type testEvent struct {
 	FailedBuild string    `json:"FailedBuild,omitempty"`
 }
 
+// launchStatusInProgress is the status of a launch that is not finished.
+const launchStatusInProgress = "IN_PROGRESS"
+
+// errEventsBeforeLaunch reports test events that are older than the launch they should be reported into.
+var errEventsBeforeLaunch = errors.New(
+	"the test run is older than the launch: ReportPortal silently drops items that start before " +
+		"their launch. Start the launch before the tests run",
+)
+
 type reporter struct {
 	ctx        context.Context
 	input      <-chan *testEvent
@@ -94,6 +104,11 @@ type reporter struct {
 	// rerun reports into an existing launch: the latest one with the same name, or rerunOf if set
 	rerun   bool
 	rerunOf string
+	// joined is the existing launch the results are reported into (--launch-uuid). It belongs to
+	// somebody else: the reporter neither starts nor finishes it. Nil when the reporter owns the launch.
+	joined *gorppkg.LaunchInfo
+	// started is set once the first event has been seen
+	started bool
 }
 
 // reporterOptions are the optional settings of the test2json reporter.
@@ -108,6 +123,8 @@ type reporterOptions struct {
 	// rerun reports into the latest launch with the same name; rerunOf names the launch and implies rerun
 	rerun   bool
 	rerunOf string
+	// joined is the existing launch to report into; nil to start (and finish) a launch
+	joined *gorppkg.LaunchInfo
 }
 
 func newReporter(
@@ -141,6 +158,10 @@ func newReporter(
 	}
 	if r.mode == "" {
 		r.mode = gorppkg.LaunchModes.Default
+	}
+	if opts.joined != nil {
+		r.joined = opts.joined
+		r.launchUUID = opts.joined.UUID
 	}
 	r.errGroup.SetLimit(maxLogBatchesInFlight)
 
@@ -177,11 +198,12 @@ func (r *reporter) receive() error {
 	for ev := range r.input {
 		// start launch once
 		// when first event comes
-		if r.launchUUID == "" {
-			if err := r.startLaunch(ev.Time); err != nil {
+		if !r.started {
+			if err := r.begin(ev.Time); err != nil {
 				slog.Error(err.Error())
 				return err
 			}
+			r.started = true
 		}
 
 		// report event to ReportPortal
@@ -209,8 +231,8 @@ func (r *reporter) receive() error {
 		return fmt.Errorf("reporting logs: %w", err)
 	}
 
-	// finish launch if started
-	if r.launchUUID != "" {
+	// finish launch if started; a joined launch is finished by whoever started it
+	if r.started && r.joined == nil {
 		status := gorppkg.Statuses.Passed
 		if r.failed {
 			status = gorppkg.Statuses.Failed
@@ -225,7 +247,7 @@ func (r *reporter) receive() error {
 // interrupt makes a best-effort attempt to deliver buffered logs and to finish the launch as
 // INTERRUPTED, so it does not stay IN_PROGRESS forever after a mid-stream failure.
 func (r *reporter) interrupt(endTime time.Time) {
-	if r.launchUUID == "" {
+	if !r.started {
 		return
 	}
 	// the original context may be the reason we are here
@@ -243,9 +265,32 @@ func (r *reporter) interrupt(endTime time.Time) {
 			slog.Warn("unable to finish interrupted item", "item", id, "error", err)
 		}
 	}
+	// a joined launch is not ours to finish: other reporters may still be writing to it
+	if r.joined != nil {
+		return
+	}
 	if err := r.finishLaunch(ctx, gorppkg.Statuses.Interrupted, endTime); err != nil {
 		slog.Warn("unable to finish interrupted launch", "error", err)
 	}
+}
+
+// begin starts the launch when the first event arrives, or checks that the launch to join can take it.
+func (r *reporter) begin(startTime time.Time) error {
+	if r.joined == nil {
+		return r.startLaunch(startTime)
+	}
+	// ReportPortal accepts an item that starts before its launch and then drops it without telling
+	// the client, so this is the only place where the user can learn about it.
+	if startTime.Before(r.joined.StartTime) {
+		return fmt.Errorf(
+			"%w: the first event is at %s, launch %s starts at %s",
+			errEventsBeforeLaunch,
+			startTime.Format(time.RFC3339Nano),
+			r.joined.UUID,
+			r.joined.StartTime.Format(time.RFC3339Nano),
+		)
+	}
+	return nil
 }
 
 func (r *reporter) startSuite(ev *testEvent) (string, error) {

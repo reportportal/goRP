@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 
 	"golang.org/x/oauth2"
@@ -90,5 +91,13 @@ func newAPIClient(u *url.URL, httpClient *http.Client) *openapi.APIClient {
 	conf.HTTPClient = httpClient
 	conf.Scheme = u.Scheme
 	conf.Host = u.Host
+	// The generated client takes only scheme and host from the configuration and builds the request path from the
+	// server URL of the spec ("/api"). Prepend the path of the host URL, so a ReportPortal served under a path prefix
+	// (https://srv/reportportal) is addressed the same way as by the Resty clients.
+	if prefix := strings.TrimRight(u.EscapedPath(), "/"); prefix != "" {
+		for i := range conf.Servers {
+			conf.Servers[i].URL = prefix + conf.Servers[i].URL
+		}
+	}
 	return openapi.NewAPIClient(conf)
 }

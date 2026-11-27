@@ -10,17 +10,29 @@ import (
 	"github.com/stretchr/testify/require"
 
 	gorppkg "github.com/reportportal/goRP/v5/pkg/gorp"
-	"github.com/reportportal/goRP/v5/pkg/openapi"
 )
 
-func newTestReporter() *reporter {
-	return &reporter{
-		ctx:           context.Background(),
-		launchUUID:    "launch-1",
-		tests:         map[string]string{"pkg/TestOne": "item-1"},
-		logs:          []*openapi.SaveLogRQ{},
-		logsBatchSize: 100, // avoid async flush in unit tests
-	}
+// newTestReporter is a reporter with a started launch and test; the logs it sends are recorded by the
+// returned server.
+func newTestReporter(t *testing.T) (*reporter, *hierarchyServer) {
+	t.Helper()
+	rec, srv := newHierarchyServer(t, "proj")
+	cfg := &clientConfig{URL: srv.URL, Project: "proj", ApiKey: "tok"}
+	rep := newReporter(context.Background(), nil, buildReportingClient(t.Context(), cfg), "launch",
+		reporterOptions{})
+	t.Cleanup(func() { _ = rep.logs.Close() })
+	rep.launchUUID = "launch-1"
+	rep.tests["pkg/TestOne"] = "item-1"
+	return rep, rec
+}
+
+// sentLogs finishes the logs of the reporter and returns what the server got.
+func sentLogs(t *testing.T, rep *reporter, rec *hierarchyServer) []map[string]any {
+	t.Helper()
+	require.NoError(t, rep.finishLogs())
+	rec.mu.Lock()
+	defer rec.mu.Unlock()
+	return rec.logs
 }
 
 func outputEvent(output, outputType string) *testEvent {
@@ -133,19 +145,20 @@ func TestReporterLog_OutputTypes(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			rep := newTestReporter()
+			rep, rec := newTestReporter(t)
 			for _, ev := range tt.events {
 				rep.log(ev)
 			}
-			require.Len(t, rep.logs, tt.wantCount)
+			logs := sentLogs(t, rep, rec)
+			require.Len(t, logs, tt.wantCount)
 			if tt.wantCount == 0 {
 				return
 			}
 			if tt.wantLevel != "" {
-				assert.Equal(t, tt.wantLevel, *rep.logs[len(rep.logs)-1].Level)
+				assert.Equal(t, tt.wantLevel, logs[len(logs)-1]["level"])
 			}
 			if tt.wantMsg != "" {
-				assert.Equal(t, tt.wantMsg, *rep.logs[len(rep.logs)-1].Message)
+				assert.Equal(t, tt.wantMsg, logs[len(logs)-1]["message"])
 			}
 		})
 	}
@@ -159,4 +172,80 @@ func TestTestEvent_UnmarshalOutputType(t *testing.T) {
 	require.NoError(t, json.Unmarshal([]byte(raw), &ev))
 	assert.Equal(t, testOutputTypeError, ev.OutputType)
 	assert.Equal(t, "err\n", ev.Output)
+}
+
+// A log that waits for its continuation is not kept back while the test run is silent.
+func TestReporter_PendingLogIsReleasedWhileInputIsSilent(t *testing.T) {
+	t.Parallel()
+
+	rep, rec := newTestReporter(t)
+	input := make(chan *testEvent)
+	rep.input = input
+	rep.log(outputEvent("the last line before the test hangs\n", testOutputTypeError))
+	require.NotNil(t, rep.pendingLog, "an error line may be continued, so it is held back")
+
+	ticks := make(chan time.Time)
+	done := make(chan bool)
+	go func() {
+		_, ok := rep.nextEvent(ticks)
+		done <- ok
+	}()
+	ticks <- time.Now() // received by nextEvent, which releases the log before it waits again
+	close(input)
+	require.False(t, <-done)
+
+	assert.Nil(t, rep.pendingLog)
+	logs := sentLogs(t, rep, rec)
+	require.Len(t, logs, 1)
+	assert.Equal(t, "the last line before the test hangs\n", logs[0]["message"])
+}
+
+func TestReporterLog_OnlyContinuableOutputIsHeldBack(t *testing.T) {
+	t.Parallel()
+
+	rep, _ := newTestReporter(t)
+	rep.log(outputEvent("=== RUN TestOne\n", testOutputTypeFrame))
+	assert.Nil(t, rep.pendingLog, "framing is never continued: it goes to the batcher at once")
+	rep.log(outputEvent("legacy line\n", ""))
+	assert.NotNil(
+		t,
+		rep.pendingLog,
+		"without OutputType any line may get a tab-indented continuation",
+	)
+	rep.releasePendingLog()
+	rep.log(outputEvent("assertion failed\n", testOutputTypeError))
+	require.NotNil(t, rep.pendingLog)
+	require.NoError(
+		t,
+		rep.reportEvent(&testEvent{Action: testActionPause, Package: "pkg", Test: "TestOne"}),
+	)
+	assert.Nil(t, rep.pendingLog, "an event that is not output ends the log")
+}
+
+// ReportPortal answers a batch with 201 also when it rejects its logs. That is a failure of the report,
+// like a failed request.
+func TestReportLaunch_RejectedLogsFailTheReport(t *testing.T) {
+	t.Parallel()
+
+	rec, srv := newHierarchyServer(t, "proj")
+	rec.rejectLogs = true
+	file := writeEventLines(
+		t,
+		event("run", "TestOne"),
+		`{"time":"2025-01-01T00:00:00Z","action":"output","package":"example/pkg","test":"TestOne","output":"x\n"}`,
+		event("pass", "TestOne"),
+		event("pass", ""),
+	)
+	cfg := &clientConfig{URL: srv.URL, Project: "proj", ApiKey: "tok"}
+
+	_, _, err := reportLaunch(t.Context(), cfg, reportCmd(file, "launch", false))
+
+	var batchErr *gorppkg.LogBatchError
+	require.ErrorAs(t, err, &batchErr)
+	require.ErrorContains(
+		t,
+		err,
+		"reporting logs: 1 of 1 logs were not saved: ReportPortalException: rejected",
+	)
+	assert.Equal(t, "INTERRUPTED", rec.launchFinish["status"])
 }

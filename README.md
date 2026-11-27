@@ -258,6 +258,10 @@ The launch finishes as `FAILED` if any test or package failed, otherwise `PASSED
 (Ctrl-C, `SIGTERM`) or the input stream breaks midway, items that are still running are finished as `INTERRUPTED`,
 followed by the launch, so nothing is left `IN_PROGRESS`. A second Ctrl-C terminates immediately.
 
+**Logs.** Test output is sent in batches of 10 log entries, and at least every 5 seconds, so the output of a
+long-running test is visible in ReportPortal while the test runs. A log the server rejects fails the report in the
+same way as a failed request (the launch is finished as `INTERRUPTED`, exit code 1).
+
 **Parameters.** A subtest whose name is `key=value` (the naming convention of Go's table tests and benchmarks)
 gets that pair as a ReportPortal parameter: `t.Run("size=64", …)` → `size=64`. Several pairs in one name can be
 separated by `/` or `,` (`size=64/align=8`, `tls=true,http2=false`), and a subtest also gets the parameters of the

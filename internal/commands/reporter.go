@@ -88,7 +88,12 @@ type reporter struct {
 	// skippedIssue keeps skipped tests "To Investigate" (true, ReportPortal's default) or marks them "No Defect"
 	skippedIssue bool
 	// launchLink is the UI link of the finished launch, as returned by ReportPortal
-	launchLink string
+	launchLink  string
+	description string
+	mode        gorppkg.LaunchMode
+	// rerun reports into an existing launch: the latest one with the same name, or rerunOf if set
+	rerun   bool
+	rerunOf string
 }
 
 // reporterOptions are the optional settings of the test2json reporter.
@@ -97,6 +102,12 @@ type reporterOptions struct {
 	skippedIssue bool
 	agentVersion string
 	attributes   []string
+	description  string
+	// mode is the launch mode; empty means DEFAULT
+	mode gorppkg.LaunchMode
+	// rerun reports into the latest launch with the same name; rerunOf names the launch and implies rerun
+	rerun   bool
+	rerunOf string
 }
 
 func newReporter(
@@ -123,6 +134,13 @@ func newReporter(
 		logsBatchSize:    logsBatchSize,
 		reportEmpty:      opts.reportEmpty,
 		skippedIssue:     opts.skippedIssue,
+		description:      opts.description,
+		mode:             opts.mode,
+		rerun:            opts.rerun || opts.rerunOf != "",
+		rerunOf:          opts.rerunOf,
+	}
+	if r.mode == "" {
+		r.mode = gorppkg.LaunchModes.Default
 	}
 	r.errGroup.SetLimit(maxLogBatchesInFlight)
 
@@ -424,15 +442,27 @@ func (r *reporter) getTestName(ev *testEvent) string {
 }
 
 func (r *reporter) startLaunch(startTime time.Time) error {
-	launch, err := r.client.StartLaunch(r.ctx, &openapi.StartLaunchRQ{
+	rq := &openapi.StartLaunchRQ{
 		Name:       r.launchName,
 		StartTime:  startTime,
 		Attributes: r.launchAttributes,
-		Mode:       openapi.PtrString(string(gorppkg.LaunchModes.Default)),
-	})
+		Mode:       openapi.PtrString(string(r.mode)),
+	}
+	if r.description != "" {
+		rq.Description = openapi.PtrString(r.description)
+	}
+	if r.rerun {
+		rq.Rerun = openapi.PtrBool(true)
+		if r.rerunOf != "" {
+			rq.RerunOf = openapi.PtrString(r.rerunOf)
+		}
+	}
+	launch, err := r.client.StartLaunch(r.ctx, rq)
 	if err != nil {
 		return err
 	}
+	// The id of the response is used for everything that follows, never rerunOf: for a rerun the
+	// server answers with the UUID of the launch that is being rerun (ReportPortal 5.13.5+).
 	id, err := entryID(launch)
 	if err != nil {
 		return err

@@ -12,6 +12,8 @@ import (
 	"strings"
 
 	"github.com/urfave/cli/v3"
+
+	gorppkg "github.com/reportportal/goRP/v5/pkg/gorp"
 )
 
 // agentName identifies gorp in the "agent" system attribute of the launches it reports.
@@ -61,6 +63,28 @@ var (
 			attrFlag(
 				"Launch attribute with format 'key:value'. Omitting a ':' separator will tag the launch with the value.",
 			),
+			&cli.StringFlag{
+				Name:    "description",
+				Usage:   "Launch description",
+				Sources: cli.EnvVars("LAUNCH_DESCRIPTION"),
+			},
+			&cli.StringFlag{
+				Name:    "mode",
+				Usage:   "Launch mode: DEFAULT or DEBUG",
+				Sources: cli.EnvVars("LAUNCH_MODE"),
+				Value:   string(gorppkg.LaunchModes.Default),
+			},
+			&cli.BoolFlag{
+				Name: "rerun",
+				Usage: "Report into the latest launch with the same name instead of creating a new one " +
+					"(the report fails if there is none)",
+				Sources: cli.EnvVars("LAUNCH_RERUN"),
+			},
+			&cli.StringFlag{
+				Name:    "rerun-of",
+				Usage:   "UUID of the launch to rerun; implies --rerun",
+				Sources: cli.EnvVars("LAUNCH_RERUN_OF"),
+			},
 			&cli.BoolFlag{
 				Name: "skipped-issue",
 				Usage: "Whether skipped tests are 'To Investigate' (true, ReportPortal's default) " +
@@ -128,6 +152,12 @@ func reportLaunch(
 	cfg *clientConfig,
 	cmd *cli.Command,
 ) (string, string, error) {
+	// validate before anything is read or sent
+	mode, err := test2jsonLaunchMode(cmd.String("mode"))
+	if err != nil {
+		return "", "", err
+	}
+
 	rpClient := buildReportingClient(ctx, cfg)
 
 	input := make(chan *testEvent)
@@ -137,6 +167,10 @@ func reportLaunch(
 		skippedIssue: cmd.Bool("skipped-issue"),
 		agentVersion: agentVersion(cmd),
 		attributes:   cmd.StringSlice("attr"),
+		description:  cmd.String("description"),
+		mode:         mode,
+		rerun:        cmd.Bool("rerun"),
+		rerunOf:      cmd.String("rerun-of"),
 	})
 
 	// start reporting in a separate goroutine.
@@ -162,6 +196,20 @@ func reportLaunch(
 		return "", "", readErr
 	}
 	return rep.launchUUID, rep.launchLink, nil
+}
+
+// test2jsonLaunchMode validates the --mode value of `report test2json` (case-insensitive). ReportPortal
+// answers an unknown mode with a 400; failing here names the flag and the accepted values instead.
+func test2jsonLaunchMode(value string) (gorppkg.LaunchMode, error) {
+	switch mode := gorppkg.LaunchMode(strings.ToUpper(strings.TrimSpace(value))); mode {
+	case "":
+		return gorppkg.LaunchModes.Default, nil
+	case gorppkg.LaunchModes.Default, gorppkg.LaunchModes.Debug:
+		return mode, nil
+	default:
+		return "", cli.Exit(fmt.Sprintf("invalid --mode %q: expected %s or %s",
+			value, gorppkg.LaunchModes.Default, gorppkg.LaunchModes.Debug), 1)
+	}
 }
 
 // agentVersion is gorp's version as set on the root command ("1.2.3 (date)"), without the date.

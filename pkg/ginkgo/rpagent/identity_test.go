@@ -237,3 +237,156 @@ func TestHierarchyIdentityIsStableAcrossLaunches(t *testing.T) {
 		t.Errorf("container codeRef = %q", got)
 	}
 }
+
+// testCaseId is the key ReportPortal links a test's history by, and uniqueId is the key its
+// flaky-tests and most-failed-tests widgets group by. If either changes after a release,
+// every user's history splits and cannot be repaired. So the expected values below are
+// literals, not computed: change one of them only by deliberately breaking all existing
+// history. The uniqueIds were computed with an independent implementation (Python's
+// uuid.uuid5 over the same namespace), not with this package.
+func TestIdentityKeysArePinned(t *testing.T) {
+	const pkg = "example.com/app/internal/calc"
+	b := &identityBuilder{root: "/r", pkgPath: pkg}
+	step := stepIdentity(
+		b.spec([]string{"Calculator", "Addition"}, "adds", CodeLoc{}),
+		"login", 1,
+	)
+	step2 := stepIdentity(
+		b.spec([]string{"Calculator", "Addition"}, "adds", CodeLoc{}),
+		"login", 2,
+	)
+	slashB := &identityBuilder{root: "/r", pkgPath: "m/p"}
+
+	tests := []struct {
+		name         string
+		id           ItemIdentity
+		wantTestCase string
+		wantUniqueID string
+	}{
+		{
+			"container",
+			b.container([]string{"Calculator", "Addition"}, nil, 1),
+			pkg + " > Calculator > Addition",
+			"d888a3e3-30ca-52e9-a93b-9498d7344a61",
+		},
+		{
+			"spec",
+			b.spec([]string{"Calculator", "Addition"}, "adds", CodeLoc{}),
+			pkg + " > Calculator > Addition > adds",
+			"b18255d2-9ba2-5b67-a529-5234ac587d28",
+		},
+		{
+			"DescribeTable entry",
+			b.spec(
+				[]string{"Calculator", "string operations"},
+				"input='hello' expected='HELLO'",
+				CodeLoc{},
+			),
+			pkg + " > Calculator > string operations > input='hello' expected='HELLO'",
+			"da3d5475-1904-5ad3-b487-2b6e2c9bb045",
+		},
+		{
+			"By() step",
+			step,
+			pkg + " > Calculator > Addition > adds > By: login",
+			"5295231e-c1ae-5c0b-9393-9edacc0f0e7b",
+		},
+		{
+			"second By() step with the same text",
+			step2,
+			pkg + " > Calculator > Addition > adds > By: login#2",
+			"424ae41e-ef80-5913-b65a-3af7f025ec8f",
+		},
+		{
+			"BeforeSuite fixture",
+			b.fixture("[BeforeSuite]", CodeLoc{}),
+			pkg + " > [BeforeSuite]",
+			"64a2f14e-9e04-5462-b405-82a0d466f1e5",
+		},
+		{
+			"a slash in a name is not nesting",
+			slashB.spec([]string{"a/b"}, "c", CodeLoc{}),
+			"m/p > a/b > c",
+			"4fba38af-9ec7-5272-b569-afcc339ac39e",
+		},
+		{
+			"real nesting",
+			slashB.spec([]string{"a", "b"}, "c", CodeLoc{}),
+			"m/p > a > b > c",
+			"a465e55e-97f9-5f46-924e-1b125748c929",
+		},
+		{
+			"non-ASCII names",
+			b.spec([]string{"Café"}, "naïve ✓", CodeLoc{}),
+			pkg + " > Café > naïve ✓",
+			"3f4db922-2a66-5476-acf9-76c4af3e8b9a",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if tt.id.TestCaseID != tt.wantTestCase {
+				t.Errorf("testCaseId = %q\n     want  %q", tt.id.TestCaseID, tt.wantTestCase)
+			}
+			if got := tt.id.uniqueID(); got != tt.wantUniqueID {
+				t.Errorf("uniqueId = %s, want %s", got, tt.wantUniqueID)
+			}
+		})
+	}
+}
+
+func TestUniqueIDNamespaceIsPinned(t *testing.T) {
+	if got := uniqueIDNamespace.String(); got != "5b0c5f0e-8f1a-4c6e-9d57-2a1f3e6b7c10" {
+		t.Errorf("the uniqueId namespace changed to %s: every existing uniqueId would change", got)
+	}
+}
+
+// A testCaseId over ReportPortal's 1,024-character limit is cut (and ends in a hash), but
+// the uniqueId must still come from the FULL id: derived from the cut one, two long ids
+// that differ only after the cut would share one uniqueId and one history.
+func TestOverLongIdentityKeepsUniqueIDOfTheFullID(t *testing.T) {
+	const pkg = "example.com/app/internal/calc"
+	b := &identityBuilder{root: "/r", pkgPath: pkg}
+	long := b.spec([]string{"Long"}, strings.Repeat("x", 1500), CodeLoc{})
+	if len(long.TestCaseID) != 1539 {
+		t.Fatalf("test setup: the full id has %d characters, want 1539", len(long.TestCaseID))
+	}
+	const wantUnique = "a7b0f32c-b83a-5543-a3a5-a3e4ee07100e" // uuid5 of the full 1,539-character id
+	if got := long.uniqueID(); got != wantUnique {
+		t.Errorf("uniqueId = %s, want %s", got, wantUnique)
+	}
+
+	// What is actually sent to ReportPortal.
+	var sent openapi.StartTestItemRQ
+	tl := newTestListener(t, func(w http.ResponseWriter, r *http.Request) {
+		_ = json.NewDecoder(r.Body).Decode(&sent)
+		writeJSON(w, `{"id":"x"}`)
+	})
+	tl.Start(StartItem{Name: "n", Type: "STEP", Identity: long})
+
+	if sent.TestCaseId == nil || sent.UniqueId == nil {
+		t.Fatalf("identity was not sent: %+v", sent)
+	}
+	if len(*sent.TestCaseId) != 1024 {
+		t.Errorf(
+			"sent testCaseId has %d characters, want exactly the limit, 1024",
+			len(*sent.TestCaseId),
+		)
+	}
+	if !strings.HasSuffix(
+		*sent.TestCaseId,
+		"~c7fca14d35e62afd",
+	) { // first 16 hex of sha256(full id)
+		t.Errorf("sent testCaseId does not end in the hash of the full id: ...%s",
+			(*sent.TestCaseId)[len(*sent.TestCaseId)-30:])
+	}
+	if !strings.HasPrefix(*sent.TestCaseId, pkg+" > Long > xxxx") {
+		t.Errorf("sent testCaseId lost its readable start")
+	}
+	if *sent.UniqueId != wantUnique {
+		t.Errorf(
+			"sent uniqueId = %s, want %s (derived from the full id)",
+			*sent.UniqueId,
+			wantUnique,
+		)
+	}
+}

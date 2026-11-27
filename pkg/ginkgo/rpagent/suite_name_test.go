@@ -3,6 +3,7 @@ package rpagent
 import (
 	"os"
 	"path/filepath"
+	"runtime"
 	"testing"
 )
 
@@ -12,6 +13,14 @@ func writeFile(t *testing.T, dir, name, body string) {
 		t.Fatal(err)
 	}
 }
+
+// notThisOS is a _test.go file name stem whose GOOS suffix never matches the running system.
+var notThisOS = func() string {
+	if runtime.GOOS == "windows" {
+		return "x_linux"
+	}
+	return "x_windows"
+}()
 
 const ginkgoImport = `import . "github.com/onsi/ginkgo/v2"` + "\n"
 
@@ -105,6 +114,46 @@ func TestFindSuite(t *testing.T) {
 			"build tag not given: the tagged suite does not exist",
 			map[string]string{"s_test.go": "//go:build sanity\n\npackage a\n" +
 				ginkgoImport + `func TestA(t *testing.T) { RunSpecs(t, "Tagged") }`},
+			nil,
+			"",
+			"",
+			false,
+		},
+		// The README describes exactly these rules, so they are pinned here.
+		{
+			"a GOOS file-name constraint that does not match: the file is not compiled",
+			map[string]string{notThisOS + "_test.go": "package a\n" + ginkgoImport +
+				`func TestA(t *testing.T) { RunSpecs(t, "Other OS") }`},
+			nil,
+			"",
+			"",
+			false,
+		},
+		{
+			"a comment or string that merely mentions Ginkgo is not an import",
+			map[string]string{"c_test.go": "package a\nimport \"testing\"\n" +
+				"// uses \"github.com/onsi/ginkgo/v2\"\nvar s = `github.com/onsi/ginkgo/v2`\n" +
+				`func TestA(t *testing.T) {}`},
+			nil,
+			"",
+			"",
+			false,
+		},
+		{
+			"Ginkgo v1 is a Ginkgo import too",
+			map[string]string{"v1_test.go": "package a\nimport . \"github.com/onsi/ginkgo\"\n" +
+				`func TestA(t *testing.T) { RunSpecs(t, "V1") }`},
+			nil,
+			"V1",
+			"v1_test.go",
+			true,
+		},
+		{
+			"a Ginkgo file excluded by tags, but not every file: only compiled files count",
+			map[string]string{
+				"s_test.go":     "//go:build sanity\n\npackage a\n" + ginkgoImport + `func TestA(t *testing.T) { RunSpecs(t, "Tagged") }`,
+				"plain_test.go": "package a\nimport \"testing\"\nfunc TestPlain(t *testing.T) {}",
+			},
 			nil,
 			"",
 			"",

@@ -20,13 +20,14 @@ const (
 	DefaultPriority = P1
 )
 
-// ExtractPriorityFromReportEntry reads the rp.priority label from a SpecReport.
-// Returns DefaultPriority if no priority label is set.
+// ExtractPriorityFromReportEntry reads the rp.priority label from a SpecReport. The bool
+// reports whether the spec carries a valid priority label; without one it returns
+// DefaultPriority and false, so callers can tell "P1 by default" from "P1 on purpose".
 //
 // Leaf-node labels take precedence over container labels so that an It() can
 // override a Describe(). We scan LeafNodeLabels first; if nothing is found
 // there we fall back to the full Labels() set (which includes container labels).
-func ExtractPriorityFromReportEntry(spec types.SpecReport) int {
+func ExtractPriorityFromReportEntry(spec types.SpecReport) (int, bool) {
 	// Try leaf node labels first.
 	for _, label := range spec.LeafNodeLabels {
 		if strings.HasPrefix(label, LabelPriorityPrefix) {
@@ -34,7 +35,7 @@ func ExtractPriorityFromReportEntry(spec types.SpecReport) int {
 				strings.TrimPrefix(label, LabelPriorityPrefix),
 			); err == nil {
 				if level >= 0 && level <= 4 {
-					return level
+					return level, true
 				}
 			}
 		}
@@ -65,9 +66,9 @@ func ExtractPriorityFromReportEntry(spec types.SpecReport) int {
 		}
 	}
 	if found != -1 {
-		return found
+		return found, true
 	}
-	return DefaultPriority
+	return DefaultPriority, false
 }
 
 // GetPriorityLabel returns the human-readable label for a priority level (e.g. "P0").

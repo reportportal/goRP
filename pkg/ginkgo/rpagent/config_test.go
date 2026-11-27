@@ -11,7 +11,7 @@ func clearRPEnv(t *testing.T) {
 	t.Helper()
 	for _, k := range []string{
 		"RP_ENDPOINT", "RP_PROJECT", "RP_API_KEY", "RP_LAUNCH", "RP_DEBUG",
-		"RP_DESCRIPTION", "RP_ATTRIBUTES", "RP_MODE",
+		"RP_DESCRIPTION", "RP_ATTRIBUTES", "RP_MODE", "RP_SKIPPED_ISSUE",
 	} {
 		t.Setenv(k, "")
 	}
@@ -126,5 +126,49 @@ func TestConfigFileEnvPointingNowhereFallsBack(t *testing.T) {
 	t.Chdir(t.TempDir())
 	if _, err := LoadRPConfig(); err == nil {
 		t.Fatal("a missing file and no env settings must be an error, not a panic")
+	}
+}
+
+func TestConfigSkippedIssue(t *testing.T) {
+	clearRPEnv(t)
+	base := "rp.endpoint=http://file\nrp.project=p\nrp.api.key=k\n"
+	load := func(extra string) *Config {
+		t.Helper()
+		f := filepath.Join(t.TempDir(), "reportportal.properties")
+		if err := os.WriteFile(f, []byte(base+extra), 0o600); err != nil {
+			t.Fatal(err)
+		}
+		c, err := LoadConfig(f)
+		if err != nil {
+			t.Fatal(err)
+		}
+		return c
+	}
+
+	if !load("").SkippedIssue {
+		t.Error("rp.skipped.issue must default to true, as in the Java agents")
+	}
+	if load("rp.skipped.issue=false\n").SkippedIssue {
+		t.Error("rp.skipped.issue=false was ignored")
+	}
+	if !load("rp.skipped.issue=maybe\n").SkippedIssue {
+		t.Error("an unreadable value must leave the default")
+	}
+
+	t.Setenv("RP_SKIPPED_ISSUE", "false") // the environment wins over the file
+	if load("rp.skipped.issue=true\n").SkippedIssue {
+		t.Error("RP_SKIPPED_ISSUE=false did not override the file")
+	}
+	t.Setenv("RP_SKIPPED_ISSUE", "true")
+	if !load("rp.skipped.issue=false\n").SkippedIssue {
+		t.Error("RP_SKIPPED_ISSUE=true did not override the file")
+	}
+
+	t.Setenv("RP_SKIPPED_ISSUE", "")
+	t.Setenv("RP_ENDPOINT", "http://rp")
+	t.Setenv("RP_PROJECT", "p")
+	t.Setenv("RP_API_KEY", "k")
+	if c, err := ConfigFromEnv(); err != nil || !c.SkippedIssue {
+		t.Errorf("env-only config: %+v, %v; want SkippedIssue true", c, err)
 	}
 }

@@ -122,7 +122,8 @@ func discoverSuites(t target, opts discoverOpts) ([]DiscoveredSuite, error) {
 			return nil
 		}
 		base := d.Name()
-		// Mirror Ginkgo's own directory skip rules (never skip the root itself).
+		// Skip vendor and hidden or underscore directories, as Ginkgo does, and testdata, which
+		// Ginkgo does not skip but Go treats as fixtures (never skip the root itself).
 		if path != root &&
 			(base == "vendor" || base == "testdata" || strings.HasPrefix(base, ".") || strings.HasPrefix(base, "_")) {
 			return filepath.SkipDir

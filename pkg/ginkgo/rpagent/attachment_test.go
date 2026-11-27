@@ -2,6 +2,8 @@ package rpagent
 
 import (
 	"encoding/json"
+	"errors"
+	"io/fs"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -170,5 +172,55 @@ func TestSendAttachmentLogUploadRejectedKeepsMessage(t *testing.T) {
 	if len(msgs) != 1 || !strings.Contains(msgs[0], "my note") ||
 		!strings.Contains(msgs[0], "could not be uploaded") {
 		t.Errorf("fallback logs = %q", msgs)
+	}
+}
+
+func TestFormatAttachmentError(t *testing.T) {
+	tests := []struct {
+		name, raw, want string
+	}{
+		{
+			"with a message",
+			`{"file":"big.txt","msg":"a big file","reason":"the file is 10 bytes, the limit is 5 bytes"}`,
+			`Attachment not uploaded: big.txt ("a big file"): the file is 10 bytes, the limit is 5 bytes`,
+		},
+		{
+			"without a message",
+			`{"file":"a.png","reason":"cannot access the file: no such file or directory"}`,
+			`Attachment not uploaded: a.png: cannot access the file: no such file or directory`,
+		},
+		{
+			"a '#' in the message is kept as typed",
+			`{"file":"a.png","msg":"shot #1","reason":"r"}`,
+			`Attachment not uploaded: a.png ("shot #1"): r`,
+		},
+		// Anything the agent cannot read is logged as it is, so the problem is never lost.
+		{"not JSON", `broken`, `Attachment error: broken`},
+		{"no reason", `{"file":"a.png"}`, `Attachment error: {"file":"a.png"}`},
+		{"the old payload shape", `{"Msg":"x#y"}`, `Attachment error: {"Msg":"x#y"}`},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := formatAttachmentError(tt.raw); got != tt.want {
+				t.Errorf("formatAttachmentError(%s)\n got  %q\n want %q", tt.raw, got, tt.want)
+			}
+		})
+	}
+}
+
+func TestBareErrorDropsTheRepeatedPath(t *testing.T) {
+	pe := &fs.PathError{
+		Op:   "stat",
+		Path: "/a/b/missing.txt",
+		Err:  errors.New("no such file or directory"),
+	}
+	if got := bareError(pe); got != "no such file or directory" {
+		t.Errorf("bareError(PathError) = %q", got)
+	}
+	if got := bareError(errors.Join(errors.New("outer"), pe)); got == "" {
+		t.Error("a wrapped error must still produce text")
+	}
+	if got := bareError(errors.New("plain")); got != "plain" {
+		t.Errorf("bareError(plain) = %q", got)
 	}
 }

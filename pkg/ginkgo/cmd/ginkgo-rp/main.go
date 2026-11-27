@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -13,6 +14,7 @@ import (
 	"slices"
 	"strconv"
 	"strings"
+	"sync"
 	"syscall"
 	"time"
 
@@ -161,7 +163,7 @@ func run() int {
 		fmt.Fprintf(os.Stderr, "ERROR: ginkgo not found in PATH. Install with:\n")
 		fmt.Fprintf(os.Stderr, "  go install github.com/onsi/ginkgo/v2/ginkgo@latest\n")
 		if reporting && launchID != "" {
-			abortLaunch(sessionID, launchID)
+			abortLaunch(context.Background(), sessionID, launchID)
 		}
 		return 1
 	}
@@ -194,7 +196,7 @@ func run() int {
 	select {
 	case sig := <-sigs: // interrupted before ginkgo started
 		if reporting && launchID != "" {
-			abortLaunch(sessionID, launchID)
+			abortLaunch(context.Background(), sessionID, launchID)
 		}
 		fmt.Fprintf(os.Stderr, "\n  Interrupted (%v) before the tests started.\n", sig)
 		return signalCode(sig)
@@ -244,28 +246,7 @@ func run() int {
 		fmt.Printf(
 			"================================================================================\n",
 		)
-		fmt.Printf("\n  Step 1: Waiting for all test processes to complete...\n")
-
-		// Workers have already exited (cmd.Run returned). The wait is only
-		// needed to let the OS finish flushing NDJSON writes; cap it short.
-		if err := waitForWorkersToFinish(sessionID); err != nil {
-			fmt.Printf("\n  WARNING: %v\n  Continuing with available results...\n", err)
-		}
-
-		fmt.Printf("\n  Step 2: Collecting and analyzing test results...\n\n")
-
-		if err := aggregateAndFinalizeLaunch(exitCode != 0, sessionID); err != nil {
-			if strict {
-				fmt.Fprintf(os.Stderr, "ERROR: failed to aggregate and finalize launch: %v\n", err)
-				return 2
-			}
-			// The tests ran; their result must not be hidden by a reporting problem.
-			fmt.Fprintf(os.Stderr, "WARNING: could not finalize the ReportPortal launch: %v\n", err)
-			fmt.Fprintf(
-				os.Stderr,
-				"         The exit code is Ginkgo's. Set RP_STRICT=true to fail instead.\n",
-			)
-		}
+		exitCode = finalizeRun(sigs, sessionID, launchID, exitCode, strict)
 	}
 
 	if reporting {
@@ -289,6 +270,67 @@ func run() int {
 	return exitCode
 }
 
+// finalizeRun finishes the launch once ginkgo has exited, and returns the exit code to use:
+// ginkgo's own, unless the run was interrupted while finalizing, or RP_STRICT asks for a
+// reporting failure to fail the run.
+//
+// Finalization is bounded (RP_FINALIZE_TIMEOUT) and can be interrupted. If it cannot finish,
+// because ReportPortal hangs, keeps failing, or the user pressed Ctrl-C, the launch is
+// stopped instead, so it does not stay In Progress.
+func finalizeRun(
+	sigs <-chan os.Signal,
+	sessionID, launchID string,
+	exitCode int,
+	strict bool,
+) int {
+	timeout := finalizeTimeout()
+	finalizeCtx, cancelFinalize := context.WithTimeout(context.Background(), timeout)
+	defer cancelFinalize()
+	// A second signal cancels this one too, which cuts the fallback short.
+	hardCtx, cancelHard := context.WithCancel(context.Background())
+	defer cancelHard()
+	stopWatching := watchSignals(sigs, cancelFinalize, cancelHard)
+
+	fmt.Printf("\n  Step 1: Waiting for all test processes to complete...\n")
+
+	// Workers have already exited (cmd.Wait returned). The wait is only
+	// needed to let the OS finish flushing NDJSON writes; cap it short.
+	if err := waitForWorkersToFinish(finalizeCtx, sessionID); err != nil {
+		fmt.Printf("\n  WARNING: %v\n  Continuing with available results...\n", err)
+	}
+
+	fmt.Printf("\n  Step 2: Collecting and analyzing test results...\n\n")
+
+	err := aggregateAndFinalizeLaunch(finalizeCtx, exitCode != 0, sessionID)
+	if err != nil && (finalizeCtx.Err() != nil || errors.Is(err, errReportPortalNotResponding)) {
+		switch {
+		case errors.Is(finalizeCtx.Err(), context.DeadlineExceeded):
+			fmt.Fprintf(os.Stderr, "WARNING: finalizing took longer than %s (%s). "+
+				"Stopping the launch instead.\n", timeout, finalizeTimeoutEnv)
+		case finalizeCtx.Err() == nil:
+			fmt.Fprintf(os.Stderr, "WARNING: %v. Stopping the launch instead.\n", err)
+		}
+		abortLaunch(hardCtx, sessionID, launchID)
+	}
+	if sig := stopWatching(); sig != nil {
+		return signalCode(sig)
+	}
+
+	if err != nil {
+		if strict {
+			fmt.Fprintf(os.Stderr, "ERROR: failed to aggregate and finalize launch: %v\n", err)
+			return 2
+		}
+		// The tests ran; their result must not be hidden by a reporting problem.
+		fmt.Fprintf(os.Stderr, "WARNING: could not finalize the ReportPortal launch: %v\n", err)
+		fmt.Fprintf(
+			os.Stderr,
+			"         The exit code is Ginkgo's. Set RP_STRICT=true to fail instead.\n",
+		)
+	}
+	return exitCode
+}
+
 // waitForwardingSignals waits for the started command, forwarding SIGINT/SIGTERM (and SIGHUP,
 // sent when a terminal closes) to it
 // so Ginkgo can stop gracefully. A second signal kills it. It returns the first signal
@@ -296,6 +338,7 @@ func run() int {
 func waitForwardingSignals(cmd *exec.Cmd, sigs <-chan os.Signal) (os.Signal, error) {
 	done := make(chan error, 1)
 	go func() { done <- cmd.Wait() }()
+	defer watchJobControl(cmd)()
 
 	var first os.Signal
 	for {
@@ -317,6 +360,110 @@ func waitForwardingSignals(cmd *exec.Cmd, sigs <-chan os.Signal) (os.Signal, err
 // ReportPortal costs seconds, not minutes, before the tests start.
 const launchStartTimeout = 30 * time.Second
 
+// finalizeTimeoutEnv names the variable that bounds how long finishing the launch may take.
+const finalizeTimeoutEnv = "RP_FINALIZE_TIMEOUT"
+
+const (
+	// defaultFinalizeTimeout bounds finalizing the launch after the tests ran. Each request
+	// already has its own timeout, but a ReportPortal that hangs mid-run would otherwise
+	// keep a run with hundreds of containers waiting for hours.
+	defaultFinalizeTimeout = 3 * time.Minute
+
+	// maxConsecutiveFinishFailures is how many finish requests in a row may fail before the
+	// wrapper stops finishing items one by one and closes the launch as STOPPED instead.
+	maxConsecutiveFinishFailures = 3
+)
+
+// stopLaunchTimeout bounds the last-resort stopLaunch. A variable so tests can shorten it.
+var stopLaunchTimeout = 30 * time.Second
+
+// errReportPortalNotResponding is returned once finish requests keep failing.
+var errReportPortalNotResponding = errors.New("ReportPortal is not responding")
+
+// finalizeTimeout returns the finalization deadline: RP_FINALIZE_TIMEOUT as a Go duration
+// ("90s", "5m"), or the default when it is unset or not a positive duration.
+func finalizeTimeout() time.Duration {
+	v := os.Getenv(finalizeTimeoutEnv)
+	if v == "" {
+		return defaultFinalizeTimeout
+	}
+	d, err := time.ParseDuration(v)
+	if err != nil || d <= 0 {
+		fmt.Fprintf(
+			os.Stderr,
+			"WARNING: ignoring %s=%q (want a duration such as 90s or 5m); using %s\n",
+			finalizeTimeoutEnv,
+			v,
+			defaultFinalizeTimeout,
+		)
+		return defaultFinalizeTimeout
+	}
+	return d
+}
+
+// failureStreak counts finish requests that failed one after another.
+type failureStreak struct{ n int }
+
+// note records the outcome of one request. It returns errReportPortalNotResponding once
+// maxConsecutiveFinishFailures requests in a row have failed; a success resets the count.
+func (f *failureStreak) note(err error) error {
+	if err == nil {
+		f.n = 0
+		return nil
+	}
+	f.n++
+	if f.n >= maxConsecutiveFinishFailures {
+		return errReportPortalNotResponding
+	}
+	return nil
+}
+
+// watchSignals reacts to signals while the launch is being finalized. The first one cancels
+// finalization (the wrapper then stops the launch); a second one cancels that too, so Ctrl-C
+// always gets the wrapper out. It returns a function that stops watching and reports the
+// first signal received, if any.
+func watchSignals(
+	sigs <-chan os.Signal,
+	cancelFinalize, cancelAll context.CancelFunc,
+) (stop func() os.Signal) {
+	var (
+		mu    sync.Mutex
+		first os.Signal
+	)
+	quit := make(chan struct{})
+	done := make(chan struct{})
+	go func() {
+		defer close(done)
+		for {
+			select {
+			case <-quit:
+				return
+			case sig := <-sigs:
+				mu.Lock()
+				isFirst := first == nil
+				if isFirst {
+					first = sig
+				}
+				mu.Unlock()
+				if isFirst {
+					fmt.Fprintf(os.Stderr, "\n  Interrupted (%v): stopping the launch. "+
+						"Interrupt again to give up at once.\n", sig)
+					cancelFinalize()
+				} else {
+					cancelAll()
+				}
+			}
+		}
+	}()
+	return func() os.Signal {
+		close(quit)
+		<-done
+		mu.Lock()
+		defer mu.Unlock()
+		return first
+	}
+}
+
 // strictMode reports whether RP_STRICT asks reporting failures to fail the run.
 func strictMode() bool {
 	v, err := strconv.ParseBool(os.Getenv("RP_STRICT"))
@@ -330,7 +477,7 @@ func main() {
 // abortLaunch attempts to finish a launch as FAILED when the wrapper encounters
 // a fatal error after StartLaunch has already been called. This prevents the
 // launch from staying IN_PROGRESS indefinitely in ReportPortal.
-func abortLaunch(sessionID, launchID string) {
+func abortLaunch(ctx context.Context, sessionID, launchID string) {
 	coordinator, err := rpagent.NewLaunchCoordinator(sessionID)
 	if err != nil {
 		return
@@ -350,24 +497,38 @@ func abortLaunch(sessionID, launchID string) {
 			suiteIDs = append(suiteIDs, id)
 		}
 	}
-	stopLaunch(client, launchID, suiteIDs)
+	stopLaunch(ctx, client, launchID, suiteIDs)
 }
 
 // stopLaunch marks a launch STOPPED through FinishLaunch. goRP's StopLaunch uses an
 // endpoint that does not exist on current ReportPortal servers. The suites are finished
 // first: ReportPortal turns a STOPPED launch into FAILED while any suite is still open.
-func stopLaunch(client *gorp.ReportingClient, launchID string, suiteIDs []string) {
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-	defer cancel()
+//
+// It is the last resort, so it is bounded (stopLaunchTimeout) and ctx can cut it short.
+// The suites get two thirds of the time, so a hanging server cannot also eat the time
+// the launch itself needs.
+func stopLaunch(
+	ctx context.Context,
+	client *gorp.ReportingClient,
+	launchID string,
+	suiteIDs []string,
+) {
 	status := string(gorp.Statuses.Stopped)
+	suitesCtx, cancelSuites := context.WithTimeout(ctx, stopLaunchTimeout*2/3)
+	defer cancelSuites()
 	for _, id := range suiteIDs {
-		_, _ = client.FinishTest(ctx, id, &openapi.FinishTestItemRQ{
+		if suitesCtx.Err() != nil {
+			break
+		}
+		_, _ = client.FinishTest(suitesCtx, id, &openapi.FinishTestItemRQ{
 			EndTime:    time.Now(),
 			Status:     &status,
 			LaunchUuid: launchID,
 		})
 	}
-	_, _ = client.FinishLaunch(ctx, launchID, &openapi.FinishExecutionRQ{
+	launchCtx, cancelLaunch := context.WithTimeout(ctx, stopLaunchTimeout/3)
+	defer cancelLaunch()
+	_, _ = client.FinishLaunch(launchCtx, launchID, &openapi.FinishExecutionRQ{
 		EndTime: time.Now(),
 		Status:  &status,
 	})
@@ -414,7 +575,7 @@ func cleanup(sessionID string) {
 // waitForWorkersToFinish polls for done-flags up to a short timeout.
 // Workers have already exited when this is called (cmd.Run returned); this
 // gives the OS a moment to flush pending file writes.
-func waitForWorkersToFinish(sessionID string) error {
+func waitForWorkersToFinish(ctx context.Context, sessionID string) error {
 	flagPattern := filepath.Join(os.TempDir(), fmt.Sprintf("rp_done_%s_*.flag", sessionID))
 	maxWaitTime := 5 * time.Second
 	pollInterval := 200 * time.Millisecond
@@ -432,7 +593,11 @@ func waitForWorkersToFinish(sessionID string) error {
 				maxWaitTime,
 			)
 		}
-		time.Sleep(pollInterval)
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		case <-time.After(pollInterval):
+		}
 	}
 }
 
@@ -663,6 +828,13 @@ func createRPLaunchAndSaveState(
 		}
 		launchRQ.Attributes = append(launchRQ.Attributes, attr)
 	}
+	// A system attribute (hidden in the UI) that records how this launch treated skipped
+	// specs, as the Java agents do, so ReportPortal can tell the launches apart.
+	launchRQ.Attributes = append(launchRQ.Attributes, openapi.ItemAttributesRQ{
+		Key:    ptr("skippedIssue"),
+		Value:  strconv.FormatBool(config.SkippedIssue),
+		System: ptr(true),
+	})
 
 	fmt.Printf("  Launch Configuration:\n")
 	fmt.Printf("    - Name:    %s\n", config.LaunchName)
@@ -691,7 +863,7 @@ func createRPLaunchAndSaveState(
 			for _, id := range sc.Suites {
 				ids = append(ids, id)
 			}
-			stopLaunch(client, launchID, ids)
+			stopLaunch(context.Background(), client, launchID, ids)
 		}
 	}()
 
@@ -748,7 +920,11 @@ func createRPLaunchAndSaveState(
 	return launchID, sc, nil
 }
 
-func aggregateAndFinalizeLaunch(hasSuiteFailures bool, sessionID string) error {
+func aggregateAndFinalizeLaunch(
+	ctx context.Context,
+	hasSuiteFailures bool,
+	sessionID string,
+) error {
 	if sessionID == "" {
 		sessionID = os.Getenv("RP_SESSION_ID")
 	}
@@ -949,11 +1125,11 @@ func aggregateAndFinalizeLaunch(hasSuiteFailures bool, sessionID string) error {
 		return fmt.Errorf("failed to set aggregated results: %w", err)
 	}
 
-	if err := finishSuitesFromResults(sessionID, allStatuses, hasSuiteFailures); err != nil {
+	if err := finishSuitesFromResults(ctx, sessionID, allStatuses, hasSuiteFailures); err != nil {
 		return fmt.Errorf("failed to finish suites: %w", err)
 	}
 
-	if err := rpagent.FinalizeLaunch(hasSuiteFailures || totalFailed > 0); err != nil {
+	if err := rpagent.FinalizeLaunch(ctx, hasSuiteFailures || totalFailed > 0); err != nil {
 		return fmt.Errorf("failed to finalize launch: %w", err)
 	}
 
@@ -961,6 +1137,7 @@ func aggregateAndFinalizeLaunch(hasSuiteFailures bool, sessionID string) error {
 }
 
 func finishSuitesFromResults(
+	ctx context.Context,
 	sessionID string,
 	allStatuses []rpagent.SharedSpecStatus,
 	hasSuiteFailures bool,
@@ -1014,15 +1191,25 @@ func finishSuitesFromResults(
 	for _, id := range suiteCache.Suites {
 		suiteIDs[id] = true
 	}
-	finishContainers(
+	// Finish requests that keep failing mean ReportPortal is gone: stop instead of waiting
+	// out every remaining item (the caller then stops the launch).
+	streak := &failureStreak{}
+	if err := finishContainers(
+		ctx,
 		client,
 		agentState.LaunchID,
 		rpagent.AggregateContainers(allStatuses, suiteIDs),
-	)
+		streak,
+	); err != nil {
+		return err
+	}
 
 	fmt.Printf("  Finishing %d suite(s)...\n\n", len(suiteCache.Suites))
 
 	for suiteDir, suiteID := range suiteCache.Suites {
+		if err := ctx.Err(); err != nil {
+			return err
+		}
 		results := suiteResults[suiteDir]
 		suiteStatus := gorp.Statuses.Passed
 
@@ -1064,7 +1251,7 @@ func finishSuitesFromResults(
 			suiteEnd = time.Now()
 		}
 		if notRunNote != "" {
-			if _, lerr := client.SaveLog(context.Background(), &openapi.SaveLogRQ{
+			if _, lerr := client.SaveLog(ctx, &openapi.SaveLogRQ{
 				ItemUuid:   ptr(suiteID),
 				LaunchUuid: agentState.LaunchID,
 				Level:      ptr("INFO"),
@@ -1074,13 +1261,16 @@ func finishSuitesFromResults(
 				fmt.Printf("  WARNING: failed to log not-run note for %s: %v\n", suiteID, lerr)
 			}
 		}
-		_, err := client.FinishTest(context.Background(), suiteID, &openapi.FinishTestItemRQ{
+		_, err := client.FinishTest(ctx, suiteID, &openapi.FinishTestItemRQ{
 			EndTime:    suiteEnd,
 			Status:     ptr(string(suiteStatus)),
 			LaunchUuid: agentState.LaunchID,
 		})
 		if err != nil {
 			fmt.Printf("  WARNING: failed to finish suite %s: %v\n", suiteID, err)
+		}
+		if gerr := streak.note(err); gerr != nil {
+			return gerr
 		}
 	}
 	fmt.Printf("\n")
@@ -1254,7 +1444,9 @@ func showPriorityHelp() {
 	fmt.Println(`  It("should login", Label(rpagent.Priority(0)), func() { ... })`)
 	fmt.Println()
 	fmt.Println("NOTES:")
-	fmt.Println("  - Default priority is P1 if not specified.")
+	fmt.Println(
+		"  - A spec without a priority label has no priority in ReportPortal; the summary counts it as P1.",
+	)
 	fmt.Println("  - If multiple priority labels are set, leaf label takes precedence.")
 	fmt.Println()
 }
@@ -1370,27 +1562,36 @@ func showConfigHelp() {
 	fmt.Println(
 		"  RP_LOCK_RETRY_SLEEP_MS (default 200) — ms between polls; max wait = COUNT × SLEEP_MS = 10 s",
 	)
+	fmt.Println("  RP_FINALIZE_TIMEOUT    (default 3m)  — how long finishing the launch may take")
+	fmt.Println("  RP_STRICT              (default false) — fail the run when reporting fails")
+	fmt.Println("  RP_SKIPPED_ISSUE       (default true) — false: Skip(\"reason\") is not an issue")
 	fmt.Println()
 }
 
 // finishContainers finishes Describe/Context items, deepest first (ReportPortal does not
 // let an item finish before its children), each with the status and end time aggregated
-// from its specs.
+// from its specs. It stops early, with ctx's error or errReportPortalNotResponding, when
+// finalization is canceled or finish requests keep failing.
 func finishContainers(
+	ctx context.Context,
 	client *gorp.ReportingClient,
 	launchID string,
 	containers []rpagent.ContainerResult,
-) {
+	streak *failureStreak,
+) error {
 	if len(containers) == 0 {
-		return
+		return nil
 	}
 	fmt.Printf("  Finishing %d container(s)...\n", len(containers))
 	for _, c := range containers {
+		if err := ctx.Err(); err != nil {
+			return err
+		}
 		end := c.End
 		if end.IsZero() {
 			end = time.Now()
 		}
-		_, err := client.FinishTest(context.Background(), c.ID, &openapi.FinishTestItemRQ{
+		_, err := client.FinishTest(ctx, c.ID, &openapi.FinishTestItemRQ{
 			EndTime:    end,
 			Status:     ptr(string(c.Status)),
 			LaunchUuid: launchID,
@@ -1398,8 +1599,12 @@ func finishContainers(
 		if err != nil {
 			fmt.Printf("  WARNING: failed to finish container %s: %v\n", c.ID, err)
 		}
+		if gerr := streak.note(err); gerr != nil {
+			return gerr
+		}
 	}
 	fmt.Printf("\n")
+	return nil
 }
 
 // splitFixtureResults separates failed BeforeSuite/AfterSuite records from spec results.

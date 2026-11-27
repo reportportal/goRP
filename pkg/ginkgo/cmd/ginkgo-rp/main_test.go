@@ -1,7 +1,10 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
+	"errors"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -158,11 +161,14 @@ func TestFinishContainers(t *testing.T) {
 	client := rpagent.NewReportingClient(srv.URL, "proj", "key", false)
 
 	end := time.Date(2026, 1, 1, 12, 0, 5, 0, time.UTC)
-	finishContainers(client, "launch-1", []rpagent.ContainerResult{
+	err := finishContainers(context.Background(), client, "launch-1", []rpagent.ContainerResult{
 		{ID: "inner", Depth: 2, Status: gorp.Statuses.Failed, End: end},
 		{ID: "outer", Depth: 1, Status: gorp.Statuses.Failed, End: end.Add(time.Second)},
 		{ID: "no-time", Depth: 1, Status: gorp.Statuses.Skipped},
-	})
+	}, &failureStreak{})
+	if err != nil {
+		t.Fatalf("finishContainers: %v", err)
+	}
 
 	if len(finishes) != 3 {
 		t.Fatalf("got %d finish calls: %+v", len(finishes), finishes)
@@ -188,7 +194,137 @@ func TestFinishContainers(t *testing.T) {
 
 func TestFinishContainersWithNothingToFinish(t *testing.T) {
 	// Must not panic or call out when there are no containers (top-level specs only).
-	finishContainers(rpagent.NewReportingClient("http://127.0.0.1:1", "p", "k", false), "l", nil)
+	client := rpagent.NewReportingClient("http://127.0.0.1:1", "p", "k", false)
+	if err := finishContainers(
+		context.Background(),
+		client,
+		"l",
+		nil,
+		&failureStreak{},
+	); err != nil {
+		t.Errorf("nothing to finish must not fail: %v", err)
+	}
+}
+
+func TestFinishContainersGivesUpAfterConsecutiveFailures(t *testing.T) {
+	var requests int
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		requests++
+		w.WriteHeader(http.StatusBadGateway)
+	}))
+	t.Cleanup(srv.Close)
+	client := rpagent.NewReportingClient(srv.URL, "proj", "key", false)
+
+	var containers []rpagent.ContainerResult
+	for i := 0; i < 20; i++ {
+		containers = append(
+			containers,
+			rpagent.ContainerResult{ID: fmt.Sprintf("c%d", i), Status: gorp.Statuses.Passed},
+		)
+	}
+	err := finishContainers(context.Background(), client, "l", containers, &failureStreak{})
+	if !errors.Is(err, errReportPortalNotResponding) {
+		t.Fatalf("error = %v, want errReportPortalNotResponding", err)
+	}
+	if requests != maxConsecutiveFinishFailures {
+		t.Errorf("sent %d requests for 20 containers, want it to stop after %d failures",
+			requests, maxConsecutiveFinishFailures)
+	}
+}
+
+func TestFinishContainersStopsWhenCancelled(t *testing.T) {
+	var requests int
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		requests++
+		_, _ = w.Write([]byte(`{}`))
+	}))
+	t.Cleanup(srv.Close)
+	client := rpagent.NewReportingClient(srv.URL, "proj", "key", false)
+
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	err := finishContainers(ctx, client, "l",
+		[]rpagent.ContainerResult{{ID: "a", Status: gorp.Statuses.Passed}}, &failureStreak{})
+	if !errors.Is(err, context.Canceled) || requests != 0 {
+		t.Errorf("err = %v, requests = %d, want context.Canceled and no request", err, requests)
+	}
+}
+
+func TestFailureStreakResetsOnSuccess(t *testing.T) {
+	s := &failureStreak{}
+	boom := errors.New("boom")
+	for i := 0; i < maxConsecutiveFinishFailures-1; i++ {
+		if err := s.note(boom); err != nil {
+			t.Fatalf("gave up after %d failures", i+1)
+		}
+	}
+	_ = s.note(nil) // a success starts the count again
+	for i := 0; i < maxConsecutiveFinishFailures-1; i++ {
+		if err := s.note(boom); err != nil {
+			t.Fatalf("a success must reset the streak, gave up after %d more", i+1)
+		}
+	}
+	if err := s.note(boom); !errors.Is(err, errReportPortalNotResponding) {
+		t.Errorf("err = %v, want errReportPortalNotResponding", err)
+	}
+}
+
+func TestFinalizeTimeout(t *testing.T) {
+	tests := []struct {
+		env  string
+		want time.Duration
+	}{
+		{"", defaultFinalizeTimeout},
+		{"90s", 90 * time.Second},
+		{"5m", 5 * time.Minute},
+		{"0s", defaultFinalizeTimeout},
+		{"-1m", defaultFinalizeTimeout},
+		{"soon", defaultFinalizeTimeout},
+		{"120", defaultFinalizeTimeout}, // a bare number has no unit
+	}
+	for _, tt := range tests {
+		t.Run(tt.env, func(t *testing.T) {
+			t.Setenv(finalizeTimeoutEnv, tt.env)
+			if got := finalizeTimeout(); got != tt.want {
+				t.Errorf("finalizeTimeout(%q) = %v, want %v", tt.env, got, tt.want)
+			}
+		})
+	}
+}
+
+func TestWatchSignalsCancelsOnFirstAndAllOnSecond(t *testing.T) {
+	sigs := make(chan os.Signal, 2)
+	finalize, cancelFinalize := context.WithCancel(context.Background())
+	all, cancelAll := context.WithCancel(context.Background())
+	defer cancelFinalize()
+	defer cancelAll()
+	stop := watchSignals(sigs, cancelFinalize, cancelAll)
+
+	sigs <- os.Interrupt
+	select {
+	case <-finalize.Done():
+	case <-time.After(5 * time.Second):
+		t.Fatal("the first signal did not cancel finalization")
+	}
+	if all.Err() != nil {
+		t.Fatal("the first signal must not cancel the fallback")
+	}
+	sigs <- os.Interrupt
+	select {
+	case <-all.Done():
+	case <-time.After(5 * time.Second):
+		t.Fatal("the second signal did not cancel everything")
+	}
+	if got := stop(); got != os.Interrupt {
+		t.Errorf("stop() = %v, want the first signal", got)
+	}
+}
+
+func TestWatchSignalsReportsNothingWhenNoSignal(t *testing.T) {
+	stop := watchSignals(make(chan os.Signal), func() {}, func() {})
+	if got := stop(); got != nil {
+		t.Errorf("stop() = %v, want nil", got)
+	}
 }
 
 func TestSplitFixtureResults(t *testing.T) {

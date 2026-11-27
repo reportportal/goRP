@@ -28,6 +28,7 @@ func TestDiscoverSuites(t *testing.T) {
 	mkSuite(t, root, "vendor/v", "v_suite_test.go")
 	mkSuite(t, root, "testdata/t", "t_suite_test.go")
 	mkSuite(t, root, ".hidden", "h_suite_test.go")
+	mkSuite(t, root, "_private", "p_suite_test.go")
 	// A plain Go test package is not a Ginkgo suite.
 	if err := os.MkdirAll(filepath.Join(root, "plain"), 0o700); err != nil {
 		t.Fatal(err)

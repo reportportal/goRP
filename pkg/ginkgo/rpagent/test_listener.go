@@ -218,19 +218,48 @@ func (tl *TestListener) Start(item StartItem) string {
 	return *rs.Id
 }
 
+// notIssueType is the issue type that tells ReportPortal a skipped or failed item is not a
+// defect, so it is not filed under To Investigate.
+const notIssueType = "NOT_ISSUE"
+
 // FinishTest finishes a test item. end is when the item actually finished; zero means now.
 func (tl *TestListener) FinishTest(name string, status gorp.Status, id string, end time.Time) {
+	tl.finishItem(name, status, id, end, false)
+}
+
+// FinishTestNotIssue is FinishTest that also marks the item NOT_ISSUE. Without that,
+// ReportPortal files every skipped item under To Investigate.
+func (tl *TestListener) FinishTestNotIssue(
+	name string,
+	status gorp.Status,
+	id string,
+	end time.Time,
+) {
+	tl.finishItem(name, status, id, end, true)
+}
+
+func (tl *TestListener) finishItem(
+	name string,
+	status gorp.Status,
+	id string,
+	end time.Time,
+	notIssue bool,
+) {
 	if id == "" {
 		log.Printf("no test ID for %q, skipping finish", name)
 		return
 	}
 	end = orNow(end)
+	rq := &openapi.FinishTestItemRQ{
+		EndTime:    end,
+		Status:     statusPtr(status),
+		LaunchUuid: tl.launchUuid,
+	}
+	if notIssue {
+		rq.Issue = &openapi.Issue{IssueType: notIssueType}
+	}
 	err := retry(3, 200*time.Millisecond, func() error {
-		_, e := tl.client.FinishTest(context.Background(), id, &openapi.FinishTestItemRQ{
-			EndTime:    end,
-			Status:     statusPtr(status),
-			LaunchUuid: tl.launchUuid,
-		})
+		_, e := tl.client.FinishTest(context.Background(), id, rq)
 		return e
 	})
 	if err != nil {

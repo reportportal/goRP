@@ -198,7 +198,7 @@ func (lc *LaunchCoordinator) GetAggregatedStatus() (*ExecutionStats, error) {
 
 // FinalizeLaunch reads aggregated results and closes the launch on ReportPortal.
 // forceFailed marks the launch as FAILED regardless of test results (e.g. suite construction failure).
-func FinalizeLaunch(forceFailed bool) error {
+func FinalizeLaunch(ctx context.Context, forceFailed bool) error {
 	sessionID := os.Getenv("RP_SESSION_ID")
 	if sessionID == "" {
 		return fmt.Errorf("RP_SESSION_ID is not set")
@@ -234,7 +234,7 @@ func FinalizeLaunch(forceFailed bool) error {
 		overallStatus = gorp.Statuses.Failed
 	}
 
-	rs, err := client.FinishLaunch(context.Background(), state.LaunchID, &openapi.FinishExecutionRQ{
+	rs, err := client.FinishLaunch(ctx, state.LaunchID, &openapi.FinishExecutionRQ{
 		EndTime: time.Now(),
 		Status:  statusPtr(overallStatus),
 	})
@@ -248,12 +248,21 @@ func FinalizeLaunch(forceFailed bool) error {
 		aggregated.OverallStatus.Total,
 	)
 
-	// Print the direct UI link only when rp.debug is enabled.
-	if config.Debug && rs != nil && rs.Number != nil && *rs.Number > 0 {
-		endpoint := strings.TrimRight(state.Endpoint, "/")
-		fmt.Printf("  → %s/ui/#%s/launches/all/%d\n", endpoint, state.Project, *rs.Number)
+	// The server says where the launch can be opened, whatever its version or routes.
+	if link := launchLink(rs); link != "" {
+		fmt.Printf("  → %s\n", link)
 	}
 	return nil
+}
+
+// launchLink returns the link ReportPortal gave for a finished launch, or "" when it gave
+// none. The agent never builds a link itself: the UI routes differ between ReportPortal
+// versions, so a hand-made URL would be wrong on some of them.
+func launchLink(rs *openapi.FinishLaunchRS) string {
+	if rs == nil || rs.Link == nil {
+		return ""
+	}
+	return strings.TrimSpace(*rs.Link)
 }
 
 // getLockRetryConfig returns configurable retry settings for file-lock operations.

@@ -11,27 +11,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/onsi/ginkgo/v2/types"
-
 	"github.com/reportportal/goRP/v5/pkg/gorp"
+	"github.com/reportportal/goRP/v5/pkg/openapi"
 )
-
-func TestAttemptFailuresAreRecordedAndTakenOnce(t *testing.T) {
-	spec := types.SpecReport{LeafNodeText: "flaky-record"}
-	recordAttemptFailure(spec) // no failure: ignored
-	spec.Failure = types.Failure{Message: "one", TimelineLocation: types.TimelineLocation{Order: 3}}
-	recordAttemptFailure(spec)
-	spec.Failure.Message = "two"
-	recordAttemptFailure(spec)
-
-	got := takeAttemptFailures(spec)
-	if len(got) != 2 || got[0].Message != "one" || got[1].Message != "two" {
-		t.Errorf("failures = %+v", got)
-	}
-	if again := takeAttemptFailures(spec); len(again) != 0 {
-		t.Errorf("failures must be handed out once, got %+v", again)
-	}
-}
 
 func TestSuiteCacheRoundTripAndLookup(t *testing.T) {
 	sid := fmt.Sprintf("test-%d", time.Now().UnixNano())
@@ -133,5 +115,37 @@ func TestFinishOpenHierarchiesMarksLeftoversInterrupted(t *testing.T) {
 	}
 	if _, still := activeHierarchies.Load("left over"); still {
 		t.Error("the hierarchy must be removed once finished")
+	}
+}
+
+func TestLaunchLink(t *testing.T) {
+	link := func(s string) *string { return &s }
+	tests := []struct {
+		name string
+		rs   *openapi.FinishLaunchRS
+		want string
+	}{
+		{"no response", nil, ""},
+		{"no link", &openapi.FinishLaunchRS{}, ""},
+		{"empty link", &openapi.FinishLaunchRS{Link: link("")}, ""},
+		{"blank link", &openapi.FinishLaunchRS{Link: link("  \n")}, ""},
+		{
+			"link",
+			&openapi.FinishLaunchRS{Link: link("https://rp/ui/#p/launches/all/abc")},
+			"https://rp/ui/#p/launches/all/abc",
+		},
+		// A launch number alone must not turn into a made-up URL.
+		{
+			"number only",
+			&openapi.FinishLaunchRS{Number: func() *int64 { n := int64(7); return &n }()},
+			"",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := launchLink(tt.rs); got != tt.want {
+				t.Errorf("launchLink = %q, want %q", got, tt.want)
+			}
+		})
 	}
 }

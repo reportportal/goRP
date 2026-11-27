@@ -20,6 +20,11 @@ type Config struct {
 	Description string
 	Attributes  []LaunchAttribute // from rp.attributes: "key:value;tag;key2:value2"
 	Mode        string            // "DEFAULT" (shown on Launches) or "DEBUG"
+
+	// SkippedIssue says whether a spec the user skipped (Skip("reason")) is a defect to look
+	// at: true leaves it for ReportPortal to file under To Investigate, false marks it NOT_ISSUE.
+	// Pending specs and specs skipped without the user's doing never are issues.
+	SkippedIssue bool
 }
 
 // LaunchAttribute is one launch attribute. Key is empty for a bare tag.
@@ -40,9 +45,10 @@ type LaunchAttribute struct {
 //	rp.description — launch description (optional)
 //	rp.attributes  — launch attributes, "key:value;tag;key2:value2" (optional)
 //	rp.mode        — DEFAULT or DEBUG (optional, defaults to DEFAULT)
+//	rp.skipped.issue — true (default): a spec the user skipped is To Investigate; false: it is not an issue
 //
 // Every key can be overridden by an environment variable (RP_ENDPOINT, RP_PROJECT,
-// RP_API_KEY, RP_LAUNCH, RP_DEBUG, RP_DESCRIPTION, RP_ATTRIBUTES, RP_MODE); the
+// RP_API_KEY, RP_LAUNCH, RP_DEBUG, RP_DESCRIPTION, RP_ATTRIBUTES, RP_MODE, RP_SKIPPED_ISSUE); the
 // environment wins over the file.
 func LoadConfig(filename string) (*Config, error) {
 	file, err := os.Open(filename)
@@ -51,7 +57,7 @@ func LoadConfig(filename string) (*Config, error) {
 	}
 	defer func() { _ = file.Close() }()
 
-	config := &Config{}
+	config := &Config{SkippedIssue: true}
 	scanner := bufio.NewScanner(file)
 	lineNum := 0
 
@@ -90,6 +96,10 @@ func LoadConfig(filename string) (*Config, error) {
 			config.Attributes = parseAttributes(value)
 		case "rp.mode":
 			config.Mode = value
+		case "rp.skipped.issue":
+			if b, err := strconv.ParseBool(value); err == nil {
+				config.SkippedIssue = b
+			}
 		}
 	}
 
@@ -103,7 +113,7 @@ func LoadConfig(filename string) (*Config, error) {
 // ConfigFromEnv builds a configuration from environment variables alone, for CI
 // where no properties file exists.
 func ConfigFromEnv() (*Config, error) {
-	return finalizeConfig(&Config{})
+	return finalizeConfig(&Config{SkippedIssue: true})
 }
 
 // finalizeConfig applies environment overrides, then validates and normalises.
@@ -117,6 +127,11 @@ func finalizeConfig(config *Config) (*Config, error) {
 	if v := os.Getenv("RP_DEBUG"); v != "" {
 		if debug, err := strconv.ParseBool(v); err == nil {
 			config.Debug = debug
+		}
+	}
+	if v := os.Getenv("RP_SKIPPED_ISSUE"); v != "" {
+		if b, err := strconv.ParseBool(v); err == nil {
+			config.SkippedIssue = b
 		}
 	}
 	if v := os.Getenv("RP_ATTRIBUTES"); v != "" {

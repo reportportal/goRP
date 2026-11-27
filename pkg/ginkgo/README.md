@@ -61,8 +61,9 @@ rp.debug = false
 | `rp.description` | No    | Launch description                 |
 | `rp.attributes`  | No    | Launch attributes: `key:value;tag;key2:value2` (a part without `:` is a bare tag) |
 | `rp.mode`        | No    | `DEFAULT` (default; shown on the Launches page) or `DEBUG` |
+| `rp.skipped.issue` | No  | `true` (default): a spec that calls `Skip("reason")` is filed under To Investigate. `false`: it is marked NOT_ISSUE (see "Skipped and Pending Specs") |
 
-Every key can also be set by an environment variable, which **wins over the file**: `RP_ENDPOINT`, `RP_API_KEY`, `RP_PROJECT`, `RP_LAUNCH`, `RP_DEBUG`, `RP_DESCRIPTION`, `RP_ATTRIBUTES`, `RP_MODE`. If `RP_ENDPOINT`, `RP_PROJECT` and `RP_API_KEY` are all set, no properties file is needed (CI).
+Every key can also be set by an environment variable, which **wins over the file**: `RP_ENDPOINT`, `RP_API_KEY`, `RP_PROJECT`, `RP_LAUNCH`, `RP_DEBUG`, `RP_DESCRIPTION`, `RP_ATTRIBUTES`, `RP_MODE`, `RP_SKIPPED_ISSUE`. If `RP_ENDPOINT`, `RP_PROJECT` and `RP_API_KEY` are all set, no properties file is needed (CI).
 
 ```bash
 RP_ENDPOINT=https://rp.example.com RP_PROJECT=my_proj RP_API_KEY=$SECRET \
@@ -105,6 +106,8 @@ ginkgo-rp ./pkg/auth
 # Dry run (no RP launch created)
 ginkgo-rp --dry-run
 ```
+
+When the launch has been finished, `ginkgo-rp` prints the link to it, for example `→ https://rp.example.com/ui/#my_project/launches/all/<id>`. The link is the one ReportPortal returns, so it is right for the ReportPortal version you run; if the server returns none, nothing is printed.
 
 > **`--keep-going` is strongly recommended in CI.** Without it, if one suite fails Ginkgo stops early and the remaining suites are never reported to ReportPortal.
 
@@ -157,10 +160,12 @@ var _ = Describe("Checkout", func() {
 | Priority | Meaning        |
 |----------|----------------|
 | P0       | Critical       |
-| P1       | High (default) |
+| P1       | High           |
 | P2       | Medium         |
 | P3       | Low            |
 | P4       | Lowest         |
+
+A spec that has no priority label gets **no** `priority` attribute in ReportPortal, so the attribute can be used to filter: it marks only the specs where someone chose a priority. A priority set on a `Describe`/`Context` applies to the specs inside it. The `ginkgo-rp` summary at the end of a run still counts unlabelled specs as P1.
 
 **Leaf label takes precedence.** When a `Describe` block and an `It` block both carry a priority label, the `It` label wins. This lets you set a default on a container and override it on individual tests.
 
@@ -217,6 +222,7 @@ It("should render the dashboard", func() {
 - Files are streamed — not loaded fully into memory.
 - Attachment payloads are JSON-encoded internally, so file paths containing `#` or spaces are handled correctly.
 - Temp copies in `$TMPDIR` are cleaned up automatically after the suite finishes.
+- A file that cannot be attached (missing, over the size limit, or not copyable) never fails the spec. An `ERROR` log is added to the item instead, for example `Attachment not uploaded: big.txt ("a big file"): the file is 10485761 bytes, the limit is 10485760 bytes`.
 
 ### By() Steps
 
@@ -246,6 +252,8 @@ Each `By()` step has its own status. When a spec fails, is skipped or is interru
 Whatever a spec writes to `GinkgoWriter` is sent to ReportPortal as `DEBUG` logs, on the item that was running when it was written: text before the first `By()` goes on the spec item, and text after a `By()` goes on that step. ANSI colour codes are removed. Ginkgo keeps no timestamp per write, so each piece carries the start time of the item it belongs to.
 
 Ginkgo also captures what the spec printed to stdout and stderr, but only when it intercepts output, which it does in parallel runs (`-p`). In a serial run that stream is empty. When present it is sent as one `INFO` log on the spec item, with stdout and stderr merged in the order Ginkgo captured them.
+
+For a spec that Ginkgo ran more than once, that log is labeled `[stdout/stderr of all N attempts]`, because the output of the attempts cannot be told apart (see "Flaky Specs").
 
 Output is split into entries of at most 32 KiB, and at most 1 MiB per spec and stream is sent; if a spec writes more, a `WARN` log says how many bytes were omitted.
 
@@ -282,15 +290,23 @@ codeRef    = <file path relative to the module root>:<line>
 uniqueId   = UUIDv5 of the testCaseId
 ```
 
+The format of both keys is part of this agent's contract: tests pin literal `testCaseId` and `uniqueId` values (and the UUIDv5 namespace), because changing either after a release would split every user's history.
+
 For example `github.com/acme/shop/cart > Cart > Checkout > applies a coupon`. `By()` steps get `... > By: <step text>`. Nothing launch-specific (item IDs, launch IDs, absolute paths, timestamps) is part of the identity, so history, retries and auto-analysis work across runs and machines.
 
 Renaming a spec, container or package starts a new history for it. Moving a spec within its file only changes `codeRef`.
 
 Two specs with the same package, containers and text share one identity (and one history), because Ginkgo gives the agent no stable way to tell identical names apart. Their `codeRef` still differs, and the agent logs a warning naming both locations. Rename one of them to separate their history.
 
-### Flaky Specs (FlakeAttempts / MustPassRepeatedly)
+### Flaky Specs (FlakeAttempts) and MustPassRepeatedly
 
-A spec that Ginkgo runs more than once (`FlakeAttempts(n)`, `--flake-attempts`, `MustPassRepeatedly(n)`) is reported as ReportPortal **retries**: one item per attempt, each started as a retry of the previous one. The last attempt is the item you see and the only one counted in launch statistics; earlier attempts are folded under it, each with its own failure message, `GinkgoWriter` output and `By()` steps. Failed attempts are FAILED; with `MustPassRepeatedly` the earlier passing runs are PASSED retries. Ginkgo does not keep the failure message of an earlier attempt, so the agent records it while the attempt runs.
+A spec that Ginkgo retries (`FlakeAttempts(n)`, `--flake-attempts`) is reported as ReportPortal **retries**: one item per attempt, each started as a retry of the previous one. The last attempt is the item you see and the only one counted in launch statistics; the earlier attempts are folded under it, each with its own failure message, `GinkgoWriter` output and `By()` steps. The failure of an earlier attempt is read from Ginkgo's `SpecReport.AdditionalFailures`, so it is complete even when the attempt failed in an `AfterEach` or a `DeferCleanup` rather than in the `It`.
+
+`GinkgoWriter` output is split exactly per attempt. stdout/stderr cannot be: Ginkgo captures it for the whole spec (and only in parallel runs, see below) and records no offsets, so it cannot tell which attempt wrote what. The earlier attempts therefore get no stdout log, and the last attempt's `INFO` log holds the output of **all** attempts, labeled `[stdout/stderr of all N attempts]`. The same label is used for a spec with `MustPassRepeatedly`, whose repetitions share one item.
+
+A failure that happened after a spec's main failure (a cleanup node that failed too, for example) is logged as an `ADDITIONAL FAILURE` error on the attempt it happened in. This also applies to specs that were not retried.
+
+`MustPassRepeatedly(n)` is **not** a retry. In ReportPortal a retry means an earlier attempt failed, and a repeated spec has not failed, so reporting it as retries would mark it as flaky. The spec stays one item with its status, and an `INFO` log "Repetition k of n" marks where each repetition began; the output and `By()` steps of all repetitions are on that one item. If a repetition fails, Ginkgo stops there and the item is FAILED with that repetition's failure.
 
 ### Network Resilience (Retries)
 
@@ -344,6 +360,19 @@ go test -tags sanity ./examples/...
 | `aborted`   | Interrupted         |
 | `timedout`  | Interrupted         |
 
+### Skipped and Pending Specs
+
+ReportPortal files every SKIPPED item that has no issue under **To Investigate**, as if it were a failure nobody has looked at. Most skips need nobody's attention, so the agent finishes them with the issue type `NOT_ISSUE`, which keeps them out of To Investigate:
+
+| Spec | Issue |
+|------|-------|
+| Pending (`PIt`, `XIt`, `Pending`) | `NOT_ISSUE` |
+| Filtered out (`--focus`, `--skip`, `--label-filter`, ...) or skipped by Ginkgo itself (`--fail-fast`, an interrupt, a timeout): skipped without a message | `NOT_ISSUE` |
+| Skipped because of another spec in an ordered container ("Spec skipped because ...") | `NOT_ISSUE` |
+| Called `Skip("reason")` | left to ReportPortal, so To Investigate, unless `rp.skipped.issue=false` |
+
+So only the spec that skipped itself, and the spec that failed, stay To Investigate. Set `rp.skipped.issue=false` (or `RP_SKIPPED_ISSUE=false`) when your `Skip(...)` calls are routine, for example a spec that skips itself on the wrong operating system. The launch records the setting in a system attribute, `skippedIssue`.
+
 ### Container and Suite Status
 
 `Describe`/`Context` items are shared by every spec (and every parallel worker) beneath them, so the `ginkgo-rp` wrapper finishes them after all workers are done, deepest first. A container is `FAILED` if any spec beneath it failed, panicked, was interrupted or timed out; `SKIPPED` if every spec beneath it was skipped or pending; otherwise `PASSED`. It ends when the last spec beneath it ended, and a suite likewise ends when its last spec ended. Without this, ReportPortal closes them itself when the launch finishes, giving every container the launch's finish time.
@@ -366,6 +395,7 @@ During a run the agent keeps small coordination files in `$TMPDIR` (per-process 
 | `RP_PROPERTIES_DEPTH`    | 10      | Directory levels to walk up when searching for `reportportal.properties` |
 | `RP_CONFIG_FILE`         | —       | Exact path of the properties file. Set automatically by `ginkgo-rp` for the workers; set it yourself to use a file outside the directory tree |
 | `RP_STRICT`              | false   | `true` makes ReportPortal failures fail the run instead of only warning |
+| `RP_FINALIZE_TIMEOUT`    | 3m      | How long `ginkgo-rp` may take to finish the launch after the tests ran, as a Go duration (`90s`, `5m`). When it runs out, the launch is stopped instead (see "Interrupts and aborts") |
 | `RP_LOCK_RETRY_COUNT`    | 50      | How many times a losing worker polls waiting for the lock winner to write the shared cache file. Default = 10 s total (50 × 200 ms). Increase for 100+ workers or slow disks. |
 | `RP_LOCK_RETRY_SLEEP_MS` | 200     | Milliseconds between each poll. Total max wait = `COUNT × SLEEP_MS`. For normal use (≤16 workers, fast network) defaults are fine. |
 
@@ -416,13 +446,17 @@ ginkgo-rp
 
 **`--dry-run` and dormancy:** When `--dry-run` is passed, `ginkgo-rp` skips Phase 1 entirely — no launch is created and `RP_SESSION_ID` is never set. If a worker's `init()` cannot find the state file (e.g. under `--dry-run`, or when running plain `ginkgo`), it logs a warning and stays dormant. Running `go test ./...` never makes any HTTP calls to ReportPortal.
 
-**Suite discovery:** `ginkgo-rp` finds suites the way Ginkgo does: a package is a suite when one of its test files, among those compiled for your `--tags`, imports Ginkgo. Packages excluded by `--skip-package` are not listed either, so they never appear as empty suites. The suite name is the `RunSpecs` description, taken from a string literal or a package-level string constant; otherwise the directory name is used. Flags are split from package paths with Ginkgo's own flag definitions, so flag values such as `--tags sanity` are never mistaken for paths. Targets outside the working directory are allowed: the wrapper passes the location of the properties file it used to the workers (`RP_CONFIG_FILE`). If a package's tests run but it was not registered by `ginkgo-rp`, its worker logs an `ERROR ... will NOT be reported` line (tests are never aborted).
+**Suite discovery:** `ginkgo-rp` decides for itself which packages to register in ReportPortal; it does not ask Ginkgo. A package is a suite when one of its `*_test.go` files imports `github.com/onsi/ginkgo` (any version or subpackage) **and** the Go build would compile that file: build constraints are applied, so `--tags` (and `//go:build` lines, `GOOS`/`GOARCH` suffixes) decide which files count. With `-r`, subdirectories are searched too, except `vendor`, `testdata` and directories whose name starts with `.` or `_`. Packages excluded by `--skip-package` are not listed either (the filter is matched against the path as Ginkgo writes it, `./relative/path`), so they never appear as empty suites. The suite name is the `RunSpecs` description, taken from a string literal or a package-level string constant; otherwise the directory name is used. Flags are split from package paths with Ginkgo's own flag definitions, so flag values such as `--tags sanity` are never mistaken for paths. Targets outside the working directory are allowed: the wrapper passes the location of the properties file it used to the workers (`RP_CONFIG_FILE`). If a package's tests run but it was not registered by `ginkgo-rp`, its worker logs an `ERROR ... will NOT be reported` line (tests are never aborted).
+
+**How discovery differs from Ginkgo's own:** Ginkgo runs a regular expression over the text of every `_test.go` file in a directory. It does not evaluate build constraints, so an import path that only appears in a comment or a string also counts, and `-r` does descend into `testdata`. In practice the two agree, with one edge case worth knowing: a package whose Ginkgo test files are **all** excluded by build constraints (for example behind `//go:build integration`, run without `-tags integration`) is still a suite to Ginkgo, which then fails to compile it ("build constraints exclude all Go files"), but it is not registered in ReportPortal, and `ginkgo-rp` prints a warning that no suite was found there. Nothing is reported for it, and if no suite at all is found, the tests still run with reporting off. Pass the same `--tags` you use to run your tests and the two agree.
 
 **If ReportPortal is unreachable:** reporting problems never decide the result of your test run. If the launch cannot be created, `ginkgo-rp` prints a warning, runs the tests without reporting, and exits with Ginkgo's exit code. If finalizing the launch fails after the tests ran, it warns and still exits with Ginkgo's exit code. Set `RP_STRICT=true` to fail the run instead (exit code 1 before the tests, 2 after them).
 
-**Interrupts and aborts:** on Ctrl-C (SIGINT), SIGTERM or SIGHUP (a closing terminal), `ginkgo-rp` passes the signal to ginkgo and its test processes (SIGHUP as SIGTERM, which Ginkgo handles gracefully), waits for Ginkgo's own cleanup, finalizes the launch, and exits with 130 (SIGINT), 143 (SIGTERM) or 129 (SIGHUP). A signal that arrives before the tests have started closes the launch too. A second signal kills ginkgo and its test processes immediately. On Windows a signal cannot be passed on, so ginkgo is stopped at once and the launch is finalized. The spec that was running is reported as INTERRUPTED with Ginkgo's message, and the launch is FAILED. If `ginkgo-rp` has to give up after creating the launch (for example `ginkgo` is not on `PATH`), it finishes the suites and then the launch as STOPPED, so nothing stays In Progress.
+**Interrupts and aborts:** on Ctrl-C (SIGINT), SIGTERM or SIGHUP (a closing terminal), `ginkgo-rp` passes the signal to ginkgo and its test processes (SIGHUP as SIGTERM, which Ginkgo handles gracefully), waits for Ginkgo's own cleanup, finalizes the launch, and exits with 130 (SIGINT), 143 (SIGTERM) or 129 (SIGHUP). A signal that arrives before the tests have started closes the launch too. A second signal kills ginkgo and its test processes immediately. On Windows a signal cannot be passed on, so ginkgo is stopped at once and the launch is finalized. The spec that was running is reported as INTERRUPTED with Ginkgo's message, and the launch is FAILED. If `ginkgo-rp` has to give up after creating the launch (for example `ginkgo` is not on `PATH`), it finishes the suites and then the launch as STOPPED, so nothing stays In Progress. The same applies while the launch is being finished after the tests: that step is limited by `RP_FINALIZE_TIMEOUT` (default 3 minutes) so a ReportPortal that stops answering cannot hold the run for hours, and it gives up early when three finish requests in a row fail. Ctrl-C during it stops the launch as STOPPED and exits with 130; a second Ctrl-C gives up at once.
 
-**Name and ID limits:** ReportPortal rejects an item name longer than 1,024 characters (HTTP 400, the item is never created), so a longer name is cut and ends in `...`. It stores at most 1,024 characters of a `testCaseId` and silently cuts the rest, which would make two long IDs with a common start identical. So a longer `testCaseId` is cut and ends in `~` plus 16 hex characters of a hash of the full ID: it stays deterministic between runs and different for different tests.
+**Job control and stdin:** `ginkgo-rp` starts ginkgo in its own process group (see above), so the terminal's Ctrl-Z would reach only the wrapper. The wrapper therefore passes SIGTSTP on to ginkgo's whole group and stops itself, and passes the SIGCONT of `fg` or `bg` on as well: Ctrl-Z suspends the wrapper and the running tests together, as it does with plain `ginkgo`, and `fg`/`bg` resume them (your shell may report the wrapper as stopped by SIGSTOP). Test processes started by Ginkgo have no stdin (a read returns EOF), with or without `ginkgo-rp`, so the separate process group cannot make a test block reading the terminal. On Windows there is no job control and none of this applies.
+
+**Name and ID limits:** ReportPortal rejects an item name longer than 1,024 characters (HTTP 400, the item is never created), so a longer name is cut and ends in `...`. It stores at most 1,024 characters of a `testCaseId` and silently cuts the rest, which would make two long IDs with a common start identical. So a longer `testCaseId` is cut and ends in `~` plus 16 hex characters of a hash of the full ID: it stays deterministic between runs and different for different tests. The `uniqueId` is always the UUIDv5 of the full `testCaseId`, before any cut, so two long IDs that differ only after the cut still get different `uniqueId`s.
 
 ## How Parallel Execution Works
 

@@ -35,6 +35,7 @@ var (
 	activeHierarchies sync.Map
 
 	isInitialized   bool
+	skippedIssue    = true // rp.skipped.issue: is a spec the user skipped an issue?
 	exitHandlerOnce sync.Once
 )
 
@@ -92,6 +93,8 @@ func init() {
 		)
 		return
 	}
+
+	skippedIssue = config.SkippedIssue
 
 	if initErr := InitializeRPLogger(); initErr != nil {
 		log.Printf("WARNING: could not initialize rp-agent.log: %v", initErr)
@@ -152,7 +155,7 @@ func init() {
 			return
 		}
 
-		priority := ExtractPriorityFromReportEntry(spec)
+		priority, labeled := ExtractPriorityFromReportEntry(spec)
 		refID := ExtractTestReferenceIdFromReportEntry(spec)
 
 		var parameters []*Parameter
@@ -160,15 +163,9 @@ func init() {
 			parameters = ExtractParametersFromEntryName(spec.LeafNodeText)
 		}
 
-		ids := startSpecHierarchy(spec, parameters, priority, refID)
+		ids := startSpecHierarchy(spec, parameters, priorityIf(priority, labeled), refID)
 		if ids.StepID != "" {
 			activeHierarchies.Store(spec.FullText(), ids)
-		}
-	})
-
-	ginkgo.JustAfterEach(func() {
-		if isInitialized && os.Getenv("RP_SESSION_ID") != "" {
-			recordAttemptFailure(ginkgo.CurrentSpecReport())
 		}
 	})
 
@@ -177,7 +174,9 @@ func init() {
 			return
 		}
 
-		priority := ExtractPriorityFromReportEntry(spec)
+		priority, _ := ExtractPriorityFromReportEntry(
+			spec,
+		) // the summary counts unlabeled specs as the default
 		refID := ExtractTestReferenceIdFromReportEntry(spec)
 		ids := finishSpecHierarchy(spec)
 
@@ -321,7 +320,7 @@ func LoadRPConfig() (*Config, error) {
 func startSpecHierarchy(
 	spec types.SpecReport,
 	parameters []*Parameter,
-	priority int,
+	priority *int, // nil when the spec has no priority label: no attribute is sent
 	refID string,
 ) SpecHierarchyIDs {
 	if globalClient == nil || globalLaunchID == "" || globalSuiteID == "" || coordinator == nil {
@@ -330,7 +329,7 @@ func startSpecHierarchy(
 	}
 	ccm := coordinator.NewContainerCacheManager()
 	gs := convertToGinkgoSpec(spec)
-	gs.Priority = &priority
+	gs.Priority = priority
 	gs.TestReferenceId = refID
 	return ProcessSpecWithHierarchyAndReturnIDs(
 		globalClient,
@@ -365,7 +364,7 @@ func finishSpecHierarchy(spec types.SpecReport) SpecHierarchyIDs {
 
 	// A spec Ginkgo ran several times (FlakeAttempts, MustPassRepeatedly) becomes one RP
 	// item per attempt, each a retry of the previous one.
-	attempts := splitAttempts(spec, takeAttemptFailures(spec))
+	attempts := splitAttempts(spec)
 	if len(attempts) == 1 {
 		return reportAttempt(spec, ids)
 	}
@@ -410,6 +409,7 @@ func reportAttempt(spec types.SpecReport, ids SpecHierarchyIDs) SpecHierarchyIDs
 	processLogsWithByRouting(spec, ids.StepID, bySteps, win)
 	processCapturedOutput(spec, ids.StepID, bySteps, plans, win)
 	processAttachmentsWithByRouting(spec, ids.StepID, bySteps, win)
+	queueRepeatLogs(spec, ids.StepID, win)
 
 	// The failure message belongs on the step that was running when it happened, so it
 	// shows right under the red step; with no step running it stays on the spec item.
@@ -421,6 +421,57 @@ func reportAttempt(spec types.SpecReport, ids SpecHierarchyIDs) SpecHierarchyIDs
 	}
 	finishHierarchy(spec, ids, win, failureTarget, failureWin)
 	return ids
+}
+
+// cascadeSkipPrefix starts the message Ginkgo gives a spec it skipped because of another
+// spec ("... an earlier spec in an ordered container failed", "... a BeforeAll node failed",
+// "... Skip() was called in BeforeAll").
+const cascadeSkipPrefix = "Spec skipped because "
+
+// skipIsNotAnIssue reports whether a spec's skip must be finished as NOT_ISSUE, so
+// ReportPortal does not file it under To Investigate. ReportPortal does that to every
+// skipped item that has no issue, but most skips need nobody's attention:
+//
+//   - a pending spec (PIt, XIt) is not run on purpose;
+//   - a spec skipped without a message was filtered out (--focus, --label-filter, ...) or
+//     skipped by Ginkgo itself (--fail-fast, an interrupt, a timeout);
+//   - a spec skipped because another spec in its ordered container failed or skipped
+//     is only a consequence: the culprit is reported on its own.
+//
+// What is left is a spec that called Skip("reason"). Whether that is a defect is the user's
+// call: rp.skipped.issue=true leaves it To Investigate, false marks it NOT_ISSUE as well.
+func skipIsNotAnIssue(spec types.SpecReport, skippedIssue bool) bool {
+	switch spec.State {
+	case types.SpecStatePending:
+		return true
+	case types.SpecStateSkipped:
+		msg := spec.Failure.Message
+		if msg == "" || strings.HasPrefix(msg, cascadeSkipPrefix) {
+			return true
+		}
+		return !skippedIssue
+	}
+	return false
+}
+
+// queueRepeatLogs marks where each repetition of a MustPassRepeatedly spec began. The
+// spec stays one item: a repetition is not a retry, nothing failed.
+func queueRepeatLogs(spec types.SpecReport, itemID string, win timeWindow) {
+	for i, at := range repeatTimes(spec) {
+		note := fmt.Sprintf("Repetition %d of %d", i+1, spec.MaxMustPassRepeatedly)
+		globalListener.QueueLog(itemID, gorp.LogLevelInfo, note, win.clamp(at.Time))
+	}
+}
+
+// additionalFailureLog is the log text for a failure Ginkgo recorded after the primary one.
+func additionalFailureLog(af types.AdditionalFailure) string {
+	return fmt.Sprintf(
+		"ADDITIONAL FAILURE (%s)\n\nLocation: %s:%d\n\nFailure:\n%s",
+		af.State,
+		af.Failure.Location.FileName,
+		af.Failure.Location.LineNumber,
+		af.Failure.Message,
+	)
 }
 
 // extractAndCreateBySteps creates a child STEP item in RP for each By()
@@ -515,6 +566,19 @@ func finishHierarchy(
 			globalListener.QueueLog(failureTarget, level, msg, failedAt)
 		}
 	}
+	// Failures after the primary one (a cleanup node that failed too, for example) would
+	// otherwise never reach ReportPortal.
+	for _, af := range spec.AdditionalFailures {
+		if failureTarget == "" {
+			continue
+		}
+		globalListener.QueueLog(
+			failureTarget,
+			gorp.LogLevelError,
+			additionalFailureLog(af),
+			failureWin.clamp(af.Failure.TimelineLocation.Time),
+		)
+	}
 	// Every log of this spec goes out in one batch, before its items are finished.
 	if err := globalListener.FlushLogs(); err != nil {
 		log.Printf("WARNING: failed to send logs for %s: %v", spec.LeafNodeText, err)
@@ -532,7 +596,11 @@ func finishHierarchy(
 		)
 	}
 	if ids.StepID != "" {
-		globalListener.FinishTest(spec.LeafNodeText, status, ids.StepID, win.end)
+		if skipIsNotAnIssue(spec, skippedIssue) {
+			globalListener.FinishTestNotIssue(spec.LeafNodeText, status, ids.StepID, win.end)
+		} else {
+			globalListener.FinishTest(spec.LeafNodeText, status, ids.StepID, win.end)
+		}
 	}
 	// Containers are intentionally not finished here. See function comment.
 }
@@ -614,7 +682,7 @@ func processAttachmentsWithByRouting(
 				globalListener.QueueLog(
 					target,
 					gorp.LogLevelError,
-					fmt.Sprintf("Attachment error: %s", raw),
+					formatAttachmentError(raw),
 					win.clamp(entry.Time),
 				)
 			}
@@ -622,8 +690,16 @@ func processAttachmentsWithByRouting(
 	}
 }
 
+// priorityIf returns a pointer to level when the spec carried a priority label, else nil.
+func priorityIf(level int, labeled bool) *int {
+	if !labeled {
+		return nil
+	}
+	return &level
+}
+
 func convertToGinkgoSpec(spec types.SpecReport) GinkgoSpecReport {
-	priority := ExtractPriorityFromReportEntry(spec)
+	priority, labeled := ExtractPriorityFromReportEntry(spec)
 	refID := ExtractTestReferenceIdFromReportEntry(spec)
 
 	var events []SpecEvent
@@ -656,7 +732,7 @@ func convertToGinkgoSpec(spec types.SpecReport) GinkgoSpecReport {
 		CapturedStdOutErr:          spec.CapturedStdOutErr,
 		CapturedGinkgoWriterOutput: spec.CapturedGinkgoWriterOutput,
 		Labels:                     spec.Labels(),
-		Priority:                   &priority,
+		Priority:                   priorityIf(priority, labeled),
 		TestReferenceId:            refID,
 		SpecEvents:                 events,
 	}

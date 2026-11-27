@@ -1,6 +1,7 @@
 package rpagent
 
 import (
+	"fmt"
 	"regexp"
 	"strconv"
 	"strings"
@@ -135,8 +136,14 @@ func processCapturedOutput(
 		targetFor, stepID, gorp.LogLevelDebug, "GinkgoWriter", win,
 	)
 	if strings.TrimSpace(spec.CapturedStdOutErr) != "" {
+		text := spec.CapturedStdOutErr
+		if spec.NumAttempts > 1 {
+			// Ginkgo captures stdout/stderr for the whole spec, with no offsets to tell the
+			// attempts apart, so it all lands on the last attempt: say so.
+			text = fmt.Sprintf("[stdout/stderr of all %d attempts]\n%s", spec.NumAttempts, text)
+		}
 		sendOutput(
-			[]outputSegment{{step: -1, text: spec.CapturedStdOutErr, at: win.end}},
+			[]outputSegment{{step: -1, text: text, at: win.end}},
 			targetFor, stepID, gorp.LogLevelInfo, "stdout/stderr", win,
 		)
 	}

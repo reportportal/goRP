@@ -15,3 +15,6 @@ func signalCode(os.Signal) int { return 1 }
 func forwardSignal(cmd *exec.Cmd, _ os.Signal) { _ = cmd.Process.Kill() }
 
 func killGroup(cmd *exec.Cmd) { _ = cmd.Process.Kill() }
+
+// Windows has no job control to keep working.
+func watchJobControl(*exec.Cmd) (stop func()) { return func() {} }

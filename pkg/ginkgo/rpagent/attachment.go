@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"io/fs"
 	"log"
 	"os"
 	"path/filepath"
@@ -80,6 +81,52 @@ func SetAttachmentConfig(cfg AttachmentConfig) {
 	}
 }
 
+// attachmentError is the JSON payload of an attachmentErrorPrefix report entry: an
+// attachment the agent could not upload, and why.
+type attachmentError struct {
+	File    string `json:"file"`
+	Message string `json:"msg,omitempty"`
+	Reason  string `json:"reason"`
+}
+
+// reportAttachmentError leaves an entry for the agent, which logs it on the spec item.
+// Never: the entry only carries the problem to the agent, so keep it out of Ginkgo's output.
+func reportAttachmentError(filePath, message, reason string) {
+	payload, _ := json.Marshal(attachmentError{
+		File:    filepath.Base(filePath),
+		Message: message,
+		Reason:  reason,
+	})
+	ginkgo.AddReportEntry(
+		filePath,
+		attachmentErrorPrefix+string(payload),
+		ginkgo.ReportEntryVisibilityNever,
+	)
+}
+
+// formatAttachmentError turns the payload of an attachmentErrorPrefix entry into the log
+// text. A payload it cannot read is logged as it is, so the problem is never lost.
+func formatAttachmentError(raw string) string {
+	var e attachmentError
+	if err := json.Unmarshal([]byte(raw), &e); err != nil || e.Reason == "" {
+		return "Attachment error: " + raw
+	}
+	text := "Attachment not uploaded: " + e.File
+	if e.Message != "" {
+		text += ` ("` + e.Message + `")`
+	}
+	return text + ": " + e.Reason
+}
+
+// bareError is err without the path an *fs.PathError repeats: the file is named already.
+func bareError(err error) string {
+	var pe *fs.PathError
+	if errors.As(err, &pe) {
+		return pe.Err.Error()
+	}
+	return err.Error()
+}
+
 // AddAttachment queues a file to be uploaded as an attachment to the current test.
 // Must be called inside an It block.
 //
@@ -95,10 +142,7 @@ func AddAttachment(filePath, message string) {
 	fileInfo, err := os.Stat(filePath)
 	if err != nil {
 		log.Printf("WARNING: cannot access attachment file %s: %v", filePath, err)
-		errPayload, _ := json.Marshal(
-			struct{ Msg string }{Msg: fmt.Sprintf("%s#failed to access file: %v", message, err)},
-		)
-		ginkgo.AddReportEntry(filePath, fmt.Sprintf("%s%s", attachmentErrorPrefix, errPayload))
+		reportAttachmentError(filePath, message, "cannot access the file: "+bareError(err))
 		return
 	}
 
@@ -109,25 +153,18 @@ func AddAttachment(filePath, message string) {
 			fileInfo.Size(),
 			attachmentConfig.MaxFileSize,
 		)
-		errPayload, _ := json.Marshal(struct{ Msg string }{
-			Msg: fmt.Sprintf(
-				"%s#file size (%d bytes) exceeds limit (%d bytes)",
-				message,
-				fileInfo.Size(),
-				attachmentConfig.MaxFileSize,
-			),
-		})
-		ginkgo.AddReportEntry(filePath, fmt.Sprintf("%s%s", attachmentErrorPrefix, errPayload))
+		reportAttachmentError(filePath, message, fmt.Sprintf(
+			"the file is %d bytes, the limit is %d bytes",
+			fileInfo.Size(),
+			attachmentConfig.MaxFileSize,
+		))
 		return
 	}
 
 	tempFile, err := copyToTempLocation(filePath)
 	if err != nil {
 		log.Printf("WARNING: failed to copy attachment %s to temp location: %v", filePath, err)
-		errPayload, _ := json.Marshal(
-			struct{ Msg string }{Msg: fmt.Sprintf("%s#failed to copy file: %v", message, err)},
-		)
-		ginkgo.AddReportEntry(filePath, fmt.Sprintf("%s%s", attachmentErrorPrefix, errPayload))
+		reportAttachmentError(filePath, message, "cannot copy the file: "+bareError(err))
 		return
 	}
 
@@ -142,7 +179,12 @@ func AddAttachment(filePath, message string) {
 		log.Printf("WARNING: failed to encode attachment payload: %v", err)
 		return
 	}
-	ginkgo.AddReportEntry(filePath, fmt.Sprintf("%s%s", attachmentPrefix, payload))
+	// Never: the entry only carries the file to the agent, so keep it out of Ginkgo's output.
+	ginkgo.AddReportEntry(
+		filePath,
+		fmt.Sprintf("%s%s", attachmentPrefix, payload),
+		ginkgo.ReportEntryVisibilityNever,
+	)
 	LogVerboseOperation(
 		fmt.Sprintf("queued attachment: %s (%d bytes)", filepath.Base(filePath), fileInfo.Size()),
 	)

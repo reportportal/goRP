@@ -310,3 +310,37 @@ func TestNoCapturedOutputSendsNothing(t *testing.T) {
 		t.Errorf("whitespace-only output must not create logs: %+v", logs)
 	}
 }
+
+// Ginkgo captures stdout/stderr for the whole spec and cannot say which attempt wrote what,
+// so for a spec that ran more than once the log says it covers all of them. A spec that ran
+// once needs no such note.
+func TestStdoutOfARepeatedSpecIsLabeled(t *testing.T) {
+	for _, tc := range []struct {
+		name        string
+		numAttempts int
+		wantLabel   string // "" = the log must be the bare output
+	}{
+		{"ran once", 1, ""},
+		{"attempts not recorded", 0, ""},
+		{"three attempts", 3, "[stdout/stderr of all 3 attempts]\n"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			logsOf := outputHarness(t)
+			finishWithOutput(t, types.SpecReport{
+				LeafNodeText:      "prints " + tc.name,
+				State:             types.SpecStatePassed,
+				StartTime:         at(0),
+				EndTime:           at(100),
+				NumAttempts:       tc.numAttempts,
+				CapturedStdOutErr: "hello from stdout\n",
+			})
+			logs := logsOf()
+			if len(logs) != 1 || logs[0].level != "INFO" {
+				t.Fatalf("logs = %+v, want one INFO log", logs)
+			}
+			if want := tc.wantLabel + "hello from stdout"; logs[0].msg != want {
+				t.Errorf("log = %q, want %q", logs[0].msg, want)
+			}
+		})
+	}
+}

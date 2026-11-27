@@ -30,7 +30,7 @@ var (
 	ErrNotFound = errors.New("not found")
 	// ErrNotAPIResponse matches a successful response that carries an HTML page instead of JSON.
 	// The host or path most probably points to the ReportPortal UI, an SSO page or another server.
-	// Only the Resty-based clients report it; the generated client fails to decode such a response.
+	// On the generated client, operations that return files or reports instead of JSON are exempt.
 	ErrNotAPIResponse = errors.New("not a ReportPortal API response")
 )
 
@@ -137,7 +137,9 @@ func (e *HTTPError) Is(target error) bool {
 
 // OpenAPIErrorMiddleware is the [openapi.ResponseMiddlewareFunction] that [NewClient] installs on
 // the generated client. It turns every failed response into an [*HTTPError], whether the API
-// specification declares the status for the operation or not.
+// specification declares the status for the operation or not. A successful response with an HTML
+// page is an error too ([ErrNotAPIResponse]), unless the request is one of the operations that
+// return files or reports rather than JSON (GetFile, GetLaunchReport, …).
 //
 // Set it as ResponseMiddleware of the [openapi.Configuration] of a client you build yourself.
 // To run a middleware of your own as well, combine them with [ChainResponseMiddleware]: assigning
@@ -146,17 +148,21 @@ func OpenAPIErrorMiddleware(resp *http.Response, body []byte) error {
 	if resp == nil {
 		return nil
 	}
-	// The generated code treats everything from 300 as a failure. A successful response is left to it,
-	// even an HTML one: operations that download files and reports (GetFile, GetLaunchReport, …) are
-	// indistinguishable here from those that expect JSON, and the latter fail on HTML anyway.
-	if resp.StatusCode < http.StatusMultipleChoices {
-		return nil
-	}
 
-	httpErr, errorRS := newHTTPError(resp, body)
+	var httpErr *HTTPError
 	var model any
-	if errorRS != nil {
-		model = *errorRS
+	switch {
+	// The generated code treats everything from 300 as a failure
+	case resp.StatusCode >= http.StatusMultipleChoices:
+		var errorRS *openapi.ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
+		if httpErr, errorRS = newHTTPError(resp, body); errorRS != nil {
+			model = *errorRS
+		}
+	// Without the request there is no telling whether the operation expects JSON, so the response passes
+	case isHTML(resp.Header) && resp.Request != nil && !isNonJSONOperation(resp.Request):
+		httpErr = newNotAPIError(resp, body)
+	default:
+		return nil
 	}
 	httpErr.cause = openapi.NewGenericOpenAPIError(httpErr.Status, body, model)
 

@@ -311,29 +311,131 @@ func TestRestyClientsRejectHTMLSuccess(t *testing.T) {
 	}
 }
 
-// The generated client has operations that download files and HTML reports, so a successful HTML
-// response is not an error for the middleware. Operations that expect JSON fail to decode it.
-func TestOpenAPIErrorMiddlewareLeavesSuccessAlone(t *testing.T) {
+// The generated client has operations that download files and HTML reports, so there a successful
+// HTML response is not an error. For every other operation it is, the same as on the Resty clients.
+func TestGeneratedClientRejectsHTMLSuccess(t *testing.T) {
 	t.Parallel()
 
 	srv := errorResponse{
 		status: http.StatusOK,
-		header: map[string]string{"Content-Type": "text/html"},
+		header: map[string]string{"Content-Type": "text/html; charset=utf-8"},
 		body:   htmlPage,
 	}.serve(t)
 	u, err := url.Parse(srv.URL)
 	require.NoError(t, err)
-	client := NewClient(u, WithApiKeyAuth(t.Context(), "key"))
 
-	resp, err := client.LaunchAPI.GetLaunchReport(t.Context(), 1, "prj").Execute()
-	require.NoError(t, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
+	requireNotAPI := func(t *testing.T, resp *http.Response, err error, wantURL string) {
+		t.Helper()
 
-	_, _, err = client.LaunchAPI.GetLaunch(t.Context(), "1", "prj").Execute()
-	require.Error(t, err)
+		var httpErr *HTTPError
+		require.ErrorAs(t, err, &httpErr)
+		require.ErrorIs(t, err, ErrNotAPIResponse)
+		assert.Equal(t, http.StatusOK, httpErr.StatusCode)
+		assert.Equal(t, wantURL, httpErr.URL)
+		assert.Equal(t, htmlPage, httpErr.Response)
+		assert.Equal(t, "GET "+wantURL+": 200 OK: expected JSON but got an HTML page, "+
+			"the host or path is probably not the ReportPortal API", err.Error())
 
-	var httpErr *HTTPError
-	assert.NotErrorAs(t, err, &httpErr)
+		var apiErr *openapi.GenericOpenAPIError
+		require.ErrorAs(t, err, &apiErr)
+		assert.Equal(t, htmlPage, string(apiErr.Body()))
+		assert.Nil(t, apiErr.Model())
+		require.NotNil(t, resp)
+		assert.Equal(t, http.StatusOK, resp.StatusCode)
+	}
+
+	t.Run("operation that returns JSON", func(t *testing.T) {
+		t.Parallel()
+		client := NewClient(u, WithApiKeyAuth(t.Context(), "key"))
+
+		_, resp, err := client.LaunchAPI.GetLaunch(t.Context(), "1", "prj").Execute()
+		requireNotAPI(t, resp, err, srv.URL+"/api/v1/prj/launch/1")
+	})
+
+	t.Run("operations that return files and reports", func(t *testing.T) {
+		t.Parallel()
+		client := NewClient(u, WithApiKeyAuth(t.Context(), "key"))
+
+		resp, err := client.LaunchAPI.GetLaunchReport(t.Context(), 1, "prj").View("html").Execute()
+		require.NoError(t, err)
+		assert.Equal(t, http.StatusOK, resp.StatusCode)
+
+		resp, err = client.FileStorageAPI.GetFile(t.Context(), 1, "prj").Execute()
+		require.NoError(t, err)
+		assert.Equal(t, http.StatusOK, resp.StatusCode)
+	})
+
+	t.Run("API served under another base path", func(t *testing.T) {
+		t.Parallel()
+		client := NewClient(u, WithApiKeyAuth(t.Context(), "key"))
+		client.GetConfig().Servers = openapi.ServerConfigurations{{URL: "/behind/proxy/api"}}
+
+		_, err := client.LaunchAPI.GetLaunchReport(t.Context(), 1, "prj").Execute()
+		require.NoError(t, err)
+
+		_, resp, err := client.LaunchAPI.GetLaunch(t.Context(), "1", "prj").Execute()
+		requireNotAPI(t, resp, err, srv.URL+"/behind/proxy/api/v1/prj/launch/1")
+	})
+
+	// What counts is the request that was answered: after a redirect to a login page it is that page,
+	// whatever operation was called.
+	t.Run("redirect to an HTML page", func(t *testing.T) {
+		t.Parallel()
+
+		sso := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if r.URL.Path != "/login" {
+				http.Redirect(w, r, "/login", http.StatusFound)
+
+				return
+			}
+			w.Header().Set("Content-Type", "text/html")
+			w.Write([]byte(htmlPage))
+		}))
+		t.Cleanup(sso.Close)
+		ssoURL, err := url.Parse(sso.URL)
+		require.NoError(t, err)
+		client := NewClient(ssoURL, WithApiKeyAuth(t.Context(), "key"))
+
+		resp, err := client.LaunchAPI.GetLaunchReport(t.Context(), 1, "prj").Execute()
+		requireNotAPI(t, resp, err, sso.URL+"/login")
+	})
+}
+
+func TestOpenAPIErrorMiddlewarePassesWhatItCannotJudge(t *testing.T) {
+	t.Parallel()
+
+	html := http.Header{"Content-Type": []string{"text/html"}}
+	jsonRequest := httptest.NewRequest(http.MethodGet, "/api/v1/prj/launch/1", http.NoBody)
+
+	require.NoError(t, OpenAPIErrorMiddleware(nil, nil))
+	// a response without its request can't be matched to an operation
+	require.NoError(
+		t,
+		OpenAPIErrorMiddleware(
+			&http.Response{StatusCode: http.StatusOK, Header: html},
+			[]byte(htmlPage),
+		),
+	)
+	// only the content type decides, not the look of the body
+	require.NoError(t, OpenAPIErrorMiddleware(
+		&http.Response{
+			StatusCode: http.StatusOK,
+			Header:     http.Header{},
+			Request:    jsonRequest,
+		},
+		[]byte(htmlPage),
+	))
+	require.NoError(t, OpenAPIErrorMiddleware(
+		&http.Response{
+			StatusCode: http.StatusOK,
+			Header:     http.Header{"Content-Type": []string{"text/plain"}},
+			Request:    jsonRequest,
+		},
+		[]byte(htmlPage),
+	))
+	require.ErrorIs(t, OpenAPIErrorMiddleware(
+		&http.Response{StatusCode: http.StatusNoContent, Header: html, Request: jsonRequest}, nil,
+	), ErrNotAPIResponse)
 }
 
 func TestChainResponseMiddleware(t *testing.T) {

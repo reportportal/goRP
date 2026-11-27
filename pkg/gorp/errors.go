@@ -221,8 +221,9 @@ func newTokenError(retrieveErr *oauth2.RetrieveError) error {
 		return retrieveErr
 	}
 	httpErr, _ := newHTTPError(retrieveErr.Response, retrieveErr.Body)
-	// The oauth2 package also reads bodies that are not JSON (form-encoded)
-	if httpErr.OAuthError == "" && httpErr.Message == "" {
+	// The oauth2 package also reads form-encoded bodies. Its reading of a JSON body is not taken:
+	// "error" there is not always an OAuth error, e.g. in the body of Spring's default handler.
+	if !bytes.HasPrefix(bytes.TrimSpace(retrieveErr.Body), []byte("{")) {
 		httpErr.OAuthError = retrieveErr.ErrorCode
 		httpErr.Message = retrieveErr.ErrorDescription
 	}

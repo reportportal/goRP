@@ -563,7 +563,8 @@ With `gorp.WithPasswordOwnerGrantAuth`, a rejected token request is an `*gorp.HT
 request is the token endpoint, and the fields are filled from what it answered: `ErrorCode` and `Message`
 for a ReportPortal error body (ReportPortal 6: `4003`, `You do not have enough permissions. Bad credentials`),
 `OAuthError` and `Message` for an OAuth one (`invalid_grant`, `Bad credentials`). The same error also
-matches `*oauth2.RetrieveError` with `errors.As`.
+matches `*oauth2.RetrieveError` with `errors.As`. The sentinels apply to it too: with a wrong token URL
+`errors.Is(err, gorp.ErrNotFound)` is true for any call; `HTTPError.URL` tells which request failed.
 
 ### Authentication
 

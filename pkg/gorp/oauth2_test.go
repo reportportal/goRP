@@ -450,6 +450,14 @@ func TestPasswordGrantTokenFailureIsHTTPError(t *testing.T) {
 			body:        "<html><body>Bad Gateway</body></html>",
 			wantText:    ": 502 Bad Gateway: <html><body>Bad Gateway</body></html>",
 		},
+		{
+			// the oauth2 package takes "error" of this body for an OAuth error code
+			name:        "wrong token URL answered by Spring's default handler",
+			status:      http.StatusNotFound,
+			contentType: "application/json",
+			body:        `{"timestamp":"2026-01-01T00:00:00.000+00:00","status":404,"error":"Not Found","path":"/uat/sso/oauth/token"}`,
+			wantText:    ": 404 Not Found: no such endpoint, check the host and the path",
+		},
 	}
 
 	for _, tt := range tests {
@@ -539,7 +547,7 @@ func TestPasswordGrantTokenFailureIsHTTPError(t *testing.T) {
 					require.ErrorAs(t, err, &retrieveErr)
 					assert.Equal(t, tt.status, retrieveErr.Response.StatusCode)
 					assert.Equal(t, tt.body, string(retrieveErr.Body))
-					assert.Equal(t, tt.wantOAuth, retrieveErr.ErrorCode)
+					assert.Contains(t, retrieveErr.Error(), "oauth2: ")
 					assert.Same(t, retrieveErr, errors.Unwrap(httpErr))
 				})
 			}

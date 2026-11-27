@@ -14,6 +14,7 @@ A Go CLI tool (`gorp`) and library (`pkg/gorp`) for [ReportPortal](https://repor
 | `internal/commands/` | CLI command implementations (see below) |
 | `pkg/gorp/` | Hand-written public library (see below) |
 | `pkg/openapi/` | **Generated** OpenAPI client — never edit manually |
+| `examples/showcase/` | Runnable `pkg/gorp` example: a rich launch (attribute contract, nesting, parameters, fixtures, retries, defect types, reruns) |
 | `scripts/` | OpenAPI spec preprocessing filter (`openapi-preprocess.jq`, run through the `jq` Docker image), short-name type aliases template (`openapi-compat/`) |
 | `Taskfile.yml` | Task runner for build, test, lint, fmt, OpenAPI codegen |
 | `.claude/skills/reportportal/` | Skill for CLI/library reporting workflows (`start-launch`, `test2json`, quality gates, etc.). `.cursor/skills/reportportal/SKILL.md` symlinks to it — same file, don't edit both |

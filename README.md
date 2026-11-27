@@ -517,6 +517,10 @@ all, err := client.GetAllLaunchesByFilterString(ctx, "my_project",
 | `gorp.WithApiKeyAuth(ctx, apiKey)` | API key (user token) — recommended |
 | `gorp.WithPasswordOwnerGrantAuth(ctx, cfg, user, pass)` | OAuth2 resource-owner password grant |
 
+### Full example
+
+[`examples/showcase`](examples/showcase) reports a rich launch with the reporting client: an attribute contract, nested containers, parameters, fixtures, nested steps, every log level and attachments, retries with `retryOf`, defect types, history across builds and launch reruns (`rerunOf`). Run it against a sandbox project with `go run ./examples/showcase -build 1`.
+
 ---
 
 ## Environment Variables

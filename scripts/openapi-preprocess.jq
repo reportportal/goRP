@@ -28,6 +28,24 @@ walk(
     )
   )
 
+# Fix: the spec declares ErrorRS.errorCode as a string enum of ErrorType names ("LAUNCH_NOT_FOUND"),
+# but the server writes the numeric code: ErrorRS.java annotates the field with
+# @JsonSerialize(using = ErrorTypeSerializer.class), which calls writeNumber(error.getCode()),
+# so the wire format is {"errorCode":4041,"message":"..."}. With the string type the generated
+# client fails to decode every such error response ("cannot unmarshal number into ... errorCode
+# of type string") and the server's message is lost. Declare it the same way as the spec's own
+# `Error` schema does (integer/int64). Fails loudly if upstream renames the schema or the property.
+| "com.epam.reportportal.base.infrastructure.rules.exception.ErrorRS" as $errorRS
+| if .components.schemas[$errorRS].properties.errorCode then
+    .components.schemas[$errorRS].properties.errorCode = {
+        type: "integer",
+        format: "int64",
+        description: "Numeric ReportPortal error code (ErrorType code), e.g. 4041 for LAUNCH_NOT_FOUND"
+    }
+  else
+    error("openapi-preprocess: schema \($errorRS) has no errorCode property; update the errorCode override")
+  end
+
 # Fix: the Go openapi-generator does not call the parent's ToMap() from a child's
 # ToMap() when allOf inheritance is used, so discriminator fields (e.g.
 # manualScenarioType) are silently dropped from MarshalJSON output.

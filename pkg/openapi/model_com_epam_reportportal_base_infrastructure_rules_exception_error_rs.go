@@ -20,7 +20,8 @@ var _ MappedNullable = &ComEpamReportportalBaseInfrastructureRulesExceptionError
 
 // ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS struct for ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS
 type ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS struct {
-	ErrorCode  *string `json:"errorCode,omitempty"`
+	// Numeric ReportPortal error code (ErrorType code), e.g. 4041 for LAUNCH_NOT_FOUND
+	ErrorCode  *int64  `json:"errorCode,omitempty"`
 	Message    *string `json:"message,omitempty"`
 	StackTrace *string `json:"stackTrace,omitempty"`
 }
@@ -43,9 +44,9 @@ func NewComEpamReportportalBaseInfrastructureRulesExceptionErrorRSWithDefaults()
 }
 
 // GetErrorCode returns the ErrorCode field value if set, zero value otherwise.
-func (o *ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS) GetErrorCode() string {
+func (o *ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS) GetErrorCode() int64 {
 	if o == nil || IsNil(o.ErrorCode) {
-		var ret string
+		var ret int64
 		return ret
 	}
 	return *o.ErrorCode
@@ -53,7 +54,7 @@ func (o *ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS) GetErrorCod
 
 // GetErrorCodeOk returns a tuple with the ErrorCode field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS) GetErrorCodeOk() (*string, bool) {
+func (o *ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS) GetErrorCodeOk() (*int64, bool) {
 	if o == nil || IsNil(o.ErrorCode) {
 		return nil, false
 	}
@@ -69,8 +70,8 @@ func (o *ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS) HasErrorCod
 	return false
 }
 
-// SetErrorCode gets a reference to the given string and assigns it to the ErrorCode field.
-func (o *ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS) SetErrorCode(v string) {
+// SetErrorCode gets a reference to the given int64 and assigns it to the ErrorCode field.
+func (o *ComEpamReportportalBaseInfrastructureRulesExceptionErrorRS) SetErrorCode(v int64) {
 	o.ErrorCode = &v
 }
 

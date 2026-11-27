@@ -39,6 +39,7 @@ A Go CLI tool (`gorp`) and library (`pkg/gorp`) for [ReportPortal](https://repor
 | `launches.go` | Launch list/merge helpers (Resty, `/api/v1/…`) |
 | `filters.go` | User-filter lookup for launch queries |
 | `oauth2.go` | Password-grant token source, `WithPasswordOwnerGrantAuth` |
+| `config.go` | `LoadConfig`/`ParseConfig`: agent settings from `reportportal.properties` (`rp.*`) and `RP_*` env, with the Java agents' semantics. Library only — the CLI doesn't use it |
 | `quality_gate.go` | `ParseQualityGate` from launch metadata |
 | `multipart.go` | `Multipart` interface + `FileMultipart`/`ReaderMultipart` |
 | `model_api.go`, `model_enums.go` | Hand-written request/response types, `Statuses`, `TestItemTypes`, `LaunchModes`, log levels |

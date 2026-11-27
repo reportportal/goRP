@@ -26639,110 +26639,15 @@ components:
   schemas:
     com.epam.reportportal.base.infrastructure.rules.exception.ErrorRS:
       example:
-        errorCode: INCORRECT_REQUEST
+        errorCode: 0
         message: message
         stackTrace: stackTrace
       properties:
         errorCode:
-          enum:
-          - INCORRECT_REQUEST
-          - BINARY_DATA_CANNOT_BE_SAVED
-          - ACCESS_DENIED
-          - ADDRESS_LOCKED
-          - UPSA_USER_DENIED
-          - PAYMENT_REQUIRED
-          - PAID_PLUGIN_REQUIRED
-          - PROJECT_NOT_FOUND
-          - LAUNCH_NOT_FOUND
-          - TEST_SUITE_NOT_FOUND
-          - TEST_ITEM_NOT_FOUND
-          - LOG_NOT_FOUND
-          - ROLE_NOT_FOUND
-          - USER_NOT_FOUND
-          - WIDGET_NOT_FOUND
-          - WIDGET_NOT_FOUND_IN_DASHBOARD
-          - DASHBOARD_NOT_FOUND
-          - USER_FILTER_NOT_FOUND
-          - ACTIVITY_NOT_FOUND
-          - UNABLE_TO_CREATE_WIDGET
-          - INTEGRATION_NOT_FOUND
-          - PROJECT_NOT_CONFIGURED
-          - SERVER_SETTINGS_NOT_FOUND
-          - ISSUE_TYPE_NOT_FOUND
-          - PROJECT_SETTINGS_NOT_FOUND
-          - TICKET_NOT_FOUND
-          - AUTH_INTEGRATION_NOT_FOUND
-          - WIDGET_NOT_FOUND_IN_PROJECT
-          - USER_FILTER_NOT_FOUND_IN_PROJECT
-          - DASHBOARD_NOT_FOUND_IN_PROJECT
-          - PATTERN_TEMPLATE_NOT_FOUND_IN_PROJECT
-          - TEST_ITEM_OR_LAUNCH_NOT_FOUND
-          - ANALYZER_NOT_FOUND
-          - ATTACHMENT_NOT_FOUND
-          - UNABLE_TO_LOAD_BINARY_DATA
-          - CLUSTER_NOT_FOUND
-          - ORGANIZATION_NOT_FOUND
-          - NOT_FOUND
-          - INTEGRATION_TYPE_NOT_FOUND
-          - INCORRECT_FILTER_PARAMETERS
-          - INCORRECT_SORTING_PARAMETERS
-          - INCORRECT_INTEGRATION_NAME
-          - UNABLE_MODIFY_SHARABLE_RESOURCE
-          - INCORRECT_AUTHENTICATION_TYPE
-          - UNABLE_POST_TICKET
-          - UNABLE_ASSIGN_UNASSIGN_USER_TO_PROJECT
-          - EMAIL_CONFIGURATION_IS_INCORRECT
-          - PROJECT_UPDATE_NOT_ALLOWED
-          - UNABLE_TO_UPDATE_YOURSELF_ROLE
-          - FORBIDDEN_OPERATION
-          - RESOURCE_ALREADY_EXISTS
-          - UNABLE_INTERACT_WITH_INTEGRATION
-          - ROLE_ALREADY_EXISTS_ERROR
-          - USER_ALREADY_EXISTS
-          - USER_FILTER_ALREADY_EXISTS
-          - PROJECT_ALREADY_EXISTS
-          - DASHBOARD_UPDATE_ERROR
-          - UNABLE_LOAD_WIDGET_CONTENT
-          - UNABLE_ADD_TO_FAVORITE
-          - INTEGRATION_ALREADY_EXISTS
-          - SERVER_SETTINGS_ALREADY_EXISTS
-          - USER_ALREADY_ASSIGNED
-          - UNABLE_REMOVE_FROM_FAVORITE
-          - LAUNCH_IS_NOT_FINISHED
-          - TEST_ITEM_IS_NOT_FINISHED
-          - INCORRECT_FINISH_STATUS
-          - BAD_REQUEST_ERROR
-          - BAD_SAVE_LOG_REQUEST
-          - REPORTING_ITEM_ALREADY_FINISHED
-          - AMBIGUOUS_TEST_ITEM_STATUS
-          - FAILED_TEST_ITEM_ISSUE_TYPE_DEFINITION
-          - FINISH_TIME_EARLIER_THAN_START_TIME
-          - FINISH_ITEM_NOT_ALLOWED
-          - FINISH_LAUNCH_NOT_ALLOWED
-          - START_ITEM_NOT_ALLOWED
-          - CHILD_START_TIME_EARLIER_THAN_PARENT
-          - UNSUPPORTED_TEST_ITEM_TYPE
-          - LOGGING_IS_NOT_ALLOWED
-          - BAD_SAVE_WIDGET_REQUEST
-          - BAD_UPDATE_WIDGET_REQUEST
-          - UNABLE_LOAD_TEST_ITEM_HISTORY
-          - BAD_SAVE_USER_FILTER_REQUEST
-          - RETRIES_HANDLER_ERROR
-          - IMPORT_FILE_ERROR
-          - PARSING_XML_ERROR
-          - OBJECT_RETRIEVAL_ERROR
-          - PLUGIN_UPLOAD_ERROR
-          - PLUGIN_REMOVE_ERROR
-          - UNABLE_TO_SAVE_CHILD_ITEM_FOR_THE_RETRY
-          - PATTERN_ANALYSIS_ERROR
-          - PROJECT_DOESNT_CONTAIN_USER
-          - UNCLASSIFIED_REPORT_PORTAL_ERROR
-          - BAD_UPDATE_PREFERENCE_REQUEST
-          - UNSUPPORTED_MERGE_STRATEGY_TYPE
-          - DEMO_DATA_GENERATION_ERROR
-          - ATTRIBUTE_NOT_FOUND
-          - UNCLASSIFIED_ERROR
-          type: string
+          description: "Numeric ReportPortal error code (ErrorType code), e.g. 4041\
+            \ for LAUNCH_NOT_FOUND"
+          format: int64
+          type: integer
         message:
           type: string
         stackTrace:
@@ -38816,10 +38721,10 @@ components:
         - 0
         - 0
         errors:
-        - errorCode: INCORRECT_REQUEST
+        - errorCode: 0
           message: message
           stackTrace: stackTrace
-        - errorCode: INCORRECT_REQUEST
+        - errorCode: 0
           message: message
           stackTrace: stackTrace
       properties:

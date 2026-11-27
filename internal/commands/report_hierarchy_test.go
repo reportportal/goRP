@@ -322,6 +322,73 @@ func TestReportLaunch_SubtestParentMustBeRunning(t *testing.T) {
 	)
 }
 
+// TestReportLaunch_AmbiguousSubtestParent replays the real "go test -json" stream of parallel siblings
+// "a" and "a/b" that both resumed when "TestX/a/b/c" starts. It is the same whether "a" called
+// t.Run("b/c") or "a/b" called t.Run("c"), so the longest running prefix is the parent: every test
+// case is still counted once, as a leaf.
+func TestReportLaunch_AmbiguousSubtestParent(t *testing.T) {
+	t.Parallel()
+
+	rec, srv := newHierarchyServer(t, "proj")
+	file := writeEventLines(t,
+		event("run", "TestX"),
+		event("run", "TestX/a"),
+		event("pause", "TestX/a"),
+		event("run", "TestX/a/b"),
+		event("pause", "TestX/a/b"),
+		event("cont", "TestX/a"),
+		event("cont", "TestX/a/b"),
+		event("run", "TestX/a/b/c"),
+		event("pass", "TestX/a/b/c"),
+		event("pass", "TestX/a"),
+		event("pass", "TestX/a/b"),
+		event("pass", "TestX"),
+		event("pass", ""),
+	)
+
+	cfg := &clientConfig{URL: srv.URL, Project: "proj", ApiKey: "tok"}
+	_, _, err := reportLaunch(t.Context(), cfg, reportCmd(file, "launch", false))
+	require.NoError(t, err)
+
+	x := rec.item(t, "TestX")
+	assert.Equal(t, x.ID, rec.item(t, "a").ParentID)
+	assert.Equal(t, x.ID, rec.item(t, "a/b").ParentID)
+	assert.Equal(t, rec.item(t, "a/b").ID, rec.item(t, "c").ParentID)
+}
+
+// TestReportLaunch_SubtestParentHasNoRunningSubtest checks that a running test with a running subtest
+// is not a parent candidate: it is blocked in t.Run, so "TestX/a/b/c" can only be t.Run("b/c") of "a".
+func TestReportLaunch_SubtestParentHasNoRunningSubtest(t *testing.T) {
+	t.Parallel()
+
+	rec, srv := newHierarchyServer(t, "proj")
+	file := writeEventLines(t,
+		event("run", "TestX"),
+		event("run", "TestX/a"),
+		event("pause", "TestX/a"),
+		event("run", "TestX/a/b"),
+		event("pause", "TestX/a/b"),
+		event("cont", "TestX/a"),
+		event("cont", "TestX/a/b"),
+		// "a/b" runs a subtest and waits for it
+		event("run", "TestX/a/b/z"),
+		event("run", "TestX/a/b/c"),
+		event("pass", "TestX/a/b/c"),
+		event("pass", "TestX/a/b/z"),
+		event("pass", "TestX/a"),
+		event("pass", "TestX/a/b"),
+		event("pass", "TestX"),
+		event("pass", ""),
+	)
+
+	cfg := &clientConfig{URL: srv.URL, Project: "proj", ApiKey: "tok"}
+	_, _, err := reportLaunch(t.Context(), cfg, reportCmd(file, "launch", false))
+	require.NoError(t, err)
+
+	assert.Equal(t, rec.item(t, "a/b").ID, rec.item(t, "z").ParentID)
+	assert.Equal(t, rec.item(t, "a").ID, rec.item(t, "b/c").ParentID)
+}
+
 func TestReportLaunch_PackageWithoutTestFilesWithReportEmpty(t *testing.T) {
 	t.Parallel()
 

@@ -77,7 +77,9 @@ type reporter struct {
 	tests            map[string]string
 	// paused are the tests that called t.Parallel() and wait for their turn; they cannot have subtests
 	// started while paused, so a test named like them ("a/b" next to a paused "a") is not their child
-	paused        map[string]bool
+	paused map[string]bool
+	// parents maps a started test to its parent test ("" when its parent is the package suite)
+	parents       map[string]string
 	suites        map[string]string
 	logs          []*openapi.SaveLogRQ
 	logsBatchSize int
@@ -115,6 +117,7 @@ func newReporter(
 		client:           client,
 		tests:            map[string]string{},
 		paused:           map[string]bool{},
+		parents:          map[string]string{},
 		suites:           map[string]string{},
 		logs:             []*openapi.SaveLogRQ{},
 		logsBatchSize:    logsBatchSize,
@@ -254,8 +257,9 @@ func (r *reporter) startSuite(ev *testEvent) (string, error) {
 // test case is counted exactly once.
 func (r *reporter) startTest(ev *testEvent) error {
 	testID := r.getTestName(ev)
-	parentID, name := r.parentOf(ev)
-	if parentID == "" {
+	parentTest, name := r.parentOf(ev)
+	parentID := r.tests[parentTest]
+	if parentTest == "" {
 		suiteID, found := r.suites[ev.Package]
 		if !found {
 			if r.reportEmpty {
@@ -288,25 +292,61 @@ func (r *reporter) startTest(ev *testEvent) error {
 		return err
 	}
 	r.tests[testID] = id
+	r.parents[testID] = parentTest
 	r.openItems = append(r.openItems, id)
 	return nil
 }
 
-// parentOf finds the running test that ev is a subtest of and returns its item ID together with the
-// name of ev relative to it ("TestA/b/c" under "TestA/b" is "c"). Subtest names may contain "/"
-// themselves, so the longest prefix that names a running test wins. A test that already finished or
-// is paused in t.Parallel() cannot be the parent: t.Run("c/d") after a finished t.Run("c") is a
-// sibling of "c". For a top-level test, or when no running parent is found, the ID is empty and the
-// name is the full test name.
+// parentOf finds the running test that ev is a subtest of and returns its name (package-qualified, as
+// in r.tests) together with the name of ev relative to it ("TestA/b/c" under "TestA/b" is "c"). For a
+// top-level test, or when no running parent is found, the parent is empty and the name is the full
+// test name.
+//
+// Subtest names may contain "/" themselves, so every running test whose name is a prefix of ev's is a
+// candidate. A test that already finished or is paused in t.Parallel() cannot be the parent:
+// t.Run("c/d") after a finished t.Run("c") is a sibling of "c". Neither can a test that has a running
+// subtest: it is blocked in t.Run, or its body has returned and its parallel subtests run. Of the
+// remaining candidates the longest wins.
+//
+// test2json cannot always tell more: with parallel siblings "a" and "a/b" both running, "a/b/c" is
+// either t.Run("b/c") of "a" or t.Run("c") of "a/b", and the stream is the same for both. The
+// longest prefix picks "a/b". When that is wrong, the test is shown under its sibling, but every
+// test case is still counted exactly once; any other choice would count one test case too many.
 func (r *reporter) parentOf(ev *testEvent) (string, string) {
+	var candidates []int // indexes of "/" in ev.Test that end the name of a candidate, longest first
 	for i := strings.LastIndex(ev.Test, "/"); i > 0; i = strings.LastIndex(ev.Test[:i], "/") {
-		name := ev.Package + "/" + ev.Test[:i]
-		id, ok := r.tests[name]
-		if ok && !r.paused[name] && slices.Contains(r.openItems, id) {
-			return id, ev.Test[i+1:]
+		if r.isRunning(ev.Package + "/" + ev.Test[:i]) {
+			candidates = append(candidates, i)
 		}
 	}
-	return "", ev.Test
+	if len(candidates) == 0 {
+		return "", ev.Test
+	}
+	parent := candidates[0]
+	for _, i := range candidates {
+		if !r.hasRunningSubtest(ev.Package + "/" + ev.Test[:i]) {
+			parent = i
+			break
+		}
+	}
+	// when every candidate has a running subtest (t.Run called from a goroutine), the longest one stays
+	return ev.Package + "/" + ev.Test[:parent], ev.Test[parent+1:]
+}
+
+// isRunning reports whether the test is started, not finished and not paused in t.Parallel().
+func (r *reporter) isRunning(test string) bool {
+	id, ok := r.tests[test]
+	return ok && !r.paused[test] && slices.Contains(r.openItems, id)
+}
+
+// hasRunningSubtest reports whether one of the test's direct subtests is running.
+func (r *reporter) hasRunningSubtest(test string) bool {
+	for child, parent := range r.parents {
+		if parent == test && r.isRunning(child) {
+			return true
+		}
+	}
+	return false
 }
 
 func logLevelForOutputType(outputType string) string {

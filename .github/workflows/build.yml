@@ -31,6 +31,26 @@ jobs:
       - name: govulncheck
         run: go run golang.org/x/vuln/cmd/govulncheck@v1.9.0 ./...
 
+  openapi-drift:
+    # pkg/openapi must be exactly what `task generate-openapi-client` produces from the committed spec.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - name: Install Task
+        uses: arduino/setup-task@v2
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Regenerate the OpenAPI client
+        run: task generate-openapi-client
+      - name: pkg/openapi is up to date
+        run: |
+          # `git add` first, so that new untracked files count as a difference too.
+          git add -A pkg/openapi
+          git diff --cached --stat --exit-code -- pkg/openapi
+
   build:
     strategy:
       fail-fast: false

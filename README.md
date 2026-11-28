@@ -240,6 +240,7 @@ go test -json ./... | gorp report test2json --quality-gate-check
 | `--mode` | | `LAUNCH_MODE` | `DEFAULT` | Launch mode: `DEFAULT` or `DEBUG` (case-insensitive). Any other value is rejected before anything is sent. |
 | `--rerun` | | `LAUNCH_RERUN` | `false` | Report into the latest launch with the same name instead of creating a new one |
 | `--rerun-of` | | `LAUNCH_RERUN_OF` | | UUID of the launch to rerun. Implies `--rerun`. |
+| `--launch-uuid` | | | | Report into this existing launch instead of starting one. See [Reporting into an existing launch](#reporting-into-an-existing-launch). |
 | `--reportEmptyPkg` | `--ep` | `REPORT_EMPTY_PKG` | `false` | Report packages with no test files |
 | `--skipped-issue` | | `SKIPPED_ISSUE` | `true` | Whether skipped tests are "To Investigate" (`true`, ReportPortal's default) or "No Defect" (`false`) |
 | `--print-launch-uuid` | | | `false` | Print `ReportPortal Launch UUID: <uuid>` and `ReportPortal Launch: <url>` to stdout after reporting |
@@ -261,6 +262,42 @@ into that launch whatever its name. ReportPortal then updates the tests that are
 ones and finishes the launch with the new status. If there is no launch to rerun, the server answers 404 and the
 command fails. The printed launch UUID is always the one the server answered with: for a rerun that is the UUID
 of the original launch (ReportPortal 5.13.5 and later; older servers may return a UUID that is not the launch's).
+
+#### Reporting into an existing launch
+
+With `--launch-uuid <uuid>` the results go into a launch that exists already, for example when several CI jobs
+(shards) report one test run. The launch is not started and not finished by `report test2json`, also not when the
+command is interrupted (it then finishes only its own running items as `INTERRUPTED`):
+
+```sh
+LAUNCH_UUID=$(gorp report start-launch --name "PR #42")       # one job, before the tests run
+
+# every shard
+go test -json ./pkg/a/... | gorp report test2json --launch-uuid "$LAUNCH_UUID"
+go test -json ./pkg/b/... | gorp report test2json --launch-uuid "$LAUNCH_UUID"
+
+gorp report finish-launch --launch-uuid "$LAUNCH_UUID"        # one job, after all shards
+gorp quality-gate check --launch-uuid "$LAUNCH_UUID"
+```
+
+- The UUID is looked up first (`GET /api/v1/{project}/launch/uuid/{uuid}`); a launch that is not found is looked
+  up again for up to 10 seconds, because launches are created asynchronously. An unknown UUID fails the command.
+  Without this check ReportPortal would accept the results and drop them silently.
+- **Start the launch before the tests run.** ReportPortal silently drops items that start before their launch, so
+  the command fails when the first test event is older than the launch.
+- A launch that is already finished only gives a warning: ReportPortal accepts results for it, but does not update
+  its status.
+- `--launchName`, `--attr`, `--description` and `--mode` describe a launch to start; they are ignored with a
+  warning. `--rerun` and `--rerun-of` are rejected. The `skippedIssue` launch attribute cannot be set either, but
+  `--skipped-issue=false` still marks every skipped test as "No Defect".
+- `--print-launch-uuid` prints the given UUID. There is no launch link: the server returns it when the launch is
+  finished.
+- `--quality-gate-check` is rejected: the quality gate is calculated when the launch is finished. Run
+  `gorp quality-gate check` after `gorp report finish-launch`.
+- The flag has no environment variable on purpose: `LAUNCH_UUID` is commonly exported for the step commands, and
+  `report test2json` must not start joining a launch because of it.
+- The status of the launch is decided when it is finished: `finish-launch` without `--status` lets ReportPortal
+  derive it from the reported items.
 
 ---
 

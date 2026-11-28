@@ -100,6 +100,69 @@ func (c *ReportingClient) finishLaunch(
 	return &rs, err
 }
 
+// LaunchInfo is what GetLaunchByUUID tells about a launch.
+type LaunchInfo struct {
+	// ID is the numeric ID of the launch, as used by the UI and the non-reporting API
+	ID     int64
+	UUID   string
+	Name   string
+	Status string
+	// StartTime is zero when the server did not send it
+	StartTime time.Time
+}
+
+// UnmarshalJSON decodes the launch as returned by ReportPortal. The response is not decoded into the
+// generated launch model on purpose: startTime is an RFC3339 string or epoch milliseconds, depending
+// on the server version and the requested media type, and the generated model reads only the former.
+func (l *LaunchInfo) UnmarshalJSON(data []byte) error {
+	var raw struct {
+		ID        int64           `json:"id"`
+		UUID      string          `json:"uuid"`
+		Name      string          `json:"name"`
+		Status    string          `json:"status"`
+		StartTime json.RawMessage `json:"startTime"`
+	}
+	if err := json.Unmarshal(data, &raw); err != nil {
+		return err
+	}
+	*l = LaunchInfo{ID: raw.ID, UUID: raw.UUID, Name: raw.Name, Status: raw.Status}
+
+	var millis int64
+	switch {
+	case len(raw.StartTime) == 0 || string(raw.StartTime) == "null":
+	case json.Unmarshal(raw.StartTime, &millis) == nil:
+		l.StartTime = time.UnixMilli(millis).UTC()
+	default:
+		if err := json.Unmarshal(raw.StartTime, &l.StartTime); err != nil {
+			return fmt.Errorf("launch startTime: %w", err)
+		}
+	}
+	return nil
+}
+
+// GetLaunchByUUID looks a launch up by its UUID. An unknown UUID is an *HTTPError with status 404.
+//
+// The reporting (v2) API is asynchronous and does not check the launch UUID of an item or a log: what is
+// sent for an unknown launch is accepted and dropped later. Use this call to check a UUID that was not
+// returned by StartLaunch of this process before reporting into it. A launch that was started a moment
+// ago may not be visible yet.
+func (c *ReportingClient) GetLaunchByUUID(ctx context.Context, uuid string) (*LaunchInfo, error) {
+	var launch LaunchInfo
+	_, err := c.http.R().
+		SetContext(ctx).
+		SetPathParams(map[string]string{
+			"project": c.project,
+			"uuid":    uuid,
+		}).
+		SetResult(&launch).
+		Get("/api/v1/{project}/launch/uuid/{uuid}")
+	if err != nil {
+		return nil, err
+	}
+
+	return &launch, nil
+}
+
 // StopLaunch finishes the launch with the STOPPED status. ReportPortal has no separate v2 stop endpoint,
 // so this is FinishLaunch with Statuses.Stopped, which also lets a launch that still has running items be deleted.
 func (c *ReportingClient) StopLaunch(

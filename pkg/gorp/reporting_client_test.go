@@ -209,3 +209,59 @@ type mockMultipart struct {
 func (m *mockMultipart) Load() (string, string, io.Reader, error) {
 	return m.fileName, m.contentType, m.reader, m.err
 }
+
+func TestGetLaunchByUUID(t *testing.T) {
+	t.Parallel()
+
+	wantStart := time.Date(2026, 11, 27, 22, 32, 2, 97_000_000, time.UTC)
+	tests := map[string]string{
+		"epoch milliseconds": `1795818722097`,
+		"RFC3339":            `"2026-11-27T22:32:02.097Z"`,
+	}
+	for name, startTime := range tests {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			server := httptest.NewServer(
+				http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+					assert.Equal(t, http.MethodGet, r.Method)
+					assert.Equal(t, "/api/v1/prj/launch/uuid/launch-uuid", r.URL.Path)
+					w.Header().Set("Content-Type", "application/json")
+					_, _ = fmt.Fprintf(
+						w,
+						`{"id":4,"uuid":"launch-uuid","name":"n","status":"IN_PROGRESS","startTime":%s,"endTime":null}`,
+						startTime,
+					)
+				}),
+			)
+			defer server.Close()
+			client := NewReportingClient(server.URL, "prj", WithApiKeyAuth(t.Context(), "key"))
+
+			launch, err := client.GetLaunchByUUID(t.Context(), "launch-uuid")
+
+			require.NoError(t, err)
+			assert.Equal(t, &LaunchInfo{
+				ID: 4, UUID: "launch-uuid", Name: "n", Status: "IN_PROGRESS", StartTime: wantStart,
+			}, launch)
+		})
+	}
+
+	t.Run("an unknown launch is a 404 HTTPError", func(t *testing.T) {
+		t.Parallel()
+
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusNotFound)
+			_, _ = w.Write([]byte(`{"errorCode":4041,"message":"Launch 'x' not found."}`))
+		}))
+		defer server.Close()
+		client := NewReportingClient(server.URL, "prj", WithApiKeyAuth(t.Context(), "key"))
+
+		launch, err := client.GetLaunchByUUID(t.Context(), "x")
+
+		assert.Nil(t, launch)
+		var httpErr *HTTPError
+		require.ErrorAs(t, err, &httpErr)
+		assert.Equal(t, http.StatusNotFound, httpErr.StatusCode)
+	})
+}

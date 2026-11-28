@@ -4,12 +4,15 @@ import (
 	"bufio"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"log/slog"
+	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/urfave/cli/v3"
 
@@ -85,6 +88,11 @@ var (
 				Usage:   "UUID of the launch to rerun; implies --rerun",
 				Sources: cli.EnvVars("LAUNCH_RERUN_OF"),
 			},
+			&cli.StringFlag{
+				Name: "launch-uuid",
+				Usage: "Report into this existing launch instead of starting a new one. " +
+					"The launch is neither started nor finished: finish it with 'report finish-launch'",
+			},
 			&cli.BoolFlag{
 				Name: "skipped-issue",
 				Usage: "Whether skipped tests are 'To Investigate' (true, ReportPortal's default) " +
@@ -114,6 +122,9 @@ var (
 func reportTest2Json(ctx context.Context, cmd *cli.Command) error {
 	cfg, err := getConfig(cmd)
 	if err != nil {
+		return err
+	}
+	if err = validateJoinFlags(cmd); err != nil {
 		return err
 	}
 
@@ -160,6 +171,15 @@ func reportLaunch(
 
 	rpClient := buildReportingClient(ctx, cfg)
 
+	// an existing launch is checked before the input is read: nothing can be reported into a launch
+	// the server does not know
+	joined, err := findLaunchToJoin(
+		ctx, rpClient, cmd.String("launch-uuid"), joinLaunchWait, joinLaunchPollInterval,
+	)
+	if err != nil {
+		return "", "", err
+	}
+
 	input := make(chan *testEvent)
 
 	rep := newReporter(ctx, input, rpClient, cmd.String("launchName"), reporterOptions{
@@ -171,6 +191,7 @@ func reportLaunch(
 		mode:         mode,
 		rerun:        cmd.Bool("rerun"),
 		rerunOf:      cmd.String("rerun-of"),
+		joined:       joined,
 	})
 
 	// start reporting in a separate goroutine.
@@ -196,6 +217,93 @@ func reportLaunch(
 		return "", "", readErr
 	}
 	return rep.launchUUID, rep.launchLink, nil
+}
+
+// launchStartFlags are the flags that describe a launch to start; they mean nothing for --launch-uuid.
+var launchStartFlags = []string{"launchName", "attr", "description", "mode"}
+
+// validateJoinFlags rejects the flag combinations that cannot work with --launch-uuid, before
+// anything is read or sent.
+func validateJoinFlags(cmd *cli.Command) error {
+	if cmd.String("launch-uuid") == "" {
+		return nil
+	}
+	if cmd.Bool("rerun") || cmd.String("rerun-of") != "" {
+		return cli.Exit("--launch-uuid cannot be combined with --rerun or --rerun-of: "+
+			"the launch exists already, there is nothing to start", 1)
+	}
+	if cmd.Bool("quality-gate-check") {
+		return cli.Exit(
+			"--launch-uuid cannot be combined with --quality-gate-check: the launch is not "+
+				"finished by this command, and its quality gate is calculated only once it is finished. "+
+				"Run 'gorp quality-gate check --launch-uuid <uuid>' after 'gorp report finish-launch'",
+			1,
+		)
+	}
+	for _, name := range launchStartFlags {
+		if cmd.IsSet(name) {
+			slog.Warn(
+				"flag is ignored with --launch-uuid: the launch exists already",
+				"flag",
+				"--"+name,
+			)
+		}
+	}
+	return nil
+}
+
+const (
+	// joinLaunchWait is how long a launch that was just started may stay unknown to the server:
+	// launches are created asynchronously.
+	joinLaunchWait = 10 * time.Second
+	// joinLaunchPollInterval is the pause between the lookups of a launch that is not found yet.
+	joinLaunchPollInterval = time.Second
+)
+
+// findLaunchToJoin looks up the launch of --launch-uuid; the result is nil when uuid is empty.
+//
+// The reporting API does not check the launch: it accepts items for an unknown launch UUID and drops
+// them later, without telling the client. A launch that is not found is looked up again every
+// interval for the wait time, since `report start-launch` returns before the server has created the
+// launch. Any other error fails at once.
+func findLaunchToJoin(
+	ctx context.Context,
+	client *gorppkg.ReportingClient,
+	uuid string,
+	wait, interval time.Duration,
+) (*gorppkg.LaunchInfo, error) {
+	if uuid == "" {
+		return nil, nil //nolint:nilnil // no launch to join is not an error
+	}
+	// the wait limits the retries, not a lookup that is under way: a slow answer must not be
+	// reported as a launch that does not exist
+	deadline := time.NewTimer(wait)
+	defer deadline.Stop()
+	ticker := time.NewTicker(interval)
+	defer ticker.Stop()
+
+	for {
+		launch, err := client.GetLaunchByUUID(ctx, uuid)
+		if err == nil {
+			if launch.Status != launchStatusInProgress {
+				slog.Warn("the launch is not in progress: ReportPortal accepts the results, "+
+					"but does not update the status of a finished launch",
+					"launch", uuid, "status", launch.Status)
+			}
+			return launch, nil
+		}
+		var httpErr *gorppkg.HTTPError
+		if !errors.As(err, &httpErr) || httpErr.StatusCode != http.StatusNotFound {
+			return nil, fmt.Errorf("looking up launch %s: %w", uuid, err)
+		}
+		select {
+		case <-ctx.Done():
+			return nil, ctx.Err()
+		case <-deadline.C:
+			return nil, fmt.Errorf("launch %s not found: %w", uuid, err)
+		case <-ticker.C:
+		}
+	}
 }
 
 // test2jsonLaunchMode validates the --mode value of `report test2json` (case-insensitive). ReportPortal

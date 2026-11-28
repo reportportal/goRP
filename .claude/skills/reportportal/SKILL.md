@@ -66,7 +66,14 @@ LAUNCH_UUID=$(gorp report start-launch \
 | `--name` | `-n` | | | **Required.** Launch name |
 | `--description` | | | | Launch description |
 | `--attr` | `-a` | | | Attribute `key:value` or `value` (repeatable) |
-| `--mode` | | | `DEFAULT` | `DEFAULT` or `DEBUG` |
+| `--mode` | | | `DEFAULT` | `DEFAULT` or `DEBUG` (case-insensitive; anything else is rejected) |
+| `--rerun` | | | `false` | Rerun the latest launch with the same name |
+| `--rerun-of` | | | | UUID of the launch to rerun (implies `--rerun`) |
+
+On a rerun the printed UUID is the one of the launch being rerun (ReportPortal 5.13.5+); always use the printed UUID.
+Items are matched to the existing ones by test case ID (derived from code ref or tree position when not given);
+a matched test becomes the latest attempt, the earlier one its retry.
+No launch to rerun → 404 error.
 
 ---
 
@@ -94,11 +101,15 @@ TEST_UUID=$(gorp report start-test \
 |------|-------|-----|---------|-------------|
 | `--launch-uuid` | | `LAUNCH_UUID` | | **Required.** Launch UUID |
 | `--name` | `-n` | | | **Required.** Item name |
-| `--type` | `-t` | | `TEST` | `SUITE`, `TEST`, `STEP`, `SCENARIO`, etc. |
+| `--type` | `-t` | | `TEST` | `SUITE`, `STORY`, `TEST`, `SCENARIO`, `STEP`, `BEFORE_*`/`AFTER_*` (`CLASS`, `GROUPS`, `METHOD`, `SUITE`, `TEST`); case-insensitive, anything else is rejected |
 | `--parent-uuid` | | `PARENT_UUID` | | Parent UUID (creates child item) |
 | `--description` | | | | Description |
 | `--code-ref` | | | | Source code reference |
 | `--attr` | `-a` | | | Attribute (repeatable) |
+| `--test-case-id` | | | | Test case ID (default: derived by the server from `--code-ref`) |
+| `--param` | | | | Parameter `key=value` (repeatable; a comma separates parameters) |
+| `--retry-of` | | | | UUID of the previous attempt; the item becomes its retry. Requires `--parent-uuid` |
+| `--has-stats` | | | `true` | `--has-stats=false` (with `=`) makes a nested step, not counted in statistics |
 
 ---
 
@@ -158,12 +169,15 @@ gorp report finish-test \
 | `--launch-uuid` | | `LAUNCH_UUID` | | **Required.** Launch UUID |
 | `--item-uuid` | | `ITEM_UUID` | | **Required.** Test item UUID |
 | `--status` | | | | Optional. `PASSED`, `FAILED`, `SKIPPED`, etc. |
+| `--issue-type` | | | | Defect type locator (`pb001`, `ab001`, `si001`, `ti001`, `nd001`, custom) or `NOT_ISSUE`. Applied only to `FAILED`/`SKIPPED` items with statistics; an unknown locator leaves the item unfinished without an error |
+| `--description` | | | | Replaces the description given at start |
+| `--attr` | `-a` | | | Attribute (repeatable), added to the ones given at start |
 
 ---
 
 ## 6. finish-launch
 
-Close the launch with a final status.
+Close the launch with a final status. Prints the launch UUID, then the link to the launch in the UI on the next line.
 
 ```sh
 gorp report finish-launch \
@@ -175,6 +189,8 @@ gorp report finish-launch \
 |------|-------|-----|---------|-------------|
 | `--launch-uuid` | | `LAUNCH_UUID` | | **Required.** Launch UUID |
 | `--status` | | | | Optional. `PASSED`, `FAILED`, `STOPPED`, etc. |
+| `--description` | | | | Appended to the description given at start |
+| `--attr` | `-a` | | | Attribute (repeatable), added to the ones given at start |
 
 ---
 

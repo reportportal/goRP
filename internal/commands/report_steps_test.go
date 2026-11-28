@@ -148,6 +148,7 @@ func TestStartTestStep_Root(t *testing.T) {
 		&cli.StringFlag{Name: "description"},
 		&cli.StringFlag{Name: "code-ref"},
 		&cli.StringSliceFlag{Name: "attr"},
+		&cli.BoolFlag{Name: "has-stats", Value: true},
 	})
 
 	id, err := startTestStep(context.Background(), stepCfg(srv.URL, project), cmd)
@@ -176,6 +177,7 @@ func TestStartTestStep_Child(t *testing.T) {
 		&cli.StringFlag{Name: "description"},
 		&cli.StringFlag{Name: "code-ref", Value: "my/package/TestFoo"},
 		&cli.StringSliceFlag{Name: "attr"},
+		&cli.BoolFlag{Name: "has-stats", Value: true},
 	})
 
 	id, err := startTestStep(context.Background(), stepCfg(srv.URL, project), cmd)
@@ -307,7 +309,12 @@ func TestFinishLaunchStep(t *testing.T) {
 
 	require.NoError(t, err)
 	assert.Equal(t, int32(1), launchFinishes.Load())
-	assert.Equal(t, "launch-uuid-1\n", buf.String())
+	assert.Equal(
+		t,
+		"launch-uuid-1\nhttps://rp/launch/1\n",
+		buf.String(),
+		"UUID first, then the launch link",
+	)
 }
 
 // ---------------------------------------------------------------------------
@@ -345,6 +352,7 @@ func TestFullReportingLifecycle(t *testing.T) {
 		&cli.StringFlag{Name: "description"},
 		&cli.StringFlag{Name: "code-ref"},
 		&cli.StringSliceFlag{Name: "attr"},
+		&cli.BoolFlag{Name: "has-stats", Value: true},
 	})
 	testUUID, err := startTestStep(ctx, cfg, testCmd)
 	require.NoError(t, err)
@@ -409,4 +417,308 @@ func TestParseAttributes_Empty(t *testing.T) {
 	t.Parallel()
 	assert.Nil(t, parseAttributes(nil))
 	assert.Nil(t, parseAttributes([]string{}))
+}
+
+// ---------------------------------------------------------------------------
+// Real flag parsing: command line → request body
+// ---------------------------------------------------------------------------
+
+type recordedRequest struct {
+	Method string
+	Path   string
+	Body   map[string]any
+}
+
+// runReportCommand runs `gorp report <args>` with the real flag definitions against a server that records
+// the request. The tests using it are not parallel: flag instances belong to the package-level commands.
+func runReportCommand(
+	t *testing.T,
+	response string,
+	args ...string,
+) (stdout string, rqs []recordedRequest, err error) {
+	t.Helper()
+	t.Setenv("HOME", t.TempDir()) // no ~/.gorp
+	for _, env := range []string{"LAUNCH_UUID", "PARENT_UUID", "ITEM_UUID"} {
+		t.Setenv(env, "") // the flags read them
+	}
+
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		rq := recordedRequest{Method: r.Method, Path: r.URL.Path}
+		assert.NoError(t, json.NewDecoder(r.Body).Decode(&rq.Body))
+		rqs = append(rqs, rq)
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(response))
+	}))
+	defer srv.Close()
+
+	// Copies, so that a command does not keep the writer it inherited from the root of an earlier run.
+	var steps []*cli.Command
+	for _, step := range []*cli.Command{startLaunchCommand, startTestCommand, finishTestCommand, finishLaunchCommand} {
+		steps = append(steps, &cli.Command{Name: step.Name, Flags: step.Flags, Action: step.Action})
+	}
+
+	var buf bytes.Buffer
+	root := &cli.Command{
+		Name:     "gorp",
+		Writer:   &buf,
+		Flags:    connectionFlags(srv.URL),
+		Commands: []*cli.Command{{Name: "report", Commands: steps}},
+	}
+	err = root.Run(t.Context(), append([]string{"gorp", "report"}, args...))
+
+	return buf.String(), rqs, err
+}
+
+func TestReportStepFlags(t *testing.T) {
+	t.Run(
+		"start-launch --rerun-of implies rerun and prints the UUID from the response",
+		func(t *testing.T) {
+			out, rqs, err := runReportCommand(t, `{"id":"original-launch"}`,
+				"start-launch", "--name", "L", "--mode", "debug", "--rerun-of", "original-launch")
+
+			require.NoError(t, err)
+			require.Len(t, rqs, 1)
+			assert.Equal(t, "/api/v2/proj/launch", rqs[0].Path)
+			assert.Equal(t, true, rqs[0].Body["rerun"])
+			assert.Equal(t, "original-launch", rqs[0].Body["rerunOf"])
+			assert.Equal(t, "DEBUG", rqs[0].Body["mode"], "mode is sent in upper case")
+			assert.Equal(t, "original-launch\n", out)
+		},
+	)
+
+	t.Run("start-launch --rerun reruns by name", func(t *testing.T) {
+		_, rqs, err := runReportCommand(t, `{"id":"x"}`, "start-launch", "--name", "L", "--rerun")
+
+		require.NoError(t, err)
+		require.Len(t, rqs, 1)
+		assert.Equal(t, true, rqs[0].Body["rerun"])
+		assert.NotContains(t, rqs[0].Body, "rerunOf")
+	})
+
+	t.Run("start-launch without rerun flags sends neither field", func(t *testing.T) {
+		_, rqs, err := runReportCommand(t, `{"id":"x"}`, "start-launch", "--name", "L")
+
+		require.NoError(t, err)
+		require.Len(t, rqs, 1)
+		assert.NotContains(t, rqs[0].Body, "rerun")
+		assert.NotContains(t, rqs[0].Body, "rerunOf")
+		assert.Equal(t, "DEFAULT", rqs[0].Body["mode"])
+	})
+
+	t.Run("start-launch rejects an unknown mode before any request", func(t *testing.T) {
+		_, rqs, err := runReportCommand(
+			t,
+			`{"id":"x"}`,
+			"start-launch",
+			"--name",
+			"L",
+			"--mode",
+			"DEBAG",
+		)
+
+		require.EqualError(t, err, `invalid --mode "DEBAG": must be one of DEFAULT, DEBUG`)
+		assert.Empty(t, rqs)
+	})
+
+	t.Run("start-test sends test case id, parameters, retry and hasStats", func(t *testing.T) {
+		_, rqs, err := runReportCommand(
+			t,
+			`{"id":"item"}`,
+			"start-test",
+			"--launch-uuid",
+			"l1",
+			"--parent-uuid",
+			"p1",
+			"--name",
+			"T",
+			"--type",
+			"step",
+			"--test-case-id",
+			"pkg.T",
+			"--param",
+			"browser=chrome",
+			"--param",
+			"url=http://x?a=b",
+			"--param",
+			"empty=",
+			"--retry-of",
+			"prev-attempt",
+			"--has-stats=false",
+		)
+
+		require.NoError(t, err)
+		require.Len(t, rqs, 1)
+		body := rqs[0].Body
+		assert.Equal(t, "/api/v2/proj/item/p1", rqs[0].Path)
+		assert.Equal(t, "STEP", body["type"], "type is sent in upper case")
+		assert.Equal(t, "pkg.T", body["testCaseId"])
+		assert.Equal(t, []any{
+			map[string]any{"key": "browser", "value": "chrome"},
+			map[string]any{"key": "url", "value": "http://x?a=b"},
+			map[string]any{"key": "empty", "value": ""},
+		}, body["parameters"])
+		assert.Equal(t, true, body["retry"])
+		assert.Equal(t, "prev-attempt", body["retryOf"])
+		assert.Equal(t, false, body["hasStats"])
+	})
+
+	t.Run("start-test splits a --param value on commas, like --attr", func(t *testing.T) {
+		_, rqs, err := runReportCommand(t, `{"id":"item"}`,
+			"start-test", "--launch-uuid", "l1", "--name", "T", "--param", "a=1,b=2")
+
+		require.NoError(t, err)
+		require.Len(t, rqs, 1)
+		assert.Equal(t, []any{
+			map[string]any{"key": "a", "value": "1"},
+			map[string]any{"key": "b", "value": "2"},
+		}, rqs[0].Body["parameters"])
+	})
+
+	t.Run("start-test rejects '--has-stats false': the value needs '='", func(t *testing.T) {
+		_, rqs, err := runReportCommand(t, `{"id":"item"}`,
+			"start-test", "--launch-uuid", "l1", "--name", "T", "--has-stats", "false")
+
+		require.EqualError(
+			t,
+			err,
+			`unexpected argument "false": a boolean flag takes its value with '=', e.g. --has-stats=false`,
+		)
+		assert.Empty(t, rqs)
+	})
+
+	t.Run("start-test defaults are unchanged", func(t *testing.T) {
+		_, rqs, err := runReportCommand(
+			t,
+			`{"id":"item"}`,
+			"start-test",
+			"--launch-uuid",
+			"l1",
+			"--name",
+			"T",
+		)
+
+		require.NoError(t, err)
+		require.Len(t, rqs, 1)
+		body := rqs[0].Body
+		assert.Equal(t, "TEST", body["type"])
+		assert.Equal(t, true, body["hasStats"])
+		assert.Equal(t, false, body["retry"])
+		for _, field := range []string{"retryOf", "testCaseId", "parameters"} {
+			assert.NotContains(t, body, field)
+		}
+	})
+
+	for name, tc := range map[string]struct {
+		args    []string
+		wantErr string
+	}{
+		"unknown type": {
+			args: []string{"--type", "CASE"},
+			wantErr: `invalid --type "CASE": must be one of SUITE, STORY, TEST, SCENARIO, STEP, BEFORE_CLASS, BEFORE_GROUPS, ` +
+				`BEFORE_METHOD, BEFORE_SUITE, BEFORE_TEST, AFTER_CLASS, AFTER_GROUPS, AFTER_METHOD, AFTER_SUITE, AFTER_TEST`,
+		},
+		"parameter without '='": {
+			args:    []string{"--param", "chrome"},
+			wantErr: `invalid --param "chrome": expected 'key=value'`,
+		},
+		"parameter without a key": {
+			args:    []string{"--param", "=chrome"},
+			wantErr: `invalid --param "=chrome": expected 'key=value'`,
+		},
+		"parameter value with a comma": {
+			args:    []string{"--param", "list=a,b"},
+			wantErr: `invalid --param "b": expected 'key=value'`,
+		},
+		"retry of a root item": {
+			args:    []string{"--retry-of", "prev"},
+			wantErr: "--retry-of requires --parent-uuid: a root item can't be a retry",
+		},
+	} {
+		t.Run("start-test rejects "+name+" before any request", func(t *testing.T) {
+			_, rqs, err := runReportCommand(t, `{"id":"item"}`,
+				append([]string{"start-test", "--launch-uuid", "l1", "--name", "T"}, tc.args...)...)
+
+			require.EqualError(t, err, tc.wantErr)
+			assert.Empty(t, rqs)
+		})
+	}
+
+	t.Run("finish-test sends issue type, description and attributes", func(t *testing.T) {
+		out, rqs, err := runReportCommand(
+			t,
+			`{"message":"ok"}`,
+			"finish-test",
+			"--launch-uuid",
+			"l1",
+			"--item-uuid",
+			"i1",
+			"--status",
+			"FAILED",
+			"--issue-type",
+			"pb001",
+			"--description",
+			"why",
+			"--attr",
+			"owner:qa",
+			"--attr",
+			"flaky",
+		)
+
+		require.NoError(t, err)
+		require.Len(t, rqs, 1)
+		body := rqs[0].Body
+		assert.Equal(t, "/api/v2/proj/item/i1", rqs[0].Path)
+		assert.Equal(t, map[string]any{"issueType": "pb001"}, body["issue"])
+		assert.Equal(t, "why", body["description"])
+		assert.Equal(t, []any{
+			map[string]any{"key": "owner", "value": "qa", "system": false},
+			map[string]any{"value": "flaky", "system": false},
+		}, body["attributes"])
+		assert.Equal(t, "i1\n", out)
+	})
+
+	t.Run("finish-test without the new flags sends none of the fields", func(t *testing.T) {
+		_, rqs, err := runReportCommand(t, `{"message":"ok"}`,
+			"finish-test", "--launch-uuid", "l1", "--item-uuid", "i1", "--status", "PASSED")
+
+		require.NoError(t, err)
+		require.Len(t, rqs, 1)
+		for _, field := range []string{"issue", "description", "attributes"} {
+			assert.NotContains(t, rqs[0].Body, field)
+		}
+	})
+
+	t.Run("finish-launch sends description and attributes and prints the link", func(t *testing.T) {
+		out, rqs, err := runReportCommand(
+			t,
+			`{"id":"l1","link":"https://rp/ui/#proj/launches/all/l1"}`,
+			"finish-launch",
+			"--launch-uuid",
+			"l1",
+			"--status",
+			"PASSED",
+			"--description",
+			"done",
+			"--attr",
+			"build:42",
+		)
+
+		require.NoError(t, err)
+		require.Len(t, rqs, 1)
+		assert.Equal(t, "/api/v2/proj/launch/l1/finish", rqs[0].Path)
+		assert.Equal(t, "done", rqs[0].Body["description"])
+		assert.Equal(
+			t,
+			[]any{map[string]any{"key": "build", "value": "42", "system": false}},
+			rqs[0].Body["attributes"],
+		)
+		assert.Equal(t, "l1\nhttps://rp/ui/#proj/launches/all/l1\n", out)
+	})
+
+	t.Run("finish-launch prints only the UUID when the server returns no link", func(t *testing.T) {
+		out, _, err := runReportCommand(t, `{"id":"l1"}`, "finish-launch", "--launch-uuid", "l1")
+
+		require.NoError(t, err)
+		assert.Equal(t, "l1\n", out)
+	})
 }

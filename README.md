@@ -261,7 +261,19 @@ LAUNCH_UUID=$(gorp report start-launch --name "Nightly run" --attr "branch:main"
 | `--name` | `-n` | | | **Required.** Launch name |
 | `--description` | | | | Launch description |
 | `--attr` | `-a` | | | Attribute, format `key:value` or `value`. Repeatable. |
-| `--mode` | | | `DEFAULT` | Launch mode: `DEFAULT` or `DEBUG` |
+| `--mode` | | | `DEFAULT` | Launch mode: `DEFAULT` or `DEBUG` (case-insensitive; anything else is rejected) |
+| `--rerun` | | | `false` | Rerun the latest launch with the same name instead of starting a new one |
+| `--rerun-of` | | | | UUID of the launch to rerun. Implies `--rerun`. |
+
+With `--rerun` or `--rerun-of` the command prints the UUID of the launch being rerun (ReportPortal 5.13.5 or newer), so
+the following commands report into that launch. ReportPortal matches the items to the existing ones by test case ID
+(derived from the code reference or the item's place in the tree when not given): a matched test becomes the latest
+attempt and the earlier one is kept as its retry. If there is no launch to rerun, the command
+fails with a 404 error.
+
+```sh
+LAUNCH_UUID=$(gorp report start-launch --name "Nightly run" --rerun-of "$PREVIOUS_LAUNCH_UUID")
+```
 
 ---
 
@@ -284,11 +296,27 @@ TEST_UUID=$(gorp report start-test \
 |------|-------|---------|---------|-------------|
 | `--launch-uuid` | | `LAUNCH_UUID` | | **Required.** Launch UUID |
 | `--name` | `-n` | | | **Required.** Test item name |
-| `--type` | `-t` | | `TEST` | Item type: `SUITE`, `TEST`, `STEP`, `SCENARIO`, etc. |
+| `--type` | `-t` | | `TEST` | Item type: `SUITE`, `STORY`, `TEST`, `SCENARIO`, `STEP`, `BEFORE_CLASS`, `BEFORE_GROUPS`, `BEFORE_METHOD`, `BEFORE_SUITE`, `BEFORE_TEST`, `AFTER_CLASS`, `AFTER_GROUPS`, `AFTER_METHOD`, `AFTER_SUITE`, `AFTER_TEST` (case-insensitive; anything else is rejected) |
 | `--parent-uuid` | | `PARENT_UUID` | | Parent item UUID (creates a child item) |
 | `--description` | | | | Item description |
 | `--code-ref` | | | | Source code reference |
 | `--attr` | `-a` | | | Attribute. Repeatable. |
+| `--test-case-id` | | | | Test case ID: identifies the same test across launches. By default the server derives it from `--code-ref`. |
+| `--param` | | | | Test parameter, format `key=value`. Repeatable. A comma separates several parameters, so a value can't contain one. |
+| `--retry-of` | | | | UUID of the previous attempt: reports the item as its retry. Requires `--parent-uuid`. |
+| `--has-stats` | | | `true` | Count the item in statistics. Pass `--has-stats=false` (with `=`) for a nested step. |
+
+```sh
+# Second attempt of a failed test: ReportPortal shows the first one as its retry
+RETRY_UUID=$(gorp report start-test \
+  --launch-uuid "$LAUNCH_UUID" --parent-uuid "$SUITE_UUID" \
+  --name "TestBar" --type STEP --param "browser=chrome" --retry-of "$TEST_UUID")
+
+# Nested step: shown inside the test, not counted in statistics
+STEP_UUID=$(gorp report start-test \
+  --launch-uuid "$LAUNCH_UUID" --parent-uuid "$TEST_UUID" \
+  --name "open page" --type STEP --has-stats=false)
+```
 
 ---
 
@@ -330,12 +358,24 @@ gorp report finish-test \
 | `--launch-uuid` | | `LAUNCH_UUID` | | **Required.** Launch UUID |
 | `--item-uuid` | | `ITEM_UUID` | | **Required.** Test item UUID |
 | `--status` | | | | Item status: `PASSED`, `FAILED`, `SKIPPED`, etc. |
+| `--issue-type` | | | | Defect type locator: `pb001` (product bug), `ab001` (automation bug), `si001` (system issue), `ti001` (to investigate), `nd001` (no defect), a custom locator of the project, or `NOT_ISSUE` |
+| `--description` | | | | Item description. Replaces the one given at start. |
+| `--attr` | `-a` | | | Attribute. Repeatable. Added to the ones given at start. |
+
+ReportPortal applies `--issue-type` only to `FAILED` or `SKIPPED` items that are counted in statistics and are not
+an earlier attempt of a retry. Without it such an item gets "To Investigate"; `NOT_ISSUE` leaves it without a defect.
+An unknown locator is not reported back by the command: the item is not finished and stays in progress.
+
+```sh
+gorp report finish-test \
+  --launch-uuid "$LAUNCH_UUID" --item-uuid "$TEST_UUID" --status FAILED --issue-type pb001
+```
 
 ---
 
 ### report finish-launch
 
-Finish a launch.
+Finish a launch. Prints the launch UUID and, on the next line, the link to the launch in the ReportPortal UI.
 
 ```sh
 gorp report finish-launch --launch-uuid "$LAUNCH_UUID" --status PASSED
@@ -345,6 +385,8 @@ gorp report finish-launch --launch-uuid "$LAUNCH_UUID" --status PASSED
 |------|-------|---------|---------|-------------|
 | `--launch-uuid` | | `LAUNCH_UUID` | | **Required.** Launch UUID |
 | `--status` | | | | Launch status: `PASSED`, `FAILED`, `STOPPED`, etc. |
+| `--description` | | | | Text appended to the launch description given at start |
+| `--attr` | `-a` | | | Attribute. Repeatable. Added to the ones given at start. |
 
 ---
 

@@ -236,6 +236,10 @@ go test -json ./... | gorp report test2json --quality-gate-check
 | `--file` | `-f` | `FILE` | stdin | Input file (test2json format). Reads stdin if omitted. |
 | `--launchName` | `--ln` | `LAUNCH_NAME` | `gorp launch` | Launch name in ReportPortal |
 | `--attr` | `-a` | | | Launch attribute, format `key:value` or `value`. Repeatable. |
+| `--description` | | `LAUNCH_DESCRIPTION` | | Launch description |
+| `--mode` | | `LAUNCH_MODE` | `DEFAULT` | Launch mode: `DEFAULT` or `DEBUG` (case-insensitive). Any other value is rejected before anything is sent. |
+| `--rerun` | | `LAUNCH_RERUN` | `false` | Report into the latest launch with the same name instead of creating a new one |
+| `--rerun-of` | | `LAUNCH_RERUN_OF` | | UUID of the launch to rerun. Implies `--rerun`. |
 | `--reportEmptyPkg` | `--ep` | `REPORT_EMPTY_PKG` | `false` | Report packages with no test files |
 | `--skipped-issue` | | `SKIPPED_ISSUE` | `true` | Whether skipped tests are "To Investigate" (`true`, ReportPortal's default) or "No Defect" (`false`) |
 | `--print-launch-uuid` | | | `false` | Print `ReportPortal Launch UUID: <uuid>` and `ReportPortal Launch: <url>` to stdout after reporting |
@@ -251,6 +255,12 @@ and `skippedIssue`. With `--print-launch-uuid`, the launch link is printed too, 
 The launch finishes as `FAILED` if any test or package failed, otherwise `PASSED`. If the run is interrupted
 (Ctrl-C, `SIGTERM`) or the input stream breaks midway, items that are still running are finished as `INTERRUPTED`,
 followed by the launch, so nothing is left `IN_PROGRESS`. A second Ctrl-C terminates immediately.
+
+**Reruns.** `--rerun` reports into the latest launch with the same `--launchName`, `--rerun-of <uuid>`
+into that launch whatever its name. ReportPortal then updates the tests that are reported again, adds the new
+ones and finishes the launch with the new status. If there is no launch to rerun, the server answers 404 and the
+command fails. The printed launch UUID is always the one the server answered with: for a rerun that is the UUID
+of the original launch (ReportPortal 5.13.5 and later; older servers may return a UUID that is not the launch's).
 
 ---
 
@@ -535,6 +545,10 @@ all, err := client.GetAllLaunchesByFilterString(ctx, "my_project",
 | `GORP_CONFIG` | `--config` | Configuration file to use instead of `~/.gorp` |
 | `LAUNCH_NAME` | `--launchName` | Launch name for `report test2json` |
 | `FILE` | `--file` | Input file for `report test2json` |
+| `LAUNCH_DESCRIPTION` | `--description` | Launch description for `report test2json` |
+| `LAUNCH_MODE` | `--mode` | Launch mode for `report test2json` (`DEFAULT` or `DEBUG`) |
+| `LAUNCH_RERUN` | `--rerun` | `report test2json`: rerun the latest launch with the same name |
+| `LAUNCH_RERUN_OF` | `--rerun-of` | `report test2json`: UUID of the launch to rerun |
 | `REPORT_EMPTY_PKG` | `--reportEmptyPkg` | Report packages with no tests |
 | `SKIPPED_ISSUE` | `--skipped-issue` | Skipped tests are "To Investigate" (`true`) or "No Defect" (`false`) |
 | `QUALITY_GATE_CHECK` | `--quality-gate-check` | Enable quality gate check after report |

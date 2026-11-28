@@ -238,6 +238,10 @@ go test -json ./... | gorp report test2json --quality-gate-check
 | `--launchName` | `-ln` | `LAUNCH_NAME` | `"gorp launch"` | Launch name |
 | `--reportEmptyPkg` | `-ep` | `REPORT_EMPTY_PKG` | `false` | Report packages with no test files as a launch item |
 | `--attr` | `-a` | | | Launch attribute `key:value` or `value` (repeatable) |
+| `--description` | | `LAUNCH_DESCRIPTION` | | Launch description |
+| `--mode` | | `LAUNCH_MODE` | `DEFAULT` | `DEFAULT` or `DEBUG` (case-insensitive); other values are rejected before anything is sent |
+| `--rerun` | | `LAUNCH_RERUN` | `false` | Report into the latest launch with the same name (404 from the server if there is none) |
+| `--rerun-of` | | `LAUNCH_RERUN_OF` | | UUID of the launch to rerun; implies `--rerun`. The printed UUID is the one the server returns (the original launch's, RP 5.13.5+) |
 | `--skipped-issue` | | `SKIPPED_ISSUE` | `true` | Skipped tests are "To Investigate" (`true`) or "No Defect" (`false`) |
 | `--print-launch-uuid` | | | `false` | Print the launch UUID and link after reporting completes |
 | `--quality-gate-check` | `-qgc` | `QUALITY_GATE_CHECK` | `false` | Poll the quality gate after reporting; exits **10** on non-`PASSED` status |

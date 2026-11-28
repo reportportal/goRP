@@ -258,7 +258,7 @@ func TestReportLaunch_PackageWithoutTestsIsSkipped(t *testing.T) {
 func TestReporterLog_ItemUUID(t *testing.T) {
 	t.Parallel()
 
-	rep := newTestReporter()
+	rep, rec := newTestReporter(t)
 	rep.suites = map[string]string{"p": "suite-1"}
 	rep.tests["p/TestA"] = "test-1"
 
@@ -266,10 +266,16 @@ func TestReporterLog_ItemUUID(t *testing.T) {
 	rep.log(&testEvent{Action: testActionOutput, Package: "p", Output: "package level\n"})
 	rep.log(&testEvent{Action: testActionOutput, Package: "other", Output: "no suite\n"})
 
-	require.Len(t, rep.logs, 3)
-	assert.Equal(t, "test-1", rep.logs[0].GetItemUuid())
-	assert.Equal(t, "suite-1", rep.logs[1].GetItemUuid())
-	assert.Nil(t, rep.logs[2].ItemUuid, "log without an item must not carry an empty item uuid")
+	logs := sentLogs(t, rep, rec)
+	require.Len(t, logs, 3)
+	assert.Equal(t, "test-1", logs[0]["itemUuid"])
+	assert.Equal(t, "suite-1", logs[1]["itemUuid"])
+	assert.NotContains(
+		t,
+		logs[2],
+		"itemUuid",
+		"log without an item must not carry an empty item uuid",
+	)
 }
 
 func TestEntryID(t *testing.T) {

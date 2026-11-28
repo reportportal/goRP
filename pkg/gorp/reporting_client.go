@@ -325,8 +325,35 @@ func (c *ReportingClient) SaveLogMultipart(
 	log []*openapi.SaveLogRQ,
 	files []Multipart,
 ) (*openapi.EntryCreatedAsyncRS, error) {
+	entries, err := c.SaveLogBatch(ctx, log, files)
+	if err != nil {
+		return nil, err
+	}
+	// only the first log's ID fits into the result; SaveLogBatch has the answer for every log
+	rs := &openapi.EntryCreatedAsyncRS{}
+	if len(entries) > 0 && !entries[0].Failed() {
+		rs.Id = openapi.PtrString(entries[0].ID)
+	}
+
+	return rs, nil
+}
+
+// SaveLogBatch saves a batch of logs with their attachments and returns the server's answer for
+// every log, in the order of logs.
+//
+// The server answers a batch with 201 even if it did not accept some of the logs (a log without
+// launch UUID or time, a log that names an attachment which is not in files): the error is nil then,
+// and the entry of such a log is Failed. The error tells only that the request as a whole failed.
+//
+// An attachment belongs to the log whose File.Name is its file name. One request can carry
+// DefaultLogBatchAttachments attachments; LogBatcher splits batches accordingly.
+func (c *ReportingClient) SaveLogBatch(
+	ctx context.Context,
+	logs []*openapi.SaveLogRQ,
+	files []Multipart,
+) ([]LogBatchEntry, error) {
 	var bodyBuf bytes.Buffer
-	err := json.NewEncoder(&bodyBuf).Encode(log)
+	err := json.NewEncoder(&bodyBuf).Encode(logs)
 	if err != nil {
 		return nil, fmt.Errorf("unable to encode log payload: %w", err)
 	}
@@ -351,14 +378,11 @@ func (c *ReportingClient) SaveLogMultipart(
 		rq.SetMultipartField("file", fileName, contentType, reader)
 	}
 
-	// With attachments the server answers with a batch: {"responses":[{"id":"..."}]}.
-	// The generated response type is not embedded on purpose: its custom UnmarshalJSON would be
-	// promoted and swallow the "responses" field.
+	// The server answers with a batch: {"responses":[{"id":"..."},{"message":"...","stackTrace":"..."}]}.
+	// A single {"id":"..."} is accepted too.
 	var rs struct {
-		ID        *string `json:"id"`
-		Responses []struct {
-			ID *string `json:"id"`
-		} `json:"responses"`
+		ID        string          `json:"id"`
+		Responses []LogBatchEntry `json:"responses"`
 	}
 	_, err = rq.
 		SetResult(&rs).
@@ -366,9 +390,9 @@ func (c *ReportingClient) SaveLogMultipart(
 	if err != nil {
 		return nil, fmt.Errorf("unable to send log: %w", err)
 	}
-	if rs.ID == nil && len(rs.Responses) > 0 {
-		rs.ID = rs.Responses[0].ID
+	if len(rs.Responses) == 0 && rs.ID != "" {
+		return []LogBatchEntry{{ID: rs.ID}}, nil
 	}
 
-	return &openapi.EntryCreatedAsyncRS{Id: rs.ID}, nil
+	return rs.Responses, nil
 }

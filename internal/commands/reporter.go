@@ -9,16 +9,19 @@ import (
 	"strings"
 	"time"
 
-	"golang.org/x/sync/errgroup"
-
 	gorppkg "github.com/reportportal/goRP/v5/pkg/gorp"
 	"github.com/reportportal/goRP/v5/pkg/openapi"
 )
 
+// The log batching of the reporter, set explicitly so that the load on the server does not change with
+// the defaults of the library.
 const (
 	logsBatchSize = 10
 	// maxLogBatchesInFlight limits concurrent log upload requests.
 	maxLogBatchesInFlight = 4
+	// pendingLogMaxAge is how long a log may wait for output that continues it. Continuation lines are
+	// printed together with their first line, so this only matters when the test run goes silent.
+	pendingLogMaxAge = time.Second
 )
 
 // test2json action values as defined by the Go testing/cmd/test2json package.
@@ -108,12 +111,14 @@ type reporter struct {
 	// started while paused, so a test named like them ("a/b" next to a paused "a") is not their child
 	paused map[string]bool
 	// parents maps a started test to its parent test ("" when its parent is the package suite)
-	parents       map[string]string
-	suites        map[string]string
-	logs          []*openapi.SaveLogRQ
-	logsBatchSize int
-	errGroup      errgroup.Group
-	reportEmpty   bool
+	parents map[string]string
+	suites  map[string]string
+	// logs sends the logs in batches: by size and, for long-running tests, by time
+	logs *gorppkg.LogBatcher
+	// pendingLog is the latest log while output that continues it may still follow (see shouldMergeOutput).
+	// The batcher owns what it was given and may send it at any time, so such a log is held back here.
+	pendingLog  *openapi.SaveLogRQ
+	reportEmpty bool
 	// skippedIssue keeps skipped tests "To Investigate" (true, ReportPortal's default) or marks them "No Defect"
 	skippedIssue bool
 	// launchLink is the UI link of the finished launch, as returned by ReportPortal
@@ -187,14 +192,16 @@ func newReporter(
 		parameters:       map[string][]testParameter{},
 		failedTests:      map[testKey]bool{},
 		failedPackages:   map[string]bool{},
-		logs:             []*openapi.SaveLogRQ{},
-		logsBatchSize:    logsBatchSize,
-		reportEmpty:      opts.reportEmpty,
-		skippedIssue:     opts.skippedIssue,
-		description:      opts.description,
-		mode:             opts.mode,
-		rerun:            opts.rerun || opts.rerunOf != "",
-		rerunOf:          opts.rerunOf,
+		logs: gorppkg.NewLogBatcher(ctx, client, gorppkg.LogBatcherOptions{
+			MaxEntries:  logsBatchSize,
+			MaxInFlight: maxLogBatchesInFlight,
+		}),
+		reportEmpty:  opts.reportEmpty,
+		skippedIssue: opts.skippedIssue,
+		description:  opts.description,
+		mode:         opts.mode,
+		rerun:        opts.rerun || opts.rerunOf != "",
+		rerunOf:      opts.rerunOf,
 	}
 	if r.mode == "" {
 		r.mode = gorppkg.LaunchModes.Default
@@ -203,12 +210,14 @@ func newReporter(
 		r.joined = opts.joined
 		r.launchUUID = opts.joined.UUID
 	}
-	r.errGroup.SetLimit(maxLogBatchesInFlight)
-
 	return r
 }
 
 func (r *reporter) reportEvent(ev *testEvent) error {
+	// output that continues a log follows it directly
+	if ev.Action != testActionOutput {
+		r.releasePendingLog()
+	}
 	var err error
 	switch ev.Action {
 	case testActionStart:
@@ -234,8 +243,14 @@ func (r *reporter) reportEvent(ev *testEvent) error {
 }
 
 func (r *reporter) receive() error {
+	// stops the flush timer of the batcher on every way out; closing twice is fine
+	defer func() { _ = r.logs.Close() }()
+
+	held := time.NewTicker(pendingLogMaxAge)
+	defer held.Stop()
+
 	prevEventTime := time.Now()
-	for ev := range r.input {
+	for ev, ok := r.nextEvent(held.C); ok; ev, ok = r.nextEvent(held.C) {
 		// build events have no time and no package: they are kept until a package fails because of them
 		if ev.isBuildEvent() {
 			if ev.Action == buildActionOutput {
@@ -271,10 +286,8 @@ func (r *reporter) receive() error {
 		return r.ctx.Err()
 	}
 
-	// make sure we flush all logs that are left
-	r.flushLogs(true)
-	// wait for all log batch goroutines and surface any failures
-	if err := r.errGroup.Wait(); err != nil {
+	// send the logs that are left, wait for all log batches and surface any failures
+	if err := r.finishLogs(); err != nil {
 		r.interrupt(prevEventTime)
 		return fmt.Errorf("reporting logs: %w", err)
 	}
@@ -292,6 +305,20 @@ func (r *reporter) receive() error {
 	return nil
 }
 
+// nextEvent waits for the next event; ok is false when the input has ended. While the input is silent
+// (a test that runs long, or hangs), the log that is held back for its continuation is released on
+// every tick of release, so that the last line a test printed does not stay here.
+func (r *reporter) nextEvent(release <-chan time.Time) (*testEvent, bool) {
+	for {
+		select {
+		case ev, ok := <-r.input:
+			return ev, ok
+		case <-release:
+			r.releasePendingLog()
+		}
+	}
+}
+
 // interrupt makes a best-effort attempt to deliver buffered logs and to finish the launch as
 // INTERRUPTED, so it does not stay IN_PROGRESS forever after a mid-stream failure.
 func (r *reporter) interrupt(endTime time.Time) {
@@ -301,8 +328,7 @@ func (r *reporter) interrupt(endTime time.Time) {
 	// the original context may be the reason we are here
 	ctx := context.WithoutCancel(r.ctx)
 
-	r.flushLogs(true)
-	if err := r.errGroup.Wait(); err != nil {
+	if err := r.finishLogs(); err != nil {
 		slog.Warn("unable to report remaining logs", "error", err)
 	}
 	// ReportPortal calculates the status of a launch that still has running items on its own (FAILED),
@@ -579,8 +605,8 @@ func (r *reporter) log(ev *testEvent) {
 	if ev.Output == "" {
 		return
 	}
-	if shouldMergeOutput(ev) && len(r.logs) > 0 {
-		lastLog := r.logs[len(r.logs)-1]
+	if shouldMergeOutput(ev) && r.pendingLog != nil {
+		lastLog := r.pendingLog
 		lastLog.Message = openapi.PtrString(lastLog.GetMessage() + "\n" + ev.Output)
 		lastLog.Level = openapi.PtrString(gorppkg.LogLevelError)
 		return
@@ -595,8 +621,46 @@ func (r *reporter) log(ev *testEvent) {
 	if itemUUID := r.logItemUUID(ev); itemUUID != "" {
 		rq.ItemUuid = openapi.PtrString(itemUUID)
 	}
-	r.logs = append(r.logs, rq)
-	r.flushLogs(false)
+	r.releasePendingLog()
+	if canBeContinued(ev) {
+		r.pendingLog = rq
+		return
+	}
+	r.addLog(rq)
+}
+
+// canBeContinued reports whether the output that follows ev may belong to the same log entry: the
+// lines of one t.Error call (Go 1.27+), or any line of a stream without OutputType, where a
+// tab-indented line continues the previous one.
+func canBeContinued(ev *testEvent) bool {
+	switch ev.OutputType {
+	case testOutputTypeError, testOutputTypeErrorContinue, "":
+		return true
+	default:
+		return false
+	}
+}
+
+// releasePendingLog hands the log that was held back for its continuation over to the batcher.
+func (r *reporter) releasePendingLog() {
+	if r.pendingLog != nil {
+		r.addLog(r.pendingLog)
+		r.pendingLog = nil
+	}
+}
+
+// addLog queues a log. The batcher sends it in the background; a failure surfaces in finishLogs.
+func (r *reporter) addLog(rq *openapi.SaveLogRQ) {
+	if err := r.logs.Add(rq); err != nil {
+		slog.Error("unable to report log", "error", err)
+	}
+}
+
+// finishLogs sends the logs that are left and waits for all log batches. It returns the first
+// failure: a failed request, or logs the server answered but did not accept.
+func (r *reporter) finishLogs() error {
+	r.releasePendingLog()
+	return r.logs.Close()
 }
 
 // logBuildFailure reports the output of the failed build as one ERROR log of the package's suite. The
@@ -614,14 +678,13 @@ func (r *reporter) logBuildFailure(ev *testEvent, suiteID string) {
 		)
 		return
 	}
-	r.logs = append(r.logs, &openapi.SaveLogRQ{
+	r.addLog(&openapi.SaveLogRQ{
 		LaunchUuid: r.launchUUID,
 		ItemUuid:   openapi.PtrString(suiteID),
 		Level:      openapi.PtrString(gorppkg.LogLevelError),
 		Time:       ev.Time,
 		Message:    openapi.PtrString(strings.Join(output, "")),
 	})
-	r.flushLogs(false)
 }
 
 // logItemUUID returns the test the event belongs to, or the package's suite for package-level output.
@@ -631,23 +694,6 @@ func (r *reporter) logItemUUID(ev *testEvent) string {
 		return r.suites[ev.Package]
 	}
 	return r.tests[r.getTestName(ev)]
-}
-
-func (r *reporter) flushLogs(force bool) {
-	if len(r.logs) == 0 {
-		return
-	}
-	if force || (len(r.logs) >= r.logsBatchSize) {
-		batch := r.logs
-		r.errGroup.Go(func() error {
-			if _, err := r.client.SaveLogs(r.ctx, batch...); err != nil {
-				slog.Error("unable to report logs", "error", err, "batch_length", len(batch))
-				return err
-			}
-			return nil
-		})
-		r.logs = []*openapi.SaveLogRQ{}
-	}
 }
 
 func (r *reporter) getTestName(ev *testEvent) string {

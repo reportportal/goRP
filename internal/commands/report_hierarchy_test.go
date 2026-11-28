@@ -36,6 +36,8 @@ type hierarchyServer struct {
 	launchFinish map[string]any
 	// logs are the reported log entries, in the order the batches arrived
 	logs []map[string]any
+	// rejectLogs makes the server answer every log the way ReportPortal rejects one: inside a 201
+	rejectLogs bool
 }
 
 func newHierarchyServer(t *testing.T, project string) (*hierarchyServer, *httptest.Server) {
@@ -105,8 +107,20 @@ func newHierarchyServer(t *testing.T, project string) (*hierarchyServer, *httpte
 		require.NoError(t, json.Unmarshal([]byte(r.FormValue("json_request_part")), &batch))
 		rec.mu.Lock()
 		rec.logs = append(rec.logs, batch...)
+		reject := rec.rejectLogs
 		rec.mu.Unlock()
-		reply(w, map[string]any{"responses": []map[string]string{{"id": "log-1"}}})
+		responses := make([]map[string]string, 0, len(batch))
+		for i := range batch {
+			if reject {
+				responses = append(responses, map[string]string{
+					"message":    "com.epam.ReportPortalException: rejected\n\tat com.epam.Some.method(Some.java:1)",
+					"stackTrace": "ReportPortalException: rejected",
+				})
+				continue
+			}
+			responses = append(responses, map[string]string{"id": fmt.Sprintf("log-%d", i)})
+		}
+		reply(w, map[string]any{"responses": responses})
 	})
 
 	srv := httptest.NewServer(mux)

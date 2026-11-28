@@ -282,6 +282,12 @@ Go 1.24+ the compiler output is in the stream (`build-output` events, referenced
 package's `fail` event) and becomes one `ERROR` log of that suite. Such suites do not count in the launch's
 execution statistics. Before Go 1.24 the build output is on stderr: pipe only stdout and it is lost.
 
+### Log delivery
+
+Logs are sent in batches of 10, and at least every 5 seconds, so the output of a long-running test shows up
+while it runs. If ReportPortal rejects a log (it answers such a batch with 201 and an entry without ID), the
+report fails like on a failed request: the launch is finished as `INTERRUPTED` and the command exits non-zero.
+
 ### Go 1.27+ output handling
 
 Starting with Go 1.27, `go test -json` annotates `"action":"output"` events with an `OutputType`
@@ -401,7 +407,9 @@ Key `ReportingClient` methods (all take `ctx context.Context` first; `*Raw` vari
 | `FinishTest` / `FinishTestRaw` | Finish a test item (works for suites too) |
 | `SaveLog` | Save a single log |
 | `SaveLogs` | Batch-save logs, no file attachments |
-| `SaveLogMultipart` | Batch-save logs with file attachments (`[]Multipart`) |
+| `SaveLogMultipart` | Batch-save logs with file attachments (`[]Multipart`); returns only the first log's ID |
+| `SaveLogBatch` | Same request, returns a `LogBatchEntry` for every log. The server answers 201 even when it rejects a log: check `entry.Failed()` / `entry.Reason()` |
+| `NewLogBatcher` | `LogBatcher`: `Add(log, files...)` queues, batches are sent in the background (10 logs, 16 MiB, 49 attachments, every 5 s, 4 requests in flight; `LogBatcherOptions`), `Close()` sends the rest and returns request errors and rejected logs (`*LogBatchError`) |
 
 File attachments implement the `Multipart` interface (`multipart.go`):
 

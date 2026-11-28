@@ -26,8 +26,17 @@ jobs:
         with:
           # Keep in sync with the golangci-lint version pinned in Taskfile.yml (GOLANG_CI var).
           version: v2.15.0
+      # pkg/ginkgo is a separate Go module, so the steps above do not cover it.
+      - name: golangci-lint (pkg/ginkgo)
+        uses: golangci/golangci-lint-action@v8
+        with:
+          version: v2.15.0
+          working-directory: pkg/ginkgo
       - name: go.mod and go.sum are tidy
         run: go mod tidy -diff
+      - name: go.mod and go.sum are tidy (pkg/ginkgo)
+        run: go mod tidy -diff
+        working-directory: pkg/ginkgo
       - name: govulncheck
         run: go run golang.org/x/vuln/cmd/govulncheck@v1.9.0 ./...
 
@@ -54,3 +63,19 @@ jobs:
         run: go vet ./...
       - name: Test
         run: go test -race -cover ./...
+      # pkg/ginkgo is a separate Go module. Its tests start worker processes and use
+      # TMPDIR, so they are not run on Windows yet.
+      - name: Build (pkg/ginkgo)
+        if: runner.os != 'Windows'
+        run: task ginkgo:build
+      - name: Vet (pkg/ginkgo)
+        if: runner.os != 'Windows'
+        run: task ginkgo:vet
+      - name: Test (pkg/ginkgo)
+        if: runner.os != 'Windows'
+        run: task ginkgo:test
+      # pkg/ginkgo requires a released goRP, so the steps above never compile it against the
+      # code in this repository. This one does, through a temporary go.work.
+      - name: Build and test (pkg/ginkgo) against this repository's pkg/gorp
+        if: runner.os != 'Windows'
+        run: task ginkgo:workspace

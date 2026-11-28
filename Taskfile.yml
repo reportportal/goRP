@@ -10,6 +10,9 @@ vars:
   BINARY_DIR: bin
   BUILD_INFO_LDFLAGS: -ldflags "-w -X main.date={{.BUILD_DATE}} -X main.version={{.BUILD_VERSION}}"
   GOLANG_CI: docker run --rm -v "{{.TASKFILE_DIR}}:/app" -w /app golangci/golangci-lint:v2.15.0 golangci-lint
+  # pkg/ginkgo is a separate Go module, so the root `./...` patterns do not cover it.
+  GINKGO_DIR: pkg/ginkgo
+  GOLANG_CI_GINKGO: docker run --rm -v "{{.TASKFILE_DIR}}:/app" -w /app/{{.GINKGO_DIR}} golangci/golangci-lint:v2.15.0 golangci-lint
   OUTPUT_DIR: "pkg/openapi"
   # Codegen output is written here first and swapped into OUTPUT_DIR only on success.
   GENERATED_DIR: "build/openapi"
@@ -27,6 +30,7 @@ tasks:
     desc: Run Go tests with coverage
     cmds:
       - "{{.GO}} test -cover ./..."
+      - task: ginkgo:test
 
   e2e:
     desc: "Run end-to-end tests against a real ReportPortal (credentials from ./.gorp or GORP_CONFIG, not part of CI)"
@@ -37,17 +41,66 @@ tasks:
     desc: Run go vet
     cmds:
       - "{{.GO}} vet ./..."
+      - task: ginkgo:vet
 
   lint:
     desc: Run golangci-lint
     cmds:
       - "{{.GOLANG_CI}} run ./..."
+      - task: ginkgo:lint
 
   fmt:
     desc: Format code with golangci-lint
     cmds:
       - "{{.GO}} fmt ./..."
       - "{{.GOLANG_CI}} fmt ./..."
+      - task: ginkgo:fmt
+
+  ginkgo:test:
+    desc: Run the pkg/ginkgo module tests (separate Go module) with the race detector
+    dir: "{{.GINKGO_DIR}}"
+    cmds:
+      - "{{.GO}} test -race -cover ./..."
+
+  ginkgo:vet:
+    desc: Vet the pkg/ginkgo module, including the sanity examples
+    dir: "{{.GINKGO_DIR}}"
+    cmds:
+      - "{{.GO}} vet ./..."
+      - "{{.GO}} vet -tags sanity ./examples/..."
+
+  ginkgo:build:
+    desc: Build the ginkgo-rp wrapper and the agent library
+    dir: "{{.GINKGO_DIR}}"
+    cmds:
+      - "{{.GO}} build ./..."
+
+  ginkgo:workspace:
+    desc: >-
+      Build, vet and test pkg/ginkgo against this repository's own pkg/gorp (through a temporary
+      go.work), not against the released goRP it requires. Catches API drift on master early.
+    dir: "{{.GINKGO_DIR}}"
+    cmds:
+      - cmd: |
+          set -e
+          work="$(mktemp -d)"
+          (cd "$work" && {{.GO}} work init "{{.ROOT_DIR}}" "{{.ROOT_DIR}}/{{.GINKGO_DIR}}")
+          export GOWORK="$work/go.work"
+          {{.GO}} build ./...
+          {{.GO}} vet ./...
+          {{.GO}} test -race -cover ./...
+
+  ginkgo:lint:
+    desc: Run golangci-lint on the pkg/ginkgo module
+    cmds:
+      - "{{.GOLANG_CI_GINKGO}} run ./..."
+
+  ginkgo:fmt:
+    desc: Format the pkg/ginkgo module
+    dir: "{{.GINKGO_DIR}}"
+    cmds:
+      - "{{.GO}} fmt ./..."
+      - "{{.GOLANG_CI_GINKGO}} fmt ./..."
 
   build:
     desc: Build the Go binary

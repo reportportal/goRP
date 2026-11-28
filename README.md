@@ -510,6 +510,40 @@ all, err := client.GetAllLaunchesByFilterString(ctx, "my_project",
     "filter.eq.name=smoke&filter.eq.status=FAILED")
 ```
 
+### Agent configuration (`rp.*` properties, `RP_*` variables)
+
+A reporter built on `pkg/gorp` can read the configuration ReportPortal's Java agents use, so one
+`reportportal.properties` or one set of CI variables serves every agent. The `gorp` CLI itself doesn't
+read these; it keeps its own `~/.gorp` and `GORP_*` variables.
+
+```go
+cfg, err := gorp.LoadConfig("") // reportportal.properties in the working directory, then RP_* variables
+if err != nil {
+    return err
+}
+client := gorp.NewReportingClient(cfg.Endpoint, cfg.Project, gorp.WithApiKeyAuth(ctx, cfg.APIKey))
+```
+
+| Property | Variable | `Config` field |
+|----------|----------|----------------|
+| `rp.endpoint` | `RP_ENDPOINT` | `Endpoint` |
+| `rp.project` | `RP_PROJECT` | `Project` |
+| `rp.api.key` (old name `rp.uuid`) | `RP_API_KEY` | `APIKey` |
+| `rp.launch` | `RP_LAUNCH` | `Launch` |
+| `rp.launch.uuid` | `RP_LAUNCH_UUID` | `LaunchUUID` |
+| `rp.launch.uuid.creation.skip` | `RP_LAUNCH_UUID_CREATION_SKIP` | `LaunchUUIDCreationSkip` (default `true`) |
+| `rp.description` | `RP_DESCRIPTION` | `Description` |
+| `rp.attributes` | `RP_ATTRIBUTES` | `Attributes`, from `key:value;value` |
+| `rp.mode` | `RP_MODE` | `Mode` (`DEFAULT` unless `debug`) |
+| `rp.rerun` | `RP_RERUN` | `Rerun` |
+| `rp.rerun.of` | `RP_RERUN_OF` | `RerunOf` |
+| `rp.skipped.issue` | `RP_SKIPPED_ISSUE` | `SkippedIssue` (default `true`) |
+| `rp.enable` | `RP_ENABLE` | `Enabled` (default `true`) |
+
+Variables override the file. Any other `rp.*` setting is available in `cfg.Properties`.
+`RP_PROPERTIES_PATH` names another file; `gorp.ParseConfig` does the same from a reader and a list of
+variables, without touching the file system.
+
 ### Authentication
 
 | Helper | Description |

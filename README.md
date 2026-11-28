@@ -491,6 +491,32 @@ func report(ctx context.Context) error {
 }
 ```
 
+### Server limits
+
+The server rejects a request with a name that is too long and silently cuts long descriptions.
+`pkg/gorp` has the limits as constants and helpers that shorten values the way the server counts them
+(UTF-16 code units, never splitting a character):
+
+```go
+name := gorp.Truncate(name, gorp.MaxItemNameLength)            // "…long name..."
+desc := gorp.Truncate(desc, gorp.MaxDescriptionLength)
+attrs := gorp.TruncateAttributes(attrs)                        // keys, values and the number of attributes
+id := gorp.BoundedID(uniqueID, gorp.MaxUniqueIDLength)         // "…prefix~1f3a9c0b7d2e4a68"
+```
+
+| Constant | Value | Over the limit |
+|----------|-------|----------------|
+| `MaxLaunchNameLength` | 256 | request fails with 400 |
+| `MaxItemNameLength` | 1024 | request fails with 400 |
+| `MaxDescriptionLength` | 2048 | the server keeps the first 2048 (ReportPortal 6) |
+| `MaxUniqueIDLength` | 1024 | request fails with 400 |
+| `MaxTestCaseIDLength` | 1024 | the server keeps the first 1011 and appends a hash of the rest |
+| `MaxAttributes` | 256 | request fails with 400 |
+| `MaxAttributeLength` | 128 | a convention of ReportPortal agents; the server cuts keys and values to 512 without an error |
+
+Use `BoundedID`, not `Truncate`, for identifiers: it ends the shortened ID with a hash of the whole ID, so
+two long IDs that start the same stay different and the same ID always gives the same result.
+
 ### Read client (launch queries)
 
 `Client` wraps the full generated OpenAPI client and adds higher-level helpers.

@@ -27,6 +27,7 @@ A Go CLI tool (`gorp`) and library (`pkg/gorp`) for [ReportPortal](https://repor
 | `report.go` | `report test2json` command: flags, input scanning, feeding events to the reporter |
 | `reporter.go` | `reporter`/`testEvent` types: test2json events → launch, `SUITE` per package, `STEP` per test, subtests nested under their parent |
 | `report_steps.go` | Atomic report commands: `start-launch`, `start-test`, `log`, `finish-test`, `finish-launch` |
+| `report_parameters.go` | `subtestParameters`: `key=value` subtest names → test item parameters for `report test2json` |
 | `quality_gate.go` | `quality-gate check` (polls launch metadata until QG resolves) |
 | `util.go` | Shared CLI helpers (config file path, validation, stdin checks) |
 

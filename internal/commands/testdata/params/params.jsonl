@@ -1,0 +1,68 @@
+{"Time":"2026-11-27T17:53:52.443449-05:00","Action":"start","Package":"example.com/params/p"}
+{"Time":"2026-11-27T17:53:52.56901-05:00","Action":"run","Package":"example.com/params/p","Test":"TestParams"}
+{"Time":"2026-11-27T17:53:52.569073-05:00","Action":"output","Package":"example.com/params/p","Test":"TestParams","Output":"=== RUN   TestParams\n","OutputType":"frame"}
+{"Time":"2026-11-27T17:53:52.569117-05:00","Action":"run","Package":"example.com/params/p","Test":"TestParams/n=1"}
+{"Time":"2026-11-27T17:53:52.569122-05:00","Action":"output","Package":"example.com/params/p","Test":"TestParams/n=1","Output":"=== RUN   TestParams/n=1\n","OutputType":"frame"}
+{"Time":"2026-11-27T17:53:52.569139-05:00","Action":"output","Package":"example.com/params/p","Test":"TestParams/n=1","Output":"--- PASS: TestParams/n=1 (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-11-27T17:53:52.569145-05:00","Action":"pass","Package":"example.com/params/p","Test":"TestParams/n=1","Elapsed":0}
+{"Time":"2026-11-27T17:53:52.569151-05:00","Action":"run","Package":"example.com/params/p","Test":"TestParams/n=1#01"}
+{"Time":"2026-11-27T17:53:52.569155-05:00","Action":"output","Package":"example.com/params/p","Test":"TestParams/n=1#01","Output":"=== RUN   TestParams/n=1#01\n","OutputType":"frame"}
+{"Time":"2026-11-27T17:53:52.569159-05:00","Action":"output","Package":"example.com/params/p","Test":"TestParams/n=1#01","Output":"--- PASS: TestParams/n=1#01 (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-11-27T17:53:52.569169-05:00","Action":"pass","Package":"example.com/params/p","Test":"TestParams/n=1#01","Elapsed":0}
+{"Time":"2026-11-27T17:53:52.569174-05:00","Action":"run","Package":"example.com/params/p","Test":"TestParams/n=2"}
+{"Time":"2026-11-27T17:53:52.569178-05:00","Action":"output","Package":"example.com/params/p","Test":"TestParams/n=2","Output":"=== RUN   TestParams/n=2\n","OutputType":"frame"}
+{"Time":"2026-11-27T17:53:52.569182-05:00","Action":"output","Package":"example.com/params/p","Test":"TestParams/n=2","Output":"--- PASS: TestParams/n=2 (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-11-27T17:53:52.569185-05:00","Action":"pass","Package":"example.com/params/p","Test":"TestParams/n=2","Elapsed":0}
+{"Time":"2026-11-27T17:53:52.569189-05:00","Action":"run","Package":"example.com/params/p","Test":"TestParams/tableSize=8/elems=4"}
+{"Time":"2026-11-27T17:53:52.569192-05:00","Action":"output","Package":"example.com/params/p","Test":"TestParams/tableSize=8/elems=4","Output":"=== RUN   TestParams/tableSize=8/elems=4\n","OutputType":"frame"}
+{"Time":"2026-11-27T17:53:52.569196-05:00","Action":"output","Package":"example.com/params/p","Test":"TestParams/tableSize=8/elems=4","Output":"--- PASS: TestParams/tableSize=8/elems=4 (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-11-27T17:53:52.569203-05:00","Action":"pass","Package":"example.com/params/p","Test":"TestParams/tableSize=8/elems=4","Elapsed":0}
+{"Time":"2026-11-27T17:53:52.569212-05:00","Action":"run","Package":"example.com/params/p","Test":"TestParams/cache=ram"}
+{"Time":"2026-11-27T17:53:52.569215-05:00","Action":"output","Package":"example.com/params/p","Test":"TestParams/cache=ram","Output":"=== RUN   TestParams/cache=ram\n","OutputType":"frame"}
+{"Time":"2026-11-27T17:53:52.569219-05:00","Action":"run","Package":"example.com/params/p","Test":"TestParams/cache=ram/pages=16"}
+{"Time":"2026-11-27T17:53:52.569222-05:00","Action":"output","Package":"example.com/params/p","Test":"TestParams/cache=ram/pages=16","Output":"=== RUN   TestParams/cache=ram/pages=16\n","OutputType":"frame"}
+{"Time":"2026-11-27T17:53:52.569226-05:00","Action":"run","Package":"example.com/params/p","Test":"TestParams/cache=ram/pages=16/plain"}
+{"Time":"2026-11-27T17:53:52.569229-05:00","Action":"output","Package":"example.com/params/p","Test":"TestParams/cache=ram/pages=16/plain","Output":"=== RUN   TestParams/cache=ram/pages=16/plain\n","OutputType":"frame"}
+{"Time":"2026-11-27T17:53:52.569233-05:00","Action":"output","Package":"example.com/params/p","Test":"TestParams/cache=ram/pages=16/plain","Output":"--- PASS: TestParams/cache=ram/pages=16/plain (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-11-27T17:53:52.569249-05:00","Action":"pass","Package":"example.com/params/p","Test":"TestParams/cache=ram/pages=16/plain","Elapsed":0}
+{"Time":"2026-11-27T17:53:52.569262-05:00","Action":"output","Package":"example.com/params/p","Test":"TestParams/cache=ram/pages=16","Output":"--- PASS: TestParams/cache=ram/pages=16 (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-11-27T17:53:52.569266-05:00","Action":"pass","Package":"example.com/params/p","Test":"TestParams/cache=ram/pages=16","Elapsed":0}
+{"Time":"2026-11-27T17:53:52.569269-05:00","Action":"output","Package":"example.com/params/p","Test":"TestParams/cache=ram","Output":"--- PASS: TestParams/cache=ram (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-11-27T17:53:52.569272-05:00","Action":"pass","Package":"example.com/params/p","Test":"TestParams/cache=ram","Elapsed":0}
+{"Time":"2026-11-27T17:53:52.569274-05:00","Action":"run","Package":"example.com/params/p","Test":"TestParams/sameSubject=true,sameKey=false"}
+{"Time":"2026-11-27T17:53:52.569277-05:00","Action":"output","Package":"example.com/params/p","Test":"TestParams/sameSubject=true,sameKey=false","Output":"=== RUN   TestParams/sameSubject=true,sameKey=false\n","OutputType":"frame"}
+{"Time":"2026-11-27T17:53:52.56928-05:00","Action":"output","Package":"example.com/params/p","Test":"TestParams/sameSubject=true,sameKey=false","Output":"--- PASS: TestParams/sameSubject=true,sameKey=false (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-11-27T17:53:52.569283-05:00","Action":"pass","Package":"example.com/params/p","Test":"TestParams/sameSubject=true,sameKey=false","Elapsed":0}
+{"Time":"2026-11-27T17:53:52.569286-05:00","Action":"run","Package":"example.com/params/p","Test":"TestParams/name=two_words"}
+{"Time":"2026-11-27T17:53:52.569288-05:00","Action":"output","Package":"example.com/params/p","Test":"TestParams/name=two_words","Output":"=== RUN   TestParams/name=two_words\n","OutputType":"frame"}
+{"Time":"2026-11-27T17:53:52.569291-05:00","Action":"output","Package":"example.com/params/p","Test":"TestParams/name=two_words","Output":"--- PASS: TestParams/name=two_words (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-11-27T17:53:52.569294-05:00","Action":"pass","Package":"example.com/params/p","Test":"TestParams/name=two_words","Elapsed":0}
+{"Time":"2026-11-27T17:53:52.569296-05:00","Action":"run","Package":"example.com/params/p","Test":"TestParams/list=a,b,c"}
+{"Time":"2026-11-27T17:53:52.569299-05:00","Action":"output","Package":"example.com/params/p","Test":"TestParams/list=a,b,c","Output":"=== RUN   TestParams/list=a,b,c\n","OutputType":"frame"}
+{"Time":"2026-11-27T17:53:52.569302-05:00","Action":"output","Package":"example.com/params/p","Test":"TestParams/list=a,b,c","Output":"--- PASS: TestParams/list=a,b,c (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-11-27T17:53:52.569305-05:00","Action":"pass","Package":"example.com/params/p","Test":"TestParams/list=a,b,c","Elapsed":0}
+{"Time":"2026-11-27T17:53:52.56931-05:00","Action":"run","Package":"example.com/params/p","Test":"TestParams/expr=a=b"}
+{"Time":"2026-11-27T17:53:52.569313-05:00","Action":"output","Package":"example.com/params/p","Test":"TestParams/expr=a=b","Output":"=== RUN   TestParams/expr=a=b\n","OutputType":"frame"}
+{"Time":"2026-11-27T17:53:52.569316-05:00","Action":"output","Package":"example.com/params/p","Test":"TestParams/expr=a=b","Output":"--- PASS: TestParams/expr=a=b (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-11-27T17:53:52.569319-05:00","Action":"pass","Package":"example.com/params/p","Test":"TestParams/expr=a=b","Elapsed":0}
+{"Time":"2026-11-27T17:53:52.569322-05:00","Action":"run","Package":"example.com/params/p","Test":"TestParams/empty="}
+{"Time":"2026-11-27T17:53:52.569324-05:00","Action":"output","Package":"example.com/params/p","Test":"TestParams/empty=","Output":"=== RUN   TestParams/empty=\n","OutputType":"frame"}
+{"Time":"2026-11-27T17:53:52.569327-05:00","Action":"output","Package":"example.com/params/p","Test":"TestParams/empty=","Output":"--- PASS: TestParams/empty= (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-11-27T17:53:52.569333-05:00","Action":"pass","Package":"example.com/params/p","Test":"TestParams/empty=","Elapsed":0}
+{"Time":"2026-11-27T17:53:52.569336-05:00","Action":"run","Package":"example.com/params/p","Test":"TestParams/=novalue"}
+{"Time":"2026-11-27T17:53:52.569338-05:00","Action":"output","Package":"example.com/params/p","Test":"TestParams/=novalue","Output":"=== RUN   TestParams/=novalue\n","OutputType":"frame"}
+{"Time":"2026-11-27T17:53:52.569341-05:00","Action":"output","Package":"example.com/params/p","Test":"TestParams/=novalue","Output":"--- PASS: TestParams/=novalue (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-11-27T17:53:52.569344-05:00","Action":"pass","Package":"example.com/params/p","Test":"TestParams/=novalue","Elapsed":0}
+{"Time":"2026-11-27T17:53:52.569347-05:00","Action":"run","Package":"example.com/params/p","Test":"TestParams/not_a_parameter"}
+{"Time":"2026-11-27T17:53:52.56935-05:00","Action":"output","Package":"example.com/params/p","Test":"TestParams/not_a_parameter","Output":"=== RUN   TestParams/not_a_parameter\n","OutputType":"frame"}
+{"Time":"2026-11-27T17:53:52.569356-05:00","Action":"output","Package":"example.com/params/p","Test":"TestParams/not_a_parameter","Output":"--- PASS: TestParams/not_a_parameter (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-11-27T17:53:52.569359-05:00","Action":"pass","Package":"example.com/params/p","Test":"TestParams/not_a_parameter","Elapsed":0}
+{"Time":"2026-11-27T17:53:52.569361-05:00","Action":"run","Package":"example.com/params/p","Test":"TestParams/url=http://x/y?q=1"}
+{"Time":"2026-11-27T17:53:52.569364-05:00","Action":"output","Package":"example.com/params/p","Test":"TestParams/url=http://x/y?q=1","Output":"=== RUN   TestParams/url=http://x/y?q=1\n","OutputType":"frame"}
+{"Time":"2026-11-27T17:53:52.569367-05:00","Action":"output","Package":"example.com/params/p","Test":"TestParams/url=http://x/y?q=1","Output":"--- PASS: TestParams/url=http://x/y?q=1 (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-11-27T17:53:52.56937-05:00","Action":"pass","Package":"example.com/params/p","Test":"TestParams/url=http://x/y?q=1","Elapsed":0}
+{"Time":"2026-11-27T17:53:52.569374-05:00","Action":"output","Package":"example.com/params/p","Test":"TestParams","Output":"--- PASS: TestParams (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-11-27T17:53:52.569377-05:00","Action":"pass","Package":"example.com/params/p","Test":"TestParams","Elapsed":0}
+{"Time":"2026-11-27T17:53:52.56938-05:00","Action":"output","Package":"example.com/params/p","Output":"PASS\n","OutputType":"frame"}
+{"Time":"2026-11-27T17:53:52.569518-05:00","Action":"output","Package":"example.com/params/p","Output":"ok  \texample.com/params/p\t0.126s\n"}
+{"Time":"2026-11-27T17:53:52.570678-05:00","Action":"pass","Package":"example.com/params/p","Elapsed":0.127}

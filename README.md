@@ -512,7 +512,7 @@ id := gorp.BoundedID(uniqueID, gorp.MaxUniqueIDLength)         // "…prefix~1f3
 | `MaxUniqueIDLength` | 1024 | request fails with 400 |
 | `MaxTestCaseIDLength` | 1024 | the server keeps the first 1011 and appends a hash of the rest |
 | `MaxAttributes` | 256 | request fails with 400 |
-| `MaxAttributeLength` | 128 | a convention of ReportPortal agents, not a server limit |
+| `MaxAttributeLength` | 128 | a convention of ReportPortal agents; the server cuts keys and values to 512 without an error |
 
 Use `BoundedID`, not `Truncate`, for identifiers: it ends the shortened ID with a hash of the whole ID, so
 two long IDs that start the same stay different and the same ID always gives the same result.

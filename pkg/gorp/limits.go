@@ -34,7 +34,8 @@ const (
 	// More fail the request with HTTP 400.
 	MaxAttributes = 256
 	// MaxAttributeLength is the longest attribute key or value ReportPortal agents send. It is a convention
-	// of the clients (the default of the Java client), the reporting API itself sets no limit.
+	// of the clients (the default of the Java client). The server itself cuts longer keys and values to 512
+	// UTF-16 units without an error, and may split a surrogate pair there.
 	MaxAttributeLength = 128
 )
 

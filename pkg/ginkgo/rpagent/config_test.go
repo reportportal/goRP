@@ -1,9 +1,11 @@
 package rpagent
 
 import (
+	"io"
 	"os"
 	"path/filepath"
 	"reflect"
+	"strings"
 	"testing"
 )
 
@@ -170,5 +172,68 @@ func TestConfigSkippedIssue(t *testing.T) {
 	t.Setenv("RP_API_KEY", "k")
 	if c, err := ConfigFromEnv(); err != nil || !c.SkippedIssue {
 		t.Errorf("env-only config: %+v, %v; want SkippedIssue true", c, err)
+	}
+}
+
+func captureStderr(t *testing.T, fn func()) string {
+	t.Helper()
+	old := os.Stderr
+	r, w, err := os.Pipe()
+	if err != nil {
+		t.Fatal(err)
+	}
+	os.Stderr = w
+	done := make(chan string)
+	go func() { b, _ := io.ReadAll(r); done <- string(b) }()
+	func() {
+		defer func() { os.Stderr = old; _ = w.Close() }()
+		fn()
+	}()
+	return <-done
+}
+
+func TestConfigWarnsAboutUnreadableBooleans(t *testing.T) {
+	clearRPEnv(t)
+	body := "rp.endpoint=http://e\nrp.project=p\nrp.api.key=k\nrp.skipped.issue=maybe\nrp.debug=sometimes\n"
+	f := filepath.Join(t.TempDir(), "reportportal.properties")
+	if err := os.WriteFile(f, []byte(body), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	var c *Config
+	out := captureStderr(t, func() { c, _ = LoadConfig(f) })
+	for _, want := range []string{`ignoring rp.skipped.issue="maybe"`, `ignoring rp.debug="sometimes"`} {
+		if !strings.Contains(out, want) {
+			t.Errorf("no warning %q in:\n%s", want, out)
+		}
+	}
+	if c == nil || !c.SkippedIssue || c.Debug {
+		t.Errorf(
+			"an unreadable value must keep the default (skipped.issue true, debug false): %+v",
+			c,
+		)
+	}
+
+	t.Setenv("RP_SKIPPED_ISSUE", "nope")
+	t.Setenv("RP_DEBUG", "nah")
+	out = captureStderr(t, func() { _, _ = LoadConfig(f) })
+	for _, want := range []string{`ignoring RP_SKIPPED_ISSUE="nope"`, `ignoring RP_DEBUG="nah"`} {
+		if !strings.Contains(out, want) {
+			t.Errorf("no warning %q in:\n%s", want, out)
+		}
+	}
+
+	t.Setenv("RP_SKIPPED_ISSUE", "false")
+	t.Setenv("RP_DEBUG", "true")
+	if out = captureStderr(
+		t,
+		func() { c, _ = LoadConfig(f) },
+	); strings.Contains(
+		out,
+		"ignoring RP_",
+	) {
+		t.Errorf("valid values must not warn:\n%s", out)
+	}
+	if c.SkippedIssue || !c.Debug {
+		t.Errorf("valid environment values must win: %+v", c)
 	}
 }

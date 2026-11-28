@@ -87,9 +87,7 @@ func LoadConfig(filename string) (*Config, error) {
 		case "rp.launch":
 			config.LaunchName = value
 		case "rp.debug":
-			if debug, err := strconv.ParseBool(value); err == nil {
-				config.Debug = debug
-			}
+			parseBool("rp.debug", value, &config.Debug)
 		case "rp.description":
 			config.Description = value
 		case "rp.attributes":
@@ -97,9 +95,7 @@ func LoadConfig(filename string) (*Config, error) {
 		case "rp.mode":
 			config.Mode = value
 		case "rp.skipped.issue":
-			if b, err := strconv.ParseBool(value); err == nil {
-				config.SkippedIssue = b
-			}
+			parseBool("rp.skipped.issue", value, &config.SkippedIssue)
 		}
 	}
 
@@ -125,14 +121,10 @@ func finalizeConfig(config *Config) (*Config, error) {
 	envOverride(&config.Description, "RP_DESCRIPTION")
 	envOverride(&config.Mode, "RP_MODE")
 	if v := os.Getenv("RP_DEBUG"); v != "" {
-		if debug, err := strconv.ParseBool(v); err == nil {
-			config.Debug = debug
-		}
+		parseBool("RP_DEBUG", v, &config.Debug)
 	}
 	if v := os.Getenv("RP_SKIPPED_ISSUE"); v != "" {
-		if b, err := strconv.ParseBool(v); err == nil {
-			config.SkippedIssue = b
-		}
+		parseBool("RP_SKIPPED_ISSUE", v, &config.SkippedIssue)
 	}
 	if v := os.Getenv("RP_ATTRIBUTES"); v != "" {
 		config.Attributes = parseAttributes(v)
@@ -159,6 +151,23 @@ func finalizeConfig(config *Config) (*Config, error) {
 		return nil, fmt.Errorf("rp.mode (or RP_MODE) must be DEFAULT or DEBUG, got %q", config.Mode)
 	}
 	return config, nil
+}
+
+// parseBool reads a true/false setting into dst. An unreadable value is ignored with a warning,
+// so a typo does not silently change what the user asked for.
+func parseBool(name, value string, dst *bool) {
+	b, err := strconv.ParseBool(value)
+	if err != nil {
+		fmt.Fprintf(
+			os.Stderr,
+			"WARNING: ignoring %s=%q (want true or false); keeping %t\n",
+			name,
+			value,
+			*dst,
+		)
+		return
+	}
+	*dst = b
 }
 
 func envOverride(dst *string, name string) {

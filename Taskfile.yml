@@ -75,6 +75,21 @@ tasks:
     cmds:
       - "{{.GO}} build ./..."
 
+  ginkgo:workspace:
+    desc: >-
+      Build, vet and test pkg/ginkgo against this repository's own pkg/gorp (through a temporary
+      go.work), not against the released goRP it requires. Catches API drift on master early.
+    dir: "{{.GINKGO_DIR}}"
+    cmds:
+      - cmd: |
+          set -e
+          work="$(mktemp -d)"
+          (cd "$work" && {{.GO}} work init "{{.ROOT_DIR}}" "{{.ROOT_DIR}}/{{.GINKGO_DIR}}")
+          export GOWORK="$work/go.work"
+          {{.GO}} build ./...
+          {{.GO}} vet ./...
+          {{.GO}} test -race -cover ./...
+
   ginkgo:lint:
     desc: Run golangci-lint on the pkg/ginkgo module
     cmds:

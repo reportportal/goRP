@@ -26,27 +26,31 @@ import (
 type fakeRP struct {
 	srv *httptest.Server
 
-	mu          sync.Mutex
-	items       map[string]string // id -> name
-	starts      []string          // item names in start order
-	finishes    []finish          // item finishes in order
-	launchState string            // status sent on launch finish, "" until finished
-	launchSeen  bool
-	logs        int
-	uploads     []string // file names of multipart attachment uploads
-	logTexts    []string
-	startRQs    []startRec          // every item start, in order
-	itemLogs    map[string][]string // item id -> messages logged on it
-	order       []string            // "item-finish:<id>" / "launch-finish" in request order
-	failFinish  bool                // answer launch finish with 500
-	omitLink    bool                // answer launch finish without a link (an old server)
-	hangFinish  bool                // never answer a finish request (item or launch)
-	hung        chan struct{}       // closed at the first hung finish request
-	hungOnce    sync.Once
-	hangStart   time.Time    // when the first finish request arrived
-	stopTries   int          // launch finish requests carrying status STOPPED
-	launchAttrs []launchAttr // attributes of the launch start request
-	seq         int
+	mu                   sync.Mutex
+	items                map[string]string // id -> name
+	starts               []string          // item names in start order
+	finishes             []finish          // item finishes in order
+	launchState          string            // status sent on launch finish, "" until finished
+	launchSeen           bool
+	logs                 int
+	uploads              []string // file names of multipart attachment uploads
+	logTexts             []string
+	startRQs             []startRec          // every item start, in order
+	itemLogs             map[string][]string // item id -> messages logged on it
+	order                []string            // "item-finish:<id>" / "launch-finish" in request order
+	failFinish           bool                // answer launch finish with 500
+	omitLink             bool                // answer launch finish without a link (an old server)
+	failItemStatus       int                 // status for failItemFinishes (default 500)
+	failItemFinishes     bool                // answer container and suite finishes with 500
+	finalizeAttempts     []string            // names of the containers and suites the wrapper tried to finish
+	launchFinishAttempts []string            // statuses of every launch finish request, answered or not
+	hangFinish           bool                // never answer a finish request (item or launch)
+	hung                 chan struct{}       // closed at the first hung finish request
+	hungOnce             sync.Once
+	hangStart            time.Time    // when the first finish request arrived
+	stopTries            int          // launch finish requests carrying status STOPPED
+	launchAttrs          []launchAttr // attributes of the launch start request
+	seq                  int
 }
 
 type finish struct{ ID, Name, Status, Issue string }
@@ -104,13 +108,14 @@ func (f *fakeRP) handle(w http.ResponseWriter, r *http.Request) {
 		f.launchSeen = true
 		reply(`{"id":"launch-1"}`)
 	case r.Method == http.MethodPut && strings.HasSuffix(path, "/finish"):
+		var rq struct{ Status string }
+		_ = json.Unmarshal(body, &rq)
+		f.launchFinishAttempts = append(f.launchFinishAttempts, rq.Status)
 		if f.failFinish {
 			w.WriteHeader(http.StatusInternalServerError)
 			reply(`{"message":"boom"}`)
 			return
 		}
-		var rq struct{ Status string }
-		_ = json.Unmarshal(body, &rq)
 		f.launchState = rq.Status
 		f.order = append(f.order, "launch-finish")
 		if f.omitLink {
@@ -149,6 +154,18 @@ func (f *fakeRP) handle(w http.ResponseWriter, r *http.Request) {
 			},
 		)
 		reply(fmt.Sprintf(`{"id":%q}`, id))
+	case r.Method == http.MethodPut && strings.Contains(path, "/item/") &&
+		f.failItemFinishes && f.isFinalizationRequest(r.Method, path):
+		f.finalizeAttempts = append(
+			f.finalizeAttempts,
+			f.items[path[strings.LastIndex(path, "/")+1:]],
+		)
+		status := http.StatusInternalServerError
+		if f.failItemStatus != 0 {
+			status = f.failItemStatus
+		}
+		w.WriteHeader(status)
+		reply(`{"message":"boom"}`)
 	case r.Method == http.MethodPut && strings.Contains(path, "/item/"):
 		var rq struct {
 			Status string
@@ -175,7 +192,7 @@ func (f *fakeRP) isFinalizationRequest(method, path string) bool {
 		return true
 	}
 	switch f.items[path[strings.LastIndex(path, "/")+1:]] {
-	case "fixture", "Fixture Suite":
+	case "fixture", "level1", "level2", "level3", "Fixture Suite":
 		return true
 	}
 	return false
@@ -290,6 +307,7 @@ func runWrapper(t *testing.T, endpoint string, env map[string]string) int {
 	t.Setenv("FIXTURE_ATTACH_ERRORS", "")
 	t.Setenv("FIXTURE_PRIORITY", "")
 	t.Setenv("FIXTURE_SKIPS", "")
+	t.Setenv("FIXTURE_NESTED", "")
 	t.Setenv("FIXTURE_FLAKY_STDOUT", "")
 	t.Setenv("RP_SKIPPED_ISSUE", "")
 	t.Setenv("FIXTURE_FLAKY_AFTEREACH", "")
@@ -399,11 +417,51 @@ func TestWrapperFinalizeFailureKeepsGinkgoExitCode(t *testing.T) {
 	if code := runWrapper(t, rp.srv.URL, nil); code != 0 {
 		t.Errorf("exit code = %d, want ginkgo's 0 when only finalizing failed", code)
 	}
+	// Only the final FinishLaunch failed: one error is not a streak, yet the launch must
+	// not stay In Progress, so the wrapper falls back to stopping it.
+	rp.mu.Lock()
+	attempts := append([]string(nil), rp.launchFinishAttempts...)
+	rp.mu.Unlock()
+	if len(attempts) != 2 || attempts[0] != "PASSED" || attempts[1] != "STOPPED" {
+		t.Errorf("launch finish attempts = %v, want [PASSED STOPPED]", attempts)
+	}
 
 	rp2 := newFakeRP(t)
 	rp2.failFinish = true
 	if code := runWrapper(t, rp2.srv.URL, map[string]string{"RP_STRICT": "true"}); code != 2 {
 		t.Errorf("exit code = %d, want 2 in strict mode", code)
+	}
+	rp2.mu.Lock()
+	defer rp2.mu.Unlock()
+	if n := len(rp2.launchFinishAttempts); n != 2 || rp2.launchFinishAttempts[1] != "STOPPED" {
+		t.Errorf("strict mode must stop the launch too, attempts = %v", rp2.launchFinishAttempts)
+	}
+}
+
+// Finish requests that keep failing mean the server is gone: the wrapper must stop trying to
+// finish containers one by one after 3 in a row and stop the launch instead.
+func TestWrapperGivesUpOnItemsAfterThreeFailuresInARow(t *testing.T) {
+	rp := newFakeRP(t)
+	rp.failItemFinishes = true
+	if code := runWrapper(t, rp.srv.URL, map[string]string{"FIXTURE_NESTED": "1"}); code != 0 {
+		t.Fatalf("exit code = %d, want ginkgo's 0", code)
+	}
+	rp.mu.Lock()
+	defer rp.mu.Unlock()
+	// Deepest first: level3, level2, level1 fail, and the wrapper stops there. The suite is
+	// only tried by the fallback that stops the launch, and "fixture" never is.
+	want := []string{"level3", "level2", "level1", "Fixture Suite"}
+	if strings.Join(rp.finalizeAttempts, ",") != strings.Join(want, ",") {
+		t.Errorf("finish attempts = %v, want %v", rp.finalizeAttempts, want)
+	}
+	if len(rp.launchFinishAttempts) != 1 || rp.launchFinishAttempts[0] != "STOPPED" {
+		t.Errorf(
+			"launch finish attempts = %v, want only [STOPPED]: the normal finish is skipped",
+			rp.launchFinishAttempts,
+		)
+	}
+	if rp.launchState != "STOPPED" {
+		t.Errorf("the launch ended %q, want STOPPED", rp.launchState)
 	}
 }
 
@@ -1125,5 +1183,29 @@ func TestWrapperRegistersTheTaggedSuiteWhenTheTagIsGiven(t *testing.T) {
 	}
 	if !rp.started("Tagged Suite") || rp.finishStatus("runs only with -tags special") != "PASSED" {
 		t.Errorf("the tagged suite was not reported: starts=%v finishes=%v", rp.starts, rp.finishes)
+	}
+}
+
+// A 4xx answer shows the server is up (the item is rejected, not the server gone), so it must
+// not count towards "ReportPortal is not responding": every item is tried and the launch is
+// finished normally.
+func TestWrapperKeepsFinishingItemsWhenTheyAreRejected(t *testing.T) {
+	rp := newFakeRP(t)
+	rp.failItemFinishes = true
+	rp.failItemStatus = http.StatusBadRequest
+	if code := runWrapper(t, rp.srv.URL, map[string]string{"FIXTURE_NESTED": "1"}); code != 0 {
+		t.Fatalf("exit code = %d, want ginkgo's 0", code)
+	}
+	rp.mu.Lock()
+	defer rp.mu.Unlock()
+	want := []string{"level3", "level2", "level1", "fixture", "Fixture Suite"}
+	if strings.Join(rp.finalizeAttempts, ",") != strings.Join(want, ",") {
+		t.Errorf("finish attempts = %v, want every item tried: %v", rp.finalizeAttempts, want)
+	}
+	if len(rp.launchFinishAttempts) != 1 || rp.launchFinishAttempts[0] != "PASSED" {
+		t.Errorf(
+			"launch finish attempts = %v, want the normal finish only: [PASSED]",
+			rp.launchFinishAttempts,
+		)
 	}
 }

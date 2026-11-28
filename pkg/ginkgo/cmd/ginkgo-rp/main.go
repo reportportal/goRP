@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"net/http"
 	"os"
 	"os/exec"
 	"os/signal"
@@ -216,6 +217,8 @@ func run() int {
 		fmt.Fprintf(os.Stderr, "ERROR: failed to execute ginkgo: %v\n", err)
 		exitCode = 1
 	} else {
+		// Ctrl-Z stays handled until the run ends, finalization included.
+		defer watchJobControl(cmd)()
 		interrupted, err = waitForwardingSignals(cmd, sigs)
 		if err != nil {
 			if exitError, ok := err.(*exec.ExitError); ok {
@@ -302,7 +305,9 @@ func finalizeRun(
 	fmt.Printf("\n  Step 2: Collecting and analyzing test results...\n\n")
 
 	err := aggregateAndFinalizeLaunch(finalizeCtx, exitCode != 0, sessionID)
-	if err != nil && (finalizeCtx.Err() != nil || errors.Is(err, errReportPortalNotResponding)) {
+	if err != nil {
+		// Whatever went wrong, the launch must not be left In Progress: stop it, as the last
+		// resort. (If the server is gone, this fails too; it is bounded and best-effort.)
 		switch {
 		case errors.Is(finalizeCtx.Err(), context.DeadlineExceeded):
 			fmt.Fprintf(os.Stderr, "WARNING: finalizing took longer than %s (%s). "+
@@ -338,7 +343,6 @@ func finalizeRun(
 func waitForwardingSignals(cmd *exec.Cmd, sigs <-chan os.Signal) (os.Signal, error) {
 	done := make(chan error, 1)
 	go func() { done <- cmd.Wait() }()
-	defer watchJobControl(cmd)()
 
 	var first os.Signal
 	for {
@@ -401,13 +405,21 @@ func finalizeTimeout() time.Duration {
 	return d
 }
 
-// failureStreak counts finish requests that failed one after another.
+// failureStreak counts finish requests that failed one after another because the server
+// seems to be gone.
 type failureStreak struct{ n int }
 
 // note records the outcome of one request. It returns errReportPortalNotResponding once
-// maxConsecutiveFinishFailures requests in a row have failed; a success resets the count.
+// maxConsecutiveFinishFailures requests in a row have failed.
+//
+// Only a connection error, a timeout or an HTTP 5xx counts as a failure. An HTTP 4xx answer
+// (an item ReportPortal rejects, a missing item, rate limiting) shows the server is up, so
+// like a success it ends the streak instead of adding to it: three rejected items must not
+// be reported as "ReportPortal is not responding".
 func (f *failureStreak) note(err error) error {
-	if err == nil {
+	var httpErr *gorp.HTTPError
+	if err == nil ||
+		(errors.As(err, &httpErr) && httpErr.StatusCode < http.StatusInternalServerError) {
 		f.n = 0
 		return nil
 	}
@@ -474,8 +486,8 @@ func main() {
 	os.Exit(run())
 }
 
-// abortLaunch attempts to finish a launch as FAILED when the wrapper encounters
-// a fatal error after StartLaunch has already been called. This prevents the
+// abortLaunch finishes a launch as STOPPED (its suites first, see stopLaunch) when the
+// wrapper cannot finalize it normally after StartLaunch has been called. This prevents the
 // launch from staying IN_PROGRESS indefinitely in ReportPortal.
 func abortLaunch(ctx context.Context, sessionID, launchID string) {
 	coordinator, err := rpagent.NewLaunchCoordinator(sessionID)

@@ -7,6 +7,8 @@ import (
 	"os/exec"
 	"os/signal"
 	"syscall"
+
+	"golang.org/x/sys/unix"
 )
 
 // isolate puts ginkgo in its own process group, so a terminal Ctrl-C reaches it only
@@ -53,11 +55,41 @@ var stopSelf = func() {
 	_ = syscall.Kill(syscall.Getpid(), syscall.SIGSTOP)
 }
 
-// watchJobControl keeps the terminal's job control working while ginkgo runs. Ginkgo is in
+// Hooks, so tests can make the check below answer for any situation.
+var (
+	getpid  = os.Getpid
+	getppid = os.Getppid
+	getsid  = unix.Getsid
+)
+
+// canBeResumed reports whether something above the wrapper can resume it after it has
+// stopped: a shell with job control that will send SIGCONT on `fg` or `bg`. Where nothing
+// can, stopping would freeze the run for good. That is the case when the wrapper is process 1
+// (`docker run -it … ginkgo-rp`), when its parent is process 1 (a non-interactive shell as
+// the container's init), and when its parent is in another session (`ssh -t host ginkgo-rp`,
+// a CI pseudo-terminal): its process group is then orphaned. Without this code the kernel
+// discards Ctrl-Z for an orphaned group, so the right answer there is to do nothing.
+func canBeResumed() bool {
+	pid, ppid := getpid(), getppid()
+	if pid == 1 || ppid == 1 {
+		return false
+	}
+	mine, err := getsid(0)
+	if err != nil {
+		return false
+	}
+	parents, err := getsid(ppid)
+	return err == nil && mine == parents
+}
+
+// watchJobControl keeps the terminal's job control working from ginkgo's start until the
+// wrapper ends (after ginkgo has exited, the signal to its group finds nobody, and the wrapper
+// still stops itself, so Ctrl-Z works during finalization too). Ginkgo is in
 // its own process group (see isolate), so the terminal's Ctrl-Z reaches only the wrapper:
 // without this, the wrapper would stop while ginkgo and the tests carried on in the
 // background, and `fg`/`bg` would resume nothing. Instead, Ctrl-Z is passed on to ginkgo's
 // group, the wrapper stops itself, and the SIGCONT of `fg`/`bg` is passed on as well.
+// Where the wrapper cannot be resumed (see canBeResumed) Ctrl-Z is left alone.
 // The returned function stops watching.
 func watchJobControl(cmd *exec.Cmd) (stop func()) {
 	ch := make(chan os.Signal, 4)
@@ -73,6 +105,9 @@ func watchJobControl(cmd *exec.Cmd) (stop func()) {
 			case sig := <-ch:
 				switch sig {
 				case syscall.SIGTSTP:
+					if !canBeResumed() {
+						continue
+					}
 					_ = syscall.Kill(-cmd.Process.Pid, syscall.SIGTSTP)
 					stopSelf()
 				case syscall.SIGCONT:

@@ -74,3 +74,8 @@ jobs:
       - name: Test (pkg/ginkgo)
         if: runner.os != 'Windows'
         run: task ginkgo:test
+      # pkg/ginkgo requires a released goRP, so the steps above never compile it against the
+      # code in this repository. This one does, through a temporary go.work.
+      - name: Build and test (pkg/ginkgo) against this repository's pkg/gorp
+        if: runner.os != 'Windows'
+        run: task ginkgo:workspace

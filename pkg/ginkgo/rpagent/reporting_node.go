@@ -362,11 +362,11 @@ func finishSpecHierarchy(spec types.SpecReport) SpecHierarchyIDs {
 	}
 	ids := val.(SpecHierarchyIDs)
 
-	// A spec Ginkgo ran several times (FlakeAttempts, MustPassRepeatedly) becomes one RP
-	// item per attempt, each a retry of the previous one.
+	// A spec Ginkgo retried (FlakeAttempts) becomes one RP item per attempt, each a retry of
+	// the previous one. A spec that ran once, or was repeated (MustPassRepeatedly), is one item.
 	attempts := splitAttempts(spec)
 	if len(attempts) == 1 {
-		return reportAttempt(spec, ids)
+		return reportAttempt(attempts[0], ids)
 	}
 	var final SpecHierarchyIDs
 	prevID := ""

@@ -168,7 +168,9 @@ func TestSendLogAndFinishTest(t *testing.T) {
 		paths = append(paths, r.Method+" "+r.URL.Path)
 		switch r.Method + " " + r.URL.Path {
 		case "POST /api/v2/proj/log":
-			_ = json.NewDecoder(r.Body).Decode(&logBody)
+			if logs := decodeLogRQs(t, r); len(logs) == 1 {
+				logBody = logs[0]
+			}
 		case "PUT /api/v2/proj/item/item-1":
 			_ = json.NewDecoder(r.Body).Decode(&finishBody)
 		}
@@ -280,7 +282,9 @@ func TestZeroTimesMeanNow(t *testing.T) {
 	var logBody openapi.SaveLogRQ
 	tl := newTestListener(t, func(w http.ResponseWriter, r *http.Request) {
 		if strings.HasSuffix(r.URL.Path, "/log") {
-			_ = json.NewDecoder(r.Body).Decode(&logBody)
+			if logs := decodeLogRQs(t, r); len(logs) == 1 {
+				logBody = logs[0]
+			}
 		} else {
 			_ = json.NewDecoder(r.Body).Decode(&start)
 		}

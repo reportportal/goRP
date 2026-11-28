@@ -2,6 +2,7 @@ package rpagent
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -83,16 +84,37 @@ func boolPtr(b bool) *bool            { return &b }
 func strPtr(s string) *string         { return &s }
 func statusPtr(s gorp.Status) *string { return strPtr(string(s)) }
 
-// toParameterResources converts agent parameters to the generated API type.
-func toParameterResources(params []*Parameter) []openapi.ParameterResource {
+// setParameters fills the request's parameters from the agent's.
+//
+// It goes through JSON on purpose, so the generated type of a parameter is never named: it was
+// renamed between the released goRP and its master, and the agent has to build against both.
+func setParameters(rq *openapi.StartTestItemRQ, params []*Parameter) {
 	if len(params) == 0 {
-		return nil
+		return
 	}
-	out := make([]openapi.ParameterResource, 0, len(params))
+	type parameter struct {
+		Key   string `json:"key"`
+		Value string `json:"value"`
+	}
+	list := make([]parameter, 0, len(params))
 	for _, p := range params {
-		out = append(out, openapi.ParameterResource{Key: p.Key, Value: strPtr(p.Value)})
+		list = append(list, parameter{Key: p.Key, Value: p.Value})
 	}
-	return out
+	data, err := json.Marshal(list)
+	if err == nil {
+		err = json.Unmarshal(data, &rq.Parameters)
+	}
+	if err != nil {
+		log.Printf("WARNING: could not set the parameters of %q: %v", rq.Name, err)
+	}
+}
+
+// setNotIssue marks the request's item NOT_ISSUE. Through JSON for the same reason as
+// setParameters: the generated Issue type was renamed too.
+func setNotIssue(rq *openapi.FinishTestItemRQ) {
+	if err := json.Unmarshal([]byte(`{"issueType":"`+notIssueType+`"}`), &rq.Issue); err != nil {
+		log.Printf("WARNING: could not mark an item NOT_ISSUE: %v", err)
+	}
 }
 
 // TestListener wraps the ReportPortal client with retry logic and convenience methods.
@@ -163,8 +185,8 @@ func (tl *TestListener) Start(item StartItem) string {
 		LaunchUuid: tl.launchUuid,
 		HasStats:   boolPtr(!item.NoStats),
 		Type:       string(item.Type),
-		Parameters: toParameterResources(item.Parameters),
 	}
+	setParameters(rq, item.Parameters)
 	if item.RetryOf != "" {
 		rq.Retry = boolPtr(true)
 		rq.RetryOf = strPtr(item.RetryOf)
@@ -256,7 +278,7 @@ func (tl *TestListener) finishItem(
 		LaunchUuid: tl.launchUuid,
 	}
 	if notIssue {
-		rq.Issue = &openapi.Issue{IssueType: notIssueType}
+		setNotIssue(rq)
 	}
 	err := retry(3, 200*time.Millisecond, func() error {
 		_, e := tl.client.FinishTest(context.Background(), id, rq)

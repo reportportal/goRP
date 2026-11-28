@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -12,6 +13,7 @@ import (
 	"reflect"
 	"strings"
 	"sync"
+	"syscall"
 	"testing"
 	"time"
 
@@ -491,5 +493,111 @@ func TestCleanupRemovesExactlyOneSessionsFiles(t *testing.T) {
 	}
 	if len(afterOthers) != len(others) {
 		t.Errorf("another session's files were removed: before %v, after %v", others, afterOthers)
+	}
+}
+
+func TestFailureStreakCountsOnlyServerTroubleNotRejections(t *testing.T) {
+	http := func(code int) error { return &gorp.HTTPError{StatusCode: code} }
+	refused := &net.OpError{Op: "dial", Err: syscall.ECONNREFUSED}
+	tests := []struct {
+		name     string
+		errs     []error
+		wantStop bool
+	}{
+		{"three 500s in a row", []error{http(500), http(500), http(500)}, true},
+		{"three 503s in a row", []error{http(503), http(503), http(503)}, true},
+		{"three refused connections", []error{refused, refused, refused}, true},
+		{
+			"a wrapped 502 counts",
+			[]error{fmt.Errorf("x: %w", http(502)), http(502), http(502)},
+			true,
+		},
+		{"mixed server trouble", []error{http(500), refused, http(504)}, true},
+		{
+			"ten rejected items never add up",
+			[]error{
+				http(
+					400,
+				),
+				http(404),
+				http(409),
+				http(400),
+				http(404),
+				http(409),
+				http(400),
+				http(404),
+				http(409),
+				http(400),
+			},
+			false,
+		},
+		{
+			"rate limiting is a server answer too",
+			[]error{http(429), http(429), http(429), http(429)},
+			false,
+		},
+		{
+			"a wrapped 404 does not count",
+			[]error{fmt.Errorf("x: %w", http(404)), http(404), http(404), http(404)},
+			false,
+		},
+		{
+			"an answer in between ends the streak",
+			[]error{http(500), http(500), http(404), http(500), http(500)},
+			false,
+		},
+		{
+			"a success in between ends the streak",
+			[]error{http(500), http(500), nil, http(500), http(500)},
+			false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			s := &failureStreak{}
+			stopped := false
+			for _, err := range tt.errs {
+				if gerr := s.note(err); errors.Is(gerr, errReportPortalNotResponding) {
+					stopped = true
+				}
+			}
+			if stopped != tt.wantStop {
+				t.Errorf("gave up = %v, want %v", stopped, tt.wantStop)
+			}
+		})
+	}
+}
+
+func TestFinishContainersKeepsGoingWhenItemsAreRejected(t *testing.T) {
+	var requests int
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		requests++
+		w.WriteHeader(http.StatusNotFound) // the item does not exist: a rejection, not an outage
+	}))
+	t.Cleanup(srv.Close)
+	client := rpagent.NewReportingClient(srv.URL, "proj", "key", false)
+
+	var containers []rpagent.ContainerResult
+	for i := 0; i < 12; i++ {
+		containers = append(
+			containers,
+			rpagent.ContainerResult{ID: fmt.Sprintf("c%d", i), Status: gorp.Statuses.Passed},
+		)
+	}
+	if err := finishContainers(
+		context.Background(),
+		client,
+		"l",
+		containers,
+		&failureStreak{},
+	); err != nil {
+		t.Errorf("rejected items must not stop finalization: %v", err)
+	}
+	if requests != len(containers) {
+		t.Errorf(
+			"sent %d requests, want one for each of the %d containers",
+			requests,
+			len(containers),
+		)
 	}
 }

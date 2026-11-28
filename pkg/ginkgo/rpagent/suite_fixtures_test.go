@@ -1,8 +1,11 @@
 package rpagent
 
 import (
+	"bytes"
 	"encoding/json"
 	"io"
+	"mime"
+	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -130,6 +133,38 @@ func TestSuiteFixtureFailures(t *testing.T) {
 type recordedRequest struct {
 	method, path string
 	body         []byte
+	contentType  string
+}
+
+// logsOf returns the logs a POST .../log request carries: one JSON log, or the multipart
+// batch whose "json_request_part" holds a JSON array. Current goRP clients send the multipart
+// form (the JSON /log endpoint is deprecated on ReportPortal 6.x); the released one sends JSON.
+func logsOf(t *testing.T, r recordedRequest) []openapi.SaveLogRQ {
+	t.Helper()
+	mediaType, params, err := mime.ParseMediaType(r.contentType)
+	if err != nil || !strings.HasPrefix(mediaType, "multipart/") {
+		var one openapi.SaveLogRQ
+		if err := json.Unmarshal(r.body, &one); err != nil {
+			t.Fatalf("a log request is neither JSON nor multipart: %v\n%s", err, r.body)
+		}
+		return []openapi.SaveLogRQ{one}
+	}
+	mr := multipart.NewReader(bytes.NewReader(r.body), params["boundary"])
+	for {
+		part, err := mr.NextPart()
+		if err != nil {
+			t.Fatalf("no json_request_part in the multipart log request: %v", err)
+		}
+		if part.FormName() != "json_request_part" {
+			continue
+		}
+		data, _ := io.ReadAll(part)
+		var batch []openapi.SaveLogRQ
+		if err := json.Unmarshal(data, &batch); err != nil {
+			t.Fatalf("json_request_part is not a log array: %v\n%s", err, data)
+		}
+		return batch
+	}
 }
 
 // recordRequests points the package globals at a mock server and records every request.
@@ -141,7 +176,10 @@ func recordRequests(t *testing.T, suiteID string) func() []recordedRequest {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		body, _ := io.ReadAll(r.Body)
 		mu.Lock()
-		reqs = append(reqs, recordedRequest{r.Method, r.URL.Path, body})
+		reqs = append(
+			reqs,
+			recordedRequest{r.Method, r.URL.Path, body, r.Header.Get("Content-Type")},
+		)
 		seq++
 		id := "fx-" + string(rune('0'+seq))
 		mu.Unlock()
@@ -204,9 +242,7 @@ func TestReportSuiteFixtureFailuresCreatesItemLogAndStatus(t *testing.T) {
 	for _, r := range requests() {
 		switch {
 		case r.method == http.MethodPost && strings.HasSuffix(r.path, "/log"):
-			var l openapi.SaveLogRQ
-			_ = json.Unmarshal(r.body, &l)
-			logs = append(logs, l)
+			logs = append(logs, logsOf(t, r)...)
 		case r.method == http.MethodPost:
 			var s openapi.StartTestItemRQ
 			_ = json.Unmarshal(r.body, &s)

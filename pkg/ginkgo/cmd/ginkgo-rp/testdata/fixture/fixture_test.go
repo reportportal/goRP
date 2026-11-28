@@ -47,6 +47,16 @@ var _ = Describe("fixture", func() {
 			Expect(attempts).To(BeNumerically(">=", 3), "failed on attempt %d", attempts)
 		})
 	}
+	if os.Getenv("FIXTURE_NESTED") != "" {
+		// Three nested containers: enough finish requests in a row to hit the failure streak.
+		Describe("level1", func() {
+			Describe("level2", func() {
+				Describe("level3", func() {
+					It("deep", func() {})
+				})
+			})
+		})
+	}
 	if os.Getenv("FIXTURE_SKIPS") != "" {
 		It("user skip", func() { Skip("not on this OS") })
 		PIt("pending spec", func() {})

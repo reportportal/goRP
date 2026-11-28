@@ -128,6 +128,13 @@ type reporter struct {
 	joined *gorppkg.LaunchInfo
 	// started is set once the first event has been seen
 	started bool
+	// retries reports a test that runs again as a retry of its previous run, see startTest
+	retries bool
+	// containers are the tests that had subtests in one of their runs
+	containers map[string]bool
+	// failedTests and failedPackages tell whether the latest run of a test or a package failed
+	failedTests    map[testKey]bool
+	failedPackages map[string]bool
 	// buildOutput is the compiler (or vet) output of the builds, by the ImportPath of the build. It is
 	// reported when a package fails because of that build; several packages can fail because of one.
 	buildOutput map[string][]string
@@ -147,6 +154,8 @@ type reporterOptions struct {
 	rerunOf string
 	// joined is the existing launch to report into; nil to start (and finish) a launch
 	joined *gorppkg.LaunchInfo
+	// retries reports repeated runs of a test as retries
+	retries bool
 }
 
 func newReporter(
@@ -170,6 +179,10 @@ func newReporter(
 		parents:          map[string]string{},
 		suites:           map[string]string{},
 		buildOutput:      map[string][]string{},
+		retries:          opts.retries,
+		containers:       map[string]bool{},
+		failedTests:      map[testKey]bool{},
+		failedPackages:   map[string]bool{},
 		logs:             []*openapi.SaveLogRQ{},
 		logsBatchSize:    logsBatchSize,
 		reportEmpty:      opts.reportEmpty,
@@ -196,7 +209,7 @@ func (r *reporter) reportEvent(ev *testEvent) error {
 	switch ev.Action {
 	case testActionStart:
 		if r.reportEmpty {
-			_, err = r.startSuite(ev)
+			err = r.startPackage(ev)
 		}
 	case testActionRun:
 		err = r.startTest(ev)
@@ -265,7 +278,7 @@ func (r *reporter) receive() error {
 	// finish launch if started; a joined launch is finished by whoever started it
 	if r.started && r.joined == nil {
 		status := gorppkg.Statuses.Passed
-		if r.failed {
+		if r.launchFailed() {
 			status = gorppkg.Statuses.Failed
 		}
 		if err := r.finishLaunch(r.ctx, status, prevEventTime); err != nil {
@@ -324,6 +337,64 @@ func (r *reporter) begin(startTime time.Time) error {
 	return nil
 }
 
+// launchFailed decides the status of the launch. A failure that a later run of the same test or
+// package has turned into a success (gotestsum --rerun-fails) does not fail the launch, as it does
+// not fail the test run. Without retries every run is reported on its own, and any failure counts.
+func (r *reporter) launchFailed() bool {
+	if !r.retries {
+		return r.failed
+	}
+	for _, failed := range r.failedTests {
+		if failed {
+			return true
+		}
+	}
+	for _, failed := range r.failedPackages {
+		if failed {
+			return true
+		}
+	}
+	return false
+}
+
+// testKey names a test by its package and its name in the package. The two are kept apart: an import
+// path can be the prefix of another ("m/a" and "m/a/b"), so the tests of a package cannot be told from
+// the joined name.
+type testKey struct {
+	pkg, test string
+}
+
+// hasFailedTest reports whether the latest run of a test of the package failed. With a parent, only
+// its subtests count.
+func (r *reporter) hasFailedTest(pkg, parent string) bool {
+	for key, failed := range r.failedTests {
+		if failed && key.pkg == pkg && (parent == "" || strings.HasPrefix(key.test, parent+"/")) {
+			return true
+		}
+	}
+	return false
+}
+
+// reopen makes a finished suite or test current again: a package or a test with subtests that runs
+// once more is not reported as a new item, its new results go under the item it has already (see
+// startTest). The item is finished again when the run ends.
+func (r *reporter) reopen(id string) {
+	if !slices.Contains(r.openItems, id) {
+		r.openItems = append(r.openItems, id)
+	}
+}
+
+// startPackage handles the "start" event of a package when empty packages are reported.
+func (r *reporter) startPackage(ev *testEvent) error {
+	// gotestsum --rerun-fails runs the package again for every test it reruns
+	if id, found := r.suites[ev.Package]; found && r.retries {
+		r.reopen(id)
+		return nil
+	}
+	_, err := r.startSuite(ev)
+	return err
+}
+
 func (r *reporter) startSuite(ev *testEvent) (string, error) {
 	rs, err := r.client.StartTest(r.ctx, &openapi.StartTestItemRQ{
 		Name:       ev.Package,
@@ -349,6 +420,19 @@ func (r *reporter) startSuite(ev *testEvent) (string, error) {
 // only for STEP items without children, and only those get "To Investigate". A subtest is started
 // as a child of its parent test, so the parent stops being counted once it has subtests and every
 // test case is counted exactly once.
+//
+// A test can run more than once in one stream: `go test -count=N` runs every test N times, and
+// `gotestsum --rerun-fails` runs the failed tests again and appends those runs. With retries enabled a
+// repeated run is reported as a ReportPortal retry, so the test case is still counted once, with the
+// result of its last run, and the earlier runs are kept as its retries:
+//
+//   - A test without subtests is started again with retry=true and retryOf = the UUID of its previous
+//     run. retryOf must name the latest run: the server ignores a retryOf that points to an item which
+//     is a retry itself, and the new run then becomes one more counted item.
+//   - A test that had subtests is not started again. It is a container that is not counted itself;
+//     its item is reused, so that the subtests which run again find their previous runs under the
+//     same parent and become retries, and the subtests which do not run again (gotestsum reruns only
+//     the failed ones) stay counted. The same goes for the suite of the package.
 func (r *reporter) startTest(ev *testEvent) error {
 	testID := r.getTestName(ev)
 	parentTest, name := r.parentOf(ev)
@@ -364,10 +448,15 @@ func (r *reporter) startTest(ev *testEvent) error {
 			if err != nil {
 				return err
 			}
+		} else if r.retries {
+			// the package runs again
+			r.reopen(suiteID)
 		}
 		parentID = suiteID
+	} else {
+		r.containers[parentTest] = true
 	}
-	rs, err := r.client.StartChildTest(r.ctx, parentID, &openapi.StartTestItemRQ{
+	rq := &openapi.StartTestItemRQ{
 		Name:       name,
 		StartTime:  ev.Time,
 		LaunchUuid: r.launchUUID,
@@ -377,7 +466,18 @@ func (r *reporter) startTest(ev *testEvent) error {
 		TestCaseId: openapi.PtrString(testID),
 		Type:       string(gorppkg.TestItemTypes.Step),
 		Retry:      openapi.PtrBool(false),
-	})
+	}
+	// a previous run that is still open is not a previous run: the name is not unique in the stream
+	if previous, seen := r.tests[testID]; seen && r.retries &&
+		!slices.Contains(r.openItems, previous) {
+		if r.containers[testID] {
+			r.reopen(previous)
+			return nil
+		}
+		rq.Retry = openapi.PtrBool(true)
+		rq.RetryOf = openapi.PtrString(previous)
+	}
+	rs, err := r.client.StartChildTest(r.ctx, parentID, rq)
 	if err != nil {
 		return err
 	}
@@ -590,6 +690,8 @@ func (r *reporter) finishLaunch(
 func (r *reporter) finishTest(ev *testEvent, status gorppkg.Status) error {
 	testName := r.getTestName(ev)
 	testID := r.tests[testName]
+	r.failedTests[testKey{ev.Package, ev.Test}] = status == gorppkg.Statuses.Failed
+	status = r.containerStatus(status, ev)
 
 	rq := &openapi.FinishTestItemRQ{
 		EndTime:    ev.Time,
@@ -639,7 +741,20 @@ func (r *reporter) finish(ev *testEvent, status gorppkg.Status) error {
 	return r.finishTest(ev, status)
 }
 
+// containerStatus is the status to finish a suite or a test with. A package or a test with subtests
+// that runs again runs only a part of its tests (gotestsum --rerun-fails) and can pass although a test
+// of an earlier run, which did not run again, has failed. Its item holds the tests of all runs, so it
+// stays FAILED then.
+func (r *reporter) containerStatus(status gorppkg.Status, ev *testEvent) gorppkg.Status {
+	if r.retries && status == gorppkg.Statuses.Passed && r.hasFailedTest(ev.Package, ev.Test) {
+		return gorppkg.Statuses.Failed
+	}
+	return status
+}
+
 func (r *reporter) finishSuite(ev *testEvent, status gorppkg.Status) error {
+	r.failedPackages[ev.Package] = status == gorppkg.Statuses.Failed
+	status = r.containerStatus(status, ev)
 	suiteID, found := r.suites[ev.Package]
 	if ev.FailedBuild != "" {
 		// The package was not built, so no test has run and, unless empty packages are reported, there

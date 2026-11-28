@@ -338,6 +338,7 @@ func reportCmd(filePath, launchName string, reportEmpty bool) *cli.Command {
 		&cli.BoolFlag{Name: "reportEmptyPkg", Value: reportEmpty},
 		&cli.StringSliceFlag{Name: "attr"},
 		&cli.BoolFlag{Name: "skipped-issue", Value: true},
+		&cli.BoolFlag{Name: "retries", Value: true},
 	}
 	return cmd
 }

@@ -244,6 +244,7 @@ go test -json ./... | gorp report test2json --quality-gate-check
 | `--rerun-of` | | `LAUNCH_RERUN_OF` | | UUID of the launch to rerun; implies `--rerun`. The printed UUID is the one the server returns (the original launch's, RP 5.13.5+) |
 | `--launch-uuid` | | | | Report into an existing launch (sharded CI). The launch is looked up first (unknown UUID fails, retried for 10 s), and is neither started nor finished, also not on interrupt. Rejects `--rerun`, `--rerun-of` and `--quality-gate-check`; ignores `--launchName`, `--attr`, `--description`, `--mode`. No env var. The test events must not be older than the launch. |
 | `--skipped-issue` | | `SKIPPED_ISSUE` | `true` | Skipped tests are "To Investigate" (`true`) or "No Defect" (`false`) |
+| `--retries` | | `REPORT_RETRIES` | `true` | A test that runs again in the same input (`go test -count=N`, `gotestsum --rerun-fails`) is a retry of its previous run; `false` reports every run as its own item |
 | `--print-launch-uuid` | | | `false` | Print the launch UUID and link after reporting completes |
 | `--quality-gate-check` | `-qgc` | `QUALITY_GATE_CHECK` | `false` | Poll the quality gate after reporting; exits **10** on non-`PASSED` status |
 | `--quality-gate-timeout` | `-qgt` | `QUALITY_GATE_TIMEOUT` | `1m` | Shared with `quality-gate check` |
@@ -256,6 +257,16 @@ parent test. ReportPortal counts executions only for `STEP` items without childr
 counted once (a test with subtests is not counted itself). `t.Skip` tests are `SKIPPED`; they are
 "To Investigate" unless `--skipped-issue=false`. The launch gets the system attributes `agent`, `os`, `go`
 and `skippedIssue`. With `--print-launch-uuid` the launch link is printed as well (`ReportPortal Launch: <url>`).
+
+### Repeated runs (retries)
+
+With `go test -count=N` or `gotestsum --rerun-fails --jsonfile` a test runs several times in one stream. Each
+further run of a test without subtests is sent with `retry=true` and `retryOf` = the UUID of the run before it
+(always the latest one), so ReportPortal counts the test case once, with the status of its last run; earlier runs
+are its retries. Tests with subtests and package suites are containers: they are reported once, reused and
+finished again by every run. The launch is `FAILED` when the last run of a test or package failed (`-count=N`
+with a failed run: `FAILED`; gotestsum rerun that passes: `PASSED`). Statistics differ from older gorp versions,
+where `-count=3` of 10 tests gave `total 30` instead of `total 10`; `--retries=false` restores that.
 
 ### Build failures
 

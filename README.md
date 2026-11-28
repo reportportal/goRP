@@ -243,6 +243,7 @@ go test -json ./... | gorp report test2json --quality-gate-check
 | `--launch-uuid` | | | | Report into this existing launch instead of starting one. See [Reporting into an existing launch](#reporting-into-an-existing-launch). |
 | `--reportEmptyPkg` | `--ep` | `REPORT_EMPTY_PKG` | `false` | Report packages with no test files |
 | `--skipped-issue` | | `SKIPPED_ISSUE` | `true` | Whether skipped tests are "To Investigate" (`true`, ReportPortal's default) or "No Defect" (`false`) |
+| `--retries` | | `REPORT_RETRIES` | `true` | Report a test that runs again in the same input as a retry of its previous run. See [Repeated runs](#repeated-runs-retries). |
 | `--print-launch-uuid` | | | `false` | Print `ReportPortal Launch UUID: <uuid>` and `ReportPortal Launch: <url>` to stdout after reporting |
 | `--quality-gate-check` | `--qgc` | `QUALITY_GATE_CHECK` | `false` | Poll for quality gate result after reporting; exits `10` on failure |
 | `--quality-gate-timeout` | `--qgt` | `QUALITY_GATE_TIMEOUT` | `1m` | Maximum time to wait for quality gate |
@@ -263,6 +264,24 @@ that output as one `ERROR` log, and the launch is `FAILED`. A broken dependency 
 it, each with the same log. Such a suite has no test items, so it does not show up in the launch's
 total/passed/failed numbers. With older Go versions the build output goes to stderr, which gorp does not see: the
 suite is reported as `FAILED` without the log.
+
+#### Repeated runs (retries)
+
+A test can run more than once in one input: `go test -count=N` runs every test N times, and
+`gotestsum --rerun-fails --jsonfile` appends the reruns of the failed tests. Such runs are reported as ReportPortal
+**retries**: the test case is one item with the result of its **last** run, and the earlier runs are kept as its
+retries (with their logs).
+
+- A test without subtests is a retry of its previous run. A test with subtests, like the package's suite, is a
+  container that is not counted itself: it is reported once and finished again by every run, and its subtests are
+  the retries. Subtests that do not run again (gotestsum reruns only the failed ones) stay as they are.
+- The launch is `FAILED` when the last run of a test or of a package failed. For `go test -count=N` a failed run
+  fails the package, so the launch is `FAILED` although the last run of every test may have passed. For gotestsum a
+  rerun that passes makes the package pass, so the launch is `PASSED`, like gotestsum's own exit code.
+- **This changes the statistics for `-count=N`.** Before, every run was a separate item: `-count=3` of 10 tests
+  gave `total 30`. Now it gives `total 10`, each with two retries, and a test that failed in an earlier run and
+  passed in the last one is counted as passed. To find flaky tests, look for items with retries; to count every
+  run as before, use `--retries=false`.
 
 **Reruns.** `--rerun` reports into the latest launch with the same `--launchName`, `--rerun-of <uuid>`
 into that launch whatever its name. ReportPortal then updates the tests that are reported again, adds the new
@@ -594,6 +613,7 @@ all, err := client.GetAllLaunchesByFilterString(ctx, "my_project",
 | `LAUNCH_RERUN` | `--rerun` | `report test2json`: rerun the latest launch with the same name |
 | `LAUNCH_RERUN_OF` | `--rerun-of` | `report test2json`: UUID of the launch to rerun |
 | `REPORT_EMPTY_PKG` | `--reportEmptyPkg` | Report packages with no tests |
+| `REPORT_RETRIES` | `--retries` | `report test2json`: repeated runs of a test are retries (`true`) or separate items (`false`) |
 | `SKIPPED_ISSUE` | `--skipped-issue` | Skipped tests are "To Investigate" (`true`) or "No Defect" (`false`) |
 | `QUALITY_GATE_CHECK` | `--quality-gate-check` | Enable quality gate check after report |
 | `QUALITY_GATE_TIMEOUT` | `--quality-gate-timeout` | Quality gate poll timeout (e.g. `2m`) |

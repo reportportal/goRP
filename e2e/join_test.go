@@ -78,7 +78,7 @@ func TestReportTest2JSON_TwoShardsIntoOneLaunch(t *testing.T) {
 			"the joined launch is printed; there is no link before the launch is finished")
 	}
 
-	items := e.items(t, running.Id, 4) // two suites, two tests: all in the one launch
+	items := e.finishedItems(t, running.Id, 4) // two suites, two tests: all in the one launch
 	assert.Equal(t, "PASSED", items["TestInShard1"].Status)
 	assert.Equal(t, "FAILED", items["TestInShard2"].Status)
 	assert.Equal(t, items["example.com/shard1"].ID, items["TestInShard1"].Parent)

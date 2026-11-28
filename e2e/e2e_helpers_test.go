@@ -458,6 +458,38 @@ func (e *env) items(t *testing.T, launchID int64, want int) map[string]*testItem
 	return byName
 }
 
+// finishedItems is items, but it also waits until no item is IN_PROGRESS. Use it when the launch stays
+// open: finishing the launch is what otherwise guarantees that the item finishes were processed.
+func (e *env) finishedItems(t *testing.T, launchID int64, want int) map[string]*testItem {
+	t.Helper()
+
+	byName := map[string]*testItem{}
+	require.EventuallyWithT(t, func(c *assert.CollectT) {
+		clear(byName)
+		var page struct {
+			Content []testItem `json:"content"`
+		}
+		if !assert.NoError(
+			c,
+			e.get(
+				t.Context(),
+				"item?page.size=100&filter.eq.launchId="+strconv.FormatInt(launchID, 10),
+				&page,
+			),
+		) {
+			return
+		}
+		for i := range page.Content {
+			item := &page.Content[i]
+			byName[item.Name] = item
+			assert.NotEqual(c, "IN_PROGRESS", item.Status, "item %q", item.Name)
+		}
+		assert.Len(c, byName, want)
+	}, eventuallyTimeout, eventuallyTick, "expected %d finished test items in launch %d", want, launchID)
+
+	return byName
+}
+
 // logs returns the logs of a launch, waiting until at least want of them exist.
 func (e *env) logs(t *testing.T, launchID int64, want int) []logEntry {
 	t.Helper()

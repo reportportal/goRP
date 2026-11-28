@@ -391,6 +391,10 @@ func WithApiKeyAuth(ctx context.Context, apiKey string) ClientOption
 func WithPasswordOwnerGrantAuth(ctx context.Context, cfg *oauth2.Config, username, password string) ClientOption
 ```
 
+Both constructors also take optional `gorp.Option` values after the auth option, e.g.
+`gorp.WithResponseMiddleware(func(resp *http.Response, body []byte) error)`: called with every response
+before the client's own error handling; middlewares are chained and the first error stops the chain.
+
 ---
 
 ## Statuses

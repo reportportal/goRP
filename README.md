@@ -517,6 +517,26 @@ all, err := client.GetAllLaunchesByFilterString(ctx, "my_project",
 | `gorp.WithApiKeyAuth(ctx, apiKey)` | API key (user token) — recommended |
 | `gorp.WithPasswordOwnerGrantAuth(ctx, cfg, user, pass)` | OAuth2 resource-owner password grant |
 
+### Client options
+
+`NewClient` and `NewReportingClient` take optional settings after the authentication helper:
+
+```go
+client := gorp.NewReportingClient(host, project, gorp.WithApiKeyAuth(ctx, apiKey),
+    gorp.WithResponseMiddleware(func(resp *http.Response, body []byte) error {
+        slog.Debug("reportportal", "url", resp.Request.URL.Path, "status", resp.StatusCode)
+        return nil // an error returned here becomes the error of the call
+    }),
+)
+```
+
+| Option | Description |
+|--------|-------------|
+| `gorp.WithResponseMiddleware(fn)` | Called with every response and its body, before the client's own error handling. Middlewares are chained in the order they were added; the first error stops the chain |
+
+`gorp.ParseLaunchMode`, `gorp.ParseItemType` and `gorp.ParseStatus` convert user input (any case) to the
+typed values and report an unknown value with an error wrapping `gorp.ErrUnknownValue`.
+
 ---
 
 ## Environment Variables

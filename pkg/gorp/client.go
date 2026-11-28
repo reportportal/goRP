@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"golang.org/x/oauth2"
-	"resty.dev/v3"
 
 	"github.com/reportportal/goRP/v5/pkg/openapi"
 )
@@ -69,26 +68,25 @@ type Client struct {
 }
 
 // NewClient creates new instance of Client
-// host - server hostname
-// project - name of the project
-// apiKey - User Token (see user profile page)
-func NewClient(u *url.URL, clientOption ClientOption) *Client {
+// u - URL of the server
+// clientOption - authentication, see [WithApiKeyAuth] and [WithPasswordOwnerGrantAuth]
+// opts - optional settings, see [Option]
+func NewClient(u *url.URL, clientOption ClientOption, opts ...Option) *Client {
+	o := newClientOptions(opts)
 	httpClient := clientOption()
-	httpResty := resty.NewWithClient(httpClient).
-		SetBaseURL(u.String()).
-		AddResponseMiddleware(defaultHTTPErrorHandler)
 	return &Client{
 		launchClient: &launchClient{
-			http: httpResty,
+			http: o.newResty(httpClient, u.String()),
 		},
-		APIClient: newAPIClient(u, httpClient),
+		APIClient: newAPIClient(u, httpClient, o),
 	}
 }
 
-func newAPIClient(u *url.URL, httpClient *http.Client) *openapi.APIClient {
+func newAPIClient(u *url.URL, httpClient *http.Client, o *clientOptions) *openapi.APIClient {
 	conf := openapi.NewConfiguration()
 	conf.HTTPClient = httpClient
 	conf.Scheme = u.Scheme
 	conf.Host = u.Host
+	o.configureOpenAPI(conf)
 	return openapi.NewAPIClient(conf)
 }

@@ -1,0 +1,15 @@
+# OpenAPI Generator ignore list for the Go client in pkg/openapi.
+#
+# Source of truth: scripts/openapi-generator-ignore. `task generate-openapi-client` copies it to
+# `.openapi-generator-ignore` in the (fresh) output directory before the generator runs, so the generator
+# skips the files below. Edit scripts/openapi-generator-ignore only: the copy in pkg/openapi is replaced
+# on every regeneration.
+# The patterns follow .gitignore syntax.
+
+# Scaffolding for publishing the client as a repository of its own; this client lives inside goRP.
+.travis.yml
+git_push.sh
+
+# Index of docs/*.md files, which are not generated (modelDocs=false, apiDocs=false): every link in it is dead.
+# api/openapi.yaml is deliberately kept: it is the only committed copy of the preprocessed spec the client was generated from.
+README.md

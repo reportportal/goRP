@@ -1,7 +1,4 @@
 .gitignore
-.openapi-generator-ignore
-.travis.yml
-README.md
 api/openapi.yaml
 api_activities.go
 api_activity.go
@@ -50,7 +47,6 @@ api_users.go
 api_widget.go
 client.go
 configuration.go
-git_push.sh
 model_activity.go
 model_analytics_settings_request.go
 model_com_epam_reportportal_api_model_activities_page.go

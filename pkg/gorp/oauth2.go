@@ -2,6 +2,7 @@ package gorp
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"golang.org/x/oauth2"
@@ -22,6 +23,11 @@ func (p *passwordGrantTokenSource) Token() (*oauth2.Token, error) {
 	// Fetch a new token using the Password Grant.
 	token, err := p.config.PasswordCredentialsToken(p.ctx, p.user, p.pass)
 	if err != nil {
+		// A rejected token request becomes an HTTPError, like a rejected API call
+		if retrieveErr, ok := errors.AsType[*oauth2.RetrieveError](err); ok {
+			err = newTokenError(retrieveErr)
+		}
+
 		return nil, fmt.Errorf("failed to fetch token: %w", err)
 	}
 

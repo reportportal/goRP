@@ -2,7 +2,6 @@ package gorp
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"net/url"
 	"time"
@@ -14,15 +13,6 @@ import (
 )
 
 const defaultHTTPTimeout = 30 * time.Second
-
-type HTTPError struct {
-	StatusCode int
-	Response   string
-}
-
-func (e *HTTPError) Error() string {
-	return fmt.Sprintf("status code error: %d\n%s", e.StatusCode, e.Response)
-}
 
 func getClient(ctx context.Context) *http.Client {
 	if ctx != nil {
@@ -90,5 +80,6 @@ func newAPIClient(u *url.URL, httpClient *http.Client) *openapi.APIClient {
 	conf.HTTPClient = httpClient
 	conf.Scheme = u.Scheme
 	conf.Host = u.Host
+	conf.ResponseMiddleware = OpenAPIErrorMiddleware
 	return openapi.NewAPIClient(conf)
 }

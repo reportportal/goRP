@@ -69,3 +69,11 @@ func (r ApiMergeLaunchesOldUuid1Request) MergeLaunchesRQ(
 ) ApiMergeLaunchesOldUuid1Request {
 	return r.ComEpamReportportalBaseReportingMergeLaunchesRQ(rq)
 }
+
+// NewGenericOpenAPIError builds the error the generated operations return for a failed response.
+// Its fields are unexported, so code outside this package, such as a ResponseMiddleware that
+// reports failures itself, needs this constructor to stay compatible with callers that expect
+// a GenericOpenAPIError.
+func NewGenericOpenAPIError(status string, body []byte, model interface{}) *GenericOpenAPIError {
+	return &GenericOpenAPIError{body: body, error: status, model: model}
+}

@@ -2,14 +2,18 @@ package gorp
 
 import (
 	"context"
+	"errors"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"testing"
 	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"golang.org/x/oauth2"
+
+	"github.com/reportportal/goRP/v5/pkg/openapi"
 )
 
 func TestNewPasswordGrantTokenSource(t *testing.T) {
@@ -384,4 +388,169 @@ func TestPasswordGrantTokenSource_EmptyCredentials(t *testing.T) {
 		token.AccessToken,
 		"Expected token even with empty credentials",
 	)
+}
+
+// A rejected token request of the password grant never reaches the API, so neither client's
+// response handling sees it. It must still come out of both clients as an HTTPError, and stay
+// reachable as the oauth2 package's own error.
+func TestPasswordGrantTokenFailureIsHTTPError(t *testing.T) {
+	t.Parallel()
+
+	const tokenPath = "/uat/sso/oauth/token"
+	tests := []struct {
+		name        string
+		status      int
+		contentType string
+		body        string
+		wantOAuth   string
+		wantMessage string
+		wantCode    int64
+		wantText    string
+	}{
+		{
+			name:        "ReportPortal error, as ReportPortal 6 answers a wrong password",
+			status:      http.StatusBadRequest,
+			contentType: "application/json",
+			body:        `{"errorCode":4003,"message":"You do not have enough permissions. Bad credentials"}`,
+			wantMessage: "You do not have enough permissions. Bad credentials",
+			wantCode:    4003,
+			wantText:    ": 400 Bad Request: You do not have enough permissions. Bad credentials (error code 4003)",
+		},
+		{
+			name:        "JSON error",
+			status:      http.StatusBadRequest,
+			contentType: "application/json",
+			body:        `{"error":"invalid_grant","error_description":"Bad credentials"}`,
+			wantOAuth:   "invalid_grant",
+			wantMessage: "Bad credentials",
+			wantText:    ": 400 Bad Request: invalid_grant: Bad credentials",
+		},
+		{
+			name:        "form-encoded error",
+			status:      http.StatusUnauthorized,
+			contentType: "application/x-www-form-urlencoded",
+			body:        "error=invalid_client&error_description=Unknown+client",
+			wantOAuth:   "invalid_client",
+			wantMessage: "Unknown client",
+			wantText:    ": 401 Unauthorized: invalid_client: Unknown client",
+		},
+		{
+			name:        "error with status 200",
+			status:      http.StatusOK,
+			contentType: "application/json",
+			body:        `{"error":"invalid_grant","error_description":"Bad credentials"}`,
+			wantOAuth:   "invalid_grant",
+			wantMessage: "Bad credentials",
+			wantText:    ": 200 OK: invalid_grant: Bad credentials",
+		},
+		{
+			name:        "body that is not an OAuth error",
+			status:      http.StatusBadGateway,
+			contentType: "text/html",
+			body:        "<html><body>Bad Gateway</body></html>",
+			wantText:    ": 502 Bad Gateway: <html><body>Bad Gateway</body></html>",
+		},
+		{
+			// the oauth2 package takes "error" of this body for an OAuth error code
+			name:        "wrong token URL answered by Spring's default handler",
+			status:      http.StatusNotFound,
+			contentType: "application/json",
+			body:        `{"timestamp":"2026-01-01T00:00:00.000+00:00","status":404,"error":"Not Found","path":"/uat/sso/oauth/token"}`,
+			wantText:    ": 404 Not Found: no such endpoint, check the host and the path",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			srv := httptest.NewServer(
+				http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+					if r.URL.Path != tokenPath {
+						t.Errorf(
+							"a request without a token reached the API: %s %s",
+							r.Method,
+							r.URL.Path,
+						)
+					}
+					w.Header().Set("Content-Type", tt.contentType)
+					w.WriteHeader(tt.status)
+					w.Write([]byte(tt.body))
+				}),
+			)
+			t.Cleanup(srv.Close)
+			u, err := url.Parse(srv.URL)
+			require.NoError(t, err)
+
+			option := func() ClientOption {
+				config := &oauth2.Config{
+					ClientID: "ui",
+					Endpoint: oauth2.Endpoint{TokenURL: srv.URL + tokenPath},
+				}
+
+				return WithPasswordOwnerGrantAuth(t.Context(), config, "user", "wrong")
+			}
+			calls := map[string]func() error{
+				"generated client": func() error {
+					_, _, cErr := NewClient(
+						u,
+						option(),
+					).LaunchAPI.GetLaunch(t.Context(), "1", "prj").
+						Execute()
+
+					return cErr
+				},
+				"Resty Client": func() error {
+					_, cErr := NewClient(
+						u,
+						option(),
+					).GetLaunchesByFilterString(t.Context(), "prj", "page.size=1")
+
+					return cErr
+				},
+				"Resty ReportingClient": func() error {
+					_, cErr := NewReportingClient(srv.URL, "prj", option()).
+						StartLaunch(t.Context(), &openapi.StartLaunchRQ{Name: "l"})
+
+					return cErr
+				},
+			}
+
+			for name, call := range calls {
+				t.Run(name, func(t *testing.T) {
+					t.Parallel()
+
+					err := call()
+
+					var httpErr *HTTPError
+					require.ErrorAs(t, err, &httpErr)
+					assert.Equal(t, tt.status, httpErr.StatusCode)
+					assert.Equal(t, http.MethodPost, httpErr.Method)
+					assert.Equal(t, srv.URL+tokenPath, httpErr.URL)
+					assert.Equal(t, tt.body, httpErr.Response)
+					assert.Equal(t, tt.wantOAuth, httpErr.OAuthError)
+					assert.Equal(t, tt.wantMessage, httpErr.Message)
+					assert.Equal(t, tt.wantCode, httpErr.ErrorCode)
+					assert.Contains(
+						t,
+						err.Error(),
+						"failed to fetch token: POST "+srv.URL+tokenPath+tt.wantText,
+					)
+					assert.NotErrorIs(t, err, ErrNotAPIResponse)
+					assert.Equal(
+						t,
+						tt.status == http.StatusUnauthorized,
+						errors.Is(err, ErrUnauthorized),
+					)
+
+					var retrieveErr *oauth2.RetrieveError
+					require.ErrorAs(t, err, &retrieveErr)
+					assert.Equal(t, tt.status, retrieveErr.Response.StatusCode)
+					assert.Equal(t, tt.body, string(retrieveErr.Body))
+					assert.Contains(t, retrieveErr.Error(), "oauth2: ")
+					assert.Same(t, retrieveErr, errors.Unwrap(httpErr))
+				})
+			}
+		})
+	}
 }

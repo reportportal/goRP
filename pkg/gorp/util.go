@@ -4,18 +4,8 @@ import (
 	"fmt"
 	"net/url"
 
-	"resty.dev/v3"
-
 	"github.com/reportportal/goRP/v5/pkg/openapi"
 )
-
-func defaultHTTPErrorHandler(client *resty.Client, rs *resty.Response) error {
-	//nolint:mnd // 4xx errors
-	if (rs.StatusCode() / 100) >= 4 {
-		return &HTTPError{StatusCode: rs.StatusCode(), Response: rs.String()}
-	}
-	return nil
-}
 
 // ConvertToFilterParams converts RP internal filter representation to query string
 func ConvertToFilterParams(filter openapi.UserFilterResource) url.Values {

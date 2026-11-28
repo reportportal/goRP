@@ -510,6 +510,62 @@ all, err := client.GetAllLaunchesByFilterString(ctx, "my_project",
     "filter.eq.name=smoke&filter.eq.status=FAILED")
 ```
 
+### Errors
+
+A failed API call returns a `*gorp.HTTPError`, whichever client made it. Its text has the request,
+the HTTP status and the server's explanation, e.g.
+`GET https://reportportal.example.com/api/v1/my_project/launch/42: 404 Not Found: Launch '42' not found. Did you use correct Launch ID? (error code 4041)`.
+
+```go
+_, _, err := client.LaunchAPI.GetLaunch(ctx, "42", "my_project").Execute()
+
+if errors.Is(err, gorp.ErrNotFound) { // also ErrUnauthorized, ErrForbidden, ErrNotAPIResponse
+    // no such launch
+}
+
+var httpErr *gorp.HTTPError
+if errors.As(err, &httpErr) {
+    // httpErr.StatusCode  404
+    // httpErr.ErrorCode   4041, the ReportPortal error code (0 if the body has none)
+    // httpErr.Message     the server's message, or the OAuth error_description for a 401
+    // httpErr.OAuthError  e.g. "invalid_token" for a rejected API key
+    // httpErr.Response    the raw response body
+}
+```
+
+Errors of the generated client (`client.LaunchAPI…`) also unwrap to `*openapi.GenericOpenAPIError`
+(`errors.As`), with the same `Body()` and, for a ReportPortal error body, `Model()`. If you build an
+`openapi.APIClient` yourself, set `Configuration.ResponseMiddleware = gorp.OpenAPIErrorMiddleware`
+to get the same errors.
+
+The generated client has one response middleware slot, and `gorp.NewClient` puts
+`gorp.OpenAPIErrorMiddleware` there. Assigning your own middleware replaces it. To keep both, chain them:
+
+```go
+cfg := client.APIClient.GetConfig()
+cfg.ResponseMiddleware = gorp.ChainResponseMiddleware(
+    func(resp *http.Response, body []byte) error { // yours first: it sees failed responses too
+        slog.Debug("ReportPortal response", "status", resp.StatusCode, "url", resp.Request.URL.Path)
+        return nil
+    },
+    gorp.OpenAPIErrorMiddleware,
+)
+```
+
+The middlewares run in the given order and the first error is returned. Set it before the first request.
+
+A successful response with an HTML page (`Content-Type: text/html`) is an error on both clients,
+`errors.Is(err, gorp.ErrNotAPIResponse)`: the host or path points to the UI, a login page or another server.
+The generated client's operations that return files or reports instead of JSON (`GetLaunchReport`,
+`GetFile`, `DownloadAttachment`, exports, …) are exempt.
+
+With `gorp.WithPasswordOwnerGrantAuth`, a rejected token request is an `*gorp.HTTPError` as well: the
+request is the token endpoint, and the fields are filled from what it answered: `ErrorCode` and `Message`
+for a ReportPortal error body (ReportPortal 6: `4003`, `You do not have enough permissions. Bad credentials`),
+`OAuthError` and `Message` for an OAuth one (`invalid_grant`, `Bad credentials`). The same error also
+matches `*oauth2.RetrieveError` with `errors.As`. The sentinels apply to it too: with a wrong token URL
+`errors.Is(err, gorp.ErrNotFound)` is true for any call; `HTTPError.URL` tells which request failed.
+
 ### Authentication
 
 | Helper | Description |

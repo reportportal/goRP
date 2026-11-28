@@ -78,7 +78,7 @@ func NewClient(u *url.URL, clientOption ClientOption, opts ...Option) *Client {
 		launchClient: &launchClient{
 			http: o.newResty(httpClient, u.String()),
 		},
-		APIClient: newAPIClient(u, httpClient, o),
+		APIClient: newAPIClient(u, o.retry.httpClient(httpClient), o),
 	}
 }
 

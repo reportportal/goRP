@@ -394,6 +394,8 @@ func WithPasswordOwnerGrantAuth(ctx context.Context, cfg *oauth2.Config, usernam
 Both constructors also take optional `gorp.Option` values after the auth option, e.g.
 `gorp.WithResponseMiddleware(func(resp *http.Response, body []byte) error)`: called with every response
 before the client's own error handling; middlewares are chained and the first error stops the chain.
+`gorp.WithRetry(gorp.RetryPolicy{MaxRetries: 3})` retries network errors, 5xx and 429 with backoff for GET/PUT/DELETE
+and for launch/item starts (which then carry a client-generated UUID); logs are never retried.
 
 ---
 

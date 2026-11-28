@@ -16,6 +16,7 @@ import (
 type ReportingClient struct {
 	project string
 	http    *resty.Client
+	retry   RetryPolicy
 }
 
 // NewReportingClient creates new instance of ReportingClient
@@ -28,9 +29,11 @@ func NewReportingClient(
 	clientOption ClientOption,
 	opts ...Option,
 ) *ReportingClient {
+	o := newClientOptions(opts)
 	return &ReportingClient{
 		project: project,
-		http:    newClientOptions(opts).newResty(clientOption(), host),
+		http:    o.newResty(clientOption(), host),
+		retry:   o.retry,
 	}
 }
 
@@ -55,8 +58,10 @@ func (c *ReportingClient) startLaunch(
 	body interface{},
 ) (*openapi.EntryCreatedAsyncRS, error) {
 	var rs openapi.EntryCreatedAsyncRS
+	body, retryable := c.retry.retryableStart(body)
 	_, err := c.http.R().
 		SetContext(ctx).
+		SetRetryAllowNonIdempotent(retryable).
 		SetPathParam("project", c.project).
 		SetBody(body).
 		SetResult(&rs).
@@ -135,8 +140,10 @@ func (c *ReportingClient) startTest(
 	body interface{},
 ) (*openapi.EntryCreatedAsyncRS, error) {
 	var rs openapi.EntryCreatedAsyncRS
+	body, retryable := c.retry.retryableStart(body)
 	_, err := c.http.R().
 		SetContext(ctx).
+		SetRetryAllowNonIdempotent(retryable).
 		SetPathParam("project", c.project).
 		SetBody(body).
 		SetResult(&rs).
@@ -151,8 +158,10 @@ func (c *ReportingClient) startChildTest(
 	body interface{},
 ) (*openapi.EntryCreatedAsyncRS, error) {
 	var rs openapi.EntryCreatedAsyncRS
+	body, retryable := c.retry.retryableStart(body)
 	_, err := c.http.R().
 		SetContext(ctx).
+		SetRetryAllowNonIdempotent(retryable).
 		SetPathParams(map[string]string{
 			"project": c.project,
 			"itemId":  parent,

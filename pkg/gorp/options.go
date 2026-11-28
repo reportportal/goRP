@@ -22,6 +22,7 @@ type ResponseMiddleware func(resp *http.Response, body []byte) error
 
 type clientOptions struct {
 	responseMiddlewares []ResponseMiddleware
+	retry               RetryPolicy
 }
 
 func newClientOptions(opts []Option) *clientOptions {
@@ -64,6 +65,7 @@ func (o *clientOptions) runResponseMiddlewares(resp *http.Response, body []byte)
 // newResty builds the Resty client all hand-written methods use.
 func (o *clientOptions) newResty(httpClient *http.Client, baseURL string) *resty.Client {
 	c := resty.NewWithClient(httpClient).SetBaseURL(baseURL)
+	o.retry.configureResty(c)
 	if len(o.responseMiddlewares) == 0 {
 		return c.AddResponseMiddleware(defaultHTTPErrorHandler)
 	}

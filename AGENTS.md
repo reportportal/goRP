@@ -35,6 +35,7 @@ A Go CLI tool (`gorp`) and library (`pkg/gorp`) for [ReportPortal](https://repor
 |------|----------|
 | `client.go` | `Client` — embeds generated OpenAPI client + launch helpers; `ClientOption`, `WithApiKeyAuth` |
 | `options.go` | `Option` (variadic settings of `NewClient`/`NewReportingClient`), `WithResponseMiddleware` |
+| `retry.go` | `WithRetry(RetryPolicy)`: Resty retry conditions/delays for the hand-written methods, `retryTransport` for the generated client |
 | `reporting_client.go` | `ReportingClient` — v2 reporting API (launches, test items, logs) via Resty |
 | `launches.go` | Launch list/merge helpers (Resty, `/api/v1/…`) |
 | `filters.go` | User-filter lookup for launch queries |
@@ -120,6 +121,7 @@ The suite skips itself when no credentials are configured.
 ## Key design decisions
 
 - `pkg/openapi/` uses **`net/http`**; `pkg/gorp/` uses **Resty v3**. Both share the same `*http.Client` built from an OAuth2 transport (API key via `oauth2.StaticTokenSource`, or password-grant via `WithPasswordOwnerGrantAuth`).
+- `WithRetry` retries a POST only when the server can deduplicate it: launch/item starts with a client UUID (`retryableStart` in `retry.go`). Logs have no unique key on the server, so `SaveLog*` must stay non-retried. The generated client gets its own copy of the `http.Client` with `retryTransport`; wrapping the shared client would make Resty calls retry twice over.
 - Quality gate polling uses a ticker (`time.NewTicker`) — the channel must be selected on, never `default`. The caller's `ctx` must be forwarded into each poll iteration. A failed/non-PASSED quality gate exits with **exit code 10** (`cli.Exit(..., 10)` in `quality_gate.go`); this is depended on by CI pipelines — do not change it casually.
 - Log batch goroutines inside the `test2json` reporter are managed with `errgroup.Group` (not `sync.WaitGroup`). Errors surface at `errGroup.Wait()` in `receive()`.
 - `pkg/openapi/` is regenerated from `openapi-modified.json`. `openapi-modified.json` is a git-ignored derived file: never edit it, change `reportportal-api-docs.json` or `scripts/openapi-preprocess.jq` instead.

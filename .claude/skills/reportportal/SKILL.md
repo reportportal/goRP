@@ -257,6 +257,13 @@ counted once (a test with subtests is not counted itself). `t.Skip` tests are `S
 "To Investigate" unless `--skipped-issue=false`. The launch gets the system attributes `agent`, `os`, `go`
 and `skippedIssue`. With `--print-launch-uuid` the launch link is printed as well (`ReportPortal Launch: <url>`).
 
+### Build failures
+
+A package that fails to build (or fails `go vet`) is reported as a `FAILED` `SUITE` without test items. With
+Go 1.24+ the compiler output is in the stream (`build-output` events, referenced by `FailedBuild` of the
+package's `fail` event) and becomes one `ERROR` log of that suite. Such suites do not count in the launch's
+execution statistics. Before Go 1.24 the build output is on stderr: pipe only stdout and it is lost.
+
 ### Go 1.27+ output handling
 
 Starting with Go 1.27, `go test -json` annotates `"action":"output"` events with an `OutputType`

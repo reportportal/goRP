@@ -33,6 +33,14 @@ const (
 	testActionCont   = "cont"
 )
 
+// Build actions of `go test -json` (Go 1.24+): the output of a failed build and its end, see `go help
+// buildjson`. These events come from the go command, not from test2json: they carry an ImportPath
+// instead of a Package and have no Time.
+const (
+	buildActionOutput = "build-output"
+	buildActionFail   = "build-fail"
+)
+
 // test2json OutputType values (Go 1.27+); see cmd/test2json documentation.
 const (
 	testOutputTypeFrame         = "frame"
@@ -54,6 +62,10 @@ const (
 //	skip   - the test was skipped or the package contained no tests
 //
 // OutputType is set on action == "output" in Go 1.27+ (blank, "frame", "error", "error-continue").
+//
+// Go 1.24+ also puts the build events of the go command into the stream (see buildActionOutput). They
+// set ImportPath, Action and Output only. The "fail" event of a package that could not be built names
+// the ImportPath of the build that failed in FailedBuild.
 type testEvent struct {
 	Time        time.Time `json:"time"` // encodes as an RFC3339-format string
 	Action      string    `json:"action"`
@@ -63,6 +75,13 @@ type testEvent struct {
 	Output      string    `json:"output"`
 	OutputType  string    `json:"OutputType,omitempty"`
 	FailedBuild string    `json:"FailedBuild,omitempty"`
+	ImportPath  string    `json:"ImportPath,omitempty"`
+}
+
+// isBuildEvent reports whether the event is a build event of the go command. Such an event has no
+// time, so it can neither start the launch nor move the time the launch is finished with.
+func (ev *testEvent) isBuildEvent() bool {
+	return ev.Action == buildActionOutput || ev.Action == buildActionFail
 }
 
 // launchStatusInProgress is the status of a launch that is not finished.
@@ -109,6 +128,9 @@ type reporter struct {
 	joined *gorppkg.LaunchInfo
 	// started is set once the first event has been seen
 	started bool
+	// buildOutput is the compiler (or vet) output of the builds, by the ImportPath of the build. It is
+	// reported when a package fails because of that build; several packages can fail because of one.
+	buildOutput map[string][]string
 }
 
 // reporterOptions are the optional settings of the test2json reporter.
@@ -147,6 +169,7 @@ func newReporter(
 		paused:           map[string]bool{},
 		parents:          map[string]string{},
 		suites:           map[string]string{},
+		buildOutput:      map[string][]string{},
 		logs:             []*openapi.SaveLogRQ{},
 		logsBatchSize:    logsBatchSize,
 		reportEmpty:      opts.reportEmpty,
@@ -196,6 +219,14 @@ func (r *reporter) reportEvent(ev *testEvent) error {
 func (r *reporter) receive() error {
 	prevEventTime := time.Now()
 	for ev := range r.input {
+		// build events have no time and no package: they are kept until a package fails because of them
+		if ev.isBuildEvent() {
+			if ev.Action == buildActionOutput {
+				r.buildOutput[ev.ImportPath] = append(r.buildOutput[ev.ImportPath], ev.Output)
+			}
+			continue
+		}
+
 		// start launch once
 		// when first event comes
 		if !r.started {
@@ -456,6 +487,31 @@ func (r *reporter) log(ev *testEvent) {
 	r.flushLogs(false)
 }
 
+// logBuildFailure reports the output of the failed build as one ERROR log of the package's suite. The
+// build events have no time, so the log gets the time of the package's "fail" event.
+func (r *reporter) logBuildFailure(ev *testEvent, suiteID string) {
+	output := r.buildOutput[ev.FailedBuild]
+	if len(output) == 0 {
+		// the stream has no build output: `go test -json` before Go 1.24 printed it to stderr
+		slog.Warn(
+			"no build output for the failed package",
+			"package",
+			ev.Package,
+			"build",
+			ev.FailedBuild,
+		)
+		return
+	}
+	r.logs = append(r.logs, &openapi.SaveLogRQ{
+		LaunchUuid: r.launchUUID,
+		ItemUuid:   openapi.PtrString(suiteID),
+		Level:      openapi.PtrString(gorppkg.LogLevelError),
+		Time:       ev.Time,
+		Message:    openapi.PtrString(strings.Join(output, "")),
+	})
+	r.flushLogs(false)
+}
+
 // logItemUUID returns the test the event belongs to, or the package's suite for package-level output.
 // An empty result attaches the log to the launch itself.
 func (r *reporter) logItemUUID(ev *testEvent) string {
@@ -585,6 +641,19 @@ func (r *reporter) finish(ev *testEvent, status gorppkg.Status) error {
 
 func (r *reporter) finishSuite(ev *testEvent, status gorppkg.Status) error {
 	suiteID, found := r.suites[ev.Package]
+	if ev.FailedBuild != "" {
+		// The package was not built, so no test has run and, unless empty packages are reported, there
+		// is no suite yet. The failure must not get lost: the suite is reported with the build output.
+		if !found {
+			var err error
+			if suiteID, err = r.startSuite(ev); err != nil {
+				return err
+			}
+		}
+		r.logBuildFailure(ev, suiteID)
+
+		return r.finishItem(r.ctx, suiteID, ev.Time, status)
+	}
 	if !found {
 		// the package had no tests (or, for "skip", no test files), so no suite was started and
 		// there is nothing to finish

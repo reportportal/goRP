@@ -1,0 +1,24 @@
+{"ImportPath":"example.com/buildfail/dep","Action":"build-output","Output":"# example.com/buildfail/dep\n"}
+{"ImportPath":"example.com/buildfail/dep","Action":"build-output","Output":"dep/dep.go:3:27: undefined: undefinedThing\n"}
+{"ImportPath":"example.com/buildfail/dep","Action":"build-fail"}
+{"ImportPath":"example.com/buildfail/brokentest [example.com/buildfail/brokentest.test]","Action":"build-output","Output":"# example.com/buildfail/brokentest [example.com/buildfail/brokentest.test]\n"}
+{"ImportPath":"example.com/buildfail/brokentest [example.com/buildfail/brokentest.test]","Action":"build-output","Output":"brokentest/add_test.go:6:18: undefined: three\n"}
+{"ImportPath":"example.com/buildfail/brokentest [example.com/buildfail/brokentest.test]","Action":"build-output","Output":"brokentest/add_test.go:9:6: declared and not used: unused\n"}
+{"ImportPath":"example.com/buildfail/brokentest [example.com/buildfail/brokentest.test]","Action":"build-fail"}
+{"Time":"2026-11-27T17:38:27.286697-05:00","Action":"start","Package":"example.com/buildfail/ok"}
+{"Time":"2026-11-27T17:38:27.28683-05:00","Action":"start","Package":"example.com/buildfail/brokentest"}
+{"Time":"2026-11-27T17:38:27.286869-05:00","Action":"output","Package":"example.com/buildfail/brokentest","Output":"FAIL\texample.com/buildfail/brokentest [build failed]\n","OutputType":"frame"}
+{"Time":"2026-11-27T17:38:27.2869-05:00","Action":"fail","Package":"example.com/buildfail/brokentest","Elapsed":0,"FailedBuild":"example.com/buildfail/brokentest [example.com/buildfail/brokentest.test]"}
+{"Time":"2026-11-27T17:38:27.286897-05:00","Action":"start","Package":"example.com/buildfail/usea"}
+{"Time":"2026-11-27T17:38:27.286932-05:00","Action":"output","Package":"example.com/buildfail/usea","Output":"FAIL\texample.com/buildfail/usea [build failed]\n","OutputType":"frame"}
+{"Time":"2026-11-27T17:38:27.286951-05:00","Action":"fail","Package":"example.com/buildfail/usea","Elapsed":0,"FailedBuild":"example.com/buildfail/dep"}
+{"Time":"2026-11-27T17:38:27.286957-05:00","Action":"start","Package":"example.com/buildfail/useb"}
+{"Time":"2026-11-27T17:38:27.286976-05:00","Action":"output","Package":"example.com/buildfail/useb","Output":"FAIL\texample.com/buildfail/useb [build failed]\n","OutputType":"frame"}
+{"Time":"2026-11-27T17:38:27.286986-05:00","Action":"fail","Package":"example.com/buildfail/useb","Elapsed":0,"FailedBuild":"example.com/buildfail/dep"}
+{"Time":"2026-11-27T17:38:27.421115-05:00","Action":"run","Package":"example.com/buildfail/ok","Test":"TestOne"}
+{"Time":"2026-11-27T17:38:27.42124-05:00","Action":"output","Package":"example.com/buildfail/ok","Test":"TestOne","Output":"=== RUN   TestOne\n","OutputType":"frame"}
+{"Time":"2026-11-27T17:38:27.421268-05:00","Action":"output","Package":"example.com/buildfail/ok","Test":"TestOne","Output":"--- PASS: TestOne (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-11-27T17:38:27.421282-05:00","Action":"pass","Package":"example.com/buildfail/ok","Test":"TestOne","Elapsed":0}
+{"Time":"2026-11-27T17:38:27.421289-05:00","Action":"output","Package":"example.com/buildfail/ok","Output":"PASS\n","OutputType":"frame"}
+{"Time":"2026-11-27T17:38:27.421951-05:00","Action":"output","Package":"example.com/buildfail/ok","Output":"ok  \texample.com/buildfail/ok\t0.135s\n"}
+{"Time":"2026-11-27T17:38:27.424727-05:00","Action":"pass","Package":"example.com/buildfail/ok","Elapsed":0.138}

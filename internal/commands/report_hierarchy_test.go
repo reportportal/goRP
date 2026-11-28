@@ -29,6 +29,10 @@ type hierarchyServer struct {
 	items       []recordedItem
 	finishes    map[string]map[string]any // item ID -> finish body
 	launchStart map[string]any
+	// launchFinish is the body of the launch finish request
+	launchFinish map[string]any
+	// logs are the reported log entries, in the order the batches arrived
+	logs []map[string]any
 }
 
 func newHierarchyServer(t *testing.T, project string) (*hierarchyServer, *httptest.Server) {
@@ -53,7 +57,10 @@ func newHierarchyServer(t *testing.T, project string) (*hierarchyServer, *httpte
 	})
 	mux.HandleFunc(
 		"PUT /api/v2/"+project+"/launch/launch-1/finish",
-		func(w http.ResponseWriter, _ *http.Request) {
+		func(w http.ResponseWriter, r *http.Request) {
+			rec.mu.Lock()
+			rec.launchFinish = decode(r)
+			rec.mu.Unlock()
 			reply(
 				w,
 				map[string]string{"id": "launch-1", "link": "http://rp.example/ui/#launches/all/1"},
@@ -82,7 +89,12 @@ func newHierarchyServer(t *testing.T, project string) (*hierarchyServer, *httpte
 			reply(w, map[string]string{"message": "finished"})
 		},
 	)
-	mux.HandleFunc("POST /api/v2/"+project+"/log", func(w http.ResponseWriter, _ *http.Request) {
+	mux.HandleFunc("POST /api/v2/"+project+"/log", func(w http.ResponseWriter, r *http.Request) {
+		var batch []map[string]any
+		require.NoError(t, json.Unmarshal([]byte(r.FormValue("json_request_part")), &batch))
+		rec.mu.Lock()
+		rec.logs = append(rec.logs, batch...)
+		rec.mu.Unlock()
 		reply(w, map[string]any{"responses": []map[string]string{{"id": "log-1"}}})
 	})
 
